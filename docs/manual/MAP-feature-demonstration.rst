@@ -82,7 +82,7 @@ The plugin tool is a simple tool that enables the user to add or remove addition
 
 .. figure:: images/plugin_manager_2.png
    :align: center
-   :width: 25%
+   :width: 50%
 
 Whilst additions to the plugin path will be visible immediately in the Step box deletions will not be apparent until the next time the MAP Client is started.  This behaviour is a side-effect of the Python programming language.
 
@@ -91,9 +91,27 @@ Advanced Dialog
 
 As a result of forward compatibility issues between Python 2 and Python 3 a number of updates may be required for older plugins to work properly in MAP Client.  The Advanced dialog provides a means of analysing the plugins in the directories listed in the Plugin Manager dialog (1) and applying a range of fixers for syntax, indentation and missing plugin information (2).  Once updates have been successfully applied to plugins the Step Box will update automatically and any plugins requiring additional dependencies will be displayed. It is recommended that you analyse and update all plugins before continuing with workflow creation.  We are currently updating all available plugins on the 'mapclient-plugins' GitHub repository to ensure that these compatibility issues are resolved.
 
+Settings related to the Plugin Updater are located under the Options tab (3). You can toggle which updates you would like to apply to the plugins in your plugin directory (4), examine ignored plugin error notifications (5), add and remove plugin resource filenames from the updater (6) and locate the 2to3.py script in your system (7).
+
+Dependency settings and information can be accessed under the Dependencies tab in the Advanced dialog (8). Here you can examine the list of installed packages in your system (9), update or uninstall these packages (10), view a list of recommended packages for plugin development (11), setup and modify the MAP Client virtual environment (12), view a list of packages that failed to install on your system (13) and modify setttings associated with package documentation and syntax analysis of dependencies (14). 
+
+Plugin Updates:
+
 .. figure:: images/advanced_dialog.png
    :align: center
-   :width: 30%
+   :width: 35%
+
+Options tab:
+
+.. figure:: images/options_advanced_dialog.png
+   :align: center
+   :width: 35%
+
+Dependencies tab:
+
+.. figure:: images/dependencies_tab.png
+   :align: center
+   :width: 35%
 
 Physiome Model Repository (PMR) Tool
 ------------------------------------
@@ -144,4 +162,26 @@ The Log Information window displays the application logs for the current session
 
 .. figure:: images/log_information.png
    :align: center
-   :width: 30%
+   :width: 50%
+
+Plugin Dependencies and Package Installation
+--------------------------------------------
+
+Plugin developers may use additional packages in their plugins which are not available within the native python environment. These packages may however be installed using pip (Pip Installs Packages). If your system does not have a package required to run a plugin (and hence any workflow that uses the plugin) it can be installed with pip in the MAP Client virtual python environment. This virtual environment can be set up manually (from the Advanced dialog (2)) or automatically when a package is first required (3). By default the virtual environment will be set up in the same system location as the MAP Client log files, however this may be changed using the Modify button under the Dependencies tab in the Advanced dialog (1).
+
+.. figure:: images/dependencies_tab_ve.png
+    :align: center
+    :width: 30%
+
+.. figure:: images/modify-ve.png
+    :align: center
+    :width: 50%
+
+.. figure:: images/setup-ve.png
+    :align: center
+    :width: 50%
+
+.. figure:: images/automatic-ve-setup.png
+    :align: center
+    :width: 40%
+
