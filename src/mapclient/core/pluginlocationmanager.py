@@ -42,6 +42,15 @@ class PluginLocationManager:
                     ws.setValue('location', information_dict['location'])
                     ws.setValue('dependencies', information_dict['dependencies'])
                     pluginIndex += 1
+                #dependencies = information_dict['dependencies']
+                #dependency_string = ''
+                #if dependencies:
+                #    for dependency in dependencies:
+                #        dependency_string += dependency + ' -- '
+                #else:
+                #    dependency_string = 'None -- '
+                #ws.setValue('dependencies', dependency_string[:-4])
+                #pluginIndex += 1
         ws.endArray()
         ws.endGroup()
         

@@ -247,7 +247,7 @@ class MainWindow(QtGui.QMainWindow):
     def showPluginManagerDialog(self):
         from mapclient.tools.pluginmanagerdialog import PluginManagerDialog
         pm = self._model.pluginManager()
-        dlg = PluginManagerDialog(self._model.pluginManager()._ignoredPlugins, self._model.pluginManager()._doNotShowPluginErrors, self._model.pluginManager()._resourceFiles, self._model.pluginManager()._updaterSettings)
+        dlg = PluginManagerDialog(self._model.pluginManager()._ignoredPlugins, self._model.pluginManager()._doNotShowPluginErrors, self._model.pluginManager()._resourceFiles, self._model.pluginManager()._updaterSettings, self._model.pluginManager()._unsuccessful_package_installations)
         self._pluginManagerDlg = dlg
         dlg.setDirectories(pm.directories())
         dlg.setLoadDefaultPlugins(pm.loadDefaultPlugins())

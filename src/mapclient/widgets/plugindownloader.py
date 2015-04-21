@@ -33,10 +33,37 @@ class PluginDownloader(QDialog):
         QDialog.__init__(self, parent)
         self._ui = Ui_pluginDownloader()
         self._ui.setupUi(self)
+        self._makeConnections()
+        self._downloadPlugins = True
+        self._downloadDependencies = True
         
-    def fillTable(self, plugin_information):
+    def _makeConnections(self):
+        self._ui.dependencyDownload.stateChanged.connect(self.downloadDependencies)
+        self._ui.pluginDownload.stateChanged.connect(self.downloadPlugins)
+        
+    def fillPluginTable(self, plugin_information):
+        if not plugin_information.keys():
+            self._ui.pluginDownload.setEnabled(False)
+            self._ui.requiredPlugins.setEnabled(False)
+            self._downloadPlugins = False
         for plugin in plugin_information.keys():
-            display_string = plugin + ' - ' + 'Author: ' + plugin_information[plugin]['author'] + ' | ' + \
-                                'Version: ' + plugin_information[plugin]['version'] + ' | ' + 'Location: ' + \
-                                plugin_information[plugin]['location']
+            display_string = plugin + ' - Author: ' + plugin_information[plugin]['author'] + ' | Version: ' + \
+            plugin_information[plugin]['version'] + ' | Location: ' + plugin_information[plugin]['location']
             self._ui.requiredPlugins.addItem(display_string)
+            
+    def fillDependenciesTable(self, dependency_information):
+        if not dependency_information.keys():
+            self._ui.dependencyDownload.setEnabled(False)
+            self._ui.requiredDependencies.setEnabled(False)
+            self._downloadDependencies = False
+        for plugin in dependency_information.keys():
+            display_string = plugin + ' - '
+            for dependency in dependency_information[plugin]:
+                display_string += dependency + ' | '
+            self._ui.requiredDependencies.addItem(display_string[:-3])
+            
+    def downloadDependencies(self):
+        self._downloadDependencies = self._ui.dependencyDownload.isChecked()
+    
+    def downloadPlugins(self):
+        self._downloadPlugins = self._ui.pluginDownload.isChecked()

@@ -342,6 +342,8 @@ SETUP_PY_TEMPLATE = """\
 from setuptools import setup, find_packages
 import sys, os
 
+dependencies = ['''Insert plugin dependencies here''']
+
 setup(name=%(name)r,
       version=%(version)r,
       description=%(description)r,
