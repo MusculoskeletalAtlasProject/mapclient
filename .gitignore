@@ -12,8 +12,8 @@ build/
 develop-eggs/
 dist/
 downloads/
+releases/
 eggs/
-.eggs/
 lib/
 lib64/
 parts/
@@ -37,11 +37,9 @@ pip-delete-this-directory.txt
 htmlcov/
 .tox/
 .coverage
-.coverage.*
 .cache
 nosetests.xml
 coverage.xml
-*,cover
 
 # Translations
 *.mo
@@ -55,3 +53,10 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Eclipse projects
+.project
+.pydevproject
+.settings/
+
+
