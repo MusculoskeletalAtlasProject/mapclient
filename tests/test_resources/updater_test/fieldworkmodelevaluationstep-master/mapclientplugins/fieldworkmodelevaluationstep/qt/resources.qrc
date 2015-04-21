@@ -1,0 +1,6 @@
+
+<RCC>
+  <qresource prefix="fieldworkmodelevaluationstep">
+    <file>images/fieldworkmodelevaluationicon.png</file>
+  </qresource>
+</RCC>
