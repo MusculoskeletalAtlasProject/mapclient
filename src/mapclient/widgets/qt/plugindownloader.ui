@@ -6,18 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>250</height>
+    <width>511</width>
+    <height>411</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>600</width>
+    <width>450</width>
     <height>250</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Plugin Downloader</string>
+   <string>Workflow Requirements</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
@@ -42,17 +42,47 @@
      <property name="dragDropOverwriteMode">
       <bool>false</bool>
      </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>This workflow uses the following packages that are not currently installed on your system:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="requiredDependencies"/>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QLabel" name="downloadPrompt">
+      <widget class="QCheckBox" name="pluginDownload">
        <property name="text">
-        <string>Would you like to download them?</string>
+        <string>Download required Plugins</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QCheckBox" name="dependencyDownload">
+       <property name="text">
+        <string>Download and install Packages</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
@@ -69,14 +99,14 @@
      <item>
       <widget class="QPushButton" name="pushButtonYes">
        <property name="text">
-        <string>Yes</string>
+        <string>Ok</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushButtonNo">
        <property name="text">
-        <string>No</string>
+        <string>Cancel</string>
        </property>
       </widget>
      </item>

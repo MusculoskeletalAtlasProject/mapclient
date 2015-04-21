@@ -27,7 +27,7 @@ class PluginManagerDialog(QtGui.QDialog):
     '''
 
 
-    def __init__(self, ignored_plugins_list, do_not_show_plugin_errors, resource_filenames, updater_settings, parent=None):
+    def __init__(self, ignored_plugins_list, do_not_show_plugin_errors, resource_filenames, updater_settings, unsuccessful_package_installations, parent=None):
         '''
         Constructor
         '''
@@ -39,6 +39,7 @@ class PluginManagerDialog(QtGui.QDialog):
         self._do_not_show_plugin_errors = do_not_show_plugin_errors
         self._resource_filenames = resource_filenames
         self._updaterSettings = updater_settings
+        self._unsuccessful_package_installations = unsuccessful_package_installations
         self._loadDefaultPlugins = True
 
         self._makeConnections()

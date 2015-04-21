@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>525</width>
-    <height>450</height>
+    <width>573</width>
+    <height>481</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -134,12 +134,176 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="dependenciesTab">
+      <attribute name="title">
+       <string>Dependencies</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <layout class="QVBoxLayout" name="verticalLayout_10">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <item>
+              <widget class="QLabel" name="label_8">
+               <property name="text">
+                <string>Installed Packages:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QListWidget" name="installedPackagesList"/>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_9">
+               <item>
+                <widget class="QPushButton" name="failedInstallsButton">
+                 <property name="minimumSize">
+                  <size>
+                   <width>90</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Failed Installs...</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="updatePackages">
+                 <property name="text">
+                  <string>Update</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="uninstallPackages">
+                 <property name="text">
+                  <string>Uninstall</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_11">
+             <item>
+              <widget class="QLabel" name="label_9">
+               <property name="text">
+                <string>Recommended Packages:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QListWidget" name="recommendedPackagesList"/>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_10">
+               <item>
+                <spacer name="horizontalSpacer_5">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="installPackages">
+                 <property name="text">
+                  <string>Install</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="packageInformation">
+                 <property name="text">
+                  <string>Information</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="title">
+            <string>Dependency Settings</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_11">
+              <item>
+               <widget class="QCheckBox" name="defaultVELocationCheckBox">
+                <property name="text">
+                 <string>Automatically check for updates</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="virtualenvCheckBox">
+                <property name="text">
+                 <string>Double-click for documentation</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="syntaxUpdatesCheckBox">
+                <property name="text">
+                 <string>Check for syntax updates</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_12">
+           <item>
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Virtual Environment Location:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <item>
+              <widget class="QLineEdit" name="virtEnvLocation"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="modifyVELocation">
+               <property name="text">
+                <string>Modify</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="optionsTab">
       <attribute name="title">
        <string>Options</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_7">
          <item>
           <widget class="QGroupBox" name="groupBox">
@@ -256,16 +420,6 @@
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QCheckBox" name="dependencyUpdates">
-                <property name="text">
-                 <string>Include dependency updates</string>
-                </property>
-                <property name="checked">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
              </layout>
             </item>
             <item>
@@ -348,7 +502,7 @@
          </item>
         </layout>
        </item>
-       <item row="1" column="0">
+       <item>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
           <widget class="QLabel" name="label_4">

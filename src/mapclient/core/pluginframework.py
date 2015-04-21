@@ -27,7 +27,9 @@ import logging
 import os
 import site
 import sys
+import json
 import pkgutil
+import subprocess
 from importlib import import_module
 from mapclient.core.pluginlocationmanager import PluginLocationManager
 
@@ -283,8 +285,9 @@ class PluginManager(object):
         self._doNotShowPluginErrors = False
         self._pluginLocationManager = PluginLocationManager()
         self._ignoredPlugins = []
+        self._unsuccessful_package_installations = {}
         self._resourceFiles = ['resources_rc']
-        self._updaterSettings = {'syntax':True, 'indentation':True, 'location':True, 'resources':True, 'dependencies':False}
+        self._updaterSettings = {'syntax':True, 'indentation':True, 'location':True, 'resources':True}
 
     def directories(self):
         return self._directories
@@ -339,7 +342,32 @@ class PluginManager(object):
         return added
         
     def extractPluginDependencies(self, path):
-        return None
+        setupFileDir = path[:-16] + 'setup.py'
+        dependencies = ''
+        if os.path.exists(setupFileDir):
+            with open(setupFileDir, 'r') as setup_file:
+                contents = setup_file.readlines()
+                for line in contents:
+                    if dependencies and ']' not in dependencies:
+                        if ']' in line:
+                            dependencies = dependencies.strip('\n') + line.lstrip()
+                            break
+                        else:
+                            dependencies = dependencies.strip('\n') + line.lstrip()
+                            continue
+                    if 'dependencies' in line:
+                        index = 0
+                        for char in line:
+                            index += 1
+                            if char == '[':
+                                break
+                        dependencies = line[index-1:]
+            if "'" in dependencies:
+                dependencies = dependencies.replace("'", '"')
+            if dependencies:
+                return json.loads(dependencies)
+            else:
+                return []
 
     def load(self):
         len_package_modules_prior = len(sys.modules['mapclientplugins'].__path__) if 'mapclientplugins' in sys.modules else 0
@@ -353,13 +381,12 @@ class PluginManager(object):
                 for name in sorted(names):
                     self._addPluginDir(os.path.join(directory, name))
         if len_package_modules_prior == 0:
-            package = import_module('mapclientplugins') 
+            package = import_module('mapclientplugins')
         else:
             try:
                 package = imp.reload(sys.modules['mapclientplugins'])
             except Exception:
                 package = importlib.reload(sys.modules['mapclientplugins'])
-        
         self._import_errors = []
         self._type_errors = []
         self._syntax_errors = []

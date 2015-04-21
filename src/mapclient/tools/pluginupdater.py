@@ -113,6 +113,19 @@ class PluginUpdater:
     def checkSuccessfulResourceUpdate(self, directory):
         return self.checkResourcesFileContents(directory)
         
+            
+    def locatePyvenvScript(self):
+        # Windows
+        if os.path.isfile(os.path.join(sys.exec_prefix, 'Tools', 'scripts', 'pyvenv.py')):
+            return os.path.join(sys.exec_prefix, 'Tools', 'scripts', 'pyvenv.py')
+        # Linux and Mac
+        elif os.path.isfile(os.path.join(sys.exec_prefix, 'bin', 'pyvenv.py')):
+            return os.path.join(sys.exec_prefix, 'bin', 'pyvenv.py')
+        elif os.path.isfile(os.path.join(sys.exec_prefix, 'local', 'bin', 'pyvenv.py')):
+            return os.path.join(sys.exec_prefix, 'local', 'bin', 'pyvenv.py')
+        else:
+            return ''
+        
     def locate2to3Script(self):
         # Windows
         if os.path.isfile(os.path.join(sys.exec_prefix, 'Tools', 'scripts', '2to3.py')):
@@ -136,13 +149,14 @@ class PluginUpdater:
         # find 2to3 for the system
         dir_2to3 = self.get2to3Dir()
         file_out = open(os.path.join(getLogDirectory(), 'syntax_update_report_' + plugin + '.log'), 'w')
-        try:
-            subprocess.check_call(['python', dir_2to3, '--output-dir=' + directory, '-W', '-v', '-n', '-w', directory], stdout = file_out, stderr = file_out)
-            logger.info('Syntax update for \'' + plugin + '\' successful.')
-            self._successful_plugin_update['syntax_update_success'] = True
-        except Exception as e:                            
-            logger.warn('Syntax update for \'' + plugin + '\' unsuccessful.')
-            logger.warn('Reason: ' + e)
+        with open(os.path.join(getLogDirectory(), 'syntax_update_report_' + plugin + '.log'), 'w') as file_out:
+            try:
+                subprocess.check_call(['python', dir_2to3, '--output-dir=' + directory, '-W', '-v', '-n', '-w', directory], stdout = file_out, stderr = file_out)
+                logger.info('Syntax update for \'' + plugin + '\' successful.')
+                self._successful_plugin_update['syntax_update_success'] = True
+            except Exception as e:                            
+                logger.warn('Syntax update for \'' + plugin + '\' unsuccessful.')
+                logger.warn('Reason: ' + e)
     
     def fixTabbedIndentation(self, plugin, directories, temp_file):
         for moduleDir in directories:
