@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="pmr">
+    <file>images/tick_yellow.png</file>
+    <file>images/tick_blue.png</file>
+    <file>images/tick_green.png</file>
+  </qresource>
+</RCC>
