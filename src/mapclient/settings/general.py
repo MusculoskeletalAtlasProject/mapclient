@@ -21,27 +21,40 @@ import os
 
 from PySide import QtCore
 
-def getLogDirectory():
-    
+def getDataDirectory():
+    """
+    Return the directory where we can store data for the application.
+    Like settings and log files etc.
+    """
     settings = QtCore.QSettings()
     fn = settings.fileName()
     app_dir, _ = os.path.splitext(fn)
-    log_directory = os.path.join(app_dir, 'logs')
     
-    if not os.path.exists(log_directory):
-        os.makedirs(log_directory)
-        
-    return log_directory
+    return app_dir
+
+def _getAppDirectory(name):
+    app_dir = getDataDirectory()
+    name_dir = os.path.join(app_dir, name)
     
-    
+    if not os.path.exists(name_dir):
+        os.makedirs(name_dir)
+
+    return name_dir
+
+def getVirtEnvDirectory():
+    return _getAppDirectory('venv')
+
+def getLogDirectory():
+    return _getAppDirectory('logs')
+
 def getLogLocation():
     '''
     Set up location where log files will be stored (platform dependent).
     '''
     log_filename = 'logging_record.log'
     log_directory = getLogDirectory()
-    
+
     logging_file_location = os.path.join(log_directory, log_filename)
-    
+
     return logging_file_location
-    
+

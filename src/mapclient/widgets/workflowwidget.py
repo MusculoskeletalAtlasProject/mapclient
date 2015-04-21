@@ -17,7 +17,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
-import os, logging, subprocess, sys
+import os, logging, subprocess
+import shutil
+
 from PySide import QtCore, QtGui
 
 from requests.exceptions import HTTPError
@@ -34,12 +36,10 @@ from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclient.widgets.workflowgraphicsscene import WorkflowGraphicsScene
 from mapclient.core import workflow
 from mapclient.tools.pmr.pmrtool import PMRTool
-# from mapclient.tools.pmr.pmrhgcommitdialog import PMRHgCommitDialog
 from mapclient.widgets.importworkflowdialog import ImportWorkflowDialog
-import shutil
-from mapclient.application import initialiseLogLocation
 from mapclient.tools.pluginupdater import PluginUpdater    
-from mapclient.core.utils import convertExceptionToMessage
+from mapclient.tools.pmr.settings.general import PMR
+from mapclient.settings.general import getLogLocation, getDataDirectory
 
 logger = logging.getLogger(__name__)
 
@@ -341,30 +341,20 @@ class WorkflowWidget(QtGui.QWidget):
         unsuccessful_installs = self.installer.run()
         self.installer.close()
         if unsuccessful_installs.keys():
-           QtGui.QMessageBox.critical(self, 'Failed Installation', 'One or more of the required dependencies could not be installed.\nPlease refer to the program logs for more information.', QtGui.QMessageBox.Ok)
+            QtGui.QMessageBox.critical(self, 'Failed Installation', 'One or more of the required dependencies could not be installed.\nPlease refer to the program logs for more information.', QtGui.QMessageBox.Ok)
         return unsuccessful_installs
     
     def locateMAPClientVirtEnv(self, virtEnvDir):
         virtEnvDir = os.path.join(virtEnvDir, 'Scripts', 'activate.bat')
         return os.path.exists(virtEnvDir)
     
-    def getVirtEnvLocation(self):
-        virtEnvDir = initialiseLogLocation()[:-18]
-        if virtEnvDir[-1] == '.':
-            virtEnvDir = virtEnvDir + '.pluginVirtEnv'
-        else:
-            virtEnvDir = os.path.join(virtEnvDir[:-5], 'pluginVirtEnv')
-        if not os.path.exists(virtEnvDir):
-            os.makedirs(virtEnvDir)
-        return virtEnvDir
-        
     def setupMAPClientVirtEnv(self, env_dir):
         from mapclient.widgets.dependency_installation import VESetup
         self.dlg = VESetup(env_dir)
         self.dlg.setModal(True)
         self.dlg.show()
         self.dlg.run()
-        self.dlg.exec()
+        self.dlg.exec_()
         return self.locateMAPClientVirtEnv(self.getVirtEnvLocation())
         
     def compareRequirements(self, required_installs, dependencies):
@@ -392,7 +382,7 @@ class WorkflowWidget(QtGui.QWidget):
         msgBox.setIcon(QtGui.QMessageBox.Question)
         yesButton = msgBox.addButton('Yes', QtGui.QMessageBox.AcceptRole)
         noButton = msgBox.addButton('No', QtGui.QMessageBox.RejectRole)
-        msgBox.exec()
+        msgBox.exec_()
         
         if msgBox.clickedButton() == yesButton:
             return True
