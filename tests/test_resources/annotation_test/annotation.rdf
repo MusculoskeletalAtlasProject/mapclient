@@ -1,0 +1,5 @@
+<http://physiomeproject.org/workflow/1.0/rdf-schema#port> <http://physiomeproject.org/workflow/1.0/rdf-schema#port> <http://physiomeproject.org/workflow/1.0/rdf-schema#port>.
+<http://physiomeproject.org/workflow/1.0/rdf-schema#uses> <http://physiomeproject.org/workflow/1.0/rdf-schema#pointcloud> <http://physiomeproject.org/workflow/1.0/rdf-schema#port>.
+<http://physiomeproject.org/workflow/1.0/rdf-schema#uses> <http://physiomeproject.org/workflow/1.0/rdf-schema#description> <http://physiomeproject.org/workflow/1.0/rdf-schema#port>.
+<http://physiomeproject.org/workflow/1.0/rdf-schema#provides> <http://physiomeproject.org/workflow/1.0/rdf-schema#knee> <http://physiomeproject.org/workflow/1.0/rdf-schema#images>.
+<http://physiomeproject.org/workflow/1.0/rdf-schema#step> <http://physiomeproject.org/workflow/1.0/rdf-schema#version> <http://physiomeproject.org/workflow/1.0/rdf-schema#0.9.0>.
