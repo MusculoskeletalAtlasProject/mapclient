@@ -1,0 +1,6 @@
+
+<RCC>
+  <qresource prefix="stringsource2step">
+    <file>images/stringsourceicon.png</file>
+  </qresource>
+</RCC>

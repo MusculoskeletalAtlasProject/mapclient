@@ -1,0 +1,15 @@
+# Annotation vocabulary file for the MAP Client
+namespace: http://physiomeproject.org/workflow
+version: 1.0
+
+[terms]
+port
+provides
+uses
+images
+pointcloud
+knee
+description
+step
+version
+name
