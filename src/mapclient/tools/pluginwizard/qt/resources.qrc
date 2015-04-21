@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="wizard">
+    <file>images/background.png</file>
+    <file>images/banner.png</file>
+    <file>images/logo.png</file>
+    <file>images/watermark.png</file>
+    <file>images/cross.png</file>
+  </qresource>
+</RCC>

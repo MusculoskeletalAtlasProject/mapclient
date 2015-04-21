@@ -1,0 +1,22 @@
+<RCC>
+  <qresource prefix="mapclient">
+    <file>images/icon.png</file>
+    <file>images/round_error_logo.png</file>
+    <file>images/about_logo.png</file>
+    <file>images/cross.jpg</file>
+    <file>images/icon-app.png</file>
+    <file>images/logo.png</file>
+    <file>images/icon-arrow-right.png</file>
+  </qresource>
+  <qresource prefix="workflow">
+    <file>images/cancel_256.png</file>
+    <file>images/configure_red.png</file>
+    <file>images/yellow_black_exclamation.png</file>
+    <file>images/default_step_icon.png</file>
+    <file>images/default_workflow_step.png</file>
+    <file>images/configure_green.png</file>
+    <file>images/icon-port.png</file>
+    <file>images/grid.png</file>
+    <file>images/modified_repo.png</file>
+  </qresource>
+</RCC>
