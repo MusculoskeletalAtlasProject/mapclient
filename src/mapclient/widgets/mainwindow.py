@@ -25,6 +25,7 @@ from mapclient.widgets.ui_mainwindow import Ui_MainWindow
 # from mapclient.mountpoints.stackedwidget import StackedWidgetMountPoint
 from mapclient.widgets.workflowwidget import WorkflowWidget
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
+from mapclient.settings.general import getVirtEnvDirectory
 
 logger = logging.getLogger(__name__)
 
@@ -188,7 +189,16 @@ class MainWindow(QtGui.QMainWindow):
         dlg.load(options)
         if dlg.exec_() == QtGui.QDialog.Accepted:
             options = dlg.save()
-        
+
+    def setupVirtualEnv(self):
+        """
+        Sets up a virtual environment for MAP Client dependencies.
+        """
+        from mapclient.widgets.dependencyinstallation import VirtualEnvSetup
+        dlg = VirtualEnvSetup(getVirtEnvDirectory(), self)
+        dlg.setModal(True)
+        dlg.exec_()
+
     def setCurrentUndoRedoStack(self, stack):
         current_stack = self._model.undoManager().currentStack()
         if current_stack:
@@ -218,6 +228,9 @@ class MainWindow(QtGui.QMainWindow):
         if self._ui.stackedWidget.indexOf(widget) <= 0:
             self._ui.stackedWidget.addWidget(widget)
         self._ui.stackedWidget.setCurrentWidget(widget)
+        
+    def currentWidget(self):
+        return self._ui.stackedWidget.currentWidget()
 
     def closeEvent(self, event):
         self.quitApplication()

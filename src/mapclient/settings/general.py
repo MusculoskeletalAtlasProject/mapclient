@@ -58,3 +58,9 @@ def getLogLocation():
 
     return logging_file_location
 
+def getConfigurationSuffix():
+    return '.conf'
+
+def getConfigurationFile(location, identifier):
+    return os.path.join(location, identifier + getConfigurationSuffix())
+

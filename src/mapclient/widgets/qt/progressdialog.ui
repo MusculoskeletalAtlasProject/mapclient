@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DownloadProgress</class>
- <widget class="QWidget" name="DownloadProgress">
+ <class>ProgressDialog</class>
+ <widget class="QWidget" name="ProgressDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -12,18 +12,18 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>300</width>
-    <height>90</height>
+    <width>0</width>
+    <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>300</width>
-    <height>108</height>
+    <width>16777215</width>
+    <height>16777215</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Loading Plugins</string>
+   <string>Progress</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">

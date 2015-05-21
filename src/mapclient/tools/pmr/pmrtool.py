@@ -429,3 +429,20 @@ class PMRTool(object):
 #                     stderr)
 
         return stdout, stderr
+
+    def pullFromRemote(self, local_workspace_dir):
+        workspace = CmdWorkspace(local_workspace_dir, auto=True)
+        cmd = workspace.cmd
+
+        remote_workspace_url = cmd.read_remote(workspace)
+        creds = self.requestTemporaryPassword(remote_workspace_url)
+        stdout, stderr = cmd.pull(workspace,
+            username=creds['user'], password=creds['key'])
+
+        if stdout:
+            logger.info(stdout)
+        if stderr:
+            logger.info(stderr)
+
+        return stdout, stderr
+

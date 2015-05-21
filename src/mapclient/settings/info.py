@@ -21,11 +21,13 @@ from PySide import QtCore
 
 VERSION_MAJOR = 0
 VERSION_MINOR = 11
-VERSION_PATCH = 2
+VERSION_PATCH = 3
 VERSION_STRING = str(VERSION_MAJOR) + "." + str(VERSION_MINOR) + "." + str(VERSION_PATCH)
+
 GPL_VERSION = '3'
-APPLICATION_NAME = 'MAP Client'
-ORGANISATION_NAME = 'Musculo Skeletal'
+
+APPLICATION_NAME = 'MAP-Client'
+ORGANISATION_NAME = 'MusculoSkeletal'
 ORGANISATION_DOMAIN = 'musculoskeletal.org'
 
 # Contributors list
