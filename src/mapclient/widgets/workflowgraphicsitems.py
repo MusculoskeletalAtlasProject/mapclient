@@ -104,12 +104,12 @@ class Arc(Item):
 
     def __init__(self, sourceNode, destNode):
         Item.__init__(self)
-#        self.setSelected(False)
 
         self._arrowSize = 10.0
         self._arrow = QtGui.QPolygonF()
 
         self._connection = Connection(sourceNode.parentItem()._metastep, sourceNode.portIndex(), destNode.parentItem()._metastep, destNode.portIndex())
+        self._connection.setSelected(False)
 
         self._sourcePoint = QtCore.QPointF()
         self._destPoint = QtCore.QPointF()
@@ -185,7 +185,7 @@ class Arc(Item):
             return
 
         brush = QtGui.QBrush(QtCore.Qt.black)
-        if self.isSelected():  # or self.selected:
+        if option.state & QtGui.QStyle.State_Selected:  # or self.selected:
             painter.setBrush(QtCore.Qt.darkGray)
             painter.drawRoundedRect(self.boundingRect(), 5, 5)
 #            brush = QtGui.QBrush(QtCore.Qt.red)

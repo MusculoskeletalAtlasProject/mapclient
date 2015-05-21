@@ -29,9 +29,7 @@ import site
 import sys
 import json
 import pkgutil
-import subprocess
 from importlib import import_module
-from mapclient.core.pluginlocationmanager import PluginLocationManager
 
 if sys.version_info < (3, 0):
     import imp
@@ -281,9 +279,9 @@ class PluginManager(object):
 
     def __init__(self):
         self._directories = []
-        self._loadDefaultPlugins = True
+        self._load_default_plugins = True
         self._doNotShowPluginErrors = False
-        self._pluginLocationManager = PluginLocationManager()
+        self._plugin_database = PluginDatabase()
         self._ignoredPlugins = []
         self._unsuccessful_package_installations = {}
         self._resourceFiles = ['resources_rc']
@@ -306,10 +304,10 @@ class PluginManager(object):
         return directories_changed
 
     def loadDefaultPlugins(self):
-        return self._loadDefaultPlugins
+        return self._load_default_plugins
         
-    def getPluginLocationManager(self):
-        return self._pluginLocationManager
+    def getPluginDatabase(self):
+        return self._plugin_database
 
     def setLoadDefaultPlugins(self, loadDefaultPlugins):
         '''
@@ -318,15 +316,15 @@ class PluginManager(object):
         and false otherwise.
         '''
         defaults_changed = False
-        if self._loadDefaultPlugins != loadDefaultPlugins:
-            self._loadDefaultPlugins = loadDefaultPlugins
+        if self._load_default_plugins != loadDefaultPlugins:
+            self._load_default_plugins = loadDefaultPlugins
             defaults_changed = True
 
         return defaults_changed
 
     def allDirectories(self):
         plugin_dirs = self._directories[:]
-        if self._loadDefaultPlugins:
+        if self._load_default_plugins:
             file_dir = os.path.dirname(os.path.abspath(__file__))
             inbuilt_plugin_dir = os.path.realpath(os.path.join(file_dir, '..', '..', 'plugins'))
             plugin_dirs.insert(0, inbuilt_plugin_dir)
@@ -342,6 +340,7 @@ class PluginManager(object):
         return added
         
     def extractPluginDependencies(self, path):
+        return []
         setupFileDir = path[:-16] + 'setup.py'
         dependencies = ''
         if os.path.exists(setupFileDir):
@@ -370,7 +369,7 @@ class PluginManager(object):
                 return []
 
     def load(self):
-        len_package_modules_prior = len(sys.modules['mapclientplugins'].__path__) if 'mapclientplugins' in sys.modules else 0
+        len_package_modules_prior = len(sys.modules[PLUGINS_PACKAGE_NAME].__path__) if PLUGINS_PACKAGE_NAME in sys.modules else 0
         for directory in self.allDirectories():
             if not self._addPluginDir(directory):
                 try:
@@ -381,12 +380,12 @@ class PluginManager(object):
                 for name in sorted(names):
                     self._addPluginDir(os.path.join(directory, name))
         if len_package_modules_prior == 0:
-            package = import_module('mapclientplugins')
+            package = import_module(PLUGINS_PACKAGE_NAME)
         else:
             try:
-                package = imp.reload(sys.modules['mapclientplugins'])
+                package = imp.reload(sys.modules[PLUGINS_PACKAGE_NAME])
             except Exception:
-                package = importlib.reload(sys.modules['mapclientplugins'])
+                package = importlib.reload(sys.modules[PLUGINS_PACKAGE_NAME])
         self._import_errors = []
         self._type_errors = []
         self._syntax_errors = []
@@ -394,20 +393,26 @@ class PluginManager(object):
         self._plugin_error_directories = {}
 
         for _, modname, ispkg in pkgutil.iter_modules(package.__path__):
-            if ispkg:                
+            if ispkg:
                 try:
-                    module = import_module('mapclientplugins.' + modname)
-                    plugin_dependencies = self.extractPluginDependencies(_.path)
+                    module = import_module(PLUGINS_PACKAGE_NAME + '.' + modname)
+                    plugin_dependencies = self.extractPluginDependencies(package.__path__)
                     if hasattr(module, '__version__') and hasattr(module, '__author__'):
                         logger.info('Loaded plugin \'' + modname + '\' version [' + module.__version__ + '] by ' + module.__author__)
                     if hasattr(module, '__location__') and hasattr(module, '__stepname__'):
                         logger.info('Plugin \'' + modname + '\' available from: ' + module.__location__)
-                        self._pluginLocationManager.addLoadedPluginInformation(modname, module.__stepname__, module.__author__, module.__version__, module.__location__, plugin_dependencies)
+
+                    self._plugin_database.addLoadedPluginInformation(modname,
+                                                                     module.__stepname__ if hasattr(module, '__stepname__') else 'None',
+                                                                     module.__author__ if hasattr(module, '__author__') else 'Anon.',
+                                                                     module.__version__ if hasattr(module, '__version__') else '0.0.0',
+                                                                     module.__location__ if hasattr(module, '__location__') else '',
+                                                                     plugin_dependencies)
                 except Exception as e:
                     from mapclient.mountpoints.workflowstep import removeWorkflowStep
                     # call remove partially loaded plugin manually method
                     removeWorkflowStep(modname)
-                    
+
                     if type(e) == ImportError:
                         self._import_errors += [modname]
                     elif type(e) == TypeError:
@@ -417,7 +422,7 @@ class PluginManager(object):
                     elif type(e) == TabError:
                         self._tab_errors += [modname]
                     self._plugin_error_directories[modname] = _.path
-                        
+
                     message = convertExceptionToMessage(e)
                     logger.warn('Plugin \'' + modname + '\' not loaded')
                     logger.warn('Reason: {0}'.format(message))
@@ -444,7 +449,7 @@ class PluginManager(object):
     def readSettings(self, settings):
         self._directories = []
         settings.beginGroup('Plugins')
-        self._loadDefaultPlugins = settings.value('load_defaults', 'true') == 'true'
+        self._load_default_plugins = settings.value('load_defaults', 'true') == 'true'
         self._doNotShowPluginErrors = settings.value('donot_show_plugin_errors', 'true') == 'true'
         directory_count = settings.beginReadArray('directories')
         for i in range(directory_count):
@@ -482,7 +487,7 @@ class PluginManager(object):
 
     def writeSettings(self, settings):
         settings.beginGroup('Plugins')
-        settings.setValue('load_defaults', self._loadDefaultPlugins)
+        settings.setValue('load_defaults', self._load_default_plugins)
         settings.setValue('donot_show_plugin_errors', self._doNotShowPluginErrors)
         settings.beginWriteArray('directories')
         directory_index = 0
@@ -561,3 +566,112 @@ class PluginSiteManager(object):
 
     def load_site(self, target_dir):
         site.addsitedir(target_dir)
+
+class PluginDatabase:
+    '''
+    Manages plugin information for the current workflow.
+    '''
+
+    def __init__(self):
+        self._database = {}
+
+    def saveState(self, ws, scene):
+        '''
+        Save the state of the current workflow plugin requirements 
+        to the given workflow configuration.
+        '''
+        ws.remove('required_plugins')
+        ws.beginGroup('required_plugins')
+        ws.beginWriteArray('plugin')
+        pluginIndex = 0
+        for item in scene._items:
+            if item.Type == 'Step':
+                step_name = item._step.getName()
+                if step_name in self._database:
+                    information_dict = self._database[step_name]
+                    ws.setArrayIndex(pluginIndex)
+                    ws.setValue('name', step_name)
+                    ws.setValue('author', information_dict['author'])
+                    ws.setValue('version', information_dict['version'])
+                    ws.setValue('location', information_dict['location'])
+
+                    ws.beginWriteArray('dependencies')
+                    for dependency_index, dependency in enumerate(information_dict['dependencies']):
+                        ws.setArrayIndex(dependency_index)
+                        ws.setValue('dependency', dependency)
+                    ws.endArray()
+                    ws.setValue('dependencies', information_dict['dependencies'])
+
+                    pluginIndex += 1
+        ws.endArray()
+        ws.endGroup()
+
+    @staticmethod
+    def load(ws):
+        '''
+        Load the given Workflow configuration and return it as a dict.
+        '''
+        pluginDict = {}
+        ws.beginGroup('required_plugins')
+        pluginCount = ws.beginReadArray('plugin')
+        for i in range(pluginCount):
+            ws.setArrayIndex(i)
+            name = ws.value('name')
+            pluginDict[name] = {
+                'author':ws.value('author'),
+                'version':ws.value('version'),
+                'location':ws.value('location')
+            }
+            dependencies = []
+            dependency_count = ws.beginReadArray('dependencies')
+            for j in range(dependency_count):
+                ws.setArrayIndex(j)
+                dependencies.append(ws.value('dependency'))
+            ws.endArray()
+            pluginDict[name]['dependencies'] = dependencies
+        ws.endArray()
+        ws.endGroup()
+        
+        return pluginDict
+
+    def addLoadedPluginInformation(self, plugin_name, step_name, plugin_author, plugin_version, plugin_location, plugin_dependencies):
+        plugin_dict = {}
+        plugin_dict['plugin name'] = plugin_name
+        plugin_dict['author'] = plugin_author
+        plugin_dict['version'] = plugin_version
+        plugin_dict['location'] = plugin_location
+        plugin_dict['dependencies'] = plugin_dependencies
+        self._database[step_name] = plugin_dict
+
+    def checkForMissingPlugins(self, to_check):
+        '''
+        Check for the given plugin dict against the dict of plugins currently available. 
+        '''
+        missing_plugins = {}
+        for plugin in to_check:
+            if not (plugin in self._database and \
+                to_check[plugin]['author'] == self._database[plugin]['author'] and \
+                to_check[plugin]['version'] == self._database[plugin]['version']):
+                missing_plugins[plugin] = to_check[plugin]
+
+        return missing_plugins
+    
+    def checkForMissingDependencies(self, to_check, available_dependencies):
+        '''
+        Check the given plugin dependencies against the list of currently available 
+        dependencies
+        '''
+        print 'CHECK ME: INCOMPLETE'
+        required_dependencies = {}
+        for plugin in to_check:
+            pass
+#         for name in dependencies:
+#             if name not in install_list:
+#                 required_dependencies += [name]
+
+#         print sys.modules[PLUGINS_PACKAGE_NAME]
+        return required_dependencies
+
+    def getDatabase(self):
+        return self._database
+

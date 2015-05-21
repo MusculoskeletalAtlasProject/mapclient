@@ -17,6 +17,8 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
+import json
+
 from PySide.QtGui import QDialog, QDialogButtonBox
 
 from mapclientplugins.pointcloudserializerstep.widgets.ui_configuredialog import Ui_ConfigureDialog
@@ -39,16 +41,12 @@ class ConfigureDialogState(object):
 
     def setIdentifier(self, identifier):
         self._identifier = identifier
-
-    def save(self, conf):
-        conf.beginGroup('status')
-        conf.setValue('identifier', self._identifier)
-        conf.endGroup()
-
-    def load(self, conf):
-        conf.beginGroup('status')
-        self._identifier = conf.value('identifier', '')
-        conf.endGroup()
+        
+    def serialize(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    
+    def deserialize(self, string):
+        self.__dict__.update(json.loads(string))
 
 
 class ConfigureDialog(QDialog):

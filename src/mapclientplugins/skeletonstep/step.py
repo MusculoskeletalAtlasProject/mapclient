@@ -38,9 +38,9 @@ class SkeletonStep(WorkflowStepMountPoint):
     def setIdentifier(self, identifier):
         pass
 
-    def serialize(self, location):
+    def serialize(self):
         pass
 
-    def deserialize(self, location):
+    def deserialize(self, string):
         pass
 

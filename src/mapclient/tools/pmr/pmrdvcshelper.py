@@ -21,7 +21,7 @@ import os
 
 from subprocess import Popen, PIPE
 
-from mapclient.core.threadcommandmanager import which
+from mapclient.core.utils import which
 
 def isHgRepository(location):
     return os.path.exists(os.path.join(location, '.hg'))

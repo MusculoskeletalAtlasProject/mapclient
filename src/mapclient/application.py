@@ -24,6 +24,8 @@ import ctypes
 import os, sys, locale
 import logging
 from logging import handlers
+from mapclient.settings.general import getVirtEnvDirectory
+from mapclient.tools.virtualenv.manager import VirtualEnvManager
 
 # With PEP366 we need to conditionally import the settings module based on
 # whether we are executing the file directly of indirectly.  This is my
@@ -100,6 +102,12 @@ def winmain():
     window = MainWindow(model)
     window.show()
     
+    virtenv_dir = getVirtEnvDirectory()
+    vem = VirtualEnvManager(virtenv_dir)
+    if vem.exists():
+        vem.addSitePackages()
+    else:
+        window.setupVirtualEnv()
     window.showPluginErrors()
     window._workflowWidget.updateStepTree()
     

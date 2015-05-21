@@ -17,12 +17,13 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
-import pkgutil, os, sys, imp, importlib, collections, subprocess
-from PySide.QtGui import QDialog, QMessageBox, QPushButton, QApplication, QCursor, QFileDialog
+import pkgutil, os, sys, imp, importlib, collections
+from PySide.QtGui import QDialog, QMessageBox, QApplication, QCursor, QFileDialog
 from PySide.QtCore import Qt
 
 from mapclient.tools.ui_advanceddialog import Ui_AdvancedDialog
 from mapclient.tools.pluginupdater import PluginUpdater
+from mapclient.widgets.utils import set_wait_cursor
 
 class AdvancedDialog(QDialog):
     '''
@@ -381,7 +382,6 @@ class AdvancedDialog(QDialog):
                     (plugin_init_update, plugin_resources_update, plugin_syntax_update, plugin_tabbed_indentation, resourcesDirs, tabbed_modules) = performPluginAnalysis(_.path, modname, self._resourceFiles)
                     self._pluginUpdater.pluginUpdateDict(modname, plugin_init_update, plugin_resources_update, plugin_syntax_update, \
                                                         plugin_tabbed_indentation, os.path.join(_.path, modname, '__init__.py'), resourcesDirs, tabbed_modules)
-            QApplication.restoreOverrideCursor()
             self.fillUpdatesList()
             
             if self._ui.listWidget.count() ==  0:
@@ -404,9 +404,7 @@ class AdvancedDialog(QDialog):
         
     def performUpdates(self):
         self._pluginUpdater.set2to3Dir(self._2to3Directory)
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         plugins_not_updated, unsuccessful_updates = applyPluginUpdates(self._plugins_to_update, self._updaterSettings)
-        QApplication.restoreOverrideCursor()
         
         if unsuccessful_updates:
             warning_string = '\n  The following plugins failed to update successfully:\n'
@@ -428,7 +426,8 @@ def performPluginAnalysis(path, modname, resource_files):
     plugin_updater.deleteTempFiles(tabbed_modules)
     
     return plugin_init_update, plugin_resources_update, plugin_syntax_update, plugin_tabbed_indentation, resourcesDirs, tabbed_modules
-    
+
+@set_wait_cursor
 def applyPluginUpdates(plugins_to_update, updater_settings):
     plugin_updater = PluginUpdater()
     plugin_updater._pluginUpdateDict = plugins_to_update
@@ -465,3 +464,4 @@ def applyPluginUpdates(plugins_to_update, updater_settings):
         del plugin_updater._pluginUpdateDict[plugin]
         
     return plugin_updater._pluginUpdateDict, unsuccessful_updates
+

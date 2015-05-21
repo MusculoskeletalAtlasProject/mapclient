@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 '''
 import os
 
-from PySide import QtGui, QtCore
+from PySide import QtGui
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 
@@ -64,18 +64,11 @@ class PointCloudSerializerStep(WorkflowStepMountPoint):
     def setIdentifier(self, identifier):
         self._state.setIdentifier(identifier)
 
-    def serialize(self, location):
-        if not os.path.exists(self.getOutputDirectory()):
-            os.mkdir(self.getOutputDirectory())
+    def serialize(self):
+        return self._state.serialize()
 
-        configuration_file = os.path.join(location, getConfigFilename(self._state.identifier()))
-        s = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
-        self._state.save(s)
-
-    def deserialize(self, location):
-        configuration_file = os.path.join(location, getConfigFilename(self._state.identifier()))
-        s = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
-        self._state.load(s)
+    def deserialize(self, string):
+        self._state.deserialize(string)
         d = ConfigureDialog(self._state)
         self._configured = d.validate()
 
@@ -87,9 +80,11 @@ class PointCloudSerializerStep(WorkflowStepMountPoint):
 
     def execute(self):
         if self._dataIn:
-            f = open(os.path.join(self.getOutputDirectory(), 'pointcloud.txt'), 'w')
-            for i, pt in enumerate(self._dataIn):
-                f.write(str(i + 1) + '\t' + str(pt[0]) + '\t' + str(pt[1]) + '\t' + str(pt[2]) + '\n')
-            f.close()
+            if not os.path.exists(self.getOutputDirectory()):
+                os.makedirs(self.getOutputDirectory())
+                
+            with open(os.path.join(self.getOutputDirectory(), 'pointcloud.txt'), 'w') as f:
+                for i, pt in enumerate(self._dataIn):
+                    f.write(str(i + 1) + '\t' + str(pt[0]) + '\t' + str(pt[1]) + '\t' + str(pt[2]) + '\n')
         self._doneExecution()
 

@@ -18,6 +18,8 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
+import json
+
 from PySide.QtGui import QDialog, QFileDialog, QDialogButtonBox
 
 from mapclientplugins.imagesourcestep.widgets.ui_configuredialog import Ui_ConfigureDialog
@@ -52,6 +54,7 @@ class ConfigureDialogState(object):
         return self._identifier
 
     def setIdentifier(self, identifier):
+        print identifier
         self._identifier = identifier
 
     def imageType(self):
@@ -63,25 +66,11 @@ class ConfigureDialogState(object):
     def previousLocalLocation(self):
         return self._previous_local_location
 
-    def save(self, conf):
-        conf.beginGroup('status')
-        conf.setValue('identifier', self._identifier)
-        conf.setValue('localLocation', self._local_location)
-        conf.setValue('pmrLocation', self._pmr_location)
-        conf.setValue('imageType', self._image_type)
-        conf.setValue('currentTab', self._current_tab)
-        conf.setValue('previousLocalLocation', self._previous_local_location)
-        conf.endGroup()
+    def serialize(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
-    def load(self, conf):
-        conf.beginGroup('status')
-        self._identifier = conf.value('identifier', '')
-        self._local_location = conf.value('localLocation', '')
-        self._pmr_location = conf.value('pmrLocation', '')
-        self._image_type = int(conf.value('imageType', 0))
-        self._current_tab = int(conf.value('currentTab', 0))
-        self._previous_local_location = conf.value('previousLocalLocation', '')
-        conf.endGroup()
+    def deserialize(self, string):
+        self.__dict__.update(json.loads(string))
 
 
 class ConfigureDialog(QDialog):

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>511</width>
-    <height>411</height>
+    <width>737</width>
+    <height>563</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -61,6 +61,12 @@
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <widget class="QCheckBox" name="pluginDownload">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Download required Plugins</string>
        </property>
@@ -71,6 +77,12 @@
      </item>
      <item>
       <widget class="QCheckBox" name="dependencyDownload">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Download and install Packages</string>
        </property>

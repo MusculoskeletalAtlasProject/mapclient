@@ -22,7 +22,9 @@ import logging
 
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflowerror import WorkflowError
-from mapclient.core.utils import convertExceptionToMessage
+from mapclient.core.utils import convertExceptionToMessage, loadConfiguration
+from mapclient.settings.general import getConfigurationFile
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +37,9 @@ class Item(object):
     def selected(self):
         return self._selected
 
+    def setSelected(self, selected):
+        self._selected = selected
+
 
 class MetaStep(Item):
 
@@ -45,12 +50,33 @@ class MetaStep(Item):
         Item.__init__(self)
         self._step = step
         self._pos = QtCore.QPoint(0, 0)
+        self._uid = str(uuid.uuid1())
+        self._id = step.getIdentifier()
 
     def pos(self):
         return self._pos
 
     def getIdentifier(self):
+        return self._id
+    
+    def setIdentifier(self, identifier):
+        self._step.setIdentifier(identifier)
+        self._id = identifier
+
+    def getStepIdentifier(self):
         return self._step.getIdentifier()
+
+    def hasIdentifierChanged(self):
+        return not self._id == self._step.getIdentifier()
+
+    def syncIdentifier(self):
+        self._id = self._step.getIdentifier()
+
+    def getUniqueIdentifier(self):
+        return self._uid
+
+    def setUniqueIdentifier(self, uniqueIdentifier):
+        self._uid = uniqueIdentifier
 
 class Connection(Item):
 
@@ -198,6 +224,7 @@ class WorkflowDependencyGraph(object):
                     new_connections = self._connectionsForNodes(node, current_node)
                     connections.extend([c for c in new_connections if c not in connections])
                     if len(new_connections) == 0:
+                        logger.critical('Connection in workflow not found, something has gone horribly wrong')
                         raise WorkflowError('Connection in workflow not found, something has gone horribly wrong')
 
                 for connection in connections:
@@ -207,9 +234,10 @@ class WorkflowDependencyGraph(object):
             try:
                 current_node._step.execute()
             except Exception as e:
+                self._current = -1
                 log_message = 'Exception caught while executing the workflow: ' + convertExceptionToMessage(e)
                 logger.critical(log_message)
-                self._current = -1
+                raise WorkflowError(log_message)
 
 
 class WorkflowScene(object):
@@ -243,16 +271,24 @@ class WorkflowScene(object):
         ws.beginWriteArray('nodelist')
         nodeIndex = 0
         for metastep in stepList:
-            if metastep._step.isConfigured():
-                metastep._step.serialize(location)
+            if metastep.hasIdentifierChanged():
+                if metastep.getIdentifier():
+                    self._manager.changeIdentifier(metastep.getIdentifier(), metastep.getStepIdentifier())
+                metastep.syncIdentifier()
+
+            identifier = metastep.getIdentifier() or '.' + metastep.getUniqueIdentifier()
+            if identifier:
+                step_config = metastep._step.serialize()
+                with open(getConfigurationFile(location, identifier), 'w') as f:
+                    f.write(step_config)
             ws.setArrayIndex(nodeIndex)
             ws.setValue('name', metastep._step.getName())
             ws.setValue('position', metastep._pos)
             ws.setValue('selected', metastep._selected)
-            identifier = metastep._step.getIdentifier()
             if not identifier:
                 identifier = ''
             ws.setValue('identifier', identifier)
+            ws.setValue('unique_identifier', metastep.getUniqueIdentifier())
             ws.beginWriteArray('connections')
             connectionIndex = 0
             if metastep in connectionMap:
@@ -281,17 +317,22 @@ class WorkflowScene(object):
             position = ws.value('position')
             selected = ws.value('selected', 'false') == 'true'
             identifier = ws.value('identifier')
+            uniqueIdentifier = ws.value('unique_identifier', uuid.uuid1())
+            
             step = workflowStepFactory(name, location)
             step.registerIdentifierOccursCount(self.identifierOccursCount)
-            step.setIdentifier(identifier)
             metastep = MetaStep(step)
+            metastep.setIdentifier(identifier)
+            metastep.setUniqueIdentifier(uniqueIdentifier)
             metastep._pos = position
             metastep._selected = selected
             metaStepList.append(metastep)
             self.addItem(metastep)
+            
             # Deserialize after adding the step to the scene, this is so
             # we can validate the step identifier
-            step.deserialize(location)
+            configuration = loadConfiguration(location, identifier)
+            step.deserialize(configuration)
             arcCount = ws.beginReadArray('connections')
             for j in range(arcCount):
                 ws.setArrayIndex(j)

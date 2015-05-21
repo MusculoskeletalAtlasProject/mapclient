@@ -20,7 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import os, logging, subprocess
 import shutil
 
-from PySide import QtCore, QtGui
+from PySide import QtGui
 
 from requests.exceptions import HTTPError
 from mapclient.exceptions import ClientRuntimeError
@@ -34,12 +34,12 @@ from mapclient.widgets.utils import handle_runtime_error
 from mapclient.widgets.ui_workflowwidget import Ui_WorkflowWidget
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclient.widgets.workflowgraphicsscene import WorkflowGraphicsScene
-from mapclient.core import workflow
 from mapclient.tools.pmr.pmrtool import PMRTool
 from mapclient.widgets.importworkflowdialog import ImportWorkflowDialog
-from mapclient.tools.pluginupdater import PluginUpdater    
+from mapclient.tools.pluginupdater import PluginUpdater
 from mapclient.tools.pmr.settings.general import PMR
-from mapclient.settings.general import getLogLocation, getDataDirectory
+from mapclient.settings.general import getVirtEnvDirectory
+from mapclient.core.workflowerror import WorkflowError
 
 logger = logging.getLogger(__name__)
 
@@ -92,11 +92,13 @@ class WorkflowWidget(QtGui.QWidget):
             widget_visible = self.isVisible()
 
             workflow_open = wfm.isWorkflowOpen()
+            workflow_tracked = wfm.isWorkflowTracked()
             self.action_Close.setEnabled(workflow_open and widget_visible)
             self.setEnabled(workflow_open and widget_visible)
             self.action_Save.setEnabled(wfm.isModified() and widget_visible)
             self._action_annotation.setEnabled(workflow_open and widget_visible)
             self.action_Import.setEnabled(widget_visible)
+            self.action_Update.setEnabled(workflow_tracked)
             self.action_New.setEnabled(widget_visible)
             self.action_NewPMR.setEnabled(widget_visible)
             self.action_Open.setEnabled(widget_visible)
@@ -122,8 +124,12 @@ class WorkflowWidget(QtGui.QWidget):
         self._updateUi()
         return QtGui.QWidget.hideEvent(self, *args, **kwargs)
 
+    @handle_runtime_error
     def executeNext(self):
-        self._mainWindow.execute()
+        try:
+            self._mainWindow.execute()
+        except WorkflowError as e:
+            raise ClientRuntimeError('Error in workflow execution', e.message)
 
     def executeWorkflow(self):
         wfm = self._mainWindow.model().workflowManager()
@@ -137,7 +143,8 @@ class WorkflowWidget(QtGui.QWidget):
                 'successfully configured.')
 
         if not errors:
-            self._mainWindow.execute()  # .model().workflowManager().execute()
+            self.executeNext()
+#             self._mainWindow.execute()  # .model().workflowManager().execute()
         else:
             errors_str = '\n'.join(
                 ['  %d. %s' % (i + 1, e) for i, e in enumerate(errors)])
@@ -236,7 +243,7 @@ class WorkflowWidget(QtGui.QWidget):
     def newpmr(self):
         self.new(pmr=True)
 
-    def load(self):
+    def open(self):
         m = self._mainWindow.model().workflowManager()
         # Warning: when switching between PySide and PyQt4 the keyword argument for the directory to initialise the dialog to is different.
         # In PySide the keyword argument is 'dir'
@@ -248,177 +255,98 @@ class WorkflowWidget(QtGui.QWidget):
             options=(
                 QtGui.QFileDialog.ShowDirsOnly |
                 QtGui.QFileDialog.DontResolveSymlinks |
-                QtGui.QFileDialog.ReadOnly
-            )
-        )
-        if len(workflowDir) > 0:
-            self.performWorkflowChecks(workflowDir)
+                QtGui.QFileDialog.ReadOnly))
+        
+        if len(workflowDir):
             try:
-                m.load(workflowDir)
-                m.setPreviousLocation(workflowDir)
-                self._ui.graphicsView.setLocation(workflowDir)
-                self._graphicsScene.updateModel()
-                self._updateUi()
-            except (ValueError, workflow.WorkflowError) as e:
-                self.close()
-                QtGui.QMessageBox.critical(self, 'Error Caught',
-                    'Invalid Workflow.  ' + str(e))
-                    
-    def checkRequiredPlugins(self, wf):
-        pluginDict = {}
-        wf.beginGroup('required_plugins')
-        pluginCount = wf.beginReadArray('plugin')
-        for i in range(pluginCount):
-            wf.setArrayIndex(i)
-            pluginDict[wf.value('name')] = {
-                'author':wf.value('author'),
-                'version':wf.value('version'),
-                'location':wf.value('location')
-            }
-        wf.endArray()
-        wf.endGroup()
-        
-        required_plugins = {}
-        locationManager = self._mainWindow.model().pluginManager().getPluginLocationManager()
-        pluginDatabase = locationManager.getPluginDatabase()
-        for plugin in pluginDict.keys():
-            if not (plugin in pluginDatabase.keys() and \
-                pluginDict[plugin]['author'] == pluginDatabase[plugin]['author'] and \
-                pluginDict[plugin]['version'] == pluginDatabase[plugin]['version']):
-                required_plugins[plugin] = pluginDict[plugin]
-        return required_plugins
-        
-    def showDownloadableContent(self, plugins, dependencies):
+                logger.info('Perform workflow checks on open ...')
+                self.performWorkflowChecks(workflowDir)
+                self._load(workflowDir)
+            except (ValueError, WorkflowError) as e:
+                    QtGui.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + str(e))
+
+    def showDownloadableContent(self, plugins={}, dependencies={}):
         from mapclient.widgets.plugindownloader import PluginDownloader
-        dlg = PluginDownloader()
+        dlg = PluginDownloader(self)
         dlg.fillPluginTable(plugins)
         dlg.fillDependenciesTable(dependencies)
         dlg.setModal(True)
         if dlg.exec_():
-            if dlg._downloadDependencies:
-                self._mainWindow.model().pluginManager()._unsuccessful_package_installations = self.installPluginDependencies(dependencies)
-            if dlg._downloadPlugins:
-                directory = QtGui.QFileDialog.getExistingDirectory(caption='Select Plugin Directory', dir = '', options=QtGui.QFileDialog.ShowDirsOnly | QtGui.QFileDialog.DontResolveSymlinks)
-                if directory != '':
-                    pm = self._mainWindow.model().pluginManager()
-                    pluginDirs = pm.directories()
-                    if directory not in pluginDirs:
-                        pluginDirs.append(directory)
-                        pm.setDirectories(pluginDirs)
-                    self.downloadPlugins(plugins, directory)
-            
-    def downloadPlugins(self, plugins, directory):
-        from mapclient.widgets.pluginprogress import PluginProgress
-        self.dlg = PluginProgress(plugins, directory)
-        self.dlg.show()        
-        self.dlg.run()
+            return dlg.downloadDependencies(), dlg.installMissingPlugins()
         
-    def checkRequiredDependencies(self, settings):
-        self._workflowDependencies = {}
-        settings.beginGroup('required_plugins')
-        plugin_count = settings.beginReadArray('plugin')
-        for i in range(plugin_count):
-            settings.setArrayIndex(i)
-            self._workflowDependencies[settings.value('name')] = settings.value('dependencies').split(' -- ')
-        settings.endArray()
-        settings.endGroup()
-        return self._workflowDependencies
-    
-    def installPluginDependencies(self, plugin_dependencies):
+        return False, False
+
+    def installMissingPlugins(self, plugins):
+        from mapclient.widgets.pluginprogress import PluginProgress
+        directory = QtGui.QFileDialog.getExistingDirectory(caption='Select Plugin Directory', dir = '', options=QtGui.QFileDialog.ShowDirsOnly | QtGui.QFileDialog.DontResolveSymlinks)
+        if directory:
+            pm = self._mainWindow.model().getPluginManager()
+            pluginDirs = pm.directories()
+            if directory not in pluginDirs:
+                pluginDirs.append(directory)
+                pm.setDirectories(pluginDirs)
+        self.dlg = PluginProgress(plugins, directory, self)
+        self.dlg.show()
+        self.dlg.run()
+
+    def installMissingDependencies(self, plugin_dependencies):
         dependencies = []
         for plugin in plugin_dependencies:
             for dependency in plugin_dependencies[plugin]:
                 if dependency not in dependencies:
                     dependencies += [dependency]
         unsuccessful_installs = self.pipInstallDependency(dependencies)
-        return unsuccessful_installs        
-        
+        return unsuccessful_installs
+
     def pipInstallDependency(self, dependencies):
-        from mapclient.widgets.dependency_installation import Install_Dependencies
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
-        self.installer = Install_Dependencies(dependencies, self.getVirtEnvLocation())
+        from mapclient.widgets.dependencyinstallation import InstallDependencies
+        self.installer = InstallDependencies(dependencies, getVirtEnvDirectory())
         self.installer.show()
         unsuccessful_installs = self.installer.run()
         self.installer.close()
         if unsuccessful_installs.keys():
-            QtGui.QMessageBox.critical(self, 'Failed Installation', 'One or more of the required dependencies could not be installed.\nPlease refer to the program logs for more information.', QtGui.QMessageBox.Ok)
+            QtGui.QMessageBox.critical(self, 'Failed Installation', 
+                                       'One or more of the required dependencies could not be installed.\nPlease refer to the program logs for more information.', QtGui.QMessageBox.Ok)
         return unsuccessful_installs
-    
-    def locateMAPClientVirtEnv(self, virtEnvDir):
-        virtEnvDir = os.path.join(virtEnvDir, 'Scripts', 'activate.bat')
-        return os.path.exists(virtEnvDir)
-    
-    def setupMAPClientVirtEnv(self, env_dir):
-        from mapclient.widgets.dependency_installation import VESetup
-        self.dlg = VESetup(env_dir)
-        self.dlg.setModal(True)
-        self.dlg.show()
-        self.dlg.run()
-        self.dlg.exec_()
-        return self.locateMAPClientVirtEnv(self.getVirtEnvLocation())
-        
-    def compareRequirements(self, required_installs, dependencies):
-        pythonExe = self.getVirtEnvLocation() + '\Scripts' + '\python.exe'
-        pipExe = self.getVirtEnvLocation() + '\Scripts' + '\pip.exe'
-        install_list_system = subprocess.check_output(['pip', 'list'])
-        install_list_system = install_list_system.decode('utf-8')
-        install_list_virtEnv = subprocess.check_output([pythonExe, pipExe, 'list'], shell=True)
-        install_list_virtEnv = install_list_virtEnv.decode('utf-8')
-        for dependency in dependencies.items():
-            if dependency[-1][-1] != 'None':
-                required_installs[dependency[0]] = []
-                for requirement in dependency[-1]:
-                    if requirement not in install_list_system and requirement not in install_list_virtEnv:
-                            required_installs[dependency[0]] += [requirement]
-        return required_installs
-        
-    def setupVEQuery(self):
-        msgBox = QtGui.QMessageBox()
-        msgBox.setWindowTitle('Application Virtual Environment')
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/mapclient/images/icon-app.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        msgBox.setWindowIcon(icon)
-        msgBox.setText('In order to install plugin dependencies a virtual environment\nneeds to be set up for MAP Client.\n\nWould you like to set it up now?')
-        msgBox.setIcon(QtGui.QMessageBox.Question)
-        yesButton = msgBox.addButton('Yes', QtGui.QMessageBox.AcceptRole)
-        noButton = msgBox.addButton('No', QtGui.QMessageBox.RejectRole)
-        msgBox.exec_()
-        
-        if msgBox.clickedButton() == yesButton:
-            return True
-        elif msgBox.clickedButton() == noButton:
-            return False
-        
-    def checkMissingDependencies(self, dependencies):
-        virtEnvExec = self.locateMAPClientVirtEnv(self.getVirtEnvLocation())
-        required_installs = {}
-        if not virtEnvExec:
+
+    def getMissingDependencies(self, dependencies):
+        '''
+        Determine which dependencies are missing from the given dependencies list.
+        '''
+        virtenv_dir = getVirtEnvDirectory()
+
+        virtenv_exists = os.path.exists(os.path.join(virtenv_dir, 'bin'))
+        required_dependencies = []
+        if not virtenv_exists:
             if self.setupVEQuery():
-                if self.setupMAPClientVirtEnv(self.getVirtEnvLocation()):
-                    QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
-                    required_installs = self.compareRequirements(required_installs, dependencies)
+                if self.setupMAPClientVirtEnv(virtenv_dir):
+                    required_dependencies = self.getRequiredDependencies(dependencies)
         else:
-            QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
-            required_installs = self.compareRequirements(required_installs, dependencies)
-        return required_installs
+            required_dependencies = self.getRequiredDependencies(dependencies)
+        return required_dependencies
 
     def performWorkflowChecks(self, workflowDir):
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
-        wf = workflow._getWorkflowConfiguration(workflowDir)
-        plugin_dependencies = self.checkRequiredDependencies(wf)
-        dependencies = {}
-        for info in plugin_dependencies.items():
-            if info[-1] != 'None':
-                dependencies[info[0]] = info[-1]
-        QtGui.QApplication.restoreOverrideCursor()
-        dependencies_to_install = self.checkMissingDependencies(dependencies)
-        plugins = self.checkRequiredPlugins(wf)
-        if plugins or dependencies_to_install:
-            QtGui.QApplication.restoreOverrideCursor()
-            self.showDownloadableContent(plugins, dependencies_to_install)
-        
-        pm = self._mainWindow.model().pluginManager()
-        pm.load()
+        '''
+        Perform workflow checks
+         1. Check plugins
+         2. Check dependencies
+         3. Get missing plugins
+         4. Get missing dependencies
+         5. Check for errors
+         6. Update step tree
+        '''
+        m = self._mainWindow.model().workflowManager()
+        steps_to_install = m.checkPlugins(workflowDir)
+        dependencies_to_install = m.checkDependencies(workflowDir)
+        if steps_to_install or dependencies_to_install:
+            download_dependencies, download_plugins = self.showDownloadableContent(plugins=steps_to_install, dependencies=dependencies_to_install)
+            if download_dependencies:
+                self.installMissingDependencies(dependencies_to_install)
+            if download_plugins:
+                self.installMissingPlugins(steps_to_install)
+
+#         pm = self._mainWindow.model().pluginManager()
+#         pm.load()
         self._mainWindow.showPluginErrors()
         self.updateStepTree()
         
@@ -430,16 +358,31 @@ class WorkflowWidget(QtGui.QWidget):
             workspace_url = dlg.workspaceUrl()
             if os.path.exists(destination_dir) and workspace_url:
                 try:
-                    self._importFromPMR(workspace_url, destination_dir)
-                except (ValueError, workflow.WorkflowError) as e:
+                    self._cloneFromPMR(workspace_url, destination_dir)
+                    logger.info('Perform workflow checks on import ...')
+                    self.performWorkflowChecks(destination_dir)
+                    self._load(destination_dir)
+                except (ValueError, WorkflowError) as e:
                     QtGui.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + str(e))
             else:
                 QtGui.QMessageBox.critical(self, 'Error Caught', 'Invalid Import Settings.  Either the workspace url (%s) was not set' \
                                            ' or the destination directory (%s) does not exist. ' % (workspace_url, destination_dir))
 
+    def updateFromPMR(self):
+        self._updateFromPMR()
+
     @handle_runtime_error
     @set_wait_cursor
-    def _importFromPMR(self, workspace_url, workflowDir):
+    def _updateFromPMR(self):
+        m = self._mainWindow.model().workflowManager()
+        pmr_info = PMR()
+        pmr_tool = PMRTool(pmr_info)
+
+        pmr_tool.pullFromRemote(m.location())
+
+    @handle_runtime_error
+    @set_wait_cursor
+    def _cloneFromPMR(self, workspace_url, workflowDir):
         pmr_info = PMR()
         pmr_tool = PMRTool(pmr_info)
 
@@ -447,9 +390,10 @@ class WorkflowWidget(QtGui.QWidget):
             remote_workspace_url=workspace_url,
             local_workspace_dir=workflowDir,
         )
-        
-        self.performWorkflowChecks(workflowDir)
-        logger.info('Analyze first before attempting load ...')
+
+    @handle_runtime_error
+    @set_wait_cursor
+    def _load(self, workflowDir):
         try:
             m = self._mainWindow.model().workflowManager()
             m.load(workflowDir)
@@ -491,18 +435,7 @@ class WorkflowWidget(QtGui.QWidget):
             # nothing to commit.
             return True
 
-#         dlg = PMRHgCommitDialog(self)
-#         dlg.setModal(True)
-#         if dlg.exec_() == QtGui.QDialog.Rejected:
-#             return False
-
-#         action = dlg.action()
-#         if action == QtGui.QDialogButtonBox.Ok:
-#             return True
-#         elif action == QtGui.QDialogButtonBox.Save:
-#             return self._commitChanges(workflowDir, dlg.comment(), commit_local=True)
-
-        return self._commitChanges(workflowDir, 'Generic comment for saving workflow.')
+        return self._commitChanges(workflowDir, 'Workflow saved.')
 
     @handle_runtime_error
     @set_wait_cursor
@@ -518,8 +451,7 @@ class WorkflowWidget(QtGui.QWidget):
                     full_filename = os.path.join(workflowDir, f)
                     if full_filename not in workflow_files:
                         workflow_files.append(full_filename)
-                    
-            print(workflow_files)
+
             pmr_tool.commitFiles(workflowDir, comment, workflow_files)
 #                 [workflowDir + '/%s' % (DEFAULT_WORKFLOW_PROJECT_FILENAME),
 #                  workflowDir + '/%s' % (DEFAULT_WORKFLOW_ANNOTATION_FILENAME)])  # XXX make/use file tracker
@@ -571,9 +503,11 @@ class WorkflowWidget(QtGui.QWidget):
         self.action_New = QtGui.QAction('Workflow', menu_New)
         self._setActionProperties(self.action_New, 'action_New', self.new, 'Ctrl+Shift+N', 'Create a new Workflow')
         self.action_Open = QtGui.QAction('&Open', menu_File)
-        self._setActionProperties(self.action_Open, 'action_Open', self.load, 'Ctrl+O', 'Open an existing Workflow')
+        self._setActionProperties(self.action_Open, 'action_Open', self.open, 'Ctrl+O', 'Open an existing Workflow')
         self.action_Import = QtGui.QAction('I&mport', menu_File)
         self._setActionProperties(self.action_Import, 'action_Import', self.importFromPMR, 'Ctrl+M', 'Import existing Workflow from PMR')
+        self.action_Update = QtGui.QAction('&Udate', menu_File)
+        self._setActionProperties(self.action_Update, 'action_Update', self.updateFromPMR, 'Ctrl+U', 'update existing PMR Workflow')
         self.action_Close = QtGui.QAction('&Close', menu_File)
         self._setActionProperties(self.action_Close, 'action_Close', self.close, 'Ctrl+W', 'Close open Workflow')
         self.action_Save = QtGui.QAction('&Save', menu_File)
@@ -587,6 +521,7 @@ class WorkflowWidget(QtGui.QWidget):
         menu_File.insertAction(lastFileMenuAction, self.action_Open)
         menu_File.insertSeparator(lastFileMenuAction)
         menu_File.insertAction(lastFileMenuAction, self.action_Import)
+        menu_File.insertAction(lastFileMenuAction, self.action_Update)
         menu_File.insertSeparator(lastFileMenuAction)
         menu_File.insertAction(lastFileMenuAction, self.action_Close)
         menu_File.insertSeparator(lastFileMenuAction)
