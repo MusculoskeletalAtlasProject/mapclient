@@ -122,7 +122,6 @@ class PMRWorkflowWidget(QtGui.QWidget):
         self._list_model.removeRows(0, self._list_model.rowCount())
         self._list_model.insertRows(0, len(descriptions), descriptions)
         self._busy_waiting = False
-        QtGui.QApplication.restoreOverrideCursor()
 
     def _searchResultClicked(self, item):
         r = item.data(QtCore.Qt.UserRole)

@@ -17,13 +17,13 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
+import os
 import logging
 
 from PySide import QtCore
 
 from mapclient.core.workflow import WorkflowManager
 from mapclient.core.undomanager import UndoManager
-from mapclient.core.threadcommandmanager import ThreadCommandManager
 from mapclient.core.pluginframework import PluginManager
 
 logger = logging.getLogger(__name__)
@@ -39,6 +39,7 @@ class MainApplication(object):
         self._pos = QtCore.QPoint(100, 150)
         self._pluginManager = PluginManager()
         self._workflowManager = WorkflowManager()
+        self._workflowManager.setPluginDatabase(self._pluginManager.getPluginDatabase())
         self._undoManager = UndoManager()
 #         self._threadCommandManager = ThreadCommandManager()
 
@@ -62,10 +63,7 @@ class MainApplication(object):
 
     def pluginManager(self):
         return self._pluginManager
-
-#     def threadCommandManager(self):
-#         return self._threadCommandManager
-
+    
     def writeSettings(self):
         settings = QtCore.QSettings()
         settings.beginGroup('MainWindow')

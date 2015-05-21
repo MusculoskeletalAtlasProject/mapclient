@@ -22,7 +22,6 @@ from mapclient.settings.general import getLogDirectory
 
 logger = logging.getLogger(__name__)
 
-PLUGINS_PACKAGE_NAME = 'mapclientplugins'
 MAPCLIENT_PLUGIN_LOCATIONS = {'autosegmentationstep':['Automatic Segmenter', 'https://github.com/mapclient-plugins/autosegmentationstep/archive/master.zip'],
                               'fieldworkexportstlsurfacestep':['Fieldwork Export STL Surface', 'https://github.com/mapclient-plugins/fieldworkexportstlsurfacestep/archive/master.zip'],
                               'fieldworkfemurmeasurementstep':['Fieldwork Femur Measurements', 'https://github.com/mapclient-plugins/fieldworkfemurmeasurementstep/archive/master.zip'],
@@ -148,7 +147,6 @@ class PluginUpdater:
     def updateSyntax(self, plugin, directory):
         # find 2to3 for the system
         dir_2to3 = self.get2to3Dir()
-        file_out = open(os.path.join(getLogDirectory(), 'syntax_update_report_' + plugin + '.log'), 'w')
         with open(os.path.join(getLogDirectory(), 'syntax_update_report_' + plugin + '.log'), 'w') as file_out:
             try:
                 subprocess.check_call(['python', dir_2to3, '--output-dir=' + directory, '-W', '-v', '-n', '-w', directory], stdout = file_out, stderr = file_out)

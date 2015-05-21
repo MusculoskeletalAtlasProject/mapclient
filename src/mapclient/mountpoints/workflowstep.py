@@ -94,8 +94,8 @@ A plugin that registers this mount point must:
   - Implement a function 'configure(self)'
   - Implement a function 'setIdentifier(self, identifier)'
   - Implement a function 'getIdentifier(self)'
-  - Implement a function 'serialize(self, location)'
-  - Implement a function 'deserialize(self, location)'
+  - Implement a function 'string serialize(self)'
+  - Implement a function 'deserialize(self, string)'
 
 
 A plugin that registers this mount point could have:
@@ -153,7 +153,7 @@ def _workflow_step_setIdentifier(self):
 def _workflow_step_serialize(self):
     raise NotImplementedError
 
-def _workflow_step_deserialize(self):
+def _workflow_step_deserialize(self, string):
     raise NotImplementedError
 
 def _workflow_step_isConfigured(self):

@@ -18,6 +18,8 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
 import os
+import shutil
+import logging
 
 from PySide import QtCore
 
@@ -25,7 +27,12 @@ from mapclient.settings import info
 from mapclient.core.workflowscene import WorkflowScene
 from mapclient.core.workflowerror import WorkflowError
 from mapclient.core.workflowrdf import serializeWorkflowAnnotation
-from mapclient.core.pluginlocationmanager import PluginLocationManager
+from mapclient.settings.general import getConfigurationFile, getVirtEnvDirectory
+from mapclient.tools.virtualenv.manager import VirtualEnvManager
+import pkgutil
+from mapclient.core.pluginframework import PluginDatabase
+
+logger = logging.getLogger(__name__)
 
 _PREVIOUS_LOCATION_STRING = 'previousLocation'
 
@@ -53,7 +60,6 @@ class WorkflowManager(object):
 #        self.widget = None
 #        self.widgetIndex = -1
         self._location = ''
-        self._workspace_location = None
         self._conf_filename = None
         self._previousLocation = None
         self._saveStateIndex = 0
@@ -61,7 +67,7 @@ class WorkflowManager(object):
 
         self._title = None
         
-        self._pluginLocationManager = PluginLocationManager()
+        self._plugin_database = None
         self._scene = WorkflowScene(self)
 
     def title(self):
@@ -87,6 +93,9 @@ class WorkflowManager(object):
     def previousLocation(self):
         return self._previousLocation
 
+    def setPluginDatabase(self, plugin_database):
+        self._plugin_database = plugin_database
+
     def scene(self):
         return self._scene
 
@@ -101,6 +110,11 @@ class WorkflowManager(object):
 
     def isModified(self):
         return self._saveStateIndex != self._currentStateIndex
+    
+    def changeIdentifier(self, old_identifier, new_identifier):
+        old_config = getConfigurationFile(self._location, old_identifier)
+        new_config = getConfigurationFile(self._location, new_identifier)
+        shutil.move(old_config, new_config)
 
     def new(self, location):
         '''
@@ -180,7 +194,7 @@ class WorkflowManager(object):
         if 'version' not in wf.allKeys():
             wf.setValue('version', info.VERSION_STRING)
         self._scene.saveState(wf)
-        self._pluginLocationManager.saveState(wf, self._scene)
+        self._plugin_database.saveState(wf, self._scene)
         self._saveStateIndex = self._currentStateIndex
         af = _getWorkflowMetaAbsoluteFilename(self._location)
         f = open(af, 'w')
@@ -200,6 +214,33 @@ class WorkflowManager(object):
 
     def isWorkflowOpen(self):
         return True  # not self._location == None
+    
+    def isWorkflowTracked(self):
+        markers= ['.git', '.hg']
+        for marker in markers:
+            target = os.path.join(self._location, marker)
+            logger.debug('checking isdir: %s', target)
+            return os.path.isdir(target)
+        return False
+
+    def _loadWorkflowPlugins(self, wf_location):
+        wf = _getWorkflowConfiguration(wf_location)
+
+        return PluginDatabase.load(wf)
+
+    def checkPlugins(self, wf_location):
+        required_plugins = self._loadWorkflowPlugins(wf_location)
+        missing_plugins = self._plugin_database.checkForMissingPlugins(required_plugins)
+        return missing_plugins
+    
+    def checkDependencies(self, wf_location):
+        required_plugins = self._loadWorkflowPlugins(wf_location)
+        virtenv_dir = getVirtEnvDirectory()
+        vem = VirtualEnvManager(virtenv_dir)
+        missing_dependencies = {}
+        if vem.exists():
+            missing_dependencies = self._plugin_database.checkForMissingDependencies(required_plugins, vem.list())
+        return missing_dependencies
 
     def writeSettings(self, settings):
         settings.beginGroup(self.name)
