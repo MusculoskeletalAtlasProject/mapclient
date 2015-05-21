@@ -18,7 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
 import os, zipfile, requests
-from PySide import QtGui, QtCore
+from PySide import QtGui
 
 from mapclient.widgets.ui_pluginprogress import Ui_DownloadProgress
 
@@ -38,7 +38,7 @@ class PluginProgress(QtGui.QDialog):
         
         self._directory = directory
         self._plugins = plugins
-        self._fileNames = {}
+        self._filenames = {}
         self._totalBytes = 0
         self._download_strings = ['Downloading %d of %d plugins...', 'Extracting %d of %d plugins...']
         self._ui.progressBar.setMaximum(len(plugins)*50)
@@ -48,9 +48,9 @@ class PluginProgress(QtGui.QDialog):
         self._ui.cancelDownload.clicked.connect(self.downloadCancelled)
         
     def downloadCancelled(self):
-        for file in self._fileNames:
-            if os.path.exists(file):           
-                os.remove(file)
+        for filename in self._filenames:
+            if os.path.exists(filename):           
+                os.remove(filename)
         self.close()
 
     def run(self):
@@ -58,17 +58,17 @@ class PluginProgress(QtGui.QDialog):
         url_no = 1
         for plugin in self._plugins.keys():
             self._ui.label.setText(self._download_strings[0] %(url_no, len(self._plugins)))
-            self._fileNames[plugin] = plugin.lower().split(' ')
-            file = ''
-            for part in self._fileNames[plugin]:
-                file = file + part
-            self._fileNames[plugin] = file
+            self._filenames[plugin] = plugin.lower().split(' ')
+            filename = ''
+            for part in self._filenames[plugin]:
+                filename = filename + part
+            self._filenames[plugin] = filename
 
             rq = requests.get(self._plugins[plugin]['location'])
             if not rq.ok:
-                ret = QtGui.QMessageBox.critical(self, 'Error', '\n There was a problem downloading the following plugin:  ' + plugin + '\n\n Please check your internet connection.\t', QMessageBox.Ok)   
+                ret = QtGui.QMessageBox.critical(self, 'Error', '\n There was a problem downloading the following plugin:  ' + plugin + '\n\n Please check your internet connection.\t', QtGui.QMessageBox.Ok)   
             self._totalBytes += int(rq.headers['Content-length'])
-            with open(os.path.join(self._directory, self._fileNames[plugin] + '.zip'), "wb") as zFile:
+            with open(os.path.join(self._directory, self._filenames[plugin] + '.zip'), "wb") as zFile:
                 for chunk in rq.iter_content(1):
                     zFile.write(chunk)
                     downloaded += len(chunk)
@@ -79,11 +79,11 @@ class PluginProgress(QtGui.QDialog):
         file_no = 1
         for plugin in self._plugins:
             self._ui.label.setText(self._download_strings[1] %(file_no, len(self._plugins)))
-            zfobj = zipfile.ZipFile(os.path.join(self._directory, self._fileNames[plugin] + '.zip'), 'r')
+            zfobj = zipfile.ZipFile(os.path.join(self._directory, self._filenames[plugin] + '.zip'), 'r')
             zfobj.extractall(self._directory)
             self._ui.progressBar.setValue(self._ui.progressBar.value() + 5)
             zfobj.close()
-            os.remove(os.path.join(self._directory, self._fileNames[plugin] + '.zip'))
+            os.remove(os.path.join(self._directory, self._filenames[plugin] + '.zip'))
             self._ui.progressBar.setValue(self._ui.progressBar.value() + 5)
             file_no += 1
         self.close()

@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 '''
 import os
 
-from PySide import QtGui, QtCore
+from PySide import QtGui
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclientplugins.imagesourcestep.widgets.configuredialog import ConfigureDialog, ConfigureDialogState
@@ -27,9 +27,6 @@ from mapclientplugins.imagesourcestep.widgets.configuredialog import ConfigureDi
 # from mapclient.core.threadcommandmanager import ThreadCommandManager
 from mapclient.tools.pmr.pmrtool import PMRTool
 from mapclient.tools.pmr.settings.general import PMR
-
-def getConfigFilename(identifier):
-    return identifier + '.conf'
 
 class ImageSourceData(object):
 
@@ -79,14 +76,13 @@ class ImageSourceStep(WorkflowStepMountPoint):
         d.setModal(True)
         if d.exec_():
             self._state = d.getState()
-            self.serialize(self._location)
             # When a PMR location is given we need to translate that into a
             # local path for passing into the ImageSourceData class
             local_dir = self._state.location()
             pmr_location = self._state.pmrLocation()
             if pmr_location and not len(local_dir):
                 # Get login details:
-                local_dir = os.path.join(self._location, self._state.identifier())
+                local_dir = self._location
                 if not os.path.exists(local_dir):
                     os.mkdir(local_dir)
 
@@ -108,16 +104,11 @@ class ImageSourceStep(WorkflowStepMountPoint):
     def setIdentifier(self, identifier):
         self._state.setIdentifier(identifier)
 
-    def serialize(self, location):
-        identifier = self._state.identifier()
-        configuration_file = os.path.join(location, getConfigFilename(identifier))
-        s = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
-        self._state.save(s)
+    def serialize(self):
+        return self._state.serialize()
 
-    def deserialize(self, location):
-        configuration_file = os.path.join(location, getConfigFilename(self._state.identifier()))
-        s = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
-        self._state.load(s)
+    def deserialize(self, string):
+        self._state.deserialize(string)
         d = ConfigureDialog(self._state)
         self._configured = d.validate()
 

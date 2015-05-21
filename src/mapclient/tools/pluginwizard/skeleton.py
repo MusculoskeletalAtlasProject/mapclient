@@ -220,10 +220,10 @@ class Skeleton(object):
 
     def _generateImportStatements(self):
         if self._options.configCount() > 0:
-            import_string = IMPORT_STRING.format(os_import='import os\n', pyside_qtcore_import='from PySide import QtCore\n')
+            import_string = IMPORT_STRING.format(os_import='import os\n', json_import='import json\n')
             import_string += 'from mapclientplugins.{package_name}.configuredialog import ConfigureDialog\n'.format(package_name=self._options.getPackageName())
         else:
-            import_string = IMPORT_STRING.format(os_import='', pyside_qtcore_import='')
+            import_string = IMPORT_STRING.format(os_import='', json_import='')
 
         return import_string
 
@@ -270,20 +270,6 @@ class Skeleton(object):
 
         if self._options.hasIdentifierConfig():
             serialize_method_string = SERIALIZE_METHOD_STRING.format(serializecontent=SERIALIZE_IDENTIFIER_CONTENT_STRING, deserializecontent=DESERIALIZE_IDENTIFIER_CONTENT_STRING)
-            serialize_config_string = ''
-            deserialize_config_string = ''
-            config_index = 0
-            while config_index < self._options.configCount():
-                config = self._options.getConfig(config_index)
-                serialize_config_string += '        conf.setValue(\'{0}\', self._config[\'{0}\'])'.format(config[0])
-                deserialize_config_string += '        self._config[\'{0}\'] = conf.value(\'{0}\', \'{1}\')'.format(config[0], config[1])
-                config_index += 1
-                if config_index < self._options.configCount():
-                    serialize_config_string += '\n'
-                    deserialize_config_string += '\n'
-
-
-            serialize_method_string = serialize_method_string.format(serializesetvalues=serialize_config_string, deserializevalues=deserialize_config_string)
         else:
             serialize_method_string = SERIALIZE_METHOD_STRING.format(serializecontent=SERIALIZE_DEFAULT_CONTENT_STRING, deserializecontent=DESERIALIZE_DEFAULT_CONTENT_STRING)
 

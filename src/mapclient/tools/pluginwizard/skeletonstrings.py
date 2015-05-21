@@ -23,8 +23,10 @@ IMPORT_STRING = '''
 MAP Client Plugin Step
 \'\'\'
 {os_import}
+{json_import}
+
 from PySide import QtGui
-{pyside_qtcore_import}
+
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 '''
 
@@ -76,22 +78,17 @@ GETIDENTIFIER_IDENTIFER_CONTENT_STRING = 'return self._config[\'identifier\']'
 SETIDENTIFIER_IDENTIFER_CONTENT_STRING = 'self._config[\'identifier\'] = identifier'
 
 SERIALIZE_METHOD_STRING = '''
-    def serialize(self, location):
+    def serialize(self):
         \'\'\'
-        Add code to serialize this step to disk.  The filename should
-        use the step identifier (received from getIdentifier()) to keep it
-        unique within the workflow.  The suggested name for the file on
-        disk is:
-            filename = getIdentifier() + '.conf'
+        Add code to serialize this step to string.  This method should
+        implement the opposite of 'deserialize'.
         \'\'\'
         {serializecontent}
 
-    def deserialize(self, location):
+    def deserialize(self, string):
         \'\'\'
-        Add code to deserialize this step from disk.  As with the serialize 
-        method the filename should use the step identifier.  Obviously the 
-        filename used here should be the same as the one used by the
-        serialize method.
+        Add code to deserialize this step from string.  This method should
+        implement the opposite of 'serialize'.
         \'\'\'
         {deserializecontent}
 
@@ -99,18 +96,10 @@ SERIALIZE_METHOD_STRING = '''
 
 SERIALIZE_DEFAULT_CONTENT_STRING = 'pass'
 DESERIALIZE_DEFAULT_CONTENT_STRING = 'pass'
-SERIALIZE_IDENTIFIER_CONTENT_STRING = '''configuration_file = os.path.join(location, self.getIdentifier() + '.conf')
-        conf = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
-        conf.beginGroup('config')
-{serializesetvalues}
-        conf.endGroup()
+SERIALIZE_IDENTIFIER_CONTENT_STRING = '''return json.dumps(self._config, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 '''
 
-DESERIALIZE_IDENTIFIER_CONTENT_STRING = '''configuration_file = os.path.join(location, self.getIdentifier() + '.conf')
-        conf = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
-        conf.beginGroup('config')
-{deserializevalues}
-        conf.endGroup()
+DESERIALIZE_IDENTIFIER_CONTENT_STRING = '''self._config.update(json.loads(string))
 
         d = ConfigureDialog()
         d.identifierOccursCount = self._identifierOccursCount
@@ -342,7 +331,10 @@ SETUP_PY_TEMPLATE = """\
 from setuptools import setup, find_packages
 import sys, os
 
-dependencies = ['''Insert plugin dependencies here''']
+# The dependencies variable is used by MAP Client to
+# determine if further downloads are required.  Please
+# list all dependencies here.
+dependencies = [] # Insert plugin dependencies here
 
 setup(name=%(name)r,
       version=%(version)r,
@@ -357,9 +349,7 @@ setup(name=%(name)r,
       namespace_packages=%(namespace_packages)r,
       include_package_data=True,
       zip_safe=False,
-      install_requires=[
-          # -*- Extra requirements: -*-
-      ],
+      install_requires=dependencies,
       )
 """
 
