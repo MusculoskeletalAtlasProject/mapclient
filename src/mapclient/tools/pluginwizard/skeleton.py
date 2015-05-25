@@ -134,19 +134,15 @@ class Skeleton(object):
                 if current_port[0].endswith('uses'):
                     uses_count += 1
                     if uses_total == 1:
-                        method_string += '        portData{0} = dataIn # {1}\n'.format(index, current_port[1])
+                        method_string += '        self._portData{0} = dataIn # {1}\n'.format(index, current_port[1])
                     else:
                         if uses_count == 1:
                             method_string += '''        if index == {0}:
-            portData{0} = dataIn # {1}
-'''.format(index, current_port[1])
-                        elif uses_count == uses_total:
-                            method_string += '''        else:
-            portData{0} = dataIn # {1}
+            self._portData{0} = dataIn # {1}
 '''.format(index, current_port[1])
                         else:
                             method_string += '''        elif index == {0}:
-            portData{0} = dataIn # {1}
+            self._portData{0} = dataIn # {1}
 '''.format(index, current_port[1])
 
         return method_string
@@ -176,24 +172,15 @@ class Skeleton(object):
                 if current_port[0].endswith('provides'):
                     provides_count += 1
                     if provides_total == 1:
-                        method_string += '''        portData{0} = None # {1}
-        return portData{0}
-'''.format(index, current_port[1])
+                        method_string += '        return self._portData{0} # {1}\n'.format(index, current_port[1])
                     else:
                         if provides_count == 1:
                             method_string += '''        if index == {0}:
-            portData{0} = None # {1}
-            return portData{0}
-'''.format(index, current_port[1])
-                        elif provides_count == provides_total:
-                            method_string += '''        else:
-            portData{0} = None # {1}
-            return portData{0}
+            return self._portData{0} # {1}
 '''.format(index, current_port[1])
                         else:
                             method_string += '''        elif index == {0}:
-            portData{0} = None # {1}
-            return portData{0}
+            return self._portData{0} # {1}
 '''.format(index, current_port[1])
 
         return method_string
@@ -219,11 +206,17 @@ class Skeleton(object):
         return method_string
 
     def _generateImportStatements(self):
+        qtgui_import = ''
+        json_import = ''
+        image_filename = self._options.getImageFile()
+        if image_filename:
+            qtgui_import = 'from PySide import QtGui\n\n'
         if self._options.configCount() > 0:
-            import_string = IMPORT_STRING.format(os_import='import os\n', json_import='import json\n')
-            import_string += 'from mapclientplugins.{package_name}.configuredialog import ConfigureDialog\n'.format(package_name=self._options.getPackageName())
-        else:
-            import_string = IMPORT_STRING.format(os_import='', json_import='')
+            json_import = 'import json\n\n'
+
+
+        import_string = IMPORT_STRING.format(json_import=json_import, qtgui_import=qtgui_import)
+        import_string += 'from mapclientplugins.{package_name}.configuredialog import ConfigureDialog\n'.format(package_name=self._options.getPackageName())
 
         return import_string
 
@@ -250,7 +243,17 @@ class Skeleton(object):
             port_index += 1
             ports.append(current_port)
 
+        init_string += '        # Port data:\n'
+        for index, current_port in enumerate(ports):
+            init_string += '        self._portData{0} = None # {1}\n'.format(index, current_port[1])
+
+        if self._options.hasIdentifierConfig():
+            id_method_string = IDENTIFIER_METHOD_STRING.format(getidentifiercontent=GETIDENTIFIER_IDENTIFER_CONTENT_STRING, setidentifiercontent=SETIDENTIFIER_IDENTIFER_CONTENT_STRING)
+        else:
+            id_method_string = IDENTIFIER_METHOD_STRING.format(getidentifiercontent=GETIDENTIFIER_DEFAULT_CONTENT_STRING.format(step_object_name=object_name), setidentifiercontent=SETIDENTIFIER_DEFAULT_CONTENT_STRING)
+
         if self._options.configCount() > 0:
+            init_string += '        # Config:\n'
             init_string += '        self._config = {}\n'
             config_index = 0
             while config_index < self._options.configCount():
@@ -259,11 +262,6 @@ class Skeleton(object):
                 config_index += 1
 
             init_string += '\n'
-
-        if self._options.hasIdentifierConfig():
-            id_method_string = IDENTIFIER_METHOD_STRING.format(getidentifiercontent=GETIDENTIFIER_IDENTIFER_CONTENT_STRING, setidentifiercontent=SETIDENTIFIER_IDENTIFER_CONTENT_STRING)
-        else:
-            id_method_string = IDENTIFIER_METHOD_STRING.format(getidentifiercontent=GETIDENTIFIER_DEFAULT_CONTENT_STRING.format(step_object_name=object_name), setidentifiercontent=SETIDENTIFIER_DEFAULT_CONTENT_STRING)
 
 #         conf.setValue('identifier', self._config['identifier'])
 #         self._config['identifier'] = conf.value('identifier', '')

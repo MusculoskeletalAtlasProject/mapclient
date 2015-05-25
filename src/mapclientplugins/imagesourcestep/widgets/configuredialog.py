@@ -54,7 +54,6 @@ class ConfigureDialogState(object):
         return self._identifier
 
     def setIdentifier(self, identifier):
-        print identifier
         self._identifier = identifier
 
     def imageType(self):
