@@ -17,14 +17,17 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
-from PySide import QtCore
+import sys
+import uuid
 import logging
+import traceback
+
+from PySide import QtCore
 
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflowerror import WorkflowError
 from mapclient.core.utils import convertExceptionToMessage, loadConfiguration
 from mapclient.settings.general import getConfigurationFile
-import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -228,6 +231,18 @@ class WorkflowDependencyGraph(object):
                         raise WorkflowError('Connection in workflow not found, something has gone horribly wrong')
 
                 for connection in connections:
+                    # Alternative indexing based on index of port based on type.
+                    # But don't use this as it is not what is documented.
+                    # source_step = connection.source()._step
+                    # destination_step = current_node._step
+                    # source_ports = [port for port in source_step._ports if port.hasProvides()]
+                    # destination_ports = [port for port in destination_step._ports if port.hasUses()]
+                    # source_data_index = source_ports.index(source_step._ports[connection.sourceIndex()])
+                    # destination_data_index = destination_ports.index(destination_step._ports[connection.destinationIndex()])
+
+                    #dataIn = source_step.getPortData(source_data_index)
+                    #destination_step.setPortData(destination_data_index, dataIn)
+
                     dataIn = connection.source()._step.getPortData(connection.sourceIndex())
                     current_node._step.setPortData(connection.destinationIndex(), dataIn)
 
@@ -237,6 +252,8 @@ class WorkflowDependencyGraph(object):
                 self._current = -1
                 log_message = 'Exception caught while executing the workflow: ' + convertExceptionToMessage(e)
                 logger.critical(log_message)
+                _, _, tb = sys.exc_info()
+                logger.info(traceback.print_tb(tb))
                 raise WorkflowError(log_message)
 
 

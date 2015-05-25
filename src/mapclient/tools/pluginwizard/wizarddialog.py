@@ -89,7 +89,7 @@ class WizardDialog(QtGui.QWizard):
         row_index = 0
         while row_index < ports_table.rowCount():
             self._options.addPort('http://physiomeproject.org/workflow/1.0/rdf-schema#' + ports_table.cellWidget(row_index, 0).currentText(),
-                                   ports_table.item(row_index, 1).text())
+                                   ports_table.item(row_index, 1).text() if ports_table.item(row_index, 1) else '<not-set>')
             row_index += 1
 
         if self.page(3)._ui.identifierCheckBox.isChecked():

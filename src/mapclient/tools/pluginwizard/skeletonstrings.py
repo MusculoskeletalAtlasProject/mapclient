@@ -22,12 +22,7 @@ IMPORT_STRING = '''
 \'\'\'
 MAP Client Plugin Step
 \'\'\'
-{os_import}
-{json_import}
-
-from PySide import QtGui
-
-from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
+{json_import}{qtgui_import}from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 '''
 
 CLASS_STRING = '''
