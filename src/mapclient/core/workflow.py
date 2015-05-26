@@ -27,7 +27,8 @@ from mapclient.settings import info
 from mapclient.core.workflowscene import WorkflowScene
 from mapclient.core.workflowerror import WorkflowError
 from mapclient.core.workflowrdf import serializeWorkflowAnnotation
-from mapclient.settings.general import getConfigurationFile, getVirtEnvDirectory
+from mapclient.settings.general import getConfigurationFile, getVirtEnvDirectory,\
+    DISPLAY_FULL_PATH, getConfiguration
 from mapclient.tools.virtualenv.manager import VirtualEnvManager
 import pkgutil
 from mapclient.core.pluginframework import PluginDatabase
@@ -73,7 +74,10 @@ class WorkflowManager(object):
     def title(self):
         self._title = info.APPLICATION_NAME
         if self._location:
-            self._title = self._title + ' - ' + self._location
+            if getConfiguration(DISPLAY_FULL_PATH):
+                self._title = self._title + ' - ' + self._location
+            else:
+                self._title = self._title + ' - ' + os.path.basename(self._location)
         if self._saveStateIndex != self._currentStateIndex:
             self._title = self._title + ' *'
 
