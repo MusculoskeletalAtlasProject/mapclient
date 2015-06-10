@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -84,7 +84,7 @@ class Skeleton(object):
 
     def _writePackageInit(self, init_dir):
         '''
-        Write the package __init__ file.  This file imports the step, sets the 
+        Write the package __init__ file.  This file imports the step, sets the
         version number and lists the author(s) name.
         '''
         init_file = os.path.join(init_dir, '__init__.py')
@@ -193,10 +193,10 @@ class Skeleton(object):
         dlg.setConfig(self._config)
         dlg.validate()
         dlg.setModal(True)
-        
+
         if dlg.exec_():
             self._config = dlg.getConfig()
-        
+
         self._configured = dlg.validate()
         self._configuredObserver()
 '''
@@ -208,8 +208,8 @@ class Skeleton(object):
     def _generateImportStatements(self):
         qtgui_import = ''
         json_import = ''
-        image_filename = self._options.getImageFile()
-        if image_filename:
+        icon = self._options.getIcon()
+        if icon:
             qtgui_import = 'from PySide import QtGui\n\n'
         if self._options.configCount() > 0:
             json_import = 'import json\n\n'
@@ -226,11 +226,11 @@ class Skeleton(object):
         '''
         object_name = self._options.getName().replace(' ', '')
         init_string = INIT_METHOD_STRING.format(step_object_name=object_name, step_name=self._options.getName(), step_category=self._options.getCategory())
-        image_filename = self._options.getImageFile()
-        if image_filename:
-            (_, tail) = os.path.split(image_filename)
+        icon = self._options.getIcon()
+        if icon:
+            image_filename = self._options.getImageFile()
             icon_string = '        self._icon =  QtGui.QImage(\':/{step_package_name}/' + IMAGES_DIRECTORY + '/{image_filename}\')\n'
-            init_string += icon_string.format(step_package_name=self._options.getPackageName(), image_filename=tail)
+            init_string += icon_string.format(step_package_name=self._options.getPackageName(), image_filename=image_filename)
         port_index = 0
         ports = []
         init_string += '''        # Ports:
@@ -287,7 +287,7 @@ class Skeleton(object):
     def _writeStepPackageInit(self, init_dir):
         '''
         Write the step package __init__ file.  If a resource file
-        is present then load the module in here. Displays the author name, 
+        is present then load the module in here. Displays the author name,
         plugin name and plugin location.
         '''
         init_file = os.path.join(init_dir, '__init__.py')
@@ -298,8 +298,8 @@ class Skeleton(object):
             author_name=self._options.getAuthorName(),
             plugin_location=self._options.getPluginLocation())
         )
-        image_filename = self._options.getImageFile()
-        if image_filename:
+        icon = self._options.getIcon()
+        if icon:
             (package, _) = os.path.splitext(PYTHON_QT_RESOURCE_FILENAME)
             f.write('# Import the resource file when the module is loaded,\n')
             f.write('# this enables the framework to use the step icon.\n')
@@ -310,11 +310,11 @@ class Skeleton(object):
         '''
         The step icon requires the creation of directories, resources
         and files if an image file has been specified.
-        
+
         The image file in the options is assumed to exist.
         '''
-        image_filename = self._options.getImageFile()
-        if image_filename:
+        icon = self._options.getIcon()
+        if icon:
             # Create directories
             qt_dir = os.path.join(step_dir, 'qt')
             if not os.path.exists(qt_dir):
@@ -323,13 +323,13 @@ class Skeleton(object):
             if not os.path.exists(images_dir):
                 os.mkdir(images_dir)
 
-            (_, tail) = os.path.split(image_filename)
+            image_filename = self._options.getImageFile()
             # Copy image file
-            copyfile(image_filename, os.path.join(images_dir, tail))
+            icon.save(os.path.join(images_dir, image_filename))
 
             resource_file = os.path.join(qt_dir, QT_RESOURCE_FILENAME)
             f = open(resource_file, 'w')
-            f.write(RESOURCE_FILE_STRING.format(step_package_name=self._options.getPackageName(), image_filename=tail))
+            f.write(RESOURCE_FILE_STRING.format(step_package_name=self._options.getPackageName(), image_filename=image_filename))
             f.close()
 
             # Generate resources file, I'm going to assume that I can find pyside-rcc
@@ -341,7 +341,7 @@ class Skeleton(object):
         '''
         The Config dialog requires the existence of the qt directory in the
         step directory.
-        
+
         Assume the program pyside-uic is available from the shell.
         '''
         config_count = self._options.configCount()
@@ -395,7 +395,7 @@ class Skeleton(object):
                     result = call([pyside_uic, '--from-imports', '-o', os.path.join(step_dir, PYTHON_QT_CONFDIALOG_UI_FILENAME), ui_file])
                 except Exception:
                     result = -1
-                
+
                 if result == 0:
                     break
 
@@ -471,6 +471,7 @@ class SkeletonOptions(object):
         self._packageName = ''
         self._pluginLocation = ''
         self._imageFile = ''
+        self._icon = None
         self._outputDirectory = ''
         self._ports = []
         self._configs = []
@@ -480,10 +481,10 @@ class SkeletonOptions(object):
 
     def getName(self):
         return self._name
-    
+
     def getPluginLocation(self):
         return self._pluginLocation
-        
+
     def setPluginLocation(self, pluginLocation):
         self._pluginLocation = pluginLocation
 
@@ -504,6 +505,12 @@ class SkeletonOptions(object):
 
     def setImageFile(self, imageFile):
         self._imageFile = imageFile
+
+    def getIcon(self):
+        return self._icon
+
+    def setIcon(self, icon):
+        self._icon = icon
 
     def getOutputDirectory(self):
         return self._outputDirectory
@@ -551,4 +558,4 @@ class SkeletonOptions(object):
             category = DEFAULT_CATEGORY
 
         self._category = category
-        
+
