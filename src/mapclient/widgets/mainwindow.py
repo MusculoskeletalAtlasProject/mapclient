@@ -305,9 +305,10 @@ class MainWindow(QtGui.QMainWindow):
             s = Skeleton(dlg.getOptions())
             try:
                 s.write()
+                self._pluginManagerReloadPlugins()
                 QtGui.QMessageBox.information(self, 'Skeleton Step', 'The Skeleton step has successfully been written to disk.')
             except:
-                QtGui.QMessageBox.critical(self, 'Error Writing Step', 'There was an error writing the step, perhaps the step already exists.')
+                QtGui.QMessageBox.critical(self, 'Error Writing Step', 'There was an error writing the step, perhaps the step already exists?')
 
     def showPMRTool(self):
         from mapclient.tools.pmr.dialogs.pmrdialog import PMRDialog
