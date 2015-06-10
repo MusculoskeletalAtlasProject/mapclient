@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -56,12 +56,12 @@ class WorkflowWidget(QtGui.QWidget):
         self._mainWindow = mainWindow
         self._ui = Ui_WorkflowWidget()
         self._ui.setupUi(self)
-        
+
         self._pluginUpdater = PluginUpdater()
 
         self._undoStack = QtGui.QUndoStack(self)
         self._undoStack.indexChanged.connect(self.undoStackIndexChanged)
-        
+
         self._workflowManager = self._mainWindow.model().workflowManager()
         self._graphicsScene = WorkflowGraphicsScene(self)
         self._ui.graphicsView.setScene(self._graphicsScene)
@@ -78,6 +78,7 @@ class WorkflowWidget(QtGui.QWidget):
         self._createMenuItems()
 
         self.updateStepTree()
+        self.applyOptions()
 
         self._updateUi()
 
@@ -108,6 +109,13 @@ class WorkflowWidget(QtGui.QWidget):
         self._ui.stepTree.clear()
         for step in WorkflowStepMountPoint.getPlugins(''):
             self._ui.stepTree.addStep(step)
+
+    def applyOptions(self):
+        om = self._mainWindow.model().optionsManager()
+        options = om.getOptions()
+        if 'checkBoxShowStepNames' in options:
+            self._graphicsScene.showStepNames(options['checkBoxShowStepNames'])
+            self._ui.graphicsView.showStepNames(options['checkBoxShowStepNames'])
 
     def undoStackIndexChanged(self, index):
         self._mainWindow.model().workflowManager().undoStackIndexChanged(index)
@@ -256,7 +264,7 @@ class WorkflowWidget(QtGui.QWidget):
                 QtGui.QFileDialog.ShowDirsOnly |
                 QtGui.QFileDialog.DontResolveSymlinks |
                 QtGui.QFileDialog.ReadOnly))
-        
+
         if len(workflowDir):
             try:
                 logger.info('Perform workflow checks on open ...')
@@ -273,12 +281,12 @@ class WorkflowWidget(QtGui.QWidget):
         dlg.setModal(True)
         if dlg.exec_():
             return dlg.downloadDependencies(), dlg.installMissingPlugins()
-        
+
         return False, False
 
     def installMissingPlugins(self, plugins):
         from mapclient.widgets.pluginprogress import PluginProgress
-        directory = QtGui.QFileDialog.getExistingDirectory(caption='Select Plugin Directory', dir = '', options=QtGui.QFileDialog.ShowDirsOnly | QtGui.QFileDialog.DontResolveSymlinks)
+        directory = QtGui.QFileDialog.getExistingDirectory(caption='Select Plugin Directory', dir='', options=QtGui.QFileDialog.ShowDirsOnly | QtGui.QFileDialog.DontResolveSymlinks)
         if directory:
             pm = self._mainWindow.model().getPluginManager()
             pluginDirs = pm.directories()
@@ -305,7 +313,7 @@ class WorkflowWidget(QtGui.QWidget):
         unsuccessful_installs = self.installer.run()
         self.installer.close()
         if unsuccessful_installs.keys():
-            QtGui.QMessageBox.critical(self, 'Failed Installation', 
+            QtGui.QMessageBox.critical(self, 'Failed Installation',
                                        'One or more of the required dependencies could not be installed.\nPlease refer to the program logs for more information.', QtGui.QMessageBox.Ok)
         return unsuccessful_installs
 
@@ -349,7 +357,7 @@ class WorkflowWidget(QtGui.QWidget):
 #         pm.load()
         self._mainWindow.showPluginErrors()
         self.updateStepTree()
-        
+
     def importFromPMR(self):
         m = self._mainWindow.model().workflowManager()
         dlg = ImportWorkflowDialog(m.previousLocation(), self._mainWindow)

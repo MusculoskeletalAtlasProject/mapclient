@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -22,14 +22,14 @@ from mapclient.widgets.utils import createDefaultImageIcon
 
 
 class HeaderDelegate(QtGui.QStyledItemDelegate):
-    
+
     def __init__(self, parent=None):
         super(HeaderDelegate, self).__init__(parent)
         self._arrow_right = QtGui.QPixmap(':/mapclient/images/icon-arrow-right.png')
         trans = QtGui.QTransform()
         trans.rotate(90.0)
         self._arrow_down = self._arrow_right.transformed(trans)
-    
+
     def paint(self, painter, option, index):
         if index.parent().row() < 0:
             rx = option.rect.x()
@@ -39,55 +39,55 @@ class HeaderDelegate(QtGui.QStyledItemDelegate):
             painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
             painter.setBrush(QtGui.QBrush(QtCore.Qt.lightGray))
             painter.drawRoundedRect(rx + 1, ry + 1, wd - 2, ht - 2, 7, 7, QtCore.Qt.RelativeSize)
-            
+
             if option.state & QtGui.QStyle.State_Open:
                 required_arrow = self._arrow_down
             else:
                 required_arrow = self._arrow_right
-                
+
             painter.drawPixmap(rx + 3, ry + 3, ht - 6, ht - 6, required_arrow)
             painter.drawText(option.rect, index.data(), QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
         else:
             super(HeaderDelegate, self).paint(painter, option, index)
-        
-        
+
+
 class StepTree(QtGui.QTreeWidget):
 
     def __init__(self, parent=None):
         super(StepTree, self).__init__(parent)
         self.stepIconSize = 64
         self.setItemDelegate(HeaderDelegate())
-        
+
         size = QtCore.QSize(self.stepIconSize, self.stepIconSize)
         self.setIconSize(size)
         self.setColumnCount(1)
         self.setHeaderHidden(True)
         self.setIndentation(0)
-        
+
         self.itemClicked.connect(self.handleMouseClicked)
         self.itemPressed.connect(self.handleMousePress)
         self._leftMouseButton = False
 
         self.setMinimumWidth(250)
-        
+
     def mouseDoubleClickEvent(self, event):
         return event.accept()
-    
+
     def handleMousePress(self, event):
         self._leftMouseButton = int(QtGui.QApplication.mouseButtons()) == QtCore.Qt.LeftButton
 
     def handleMouseClicked(self, item):
-        
+
         if item is None:
             return
-        
+
         if not self._leftMouseButton:
             return
-        
+
         if item.parent() is None:
             self.setItemExpanded(item, not self.isItemExpanded(item))
             return
-            
+
     def findParentItem(self, category):
         parentItem = None
         for index in range(self.topLevelItemCount()):
@@ -119,7 +119,7 @@ class StepTree(QtGui.QTreeWidget):
         if step._icon:
             stepItem.setIcon(column, QtGui.QIcon(QtGui.QPixmap.fromImage(step._icon)))
         else:
-            stepItem.setIcon(column, QtGui.QIcon(QtGui.QPixmap.fromImage(createDefaultImageIcon(step.getName()))))
+            stepItem.setIcon(column, QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(':/workflow/images/default_workflow_step.png'))))
 
         stepItem.setData(column, QtCore.Qt.UserRole, step)
         stepItem.setFlags(QtCore.Qt.ItemIsEnabled)
@@ -139,9 +139,9 @@ class StepTree(QtGui.QTreeWidget):
         if step._icon:
             pixmap = QtGui.QPixmap(step._icon)
         else:
-            icon = createDefaultImageIcon(step.getName())
+#             icon = createDefaultImageIcon(step.getName())
             pixmap = QtGui.QPixmap()
-            pixmap.convertFromImage(icon)
+            pixmap.convertFromImage(QtGui.QImage(':/workflow/images/default_workflow_step.png'))
 
         pixmap = pixmap.scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
         hotspot = QtCore.QPoint(pixmap.width() / 2, pixmap.height() / 2)

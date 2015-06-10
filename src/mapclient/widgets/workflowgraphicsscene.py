@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -27,7 +27,7 @@ from mapclient.widgets.workflowcommands import CommandConfigure, CommandRemove
 class WorkflowGraphicsScene(QtGui.QGraphicsScene):
     '''
     This view side class is a non-authoratative representation
-    of the current workflow scene model.  It must be kept in 
+    of the current workflow scene model.  It must be kept in
     sync with the authoratative workflow scene model.
     '''
 
@@ -39,6 +39,7 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
         self._workflow_scene = None
         self._previousSelection = []
         self._undoStack = None
+        self._showStepNames = True
 
     def setWorkflowScene(self, scene):
         self._workflow_scene = scene
@@ -52,24 +53,22 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
     def addItem(self, item):
         QtGui.QGraphicsScene.addItem(self, item)
         if hasattr(item, 'Type'):
-            if item.Type == Node.Type:
-                self._workflow_scene.addItem(item._metastep)
-            elif item.Type == Arc.Type:
-                self._workflow_scene.addItem(item._connection)
+            if item.Type == Node.Type or item.Type == Arc.Type:
+                self._workflow_scene.addItem(item.metaItem())
 
     def removeItem(self, item):
         QtGui.QGraphicsScene.removeItem(self, item)
         if hasattr(item, 'Type'):
             if item.Type == Node.Type:
-                self._workflow_scene.removeItem(item._metastep)
+                self._workflow_scene.removeItem(item.metaItem())
             elif item.Type == Arc.Type:
                 item.sourceNode().removeArc(item)
                 item.destinationNode().removeArc(item)
-                self._workflow_scene.removeItem(item._connection)
+                self._workflow_scene.removeItem(item.metaItem())
 
     def updateModel(self):
         '''
-        Clears the QGraphicScene and re-populates it with what is currently 
+        Clears the QGraphicScene and re-populates it with what is currently
         in the WorkflowScene.
         '''
         QtGui.QGraphicsScene.clear(self)
@@ -78,6 +77,7 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
         for workflowitem in self._workflow_scene.items():
             if workflowitem.Type == MetaStep.Type:
                 node = Node(workflowitem)
+                node.showStepName(self._showStepNames)
                 workflowitem._step.registerConfiguredObserver(self.stepConfigured)
                 workflowitem._step.registerDoneExecution(self.doneExecution)
                 workflowitem._step.registerOnExecuteEntry(self.setCurrentWidget, self.setWidgetUndoRedoStack)
@@ -159,6 +159,12 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
 
     def setWidgetUndoRedoStack(self, stack):
         self.parent().setWidgetUndoRedoStack(stack)
+
+    def showStepNames(self, show):
+        self._showStepNames = show
+        for workflowitem in self.items():
+            if hasattr(workflowitem, 'Type') and workflowitem.Type == Node.Type:
+                workflowitem.showStepName(show)
 
     def doneExecution(self):
         self.parent().executeNext()

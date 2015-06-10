@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -24,7 +24,6 @@ from PySide import QtCore, QtGui
 from mapclient.core.workflowscene import Connection
 from mapclient.tools.annotation.annotationdialog import AnnotationDialog
 from mapclient.tools.pmr.pmrdvcshelper import repositoryIsUpToDate
-from mapclient.widgets.utils import createDefaultImageIcon
 
 class ErrorItem(QtGui.QGraphicsItem):
 
@@ -120,9 +119,6 @@ class Arc(Item):
         self._dest().addArc(self)
         self.setZValue(-2.0)
         self.adjust()
-
-    def connection(self):
-        return self._connection
 
     def type(self):
         return Arc.Type
@@ -226,11 +222,18 @@ class Node(Item):
         self._metastep = metastep
         icon = self._metastep._step._icon
         if not icon:
-            icon = QtGui.QImage(createDefaultImageIcon(self._metastep._step.getName()))
+            icon = QtGui.QImage(':/workflow/images/default_workflow_step.png')
 
         self._pixmap = QtGui.QPixmap.fromImage(icon).scaled(self.Size, self.Size, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
 
-        self.setToolTip(metastep._step._name)
+        self._text = StepText(metastep._step.getName(), self)
+        # Set text position
+        br = self._text.boundingRect()
+        x_pos = self.Size / 2 - br.width() / 2
+        y_pos = self.Size + 5
+        self._text.setPos(x_pos, y_pos)
+
+        self._setToolTip()
 
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
@@ -298,6 +301,10 @@ class Node(Item):
 
     def updateConfigureIcon(self):
         self._configure_item.setConfigured(self._metastep._step.isConfigured())
+        self._setToolTip()
+
+    def _setToolTip(self):
+        self.setToolTip(self._metastep._step.getName() + ": " + self._metastep._step.getIdentifier())
 
     def updateMercurialIcon(self):
         if self._metastep._step.getIdentifier():
@@ -333,6 +340,9 @@ class Node(Item):
         dlg = AnnotationDialog(self._getStepLocation())
         dlg.setModal(True)
         dlg.exec_()
+
+    def showStepName(self, show):
+        self._text.setVisible(show)
 
     def metaItem(self):
         return self._metastep
@@ -370,6 +380,7 @@ class Node(Item):
     def _getStepLocation(self):
         return os.path.join(self._metastep._step._location, self._metastep._step.getIdentifier())
 
+
 class StepPort(QtGui.QGraphicsEllipseItem):
 
     Type = QtGui.QGraphicsItem.UserType + 3
@@ -401,7 +412,7 @@ class StepPort(QtGui.QGraphicsEllipseItem):
 
     def _removeDeadwood(self):
         '''
-        Unfortunately the weakref doesn't work correctly for c based classes.  This function 
+        Unfortunately the weakref doesn't work correctly for c based classes.  This function
         removes any None type references in _connections.
         '''
         prunedArcList = [ arc for arc in self._connections if arc() ]
@@ -429,6 +440,22 @@ class StepPort(QtGui.QGraphicsEllipseItem):
                 arc().adjust()
 
         return QtGui.QGraphicsItem.itemChange(self, change, value)
+
+
+class StepText(QtGui.QGraphicsSimpleTextItem):
+
+    Type = QtGui.QGraphicsItem.UserType + 4
+
+    def boundingRect(self):
+        br = super(StepText, self).boundingRect()
+        adjust = 2.0
+        return br.adjusted(-adjust, -adjust, adjust, adjust)
+
+    def paint(self, painter, option, widget):
+        painter.eraseRect(self.boundingRect())
+        painter.setBrush(QtCore.Qt.darkGray)
+        painter.drawRoundedRect(self.boundingRect(), 5, 5)
+        super(StepText, self).paint(painter, option, widget)
 
 
 class MercurialIcon(QtGui.QGraphicsItem):
