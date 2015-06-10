@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -173,22 +173,6 @@ class MainWindow(QtGui.QMainWindow):
         self.actionPluginWizard.triggered.connect(self.showPluginWizardDialog)
         self.actionPMR.triggered.connect(self.showPMRTool)
         self.actionAnnotation.triggered.connect(self.showAnnotationTool)
-        
-    def showLogInformationDialog(self):
-        from mapclient.widgets.loginformation import LogInformation
-        dlg = LogInformation(self)
-        dlg.fillTable(self)
-        dlg.setModal(True)
-        dlg.exec_()
-        
-    def showOptionsDialog(self):
-        from mapclient.widgets.dialogs.optionsdialog import OptionsDialog
-        
-        options = {}
-        dlg = OptionsDialog(self)
-        dlg.load(options)
-        if dlg.exec_() == QtGui.QDialog.Accepted:
-            options = dlg.save()
 
     def setupVirtualEnv(self):
         """
@@ -228,7 +212,7 @@ class MainWindow(QtGui.QMainWindow):
         if self._ui.stackedWidget.indexOf(widget) <= 0:
             self._ui.stackedWidget.addWidget(widget)
         self._ui.stackedWidget.setCurrentWidget(widget)
-        
+
     def currentWidget(self):
         return self._ui.stackedWidget.currentWidget()
 
@@ -256,6 +240,25 @@ class MainWindow(QtGui.QMainWindow):
         dlg = AboutDialog(self)
         dlg.setModal(True)
         dlg.exec_()
+
+    def showLogInformationDialog(self):
+        from mapclient.widgets.loginformation import LogInformation
+        dlg = LogInformation(self)
+        dlg.fillTable(self)
+        dlg.setModal(True)
+        dlg.exec_()
+
+    def showOptionsDialog(self):
+        from mapclient.widgets.dialogs.optionsdialog import OptionsDialog
+
+        om = self._model.optionsManager()
+        options = om.getOptions()
+        dlg = OptionsDialog(self)
+        dlg.load(options)
+        if dlg.exec_() == QtGui.QDialog.Accepted:
+            if dlg.isModified():
+                om.setOptions(dlg.save())
+                self._workflowWidget.applyOptions()
 
     def showPluginManagerDialog(self):
         from mapclient.tools.pluginmanagerdialog import PluginManagerDialog
@@ -307,7 +310,7 @@ class MainWindow(QtGui.QMainWindow):
                 QtGui.QMessageBox.critical(self, 'Error Writing Step', 'There was an error writing the step, perhaps the step already exists.')
 
     def showPMRTool(self):
-        from mapclient.tools.pmr.dialogs.pmrdialog import PMRDialog 
+        from mapclient.tools.pmr.dialogs.pmrdialog import PMRDialog
         dlg = PMRDialog(self)
         dlg.setModal(True)
         dlg.exec_()
@@ -325,3 +328,5 @@ class MainWindow(QtGui.QMainWindow):
             if plugin_errors[error]:
                 self._model.pluginManager().showPluginErrorsDialog()
                 break
+
+

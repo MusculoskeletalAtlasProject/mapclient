@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt/options.ui'
+# Form implementation generated from reading ui file 'qt/optionsdialog.ui'
 #
-# Created: Wed Feb 25 15:37:31 2015
+# Created: Fri May 29 14:31:23 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -15,6 +15,20 @@ class Ui_OptionsDialog(object):
         OptionsDialog.resize(400, 300)
         self.verticalLayout = QtGui.QVBoxLayout(OptionsDialog)
         self.verticalLayout.setObjectName("verticalLayout")
+        self.tabWidget = QtGui.QTabWidget(OptionsDialog)
+        self.tabWidget.setObjectName("tabWidget")
+        self.tabGeneral = QtGui.QWidget()
+        self.tabGeneral.setObjectName("tabGeneral")
+        self.verticalLayout_2 = QtGui.QVBoxLayout(self.tabGeneral)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.checkBoxShowStepNames = QtGui.QCheckBox(self.tabGeneral)
+        self.checkBoxShowStepNames.setChecked(True)
+        self.checkBoxShowStepNames.setObjectName("checkBoxShowStepNames")
+        self.verticalLayout_2.addWidget(self.checkBoxShowStepNames)
+        spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout_2.addItem(spacerItem)
+        self.tabWidget.addTab(self.tabGeneral, "")
+        self.verticalLayout.addWidget(self.tabWidget)
         self.buttonBox = QtGui.QDialogButtonBox(OptionsDialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
@@ -27,5 +41,7 @@ class Ui_OptionsDialog(object):
         QtCore.QMetaObject.connectSlotsByName(OptionsDialog)
 
     def retranslateUi(self, OptionsDialog):
-        OptionsDialog.setWindowTitle(QtGui.QApplication.translate("OptionsDialog", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
+        OptionsDialog.setWindowTitle(QtGui.QApplication.translate("OptionsDialog", "Options", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBoxShowStepNames.setText(QtGui.QApplication.translate("OptionsDialog", "Show step names", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGeneral), QtGui.QApplication.translate("OptionsDialog", "&General", None, QtGui.QApplication.UnicodeUTF8))
 
