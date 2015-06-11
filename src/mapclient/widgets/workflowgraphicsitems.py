@@ -253,6 +253,31 @@ class Node(Item):
         self._contextMenu.addSeparator()
         self._contextMenu.addAction(deleteAction)
 
+        self._updatePorts()
+
+        self._configure_item = ConfigureIcon(self)
+        self._configure_item.moveBy(40, 40)
+
+        self._updateConfigureIcon()
+
+        self._modified_item = MercurialIcon(self)
+        self._modified_item.moveBy(5, 40)
+
+        self.updateMercurialIcon()
+
+    def update(self):
+        self._updateConfigureIcon()
+        self._updatePorts()
+        super(Node, self).update()
+
+    def _updateConfigureIcon(self):
+        self._configure_item.setConfigured(self._metastep._step.isConfigured())
+        self._setToolTip()
+
+    def _setToolTip(self):
+        self.setToolTip(self._metastep._step.getName() + ": " + self._metastep._step.getIdentifier())
+
+    def _updatePorts(self):
         self._step_port_items = []
         # Collect all ports that provide or use from the step
         uses_ports = [port for port in self._metastep._step._ports if port.hasUses()]
@@ -288,23 +313,6 @@ class Node(Item):
             port_item.moveBy(x_pos, y_pos)
             port_item.setToolTip(tooltip_stub + ', '.join(triple_objects))
             self._step_port_items.append(port_item)
-
-        self._configure_item = ConfigureIcon(self)
-        self._configure_item.moveBy(40, 40)
-
-        self.updateConfigureIcon()
-
-        self._modified_item = MercurialIcon(self)
-        self._modified_item.moveBy(5, 40)
-
-        self.updateMercurialIcon()
-
-    def updateConfigureIcon(self):
-        self._configure_item.setConfigured(self._metastep._step.isConfigured())
-        self._setToolTip()
-
-    def _setToolTip(self):
-        self.setToolTip(self._metastep._step.getName() + ": " + self._metastep._step.getIdentifier())
 
     def updateMercurialIcon(self):
         if self._metastep._step.getIdentifier():

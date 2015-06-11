@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -118,13 +118,11 @@ class CommandConfigure(QtGui.QUndoCommand):
         self._node = node
 
     def redo(self):
-        self._node.updateConfigureIcon()
         self._node.update()
 #        for item in self._scene.items():
 #            item.update()
 
     def undo(self):
-        self._node.updateConfigureIcon()
         self._node.update()
 #        for item in self._scene.items():
 #            item.update()
