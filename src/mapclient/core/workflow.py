@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -27,7 +27,7 @@ from mapclient.settings import info
 from mapclient.core.workflowscene import WorkflowScene
 from mapclient.core.workflowerror import WorkflowError
 from mapclient.core.workflowrdf import serializeWorkflowAnnotation
-from mapclient.settings.general import getConfigurationFile, getVirtEnvDirectory,\
+from mapclient.settings.general import getConfigurationFile, getVirtEnvDirectory, \
     DISPLAY_FULL_PATH, getConfiguration
 from mapclient.tools.virtualenv.manager import VirtualEnvManager
 import pkgutil
@@ -67,7 +67,7 @@ class WorkflowManager(object):
         self._currentStateIndex = 0
 
         self._title = None
-        
+
         self._plugin_database = None
         self._scene = WorkflowScene(self)
 
@@ -114,7 +114,7 @@ class WorkflowManager(object):
 
     def isModified(self):
         return self._saveStateIndex != self._currentStateIndex
-    
+
     def changeIdentifier(self, old_identifier, new_identifier):
         old_config = getConfigurationFile(self._location, old_identifier)
         new_config = getConfigurationFile(self._location, new_identifier)
@@ -171,27 +171,13 @@ class WorkflowManager(object):
             raise WorkflowError('The given Workflow configuration file is not valid.')
 
         workflow_version = versionTuple(wf.value('version'))
-        software_version = versionTuple(info.VERSION_STRING)
-        if not workflow_version[0:2] == software_version[0:2]:
-            # compare first two elements of version (major, minor)
-            raise WorkflowError(
-                'Major/Minor version number mismatch - '
-                'application version: %s; workflow version: %s.' %
-                    (info.VERSION_STRING, wf.value('version'))
-            )
-        if not workflow_version[2] <= software_version[2]:
-            raise WorkflowError(
-                'Patch version number of the workflow cannot be newer than '
-                'application - '
-                'application version: %s; workflow version: %s' %
-                    (info.VERSION_STRING, wf.value('version'))
-            )
+        application_version = versionTuple(info.VERSION_STRING)
+        if not compatibleVersions(workflow_version, application_version):
+            pass  # should already have thrown an exception
 
         self._location = location
-#        wf = _getWorkflowConfiguration()
         self._scene.loadState(wf)
         self._saveStateIndex = self._currentStateIndex = 0
-#        self._title = info.APPLICATION_NAME + ' - ' + location
 
     def save(self):
         wf = _getWorkflowConfiguration(self._location)
@@ -218,9 +204,9 @@ class WorkflowManager(object):
 
     def isWorkflowOpen(self):
         return True  # not self._location == None
-    
+
     def isWorkflowTracked(self):
-        markers= ['.git', '.hg']
+        markers = ['.git', '.hg']
         for marker in markers:
             target = os.path.join(self._location, marker)
             logger.debug('checking isdir: %s', target)
@@ -236,7 +222,7 @@ class WorkflowManager(object):
         required_plugins = self._loadWorkflowPlugins(wf_location)
         missing_plugins = self._plugin_database.checkForMissingPlugins(required_plugins)
         return missing_plugins
-    
+
     def checkDependencies(self, wf_location):
         required_plugins = self._loadWorkflowPlugins(wf_location)
         virtenv_dir = getVirtEnvDirectory()
@@ -256,5 +242,40 @@ class WorkflowManager(object):
         self._previousLocation = settings.value(_PREVIOUS_LOCATION_STRING, '')
         settings.endGroup()
 
+
 def versionTuple(v):
     return tuple(map(int, (v.split("."))))
+
+
+def compatibleVersions(workflow_version, application_version):
+    """
+    Method checks whether two versions are compatible or not.  Raises a
+    WorkflowError exception if the two versions are not compatible.
+    True if they are and False otherwise.
+    The inputs are expected to be tuples of the version number:
+    (major, minor, patch)
+    """
+
+    # Start with database of known compatible versions then check for
+    # standard problems.
+    if application_version == (0, 12, 0) and workflow_version == (0, 11, 3):
+        return True
+
+    if not workflow_version[0:2] == application_version[0:2]:
+        # compare first two elements of version (major, minor)
+        raise WorkflowError(
+            'Major/Minor version number mismatch - '
+            'workflow version: %s; application version: %s.' %
+                (workflow_version, application_version)
+        )
+    if not application_version[2] <= workflow_version[2]:
+        raise WorkflowError(
+            'Patch version number of the workflow cannot be newer than '
+            'application - '
+            'workflow version: %s; application version: %s.' %
+                (workflow_version, application_version)
+        )
+
+    return True
+
+
