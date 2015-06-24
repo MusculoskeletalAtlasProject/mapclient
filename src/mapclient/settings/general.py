@@ -64,3 +64,10 @@ def getConfigurationSuffix():
 def getConfigurationFile(location, identifier):
     return os.path.join(location, identifier + getConfigurationSuffix())
 
+DISPLAY_FULL_PATH = 'AIJDKUUGCNEGELND'
+
+def getConfiguration(option):
+    if option == DISPLAY_FULL_PATH:
+        return False
+
+

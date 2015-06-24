@@ -1,21 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Name</class>
- <widget class="QWidget" name="Name">
+ <class>MAPIconDialog</class>
+ <widget class="QWidget" name="MAPIconDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>498</width>
-    <height>296</height>
+    <width>546</width>
+    <height>311</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>MAP Icon Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="labelStepIcon">
+     <property name="text">
+      <string>S&amp;tep Icon:</string>
+     </property>
+     <property name="buddy">
+      <cstring>lineEditCombinedIcon</cstring>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="nameLineEdit">
+    <widget class="QLineEdit" name="lineEditStepIcon">
      <property name="enabled">
       <bool>true</bool>
      </property>
@@ -24,66 +34,63 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="packageNameLineEdit"/>
+   <item row="0" column="2">
+    <widget class="QPushButton" name="pushButtonStepIcon">
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
    </item>
-   <item row="2" column="2">
-    <widget class="QPushButton" name="iconButton">
+   <item row="1" column="0">
+    <widget class="QLabel" name="labelBackgroundIcon">
+     <property name="text">
+      <string>Background Icon:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="lineEditBackgroundIcon"/>
+   </item>
+   <item row="1" column="2">
+    <widget class="QPushButton" name="pushButtonBackgroundIcon">
      <property name="text">
       <string>...</string>
      </property>
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QLabel" name="iconLabel">
+    <widget class="QLabel" name="labelCombinedIcon">
      <property name="text">
-      <string>Icon from fi&amp;le:</string>
+      <string>Combi&amp;ned Icon:</string>
      </property>
      <property name="buddy">
-      <cstring>nameLineEdit</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="1">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="nameLabel">
-     <property name="text">
-      <string>Step &amp;Name:</string>
-     </property>
-     <property name="buddy">
-      <cstring>iconLineEdit</cstring>
+      <cstring>lineEditStepIcon</cstring>
      </property>
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QLineEdit" name="iconLineEdit"/>
+    <widget class="QLineEdit" name="lineEditCombinedIcon"/>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="packageNameLabel">
+   <item row="2" column="2">
+    <widget class="QPushButton" name="pushButtonCombinedIcon">
      <property name="text">
-      <string>Package Name:  </string>
+      <string>...</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
+   <item row="3" column="1">
     <widget class="QFrame" name="frame">
      <property name="minimumSize">
       <size>
        <width>0</width>
        <height>72</height>
       </size>
+     </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
      </property>
      <property name="autoFillBackground">
       <bool>false</bool>
@@ -100,7 +107,7 @@ QLabel {background-color: transparent}</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="1" column="0">
-       <widget class="QLabel" name="iconPictureLabel">
+       <widget class="QLabel" name="labelIconPicture">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -156,84 +163,65 @@ QLabel {background-color: transparent}</string>
      </layout>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>or</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Preset Icon:</string>
-     </property>
-    </widget>
-   </item>
    <item row="4" column="1">
-    <widget class="QComboBox" name="comboBoxPresetIcons">
-     <property name="toolTip">
-      <string>Icon from file is used if a valid icon file is defined</string>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-     <item>
-      <property name="text">
-       <string>Default</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Source</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Sink</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Fitting</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Model Viewer</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Image Processing</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Segmentation</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Morphometric</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Registration</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Utility</string>
-      </property>
-     </item>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="5" column="0" colspan="3">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
     </widget>
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
- <connections/>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>MAPIconDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>272</x>
+     <y>292</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>272</x>
+     <y>155</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>MAPIconDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>272</x>
+     <y>292</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>272</x>
+     <y>155</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>accept()</slot>
+  <slot>reject()</slot>
+ </slots>
 </ui>

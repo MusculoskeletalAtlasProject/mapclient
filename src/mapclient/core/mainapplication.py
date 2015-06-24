@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -17,7 +17,6 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
-import os
 import logging
 
 from PySide import QtCore
@@ -25,6 +24,7 @@ from PySide import QtCore
 from mapclient.core.workflow import WorkflowManager
 from mapclient.core.undomanager import UndoManager
 from mapclient.core.pluginframework import PluginManager
+from mapclient.core.optionsmanager import OptionsManager
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +41,7 @@ class MainApplication(object):
         self._workflowManager = WorkflowManager()
         self._workflowManager.setPluginDatabase(self._pluginManager.getPluginDatabase())
         self._undoManager = UndoManager()
+        self._optionsManager = OptionsManager()
 #         self._threadCommandManager = ThreadCommandManager()
 
     def setSize(self, size):
@@ -63,7 +64,10 @@ class MainApplication(object):
 
     def pluginManager(self):
         return self._pluginManager
-    
+
+    def optionsManager(self):
+        return self._optionsManager
+
     def writeSettings(self):
         settings = QtCore.QSettings()
         settings.beginGroup('MainWindow')
@@ -72,6 +76,7 @@ class MainApplication(object):
         settings.endGroup()
         self._pluginManager.writeSettings(settings)
         self._workflowManager.writeSettings(settings)
+        self._optionsManager.writeSettings(settings)
 
     def readSettings(self):
         settings = QtCore.QSettings()
@@ -81,3 +86,4 @@ class MainApplication(object):
         settings.endGroup()
         self._pluginManager.readSettings(settings)
         self._workflowManager.readSettings(settings)
+        self._optionsManager.readSettings(settings)

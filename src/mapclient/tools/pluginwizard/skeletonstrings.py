@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -120,7 +120,7 @@ class ConfigureDialog(QtGui.QDialog):
         Constructor
         \'\'\'
         QtGui.QDialog.__init__(self, parent)
-        
+
         self._ui = Ui_ConfigureDialog()
         self._ui.setupUi(self)
 '''
@@ -162,7 +162,7 @@ CONFIGURE_DIALOG_DEFAULT_VALIDATE_METHOD = '''
     def validate(self):
         \'\'\'
         Validate the configuration dialog fields.  For any field that is not valid
-        set the style sheet to the INVALID_STYLE_SHEET.  Return the outcome of the 
+        set the style sheet to the INVALID_STYLE_SHEET.  Return the outcome of the
         overall validity of the configuration.
         \'\'\'
         return False
@@ -172,7 +172,7 @@ CONFIGURE_DIALOG_IDENTIFIER_VALIDATE_METHOD = '''
     def validate(self):
         \'\'\'
         Validate the configuration dialog fields.  For any field that is not valid
-        set the style sheet to the INVALID_STYLE_SHEET.  Return the outcome of the 
+        set the style sheet to the INVALID_STYLE_SHEET.  Return the outcome of the
         overall validity of the configuration.
         \'\'\'
         # Determine if the current identifier is unique throughout the workflow
@@ -250,7 +250,7 @@ CONFIGURE_DIALOG_LINE = '''
 CONFIGURE_DIALOG_UI = '''<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>ConfigureDialog</class>
- <widget class="QDialog" name="Dialog">
+ <widget class="QDialog" name="ConfigureDialog">
   <property name="geometry">
    <rect>
     <x>0</x>

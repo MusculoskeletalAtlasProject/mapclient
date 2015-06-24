@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -19,10 +19,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 '''
 
 import os, platform
+import ast
 
 from PySide import QtCore, QtGui
-
-from mapclient.widgets.utils import createDefaultImageIcon
 
 from mapclient.tools.pluginwizard.skeleton import SkeletonOptions
 from mapclient.tools.pluginwizard.ui_output import Ui_Output
@@ -35,15 +34,31 @@ from mapclient.tools.pluginwizard.ui_misc import Ui_Misc
 OUTPUT_DIRECTORY_FIELD = 'output_directory'
 NAME_FIELD = 'name'
 IMAGE_FILE_FIELD = 'image_file'
+PREDEFINED_IMAGE_FIELD = 'predefined_image_field'
 PACKAGE_NAME_FIELD = 'package_name'
 PORTS_FIELD = 'ports_table'
 IDENTIFIER_CHECKBOX = 'identifier_checkbox'
 CATEGORY_FIELD = 'category'
 AUTHOR_NAME_FIELD = 'author_name'
 PLUGIN_LOCATION_FIELD = 'plugin_location'
+ICON_PICTURE_LABEL_FIELD = 'icon_picture_label'
+
 # Style sheets
 REQUIRED_STYLE_SHEET = 'background-color: rgba(239, 16, 16, 20%)'
 DEFAULT_STYLE_SHEET = ''
+
+imageNameMap = {}
+imageNameMap['Default'] = 'default.png'
+imageNameMap['Source'] = 'data-source.png'
+imageNameMap['Sink'] = 'data-sink.png'
+imageNameMap['Fitting'] = 'fitting.png'
+imageNameMap['Model Viewer'] = 'model-viewer.png'
+imageNameMap['Image Processing'] = 'image-processing.png'
+imageNameMap['Segmentation'] = 'segmentation.png'
+imageNameMap['Morphometric'] = 'morphometric.png'
+imageNameMap['Registration'] = 'registration.png'
+imageNameMap['Utility'] = 'utility.png'
+
 
 class WizardDialog(QtGui.QWizard):
 
@@ -52,6 +67,9 @@ class WizardDialog(QtGui.QWizard):
         super(WizardDialog, self).__init__(parent)
         self.setWindowTitle('Workflow Step Wizard')
         self.setFixedSize(675, 550)
+
+        self.setDefaultProperty('QComboBox', 'currentText', 'currentIndexChanged')
+        self.setDefaultProperty('QLabel', 'pixmap', '')
 
         if platform.system() == 'Darwin':
             self.setWizardStyle(QtGui.QWizard.MacStyle)
@@ -81,6 +99,15 @@ class WizardDialog(QtGui.QWizard):
         self._options.setName(self.field(NAME_FIELD))
         self._options.setPackageName(self.field(PACKAGE_NAME_FIELD))
         self._options.setPluginLocation(self.field(PLUGIN_LOCATION_FIELD))
+
+        predefinedName = self.field(PREDEFINED_IMAGE_FIELD)
+        predefined_filename = getPredefinedImageLocation(predefinedName)
+        icon_filename = self.field(IMAGE_FILE_FIELD)
+        if (predefined_filename == icon_filename and predefinedName != 'Default') or \
+           (icon_filename and predefined_filename != icon_filename):
+            (_, image_filename) = os.path.split(icon_filename)
+            self._options.setImageFile(image_filename)
+            self._options.setIcon(self.field(ICON_PICTURE_LABEL_FIELD))
 
         # Registered field failed to return table, may need to set up
         # default property for this to work.  Currently using workaround
@@ -155,9 +182,11 @@ class NameWizardPage(QtGui.QWizardPage):
         self._packageNameEdited = False
 
     def _defineFields(self):
-        self.registerField(NAME_FIELD, self._ui.nameLineEdit)
-        self.registerField(PACKAGE_NAME_FIELD, self._ui.packageNameLineEdit)
+        self.registerField(NAME_FIELD + '*', self._ui.nameLineEdit)
+        self.registerField(PACKAGE_NAME_FIELD + '*', self._ui.packageNameLineEdit)
         self.registerField(IMAGE_FILE_FIELD, self._ui.iconLineEdit)
+        self.registerField(PREDEFINED_IMAGE_FIELD, self._ui.comboBoxPresetIcons)
+        self.registerField(ICON_PICTURE_LABEL_FIELD, self._ui.iconPictureLabel)
 
     def _makeConnections(self):
         self._ui.nameLineEdit.textChanged.connect(self._nameChanged)
@@ -165,16 +194,22 @@ class NameWizardPage(QtGui.QWizardPage):
         self._ui.packageNameLineEdit.textEdited.connect(self._packageNameChanged)
         self._ui.iconLineEdit.textChanged.connect(self._updateImage)
         self._ui.iconButton.clicked.connect(self._chooseImage)
+        self._ui.comboBoxPresetIcons.currentIndexChanged.connect(self._selectPredefinedImage)
 
     def _nameChanged(self):
-        self.completeChanged.emit()
         if not self._packageNameEdited:
             package_name = self._ui.nameLineEdit.text().lower()
             package_name = package_name.replace(' ', '')
             self._ui.packageNameLineEdit.setText(package_name + 'step')
 
+        self.completeChanged.emit()
+
     def _packageNameChanged(self):
         self._packageNameEdited = True
+
+    def _selectPredefinedImage(self, index):
+        image_file = getPredefinedImageLocation(self._ui.comboBoxPresetIcons.currentText())
+        self._ui.iconLineEdit.setText(image_file)
 
     def _chooseImage(self):
         image, _ = QtGui.QFileDialog.getOpenFileName(self, caption='Choose Image File', options=QtGui.QFileDialog.ReadOnly)
@@ -186,13 +221,29 @@ class NameWizardPage(QtGui.QWizardPage):
         image_file = self._ui.iconLineEdit.text()
         if image_file:
             image = QtGui.QPixmap(image_file)
+
+            predefined_image_file = getPredefinedImageLocation(self._ui.comboBoxPresetIcons.currentText())
+            if predefined_image_file == image_file:
+                image = self._combineImageWithBackground(image.toImage())
+                image = QtGui.QPixmap.fromImage(image)
+
             if image:
                 self._ui.iconPictureLabel.setPixmap(image.scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation))
         else:
-            image = createDefaultImageIcon(self._ui.nameLineEdit.text())
+            image = QtGui.QImage(':icons/images/default.png')
+            image = self._combineImageWithBackground(image)
             self._ui.iconPictureLabel.setPixmap(QtGui.QPixmap.fromImage(image).scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation))
 
         self.completeChanged.emit()
+
+    def _combineImageWithBackground(self, image):
+        background_image = QtGui.QImage(':icons/images/icon-background.png')
+        painter = QtGui.QPainter(background_image)
+
+        painter.drawImage(QtCore.QPoint(0, 0), image)
+        painter.end()
+
+        return background_image
 
     def resizeEvent(self, event):
         rect = self._ui.nameLineEdit.rect()
@@ -216,7 +267,7 @@ class NameWizardPage(QtGui.QWizardPage):
         if len(self._ui.nameLineEdit.text()) > 0:
             name_status = True
 
-        package_status = isValidPythonPackageName(self._ui.packageNameLineEdit.text())
+        package_status = isIdentifier(str(self._ui.packageNameLineEdit.text()))
 
         image_status = os.path.exists(self._ui.iconLineEdit.text()) if len(self._ui.iconLineEdit.text()) > 0 else True
 
@@ -340,6 +391,13 @@ class MiscWizardPage(QtGui.QWizardPage):
         self.registerField(CATEGORY_FIELD, self._ui.categoryLineEdit)
         self.registerField(PLUGIN_LOCATION_FIELD, self._ui.pluginLocationEdit)
 
+    def initializePage(self):
+        predefinedName = self.field(PREDEFINED_IMAGE_FIELD)
+        filename = getPredefinedImageLocation(predefinedName)
+        icon_filename = self.field(IMAGE_FILE_FIELD)
+        if filename == icon_filename and predefinedName != 'Default':
+            self._ui.categoryLineEdit.setText(predefinedName)
+
 class OutputWizardPage(QtGui.QWizardPage):
 
     def __init__(self, parent=None):
@@ -355,7 +413,7 @@ class OutputWizardPage(QtGui.QWizardPage):
         self._invalidDirectoryLabel = QtGui.QLabel(self)
         self._invalidDirectoryLabel.setStyleSheet('border: none; padding: 0px;')
 
-        self.registerField(OUTPUT_DIRECTORY_FIELD, self._ui.directoryLineEdit)
+        self.registerField(OUTPUT_DIRECTORY_FIELD + '*', self._ui.directoryLineEdit)
 
         self._makeConnections()
 
@@ -385,6 +443,42 @@ class OutputWizardPage(QtGui.QWizardPage):
 
         return status
 
-def isValidPythonPackageName(name):
+def isIdentifier(ident):
+    """Determines, if string is valid Python identifier."""
+
+    if not isinstance(ident, str):
+        return False
+
+    # Resulting AST of simple identifier is <Module [<Expr <Name "foo">>]>
+    try:
+        root = ast.parse(ident)
+    except SyntaxError:
+        return False
+
+    if not isinstance(root, ast.Module):
+        return False
+
+    if len(root.body) != 1:
+        return False
+
+    if not isinstance(root.body[0], ast.Expr):
+        return False
+
+    if not isinstance(root.body[0].value, ast.Name):
+        return False
+
+    if root.body[0].value.id != ident:
+        return False
+
     return True
+
+
+def getPredefinedImageLocation(predefinedName):
+    filename = imageNameMap[predefinedName]
+    image_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'qt', 'images', filename)
+    return image_file
+
+
+
+
 

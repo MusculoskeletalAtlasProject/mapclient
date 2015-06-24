@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -40,6 +40,7 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
 
         self._undoStack = None
         self._location = ''
+        self._showStepNames = True
 
         self._connectLine = None
         self._connectSourceNode = None
@@ -65,6 +66,9 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
 
     def setLocation(self, location):
         self._location = location
+
+    def showStepNames(self, show):
+        self._showStepNames = show
 
     def connectNodes(self, node1, node2):
         # Check if nodes are already connected
@@ -188,6 +192,7 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
             position = self.mapToScene(event.pos() - hotspot)
             metastep = MetaStep(workflowStepFactory(name, self._location))
             node = Node(metastep)
+            node.showStepName(self._showStepNames)
             metastep._step.registerConfiguredObserver(scene.stepConfigured)
             metastep._step.registerDoneExecution(scene.doneExecution)
             metastep._step.registerOnExecuteEntry(scene.setCurrentWidget)
