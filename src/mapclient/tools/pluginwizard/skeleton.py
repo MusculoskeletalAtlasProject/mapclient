@@ -300,6 +300,7 @@ class Skeleton(object):
         )
         icon = self._options.getIcon()
         if icon:
+            print 'write step package init is something'
             (package, _) = os.path.splitext(PYTHON_QT_RESOURCE_FILENAME)
             f.write('# Import the resource file when the module is loaded,\n')
             f.write('# this enables the framework to use the step icon.\n')
@@ -332,10 +333,26 @@ class Skeleton(object):
             f.write(RESOURCE_FILE_STRING.format(step_package_name=self._options.getPackageName(), image_filename=image_filename))
             f.close()
 
-            # Generate resources file, I'm going to assume that I can find pyside-rcc
-            result = call(['pyside-rcc', '-o', os.path.join(step_dir, PYTHON_QT_RESOURCE_FILENAME), os.path.join(qt_dir, QT_RESOURCE_FILENAME)])
+            # Difficulties arise when cross Python version calling pyside-uic.
+            pyside_rcc_potentials = ['pyside-rcc', 'py2side-rcc', 'py3side-rcc', 'pyside-rcc-py2']
+            for pyside_rcc in pyside_rcc_potentials:
+                try:
+                    result = call([pyside_rcc, '-py3', '-o', os.path.join(step_dir, PYTHON_QT_RESOURCE_FILENAME), os.path.join(qt_dir, QT_RESOURCE_FILENAME)])
+                except SyntaxError:
+                    result = -1
+                except Exception:
+                    result = -1
+
+                if result == 0:
+                    break
+
             if result < 0:
-                print('result = ' + str(-result))
+                raise Exception('Failed to generate Python rcc file using any known PySide resource compiler.')
+
+#             # Generate resources file, I'm going to assume that I can find pyside-rcc
+#             result = call(['pyside-rcc', '-o', os.path.join(step_dir, PYTHON_QT_RESOURCE_FILENAME), os.path.join(qt_dir, QT_RESOURCE_FILENAME)])
+#             if result < 0:
+#                 print('result = ' + str(-result))
 
     def _createConfigDialog(self, step_dir):
         '''
@@ -400,7 +417,7 @@ class Skeleton(object):
                     break
 
             if result < 0:
-                raise Exception('Failed to generate Python ui file using pyside-uic.')
+                raise Exception('Failed to generate Python ui file using any known PySide user interface compiler.')
 
             dialog_file = os.path.join(step_dir, CONFIG_DIALOG_FILE)
             f = open(dialog_file, 'w')
@@ -415,6 +432,9 @@ class Skeleton(object):
             f.write(get_config_string)
             f.write(set_config_string)
             f.close()
+
+    def getOutputDirectory(self):
+        return self._options.getOutputDirectory()
 
     def write(self):
         '''

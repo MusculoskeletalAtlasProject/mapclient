@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -29,14 +29,14 @@ import site
 import sys
 import json
 import pkgutil
+import traceback
+
 from importlib import import_module
 
 if sys.version_info < (3, 0):
     import imp
 else:
     import importlib
-    
-from mapclient.core.utils import convertExceptionToMessage
 
 logger = logging.getLogger(__name__)
 
@@ -183,17 +183,17 @@ def loadPlugin(plugin):
 # import traceback
 class MetaPluginMountPoint(type):
     '''
-    * A way to declare a mount point for plugins. Since plugins are an example 
+    * A way to declare a mount point for plugins. Since plugins are an example
       of loose coupling, there needs to be a neutral location, somewhere between
       the plugins and the code that uses them, that each side of the system can
       look at, without having to know the details of the other side. Trac calls
       this an 'extension point'.
     * A way to register a plugin at a particular mount point. Since internal code
-      can't (or at the very least, shouldn't have to) look around to find plugins 
+      can't (or at the very least, shouldn't have to) look around to find plugins
       that might work for it, there needs to be a way for plugins to announce their
-      presence. This allows the guts of the system to be blissfully ignorant of 
+      presence. This allows the guts of the system to be blissfully ignorant of
       where the plugins come from; again, it only needs to care about the mount point.
-    * A way to retrieve the plugins that have been registered. Once the plugins 
+    * A way to retrieve the plugins that have been registered. Once the plugins
       have done their thing at the mount point, the rest of the system needs to
       be able to iterate over the installed plugins and use them according to its need.
 
@@ -259,18 +259,18 @@ class MetaQObjectPluginMountPoint(MetaQObject, MetaPluginMountPoint):
 #
 
 '''
-Plugins can inherit this mount point to add a tool to the tool menu.  It is passed two 
+Plugins can inherit this mount point to add a tool to the tool menu.  It is passed two
 keyword arguments, the tool menu ('menu_Tool') and the parent widget ('parent').
 
  A plugin that registers this mount point must have attributes
  * None
- 
+
  A plugin that registers this mount point could have attributes
  * None
- 
+
  It must implement
- * pass 
- 
+ * pass
+
 '''
 ToolMountPoint = MetaPluginMountPoint('ToolMountPoint', (object,), {})
 
@@ -305,7 +305,7 @@ class PluginManager(object):
 
     def loadDefaultPlugins(self):
         return self._load_default_plugins
-        
+
     def getPluginDatabase(self):
         return self._plugin_database
 
@@ -338,7 +338,7 @@ class PluginManager(object):
             added = True
 
         return added
-        
+
     def extractPluginDependencies(self, path):
         return []
         setupFileDir = path[:-16] + 'setup.py'
@@ -360,7 +360,7 @@ class PluginManager(object):
                             index += 1
                             if char == '[':
                                 break
-                        dependencies = line[index-1:]
+                        dependencies = line[index - 1:]
             if "'" in dependencies:
                 dependencies = dependencies.replace("'", '"')
             if dependencies:
@@ -423,13 +423,17 @@ class PluginManager(object):
                         self._tab_errors += [modname]
                     self._plugin_error_directories[modname] = _.path
 
-                    message = convertExceptionToMessage(e)
+#                     message = convertExceptionToMessage(e)
                     logger.warn('Plugin \'' + modname + '\' not loaded')
-                    logger.warn('Reason: {0}'.format(message))
-    
+                    logger.warn('Reason: {0}'.format(e.message))
+                    _, _, tb = sys.exc_info()
+                    for line in traceback.format_tb(tb):
+                        logger.warn(line)
+#                     logger.warn('\n'.join(traceback.format_tb(tb)))
+
     def getPluginErrors(self):
         return {'ImportError':self._import_errors, 'TypeError':self._type_errors, 'SyntaxError':self._syntax_errors, 'TabError':self._tab_errors, 'directories':self._plugin_error_directories}
-            
+
     def showPluginErrorsDialog(self):
         from mapclient.widgets.pluginerrors import PluginErrors
         dlg = PluginErrors(self.getPluginErrors(), self._ignoredPlugins, self._resourceFiles, self._updaterSettings)
@@ -440,7 +444,7 @@ class PluginManager(object):
         ignored_plugins = dlg.getIgnoredPlugins()
         for plugin in ignored_plugins:
             if plugin not in self._ignoredPlugins:
-                self._ignoredPlugins += [plugin]        
+                self._ignoredPlugins += [plugin]
         if dlg._doNotShow:
             self._doNotShowPluginErrors = True
         if dlg._hotfixExecuted:
@@ -577,7 +581,7 @@ class PluginDatabase:
 
     def saveState(self, ws, scene):
         '''
-        Save the state of the current workflow plugin requirements 
+        Save the state of the current workflow plugin requirements
         to the given workflow configuration.
         '''
         ws.remove('required_plugins')
@@ -631,7 +635,7 @@ class PluginDatabase:
             pluginDict[name]['dependencies'] = dependencies
         ws.endArray()
         ws.endGroup()
-        
+
         return pluginDict
 
     def addLoadedPluginInformation(self, plugin_name, step_name, plugin_author, plugin_version, plugin_location, plugin_dependencies):
@@ -645,7 +649,7 @@ class PluginDatabase:
 
     def checkForMissingPlugins(self, to_check):
         '''
-        Check for the given plugin dict against the dict of plugins currently available. 
+        Check for the given plugin dict against the dict of plugins currently available.
         '''
         missing_plugins = {}
         for plugin in to_check:
@@ -655,10 +659,10 @@ class PluginDatabase:
                 missing_plugins[plugin] = to_check[plugin]
 
         return missing_plugins
-    
+
     def checkForMissingDependencies(self, to_check, available_dependencies):
         '''
-        Check the given plugin dependencies against the list of currently available 
+        Check the given plugin dependencies against the list of currently available
         dependencies
         '''
         print 'CHECK ME: INCOMPLETE'

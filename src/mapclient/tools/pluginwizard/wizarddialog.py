@@ -103,9 +103,9 @@ class WizardDialog(QtGui.QWizard):
         predefinedName = self.field(PREDEFINED_IMAGE_FIELD)
         predefined_filename = getPredefinedImageLocation(predefinedName)
         icon_filename = self.field(IMAGE_FILE_FIELD)
-        if predefined_filename != icon_filename or predefinedName != 'Default':
-            image_filepath = self.field(IMAGE_FILE_FIELD)
-            (_, image_filename) = os.path.split(image_filepath)
+        if (predefined_filename == icon_filename and predefinedName != 'Default') or \
+           (icon_filename and predefined_filename != icon_filename):
+            (_, image_filename) = os.path.split(icon_filename)
             self._options.setImageFile(image_filename)
             self._options.setIcon(self.field(ICON_PICTURE_LABEL_FIELD))
 
