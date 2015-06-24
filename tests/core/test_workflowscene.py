@@ -23,6 +23,9 @@ class DumbStep(object):
 
     _ports = ['one', 'two', 'three']
 
+    def __init__(self, location):
+        self._identifier = None
+
     def isConfigured(self):
         return True
 
@@ -32,10 +35,13 @@ class DumbStep(object):
     def getIdentifier(self):
         return self._identifier
 
-    def serialize(self, location):
-        pass
+    def setIdentifier(self, identifier):
+        self._identifier = identifier
 
-    def deserialize(self, location):
+    def serialize(self):
+        return ''
+
+    def deserialize(self, string):
         pass
 
     def execute(self):
@@ -76,7 +82,7 @@ class WorkflowSceneTestCase(unittest.TestCase):
 
     def testItemAPI(self):
 
-        item = MetaStep(DumbStep())
+        item = MetaStep(DumbStep('nowhere'))
         s = WorkflowScene(DumbManager())
         s.addItem(item)
         self.assertEqual(len(s._items), 1)
@@ -91,14 +97,14 @@ class WorkflowSceneTestCase(unittest.TestCase):
     def testSaveLoad(self):
         test_conf = os.path.join(test_path, 'test.conf')
         dm = DumbManager()
-        dm._location = test_conf
+        dm._location = test_path
 
         s = WorkflowScene(dm)
         ws = QtCore.QSettings(test_conf, QtCore.QSettings.IniFormat)
-        ds1 = DumbStep()
+        ds1 = DumbStep('nowhere')
         ds1._identifier = '1'
         ds1._name = 'a'
-        ds2 = DumbStep()
+        ds2 = DumbStep('nowhere')
         ds2._identifier = '2'
         ds2._name = 'b'
         item1 = MetaStep(ds1)
@@ -151,13 +157,13 @@ class WorkflowDependencyGraphTestCase(unittest.TestCase):
     def setUp(self):
         self._s = WorkflowScene(DumbManager())
         self._nodes = []
-        self._nodes.append(MetaStep(DumbStep()))
-        self._nodes.append(MetaStep(DumbStep()))
-        self._nodes.append(MetaStep(DumbStep()))
-        self._nodes.append(MetaStep(DumbStep()))
-        self._nodes.append(MetaStep(DumbStep()))
-        self._nodes.append(MetaStep(DumbStep()))
-        self._nodes.append(MetaStep(DumbStep()))
+        self._nodes.append(MetaStep(DumbStep('nowhere')))
+        self._nodes.append(MetaStep(DumbStep('nowhere')))
+        self._nodes.append(MetaStep(DumbStep('nowhere')))
+        self._nodes.append(MetaStep(DumbStep('nowhere')))
+        self._nodes.append(MetaStep(DumbStep('nowhere')))
+        self._nodes.append(MetaStep(DumbStep('nowhere')))
+        self._nodes.append(MetaStep(DumbStep('nowhere')))
 
     def tearDown(self):
         self._s.clear()
