@@ -29,6 +29,8 @@ from mapclient.settings.general import getVirtEnvDirectory
 
 logger = logging.getLogger(__name__)
 
+ADMIN_MODE = True
+
 class MainWindow(QtGui.QMainWindow):
     '''
     This is the main window for the MAP Client.
@@ -97,6 +99,10 @@ class MainWindow(QtGui.QMainWindow):
         self.actionAnnotation.setObjectName("actionAnnotation")
         self.actionPluginWizard = QtGui.QAction(self)
         self.actionPluginWizard.setObjectName("actionPluginWizard")
+        if ADMIN_MODE:
+            self.action_MAPIcon = QtGui.QAction(self)
+            self.action_MAPIcon.setObjectName("actionMAPIcon")
+
         self.menu_Help.addAction(self.action_About)
         self.menu_View.addSeparator()
         self.menu_View.addAction(self.action_LogInformation)
@@ -107,6 +113,8 @@ class MainWindow(QtGui.QMainWindow):
         self.menu_Tools.addAction(self.actionPluginWizard)
         self.menu_Tools.addAction(self.actionPMR)
         self.menu_Tools.addAction(self.actionAnnotation)
+        if ADMIN_MODE:
+            self.menu_Tools.addAction(self.action_MAPIcon)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menu_Edit.menuAction())
         self.menubar.addAction(self.menu_View.menuAction())
@@ -136,6 +144,8 @@ class MainWindow(QtGui.QMainWindow):
         self.actionPMR.setText(QtGui.QApplication.translate("MainWindow", "&PMR", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAnnotation.setText(QtGui.QApplication.translate("MainWindow", "&Annotation", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPluginWizard.setText(QtGui.QApplication.translate("MainWindow", "Plugin Wi&zard", None, QtGui.QApplication.UnicodeUTF8))
+        if ADMIN_MODE:
+            self.action_MAPIcon.setText(QtGui.QApplication.translate("MainWindow", "MAP &Icon", None, QtGui.QApplication.UnicodeUTF8))
 
     def _createUndoAction(self, parent):
         self.undoAction = QtGui.QAction('Undo', parent)
@@ -173,6 +183,8 @@ class MainWindow(QtGui.QMainWindow):
         self.actionPluginWizard.triggered.connect(self.showPluginWizardDialog)
         self.actionPMR.triggered.connect(self.showPMRTool)
         self.actionAnnotation.triggered.connect(self.showAnnotationTool)
+        if ADMIN_MODE:
+            self.action_MAPIcon.triggered.connect(self.showMAPIconDialog)
 
     def setupVirtualEnv(self):
         """
@@ -290,8 +302,9 @@ class MainWindow(QtGui.QMainWindow):
         Callback from the plugin manager to reload the current plugins.
         '''
         pm = self._model.pluginManager()
-        pm.setDirectories(self._pluginManagerDlg.directories())
-        pm.setLoadDefaultPlugins(self._pluginManagerDlg.loadDefaultPlugins())
+        if self._pluginManagerDlg is not None:
+            pm.setDirectories(self._pluginManagerDlg.directories())
+            pm.setLoadDefaultPlugins(self._pluginManagerDlg.loadDefaultPlugins())
         pm.load()
         self._workflowWidget.updateStepTree()
 
@@ -307,8 +320,14 @@ class MainWindow(QtGui.QMainWindow):
                 s.write()
                 self._pluginManagerReloadPlugins()
                 QtGui.QMessageBox.information(self, 'Skeleton Step', 'The Skeleton step has successfully been written to disk.')
-            except:
+            except Exception as e:
                 QtGui.QMessageBox.critical(self, 'Error Writing Step', 'There was an error writing the step, perhaps the step already exists?')
+                logger.critical(e.message)
+                print s.getOutputDirectory()
+                import os
+                if os.path.exists(s.getOutputDirectory()):
+                    import shutil
+#                     shutil.rmtree(s.getOutputDirectory())
 
     def showPMRTool(self):
         from mapclient.tools.pmr.dialogs.pmrdialog import PMRDialog
@@ -322,6 +341,14 @@ class MainWindow(QtGui.QMainWindow):
         dlg = AnnotationDialog(location, DEFAULT_WORKFLOW_ANNOTATION_FILENAME, self)
         dlg.setModal(True)
         dlg.exec_()
+
+    def showMAPIconDialog(self):
+        from mapclient.tools.mapicon.mapicondialog import MAPIconDialog
+        location = self._model.workflowManager().location()
+        dlg = MAPIconDialog(location, self)
+        dlg.setModal(True)
+        if dlg.exec_():
+            dlg.createIcon()
 
     def showPluginErrors(self):
         plugin_errors = self._model.pluginManager().getPluginErrors()

@@ -222,7 +222,7 @@ class Node(Item):
         self._metastep = metastep
         icon = self._metastep._step._icon
         if not icon:
-            icon = QtGui.QImage(':/workflow/images/default_workflow_step.png')
+            icon = QtGui.QImage(':/workflow/images/default_step_icon.png')
 
         self._pixmap = QtGui.QPixmap.fromImage(icon).scaled(self.Size, self.Size, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
 
