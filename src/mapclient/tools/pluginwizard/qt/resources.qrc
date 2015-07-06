@@ -6,4 +6,17 @@
     <file>images/watermark.png</file>
     <file>images/cross.png</file>
   </qresource>
+  <qresource prefix="icons">
+    <file>images/icon-background.png</file>
+    <file>images/default.png</file>
+    <file>images/data-source.png</file>
+    <file>images/fitting.png</file>
+    <file>images/image-processing.png</file>
+    <file>images/utility.png</file>
+    <file>images/segmentation.png</file>
+    <file>images/morphometric.png</file>
+    <file>images/registration.png</file>
+    <file>images/model-viewer.png</file>
+    <file>images/data-sink.png</file>
+  </qresource>
 </RCC>

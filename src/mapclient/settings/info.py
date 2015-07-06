@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -20,8 +20,8 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 from PySide import QtCore
 
 VERSION_MAJOR = 0
-VERSION_MINOR = 11
-VERSION_PATCH = 3
+VERSION_MINOR = 12
+VERSION_PATCH = 0
 VERSION_STRING = str(VERSION_MAJOR) + "." + str(VERSION_MINOR) + "." + str(VERSION_PATCH)
 
 GPL_VERSION = '3'
@@ -54,7 +54,7 @@ DEFAULT_WORKFLOW_PROJECT_FILENAME = '.workflow.conf'
 DEFAULT_WORKFLOW_ANNOTATION_FILENAME = '.workflow.rdf'
 
 def setApplicationsSettings(app):
-    
+
     app.setOrganizationDomain(ORGANISATION_DOMAIN)
     app.setOrganizationName(ORGANISATION_NAME)
     app.setApplicationName(APPLICATION_NAME)

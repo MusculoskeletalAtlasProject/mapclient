@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@ def createDefaultImageIcon(name):
     '''
     The default image size is 512x512
     '''
-    image = QtGui.QImage(':/workflow/images/default_workflow_step.png')
+    image = QtGui.QImage(':/workflow/images/default_step_icon.png')
     if name:
         p = QtGui.QPainter(image)
 
