@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -25,6 +25,9 @@ def suite():
 
     from tests.widgets.test_mainwindow import MainWindowTestCase
     tests.addTests(unittest.TestLoader().loadTestsFromTestCase(MainWindowTestCase))
+
+    from tests.widgets.test_optionsdialog import OptionsDialogTestCase
+    tests.addTests(unittest.TestLoader().loadTestsFromTestCase(OptionsDialogTestCase))
 
     from tests.widgets.utils import UtilsTestCase
     tests.addTests(unittest.TestLoader().loadTestsFromTestCase(UtilsTestCase))
