@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@ from PySide.QtCore import QThread, QObject, Signal
 from mapclient.widgets.pluginprogress import PluginProgress
 from mapclient.widgets.ui_progressdialog import Ui_ProgressDialog
 from mapclient.core.utils import convertExceptionToMessage
-from mapclient.tools.virtualenv.manager import VirtualEnvManager
+from mapclient.tools.pluginmanager.manager import PluginManager
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class MySignal(QObject):
         sig = Signal(str)
 
 class Thread(QThread):
-    
+
     def __init__(self, env_dir, parent=None):
         QThread.__init__(self, parent)
         self.signal = MySignal()
@@ -41,14 +41,14 @@ class Thread(QThread):
 
     def run(self):
         try:
-            vem = VirtualEnvManager(self.env_dir)
+            vem = PluginManager(self.env_dir)
             vem.setup()
             vem.addSitePackages()
 
         except Exception as e:
             message = convertExceptionToMessage(e)
             self.signal.sig.emit(message)
-                
+
 class VirtualEnvSetup(PluginProgress):
 
     def __init__(self, env_dir, parent=None):
@@ -83,8 +83,8 @@ class VirtualEnvSetup(PluginProgress):
         self.started()
         damping = 1
         while self.thread.isRunning():
-            time.sleep((random.randrange(20, 250)/1000)*damping)
-            self._ui.progressBar.setValue((self._ui.progressBar.value() + self._ui.progressBar.maximum() ) /4.0)
+            time.sleep((random.randrange(20, 250) / 1000) * damping)
+            self._ui.progressBar.setValue((self._ui.progressBar.value() + self._ui.progressBar.maximum()) / 4.0)
             damping += 0.05
 
         self.finished()
@@ -120,7 +120,7 @@ class VirtualEnvSetup(PluginProgress):
 
 
 class InstallDependencies(PluginProgress):
-    
+
     def __init__(self, packages_to_install, virt_env_dir, parent=None):
         '''
         Constructor
@@ -136,10 +136,10 @@ class InstallDependencies(PluginProgress):
         self._ui.progressBar.setMaximum(100)
         self._ui.label.setText('Installing Packages...')
         self._makeConnections()
-        
+
     def _makeConnections(self):
         self._ui.cancelDownload.clicked.connect(self.cancelInstallation)
-        
+
     def cancelInstallation(self):
         for i in range(0, self.count - 1):
             try:
@@ -148,13 +148,13 @@ class InstallDependencies(PluginProgress):
                 message = convertExceptionToMessage(e)
                 logger.info('Could not uninstall "' + self._packages_to_install[i] + '" package.')
                 logger.info('Reason: ' + message)
-    
+
     def run(self):
         print 'bad run'
         python_dir = self._virt_env_dir + '\Scripts\python.exe'
         pip_dir = self._virt_env_dir + '\Scripts\pip.exe'
         logs_dir = self._virt_env_dir[:-13] + '\logs'
-        
+
         self._ui.label.setText('Searching for packages in pip index...')
         self._ui.progressBar.setMaximum(len(self._packages_to_install))
         found_packages = []
@@ -167,15 +167,15 @@ class InstallDependencies(PluginProgress):
             except Exception as e:
                 not_found_packages += [package]
             self._ui.progressBar.setValue(self._ui.progressBar.value() + 1)
-        
+
         self._ui.progressBar.reset()
-        self._ui.progressBar.setMaximum(20*len(found_packages))
+        self._ui.progressBar.setMaximum(20 * len(found_packages))
         unsuccessful_installs = {}
         for package in found_packages:
             self.count += 1
             self._ui.label.setText('Installing "' + package + '" package...')
             for i in range(0, 10):
-                time.sleep((random.randrange(0, 100)/1000))
+                time.sleep((random.randrange(0, 100) / 1000))
                 self._ui.progressBar.setValue(self._ui.progressBar.value() + 1.5)
             try:
                 with open(logs_dir + 'package_install_report_' + package + '.log', 'w') as file_out:
@@ -187,7 +187,7 @@ class InstallDependencies(PluginProgress):
             for i in range(0, 5):
                 time.sleep(0.004)
                 self._ui.progressBar.setValue(self._ui.progressBar.value() + 1)
-                
+
         while self._ui.progressBar.value() < self._ui.progressBar.maximum():
             time.sleep(0.004)
             self._ui.progressBar.setValue(self._ui.progressBar.value() + 1)

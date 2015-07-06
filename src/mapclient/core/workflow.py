@@ -27,11 +27,8 @@ from mapclient.settings import info
 from mapclient.core.workflowscene import WorkflowScene
 from mapclient.core.workflowerror import WorkflowError
 from mapclient.core.workflowrdf import serializeWorkflowAnnotation
-from mapclient.settings.general import getConfigurationFile, getVirtEnvDirectory, \
+from mapclient.settings.general import getConfigurationFile, \
     DISPLAY_FULL_PATH, getConfiguration
-from mapclient.tools.virtualenv.manager import VirtualEnvManager
-import pkgutil
-from mapclient.core.pluginframework import PluginDatabase
 
 logger = logging.getLogger(__name__)
 
@@ -96,9 +93,6 @@ class WorkflowManager(object):
 
     def previousLocation(self):
         return self._previousLocation
-
-    def setPluginDatabase(self, plugin_database):
-        self._plugin_database = plugin_database
 
     def scene(self):
         return self._scene
@@ -212,25 +206,6 @@ class WorkflowManager(object):
             logger.debug('checking isdir: %s', target)
             return os.path.isdir(target)
         return False
-
-    def _loadWorkflowPlugins(self, wf_location):
-        wf = _getWorkflowConfiguration(wf_location)
-
-        return PluginDatabase.load(wf)
-
-    def checkPlugins(self, wf_location):
-        required_plugins = self._loadWorkflowPlugins(wf_location)
-        missing_plugins = self._plugin_database.checkForMissingPlugins(required_plugins)
-        return missing_plugins
-
-    def checkDependencies(self, wf_location):
-        required_plugins = self._loadWorkflowPlugins(wf_location)
-        virtenv_dir = getVirtEnvDirectory()
-        vem = VirtualEnvManager(virtenv_dir)
-        missing_dependencies = {}
-        if vem.exists():
-            missing_dependencies = self._plugin_database.checkForMissingDependencies(required_plugins, vem.list())
-        return missing_dependencies
 
     def writeSettings(self, settings):
         settings.beginGroup(self.name)

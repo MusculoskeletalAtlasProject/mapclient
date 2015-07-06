@@ -52,8 +52,10 @@ class Skeleton(object):
     skeleton code to disk.
     '''
 
-    def __init__(self, options):
+    def __init__(self, options, pyside_uic=None, pyside_rcc=None):
         self._options = options
+        self._pyside_uic = pyside_uic
+        self._pyside_rcc = pyside_rcc
 
     def _writeSetup(self, target_dir):
         '''
@@ -300,7 +302,6 @@ class Skeleton(object):
         )
         icon = self._options.getIcon()
         if icon:
-            print 'write step package init is something'
             (package, _) = os.path.splitext(PYTHON_QT_RESOURCE_FILENAME)
             f.write('# Import the resource file when the module is loaded,\n')
             f.write('# this enables the framework to use the step icon.\n')
@@ -333,18 +334,12 @@ class Skeleton(object):
             f.write(RESOURCE_FILE_STRING.format(step_package_name=self._options.getPackageName(), image_filename=image_filename))
             f.close()
 
-            # Difficulties arise when cross Python version calling pyside-uic.
-            pyside_rcc_potentials = ['pyside-rcc', 'py2side-rcc', 'py3side-rcc', 'pyside-rcc-py2']
-            for pyside_rcc in pyside_rcc_potentials:
-                try:
-                    result = call([pyside_rcc, '-py3', '-o', os.path.join(step_dir, PYTHON_QT_RESOURCE_FILENAME), os.path.join(qt_dir, QT_RESOURCE_FILENAME)])
-                except SyntaxError:
-                    result = -1
-                except Exception:
-                    result = -1
-
-                if result == 0:
-                    break
+            try:
+                result = call([self._pyside_rcc, '-py3', '-o', os.path.join(step_dir, PYTHON_QT_RESOURCE_FILENAME), os.path.join(qt_dir, QT_RESOURCE_FILENAME)])
+            except SyntaxError:
+                result = -1
+            except Exception:
+                result = -1
 
             if result < 0:
                 raise Exception('Failed to generate Python rcc file using any known PySide resource compiler.')
@@ -406,15 +401,10 @@ class Skeleton(object):
             fui.close()
 
             # Difficulties arise when cross Python version calling pyside-uic.
-            pyside_uic_potentials = ['pyside-uic', 'py2side-uic', 'py3side-uic', 'pyside-uic-py2']
-            for pyside_uic in pyside_uic_potentials:
-                try:
-                    result = call([pyside_uic, '--from-imports', '-o', os.path.join(step_dir, PYTHON_QT_CONFDIALOG_UI_FILENAME), ui_file])
-                except Exception:
-                    result = -1
-
-                if result == 0:
-                    break
+            try:
+                result = call([self._pyside_uic, '--from-imports', '-o', os.path.join(step_dir, PYTHON_QT_CONFDIALOG_UI_FILENAME), ui_file])
+            except Exception:
+                result = -1
 
             if result < 0:
                 raise Exception('Failed to generate Python ui file using any known PySide user interface compiler.')

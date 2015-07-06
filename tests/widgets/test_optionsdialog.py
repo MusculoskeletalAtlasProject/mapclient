@@ -5,6 +5,9 @@ Created on Jun 9, 2015
 '''
 import unittest
 
+from tests.utils import createTestApplication
+
+createTestApplication()
 
 class OptionsDialogTestCase(unittest.TestCase):
 
@@ -21,7 +24,7 @@ class OptionsDialogTestCase(unittest.TestCase):
     def testOptionsDialogNonEmptyOptions(self):
         from mapclient.widgets.dialogs.optionsdialog import OptionsDialog
         d = OptionsDialog()
-        options = {'checkBoxShowStepNames': True}
+        options = {u'lineEditGitExecutable': u'', u'lineEditPySideRCC': u'', u'lineEditVirtualEnvironmentPath': u'', u'lineEditPySideUIC': u'', u'checkBoxShowStepNames': True}
         d.load(options)
         self.assertFalse(d.isModified())
         saved_options = d.save()
