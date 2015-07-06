@@ -40,6 +40,7 @@ from mapclient.tools.pluginupdater import PluginUpdater
 from mapclient.tools.pmr.settings.general import PMR
 from mapclient.settings.general import getVirtEnvDirectory
 from mapclient.core.workflowerror import WorkflowError
+from mapclient.settings.definitions import SHOW_STEP_NAMES
 
 logger = logging.getLogger(__name__)
 
@@ -112,10 +113,10 @@ class WorkflowWidget(QtGui.QWidget):
 
     def applyOptions(self):
         om = self._mainWindow.model().optionsManager()
-        options = om.getOptions()
-        if 'checkBoxShowStepNames' in options:
-            self._graphicsScene.showStepNames(options['checkBoxShowStepNames'])
-            self._ui.graphicsView.showStepNames(options['checkBoxShowStepNames'])
+        show_step_names = om.getOption(SHOW_STEP_NAMES)
+        if show_step_names:
+            self._graphicsScene.showStepNames(show_step_names)
+            self._ui.graphicsView.showStepNames(show_step_names)
 
     def undoStackIndexChanged(self, index):
         self._mainWindow.model().workflowManager().undoStackIndexChanged(index)

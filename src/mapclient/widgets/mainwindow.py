@@ -195,6 +195,37 @@ class MainWindow(QtGui.QMainWindow):
         dlg.setModal(True)
         dlg.exec_()
 
+    def checkApplicationSetup(self):
+        """
+        Check the application setup and setup anything that is not setup that
+        gets setup in the background, for instance the virtual environment.
+        """
+        # Has the virtual environment initialisation been attempted?
+        # If it hasn't, setup the virtual environment otherwise run environment
+        # checks.
+        # Maybe setup Virtual Env. first
+        om = self._model.optionsManager()
+        options = om.getOptions()
+        pm = PluginManager(options)
+        if pm.exists():
+            pm.addSitePackages()
+        elif pm.:
+            self.setupVirtualEnv()
+
+        result = True
+        if not self._model.doEnvironmentChecks():
+            from mapclient.widgets.dialogs.checkstatusdialog import CheckStatusDialog
+            om = self._model.optionsManager()
+            options = om.getOptions()
+            dlg = CheckStatusDialog(options, self)
+            dlg.exec_()
+            result = False
+
+        self.showPluginErrors()
+        self._workflowWidget.updateStepTree()
+
+        return result
+
     def setCurrentUndoRedoStack(self, stack):
         current_stack = self._model.undoManager().currentStack()
         if current_stack:
@@ -273,7 +304,7 @@ class MainWindow(QtGui.QMainWindow):
                 self._workflowWidget.applyOptions()
 
     def showPluginManagerDialog(self):
-        from mapclient.tools.pluginmanagerdialog import PluginManagerDialog
+        from mapclient.tools.pluginmanager.pluginmanagerdialog import PluginManagerDialog
         pm = self._model.pluginManager()
         dlg = PluginManagerDialog(self._model.pluginManager()._ignoredPlugins, self._model.pluginManager()._doNotShowPluginErrors, self._model.pluginManager()._resourceFiles, self._model.pluginManager()._updaterSettings, self._model.pluginManager()._unsuccessful_package_installations)
         self._pluginManagerDlg = dlg

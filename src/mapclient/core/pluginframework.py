@@ -63,124 +63,11 @@ def getPlugins(pluginDirectory):
 
     return plugins
 
+
 def loadPlugin(plugin):
     return imp.load_module(MAIN_MODULE, *plugin['info'])
 
-# class LoadDepth(object):
-#    depth = 0
-#
-# def loadPlugins(pkgDir):
-#    ii = pkgutil.ImpImporter(pkgDir)
-# #    sys.path.insert(0, pkgDir)
-#    LoadDepth.depth += 1
-#    try:
-#        for moduleName, isPkg in ii.iter_modules():
-# #        projectName = os.path.basename(pkgDir)
-#            if isPkg:
-#                pkgPath = os.path.join(pkgDir, moduleName)
-#                initPackage(pkgPath)
-# #                project = __import__(moduleName)
-# #                print(moduleName)
-# #                sys.modules[moduleName] = project
-#
-#                loadPlugins(pkgPath)
-#            else:
-#                loadModule(moduleName, pkgDir)
-# #            print(moduleName)
-#    finally:
-# #        print(sys.path)
-# #        del sys.path[0]
-#        LoadDepth.depth -= 1
-# #        print(sys.path)
-#
-# def loadPlugins2(pkgDir):
-#    ii = pkgutil.ImpImporter(pkgDir)
-#    LoadDepth.depth += 1
-# #    print(LoadDepth.depth)
-#    for moduleName, isPkg in ii.iter_modules():
-#        if isPkg:
-#            pkgPath = os.path.join(pkgDir, moduleName)
-#            module = initPackage(pkgPath)
-# #            print(pkgPath)
-#            if module and pkgDir not in sys.path and LoadDepth.depth == 1:
-#                sys.path.append(pkgDir)
-# #                print(pkgDir)
-# #            __import__(moduleName)
-#            loadPlugins(pkgPath)
-#        else:
-# #            print(moduleName, pkgDir)
-#            loadModule(moduleName, pkgDir)
-#
-#    LoadDepth.depth -= 1
-#
-# def initPackage(pkgDir):
-#    fp, path, description = imp.find_module('__init__', [pkgDir])
-#    module = imp.load_module(pkgDir, fp, path, description)
-# #    try:
-# #        module = imp.load_module(pkgDir, fp, path, description)
-# #    except:
-# #        module = None
-# #        print('Failed to initialise package {0}.'.format(pkgDir))
-# #    finally:
-# #        if fp:
-# #            fp.close()
-#    if LoadDepth.depth == 1:
-#        print("Plugin '{0}' version {1} by {2} loaded".format(pkgDir.split(os.sep)[-1], module.__version__, module.__author__))
-#    fp.close()
-#
-#    return module
-#
-# def loadModule(moduleName, moduleDir):
-#    fp, path, description = imp.find_module(moduleName, [moduleDir])
-#
-#    print(moduleDir)
-#    imp.load_module(moduleDir, fp, path, description)
-# #    print('======= module', module)
-#
-# #    moduleVersion = '-.-.-'
-# #    if hasattr(module, '__version__'):
-# #        moduleVersion = module.__version__
-# #    moduleAuthor = '?'
-# #    if hasattr(module, '__author__'):
-# #        moduleAuthor = module.__author__
-# #    print("Plugin '{0}' version {1} by {2} loaded".format(moduleName, moduleVersion, moduleAuthor))
-#    fp.close()
-# #    try:
-# #        module = imp.load_module(moduleDir, fp, path, description)
-# #
-# #        moduleVersion = '-.-.-'
-# #        if hasattr(module, '__version__'):
-# #            moduleVersion = module.__version__
-# #        moduleAuthor = '?'
-# #        if hasattr(module, '__author__'):
-# #            moduleAuthor = module.__author__
-# #        print("Plugin '{0}' version {1} by {2} loaded".format(moduleName, moduleVersion, moduleAuthor))
-# #    except:
-# #        # non modules will fail
-# #        print("Plugin '{0}' not loaded".format(moduleName))
-# #    finally:
-# #        if fp:
-# #            fp.close()
-#
-# class PluginsAt(object):
-#    '''
-#    Descriptor to get plugins on a given mount point.
-#    '''
-#    def __init__(self, mount_point):
-#        '''
-#        Initialise the descriptor with the mount point wanted.
-#        Eg: PluginsAt(PluginFramework.MenuOption) to get extensions that change the GUI Menu.
-#        '''
-#        self.mount = mount_point
-#
-#    def __get__(self, instance, owner=None):
-#        '''
-#        Plugins are instantiated with the object that is calling them.
-#        '''
-#        return [p() for p in self.mount.plugins]
 
-
-# import traceback
 class MetaPluginMountPoint(type):
     '''
     * A way to declare a mount point for plugins. Since plugins are an example
@@ -214,11 +101,6 @@ class MetaPluginMountPoint(type):
             # Simply appending it to the list is all that's needed to keep
             # track of it later.
             cls.plugins.append(cls)
-
-#        traceback.print_stack()
-#        for item in sys.modules:
-#            print(item)
-#        print('=========', cls, name)
 
     def getPlugins(self, *args, **kwargs):
         return [p(*args, **kwargs) for p in self.plugins]
