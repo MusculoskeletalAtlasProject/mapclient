@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -23,8 +23,8 @@ import tempfile
 import unittest
 import logging
 
-from mapclient.core.pluginframework import PluginManager
-from mapclient.core.pluginframework import PluginSiteManager
+from mapclient.core.managers.pluginmanager import PluginManager
+from mapclient.core.managers.pluginmanager import PluginSiteManager
 from tests.utils import ConsumeOutput
 
 class PluginFrameworkTestCase(unittest.TestCase):
@@ -33,7 +33,7 @@ class PluginFrameworkTestCase(unittest.TestCase):
 
         redirectstdout = ConsumeOutput()
         redirect_handler = logging.StreamHandler(redirectstdout)
-        logger = logging.getLogger('mapclient.core.pluginframework')
+        logger = logging.getLogger('mapclient.core.managers.pluginmanager')
         logger.setLevel(logging.INFO)
         for handler in logger.handlers:
             logger.removeHandler(handler)

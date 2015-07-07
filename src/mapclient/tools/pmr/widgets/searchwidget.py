@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@ import logging
 from PySide import QtGui, QtCore
 
 from mapclient.tools.pmr.widgets.ui_searchwidget import Ui_SearchWidget
-from mapclient.widgets.utils import handle_runtime_error, set_wait_cursor
+from mapclient.view.utils import handle_runtime_error, set_wait_cursor
 from mapclient.tools.pmr.pmrtool import PMRToolError, PMRTool
 from mapclient.core.utils import convertExceptionToMessage
 from mapclient.tools.annotation.annotationtool import AnnotationTool
@@ -31,25 +31,25 @@ from mapclient.tools.pmr.settings.general import PMR
 logger = logging.getLogger(__name__)
 
 class SearchWidget(QtGui.QWidget):
-    
+
     def __init__(self, parent=None):
         super(SearchWidget, self).__init__(parent)
         self._ui = Ui_SearchWidget()
         self._ui.setupUi(self)
-        
+
         pmr_info = PMR()
         self._pmrTool = PMRTool(pmr_info)
         self._annotationTool = AnnotationTool()
-        
+
         self._makeConnections()
-        
+
     def setPMRInfo(self, info):
         self._pmrTool.set_info(info)
 
     def _makeConnections(self):
         self._ui.searchButton.clicked.connect(self._searchClicked)
         self._ui.searchResultsListWidget.itemClicked.connect(self._itemClicked)
-        
+
     def _itemClicked(self, item):
         data = item.data(QtCore.Qt.UserRole)
         if 'target' in data:
@@ -71,7 +71,7 @@ class SearchWidget(QtGui.QWidget):
 
         try:
             results = self._pmrTool.search(search_text)
-    
+
             for r in results:
                 if 'title' in r and r['title']:
                     item = QtGui.QListWidgetItem(r['title'], self._ui.searchResultsListWidget)

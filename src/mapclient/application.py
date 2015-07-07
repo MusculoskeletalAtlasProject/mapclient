@@ -96,7 +96,7 @@ def winmain():
     from mapclient.core.mainapplication import MainApplication
     model = MainApplication()
 
-    from mapclient.widgets.mainwindow import MainWindow
+    from mapclient.view.mainwindow import MainWindow
     window = MainWindow(model)
     window.show()
 

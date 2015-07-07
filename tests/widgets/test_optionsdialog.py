@@ -13,7 +13,7 @@ class OptionsDialogTestCase(unittest.TestCase):
 
 
     def testOptionsDialogEmptyOptions(self):
-        from mapclient.widgets.dialogs.optionsdialog import OptionsDialog
+        from mapclient.view.managers.options.optionsdialog import OptionsDialog
         d = OptionsDialog()
         options = {}
         d.load(options)
@@ -22,7 +22,7 @@ class OptionsDialogTestCase(unittest.TestCase):
         self.assertNotEqual(options, saved_options)
 
     def testOptionsDialogNonEmptyOptions(self):
-        from mapclient.widgets.dialogs.optionsdialog import OptionsDialog
+        from mapclient.view.managers.options.optionsdialog import OptionsDialog
         d = OptionsDialog()
         options = {u'lineEditGitExecutable': u'', u'lineEditPySideRCC': u'', u'lineEditVirtualEnvironmentPath': u'', u'lineEditPySideUIC': u'', u'checkBoxShowStepNames': True}
         d.load(options)

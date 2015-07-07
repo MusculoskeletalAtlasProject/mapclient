@@ -39,3 +39,9 @@ VIRTUAL_ENV_SETUP_ATTEMPTED = 'venvSetupAttempted'
 WIZARD_TOOL_STRING = 'Wizard Tool'
 VIRTUAL_ENVIRONMENT_STRING = 'Virtual Environment'
 PMR_TOOL_STRING = 'PMR Tool'
+
+PLUGINS_PACKAGE_NAME = 'mapclientplugins'
+PLUGINS_PTH = PLUGINS_PACKAGE_NAME + '.pth'
+MAIN_MODULE = '__init__'
+
+
