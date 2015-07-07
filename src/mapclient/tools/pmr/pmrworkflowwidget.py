@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@ import re
 from PySide import QtGui, QtCore
 
 from mapclient.tools.pmr.ui_pmrworkflowwidget import Ui_PMRWorkflowWidget
-from mapclient.widgets.utils import handle_runtime_error, set_wait_cursor
+from mapclient.view.utils import handle_runtime_error, set_wait_cursor
 from mapclient.tools.pmr.pmrtool import PMRTool, search_domains, \
     workflow_search_string, ontological_search_string
 from mapclient.tools.pmr.authoriseapplicationdialog import AuthoriseApplicationDialog

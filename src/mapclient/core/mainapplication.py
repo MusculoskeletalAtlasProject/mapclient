@@ -21,10 +21,10 @@ import logging
 
 from PySide import QtCore
 
-from mapclient.core.workflow import WorkflowManager
-from mapclient.core.undomanager import UndoManager
-from mapclient.core.pluginframework import PluginManager
-from mapclient.core.optionsmanager import OptionsManager
+from mapclient.core.managers.workflowmanager import WorkflowManager
+from mapclient.core.managers.undomanager import UndoManager
+from mapclient.core.managers.pluginmanager import PluginManager
+from mapclient.core.managers.optionsmanager import OptionsManager
 from mapclient.core.checks import runChecks
 
 logger = logging.getLogger(__name__)
