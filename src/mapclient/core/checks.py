@@ -36,7 +36,7 @@ class WizardToolChecks(ApplicationChecks):
     def doCheck(self):
         uic_result = False
         rcc_result = False
-        self._report = '{0}\n'.format(self.title)
+        self._report = ''  # {0}\n'.format(self.title)
         try:
             pyside_uic = self._options[PYSIDE_UIC_EXE]
             p = subprocess.Popen([pyside_uic, '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -48,20 +48,20 @@ class WizardToolChecks(ApplicationChecks):
             else:
                 self._report += "Failure: '{0}' did not execute successfully, returned '{1}' on exit.\n".format(pyside_uic, return_code)
         except Exception as e:
-            self._report += "Failure: '{0}' did not execute successfully, caused exception:\n{1}\n".format(pyside_uic, e.message)
+            self._report += "Failure: '{0}' did not execute successfully, caused exception:\n{1}\n".format(pyside_uic, e)
         try:
             pyside_rcc = self._options[PYSIDE_RCC_EXE]
             p = subprocess.Popen([pyside_rcc, '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             _, stderr = p.communicate()
             return_code = p.returncode
             # pyside-rcc returns 1 for all program executions that don't actual compile resources.
-            if return_code == 1 and 'Resource Compiler for Qt version' in stderr:
+            if return_code == 1 and 'Resource Compiler for Qt version' in stderr.decode('utf-8'):
                 rcc_result = True
                 self._report += "Success: '{0}' successfully ran.".format(pyside_rcc)
             else:
                 self._report += "Failure: '{0}' did not execute successfully, returned '{1}' on exit.".format(pyside_rcc, return_code)
         except Exception as e:
-            self._report += "Failure: '{0}' did not execute successfully, caused exception:\n{1}".format(pyside_rcc, e.message)
+            self._report += "Failure: '{0}' did not execute successfully, caused exception:\n{1}".format(pyside_rcc, e)
 
         return uic_result and rcc_result
 
@@ -78,12 +78,12 @@ class VirtualEnvChecks(ApplicationChecks):
         venv_path = self._options[VIRTUAL_ENV_PATH]
         result = False
         if ' ' in venv_path or not venv_path:
-            self._report = "{1}\nFailure: '{0}' is not a valid virtual environment path.".format(venv_path, self.title)
+            self._report = "Failure: '{0}' is not a valid virtual environment path.".format(venv_path)
         elif not self._testPipExe(venv_path):
-            self._report = "{1}\nFailure: '{0}' is not a valid pip executable.".format(os.path.join(venv_path, 'bin', 'pip'), self.title)
+            self._report = "Failure: '{0}' is not a valid pip executable.".format(os.path.join(venv_path, 'bin', 'pip'))
         else:
             result = True
-            self._report = "{1}\nSuccess: '{0}' is a valid virtual environment.".format(venv_path, self.title)
+            self._report = "Success: '{0}' is a valid virtual environment.".format(venv_path)
 
         return result
 
@@ -100,13 +100,13 @@ class VCSChecks(ApplicationChecks):
             p = subprocess.Popen([vcs_tool, '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, _ = p.communicate()
             return_code = p.returncode
-            if return_code == 0 and 'git version' in stdout:
+            if return_code == 0 and 'git version' in stdout.decode('utf-8'):
                 result = True
-                self._report += "{1}\nSuccess: '{0}' successfully ran.".format(vcs_tool, self.title)
+                self._report += "Success: '{0}' successfully ran.".format(vcs_tool)
             else:
-                self._report += "{2}\nFailure: '{0}' did not execute successfully, returned '{1}' on exit.".format(vcs_tool, return_code, self.title)
+                self._report += "Failure: '{0}' did not execute successfully, returned '{1}' on exit.".format(vcs_tool, return_code)
         except Exception as e:
-            self._report += "{2}\nFailure: '{0}' did not execute successfully, caused exception:\n{1}".format(vcs_tool, e.message, self.title)
+            self._report += "Failure: '{0}' did not execute successfully, caused exception:\n{1}".format(vcs_tool, e)
 
         return result
 
