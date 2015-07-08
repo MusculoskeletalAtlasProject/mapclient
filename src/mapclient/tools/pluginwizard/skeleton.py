@@ -305,7 +305,7 @@ class Skeleton(object):
             (package, _) = os.path.splitext(PYTHON_QT_RESOURCE_FILENAME)
             f.write('# Import the resource file when the module is loaded,\n')
             f.write('# this enables the framework to use the step icon.\n')
-            f.write('import ' + package)
+            f.write('from . import ' + package)
         f.close()
 
     def _createStepIcon(self, step_dir):
@@ -423,8 +423,13 @@ class Skeleton(object):
             f.write(set_config_string)
             f.close()
 
-    def getOutputDirectory(self):
-        return self._options.getOutputDirectory()
+    def getPackageDirectory(self):
+        out_dir = self._options.getOutputDirectory()
+        package_name = self._options.getPackageName()
+        package_full_name = '%s.%s' % (PLUGIN_NAMESPACE, package_name)
+
+        package_dir = os.path.join(out_dir, package_full_name)
+        return package_dir
 
     def write(self):
         '''

@@ -354,11 +354,11 @@ class MainWindow(QtGui.QMainWindow):
             except Exception as e:
                 QtGui.QMessageBox.critical(self, 'Error Writing Step', 'There was an error writing the step, perhaps the step already exists?')
                 logger.critical(e.message)
-                print s.getOutputDirectory()
+                print(s.getPackageDirectory())
                 import os
-                if os.path.exists(s.getOutputDirectory()):
+                if os.path.exists(s.getPackageDirectory()):
                     import shutil
-#                     shutil.rmtree(s.getOutputDirectory())
+#                     shutil.rmtree(s.getPackageDirectory())
 
     def showPMRTool(self):
         from mapclient.tools.pmr.dialogs.pmrdialog import PMRDialog
