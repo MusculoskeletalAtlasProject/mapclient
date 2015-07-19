@@ -109,7 +109,7 @@ class PluginErrors(QDialog):
         plugin_dict[plugin] = [plugin_directory, plugin_init_update, plugin_resources_update, plugin_syntax_update, plugin_tabbed_indentation, os.path.join(plugin_directory, plugin, '__init__.py'), resourcesDirs, tabbed_modules]
         _, failure = applyPluginUpdates(plugin_dict)
         if failure:
-            ret = QMessageBox.warning(self, 'Warning', '\nCould not update plugin. Please examine program logs for more info.  \t', QMessageBox.Ok)
+            QMessageBox.warning(self, 'Warning', '\nCould not update plugin. Please examine program logs for more info.  \t', QMessageBox.Ok)
         else:
             self._ui.listWidget.takeItem(self._ui.listWidget.row(self._ui.listWidget.selectedItems()[0]))
             self._hotfixExecuted = True
