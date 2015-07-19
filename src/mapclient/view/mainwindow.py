@@ -26,6 +26,9 @@ from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
 from mapclient.view.workflow.workflowwidget import WorkflowWidget
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
 from mapclient.settings.general import getVirtEnvDirectory
+from mapclient.settings.definitions import VIRTUAL_ENV_PATH, WIZARD_TOOL_STRING, \
+    VIRTUAL_ENVIRONMENT_STRING, PMR_TOOL_STRING
+from mapclient.view.utils import set_wait_cursor
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +52,8 @@ class MainWindow(QtGui.QMainWindow):
         self.setMenuBar(self.menubar)
         self._makeConnections()
 
+        self.action_Annotation.setEnabled(False)
+
         self._createUndoAction(self.menu_Edit)
         self._createRedoAction(self.menu_Edit)
 
@@ -56,7 +61,6 @@ class MainWindow(QtGui.QMainWindow):
         self.resize(self._model.size())
         self.move(self._model.pos())
 
-        self._model.pluginManager().load()
 
         self._workflowWidget = WorkflowWidget(self)
         self._ui.stackedWidget.addWidget(self._workflowWidget)
@@ -91,28 +95,28 @@ class MainWindow(QtGui.QMainWindow):
         self.action_About.setObjectName("action_About")
         self.action_Quit = QtGui.QAction(self)
         self.action_Quit.setObjectName("action_Quit")
-        self.actionPluginManager = QtGui.QAction(self)
-        self.actionPluginManager.setObjectName("actionPluginManager")
-        self.actionPMR = QtGui.QAction(self)
-        self.actionPMR.setObjectName("actionPMR")
-        self.actionAnnotation = QtGui.QAction(self)
-        self.actionAnnotation.setObjectName("actionAnnotation")
-        self.actionPluginWizard = QtGui.QAction(self)
-        self.actionPluginWizard.setObjectName("actionPluginWizard")
+        self.action_PluginManager = QtGui.QAction(self)
+        self.action_PluginManager.setObjectName("action_PluginManager")
+        self.action_PMR = QtGui.QAction(self)
+        self.action_PMR.setObjectName("action_PMR")
+        self.action_Annotation = QtGui.QAction(self)
+        self.action_Annotation.setObjectName("action_Annotation")
+        self.action_PluginWizard = QtGui.QAction(self)
+        self.action_PluginWizard.setObjectName("action_PluginWizard")
         if ADMIN_MODE:
             self.action_MAPIcon = QtGui.QAction(self)
             self.action_MAPIcon.setObjectName("actionMAPIcon")
 
         self.menu_Help.addAction(self.action_About)
         self.menu_View.addSeparator()
-        self.menu_View.addAction(self.actionPluginManager)
+        self.menu_View.addAction(self.action_PluginManager)
         self.menu_View.addAction(self.action_LogInformation)
         self.menu_View.addAction(self.action_Options)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.action_Quit)
-        self.menu_Tools.addAction(self.actionPluginWizard)
-        self.menu_Tools.addAction(self.actionPMR)
-        self.menu_Tools.addAction(self.actionAnnotation)
+        self.menu_Tools.addAction(self.action_PluginWizard)
+        self.menu_Tools.addAction(self.action_PMR)
+        self.menu_Tools.addAction(self.action_Annotation)
         if ADMIN_MODE:
             self.menu_Tools.addAction(self.action_MAPIcon)
         self.menubar.addAction(self.menu_File.menuAction())
@@ -140,10 +144,10 @@ class MainWindow(QtGui.QMainWindow):
         self.action_LogInformation.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+I", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Options.setText(QtGui.QApplication.translate("MainWindow", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Options.setStatusTip(QtGui.QApplication.translate("MainWindow", "Change global application options", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionPluginManager.setText(QtGui.QApplication.translate("MainWindow", "Plugin &Manager", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionPMR.setText(QtGui.QApplication.translate("MainWindow", "&PMR", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionAnnotation.setText(QtGui.QApplication.translate("MainWindow", "&Annotation", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionPluginWizard.setText(QtGui.QApplication.translate("MainWindow", "Plugin Wi&zard", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_PluginManager.setText(QtGui.QApplication.translate("MainWindow", "Plugin &Manager", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_PMR.setText(QtGui.QApplication.translate("MainWindow", "&PMR", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Annotation.setText(QtGui.QApplication.translate("MainWindow", "&Annotation", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_PluginWizard.setText(QtGui.QApplication.translate("MainWindow", "Plugin Wi&zard", None, QtGui.QApplication.UnicodeUTF8))
         if ADMIN_MODE:
             self.action_MAPIcon.setText(QtGui.QApplication.translate("MainWindow", "MAP &Icon", None, QtGui.QApplication.UnicodeUTF8))
 
@@ -179,21 +183,22 @@ class MainWindow(QtGui.QMainWindow):
         self.action_About.triggered.connect(self.about)
         self.action_LogInformation.triggered.connect(self.showLogInformationDialog)
         self.action_Options.triggered.connect(self.showOptionsDialog)
-        self.actionPluginManager.triggered.connect(self.showPluginManagerDialog)
-        self.actionPluginWizard.triggered.connect(self.showPluginWizardDialog)
-        self.actionPMR.triggered.connect(self.showPMRTool)
-        self.actionAnnotation.triggered.connect(self.showAnnotationTool)
+        self.action_PluginManager.triggered.connect(self.showPluginManagerDialog)
+        self.action_PluginWizard.triggered.connect(self.showPluginWizardDialog)
+        self.action_PMR.triggered.connect(self.showPMRTool)
+        self.action_Annotation.triggered.connect(self.showAnnotationTool)
         if ADMIN_MODE:
             self.action_MAPIcon.triggered.connect(self.showMAPIconDialog)
 
-    def setupVirtualEnv(self):
+    @set_wait_cursor
+    def _setupVirtualEnv(self):
         """
         Sets up a virtual environment for MAP Client dependencies.
         """
-        from mapclient.view.managers.plugins.dependencyinstallation import VirtualEnvSetup
-        dlg = VirtualEnvSetup(getVirtEnvDirectory(), self)
-        dlg.setModal(True)
-        dlg.exec_()
+        pm = self._model.pluginManager()
+        om = self._model.optionsManager()
+        pm.setVirtualEnvDirectory(om.getOption(VIRTUAL_ENV_PATH))
+        pm.setupVirtualEnv()
 
     def checkApplicationSetup(self):
         """
@@ -205,24 +210,40 @@ class MainWindow(QtGui.QMainWindow):
         # checks.
         # Maybe setup Virtual Env. first
         om = self._model.optionsManager()
-        options = om.getOptions()
-#         pm = PluginManager(options)
-#         if pm.exists():
-#             pm.addSitePackages()
-#         else:
-#             self.setupVirtualEnv()
+        pm = self._model.pluginManager()
+        if not pm.virtualenvSetupAttempted():
+            self._setupVirtualEnv()
 
-        result = True
-        if not self._model.doEnvironmentChecks():
-            from mapclient.view.dialogs.checkstatus.checkstatusdialog import CheckStatusDialog
-            om = self._model.optionsManager()
+        result = self._model.doEnvironmentChecks()
+        if not result:
+            from mapclient.view.managers.options.optionsdialog import OptionsDialog
+
             options = om.getOptions()
-            dlg = CheckStatusDialog(options, self)
-            dlg.exec_()
-            result = False
+            dlg = OptionsDialog(self)
+            dlg.load(options)
+            dlg.setCurrentTab(1)
+            if dlg.exec_() == QtGui.QDialog.Accepted:
+                if dlg.isModified():
+                    om.setOptions(dlg.save())
 
-        self.showPluginErrors()
-        self._workflowWidget.updateStepTree()
+                # set availability of functionality.
+                pm.setVirtualEnvDirectory(om.getOption(VIRTUAL_ENV_PATH))
+                if not pm.virtualEnvExists():
+                    self._setupVirtualEnv()
+                self._workflowWidget.applyOptions()
+
+            self.action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
+            pm.setVirtualEnvEnabled(dlg.checkedOk(VIRTUAL_ENVIRONMENT_STRING))
+            self.action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
+
+        pm.setVirtualEnvDirectory(om.getOption(VIRTUAL_ENV_PATH))
+        if pm.virtualEnvExists():
+            pm.addSitePackages()
+
+        self._pluginManagerLoadPlugins()
+        # Show plugin errors
+        if pm.haveErrors():
+            self.showPluginErrorsDialog()
 
         return result
 
@@ -301,6 +322,13 @@ class MainWindow(QtGui.QMainWindow):
         if dlg.exec_() == QtGui.QDialog.Accepted:
             if dlg.isModified():
                 om.setOptions(dlg.save())
+                # set availability of functionality.
+                self.action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
+                pm = self._model.pluginManager()
+                pm.setVirtualEnvEnabled(dlg.checkedOk(VIRTUAL_ENVIRONMENT_STRING))
+                if not pm.virtualEnvExists():
+                    self._setupVirtualEnv()
+                self.action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
                 self._workflowWidget.applyOptions()
 
     def showPluginManagerDialog(self):
@@ -310,34 +338,32 @@ class MainWindow(QtGui.QMainWindow):
         self._pluginManagerDlg = dlg
         dlg.setDirectories(pm.directories())
         dlg.setLoadDefaultPlugins(pm.loadDefaultPlugins())
-        dlg.reloadPlugins = self._pluginManagerReloadPlugins
+        dlg.reloadPlugins = self._pluginManagerLoadPlugins
 
         dlg.setModal(True)
         if dlg.exec_():
-            self._model.pluginManager()._ignoredPlugins = dlg._ignoredPlugins
-            self._model.pluginManager()._doNotShowPluginErrors = dlg._do_not_show_plugin_errors
-            self._model.pluginManager()._resourceFiles = dlg._resource_filenames
-            self._model.pluginManager()._updaterSettings = dlg._updaterSettings
-            directories_modified = pm.setDirectories(dlg.directories())
-            defaults_modified = pm.setLoadDefaultPlugins(dlg.loadDefaultPlugins())
-            if directories_modified or defaults_modified:
-                pm.load()
-                self._workflowWidget.updateStepTree()
-            self.showPluginErrors()
-            self._workflowWidget.updateStepTree()
+            pm._ignoredPlugins = dlg._ignoredPlugins
+            pm._doNotShowPluginErrors = dlg._do_not_show_plugin_errors
+            pm._resourceFiles = dlg._resource_filenames
+            pm._updaterSettings = dlg._updaterSettings
+            self._pluginManagerLoadPlugins()
 
         self._pluginManagerDlg = None
 
-    def _pluginManagerReloadPlugins(self):
+    @set_wait_cursor
+    def _pluginManagerLoadPlugins(self):
         '''
-        Callback from the plugin manager to reload the current plugins.
+        Get the plugin manager to load the current plugins.
         '''
         pm = self._model.pluginManager()
         if self._pluginManagerDlg is not None:
             pm.setDirectories(self._pluginManagerDlg.directories())
             pm.setLoadDefaultPlugins(self._pluginManagerDlg.loadDefaultPlugins())
-        pm.load()
-        self._workflowWidget.updateStepTree()
+
+        if pm.reloadPlugins():
+            pm.load()
+            self._workflowWidget.updateStepTree()
+#             self.showPluginErrors()
 
     def showPluginWizardDialog(self):
         from mapclient.tools.pluginwizard.wizarddialog import WizardDialog
@@ -349,7 +375,7 @@ class MainWindow(QtGui.QMainWindow):
             s = Skeleton(dlg.getOptions())
             try:
                 s.write()
-                self._pluginManagerReloadPlugins()
+                self._pluginManagerLoadPlugins()
                 QtGui.QMessageBox.information(self, 'Skeleton Step', 'The Skeleton step has successfully been written to disk.')
             except Exception as e:
                 QtGui.QMessageBox.critical(self, 'Error Writing Step', 'There was an error writing the step, perhaps the step already exists?')
@@ -381,11 +407,23 @@ class MainWindow(QtGui.QMainWindow):
         if dlg.exec_():
             dlg.createIcon()
 
-    def showPluginErrors(self):
-        plugin_errors = self._model.pluginManager().getPluginErrors()
-        for error in plugin_errors:
-            if plugin_errors[error]:
-                self._model.pluginManager().showPluginErrorsDialog()
-                break
+    def showPluginErrorsDialog(self):
+        from mapclient.view.managers.plugins.pluginerrors import PluginErrors
+
+        pm = self._model.pluginManager()
+        if pm.showPluginErrors():
+            dlg = PluginErrors(pm.getPluginErrors(), pm.getIgnoredPlugins(), pm.getResourceFiles(), pm.getUpdaterSettings())
+            if not self._doNotShowPluginErrors:
+                dlg.setModal(True)
+                dlg.fillList()
+                dlg.exec_()
+            ignored_plugins = dlg.getIgnoredPlugins()
+            for plugin in ignored_plugins:
+                if plugin not in self._ignoredPlugins:
+                    self._ignoredPlugins += [plugin]
+            if dlg._doNotShow:
+                self._doNotShowPluginErrors = True
+            if dlg._hotfixExecuted:
+                self.load()
 
 

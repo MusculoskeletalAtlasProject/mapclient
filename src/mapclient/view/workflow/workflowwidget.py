@@ -272,7 +272,8 @@ class WorkflowWidget(QtGui.QWidget):
                 self.performWorkflowChecks(workflowDir)
                 self._load(workflowDir)
             except (ValueError, WorkflowError) as e:
-                    QtGui.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + str(e))
+                logger.error('Invalid Workflow.  ' + str(e))
+                QtGui.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + str(e))
 
     def showDownloadableContent(self, plugins={}, dependencies={}):
         from mapclient.view.managers.plugins.plugindownloader import PluginDownloader
@@ -372,6 +373,7 @@ class WorkflowWidget(QtGui.QWidget):
                     self.performWorkflowChecks(destination_dir)
                     self._load(destination_dir)
                 except (ValueError, WorkflowError) as e:
+                    logger.error('Invalid Workflow.  ' + str(e))
                     QtGui.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + str(e))
             else:
                 QtGui.QMessageBox.critical(self, 'Error Caught', 'Invalid Import Settings.  Either the workspace url (%s) was not set' \

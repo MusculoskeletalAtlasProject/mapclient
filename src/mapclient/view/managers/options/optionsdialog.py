@@ -10,6 +10,8 @@ from PySide import QtGui
 from mapclient.view.managers.options.ui.ui_optionsdialog import Ui_OptionsDialog
 from mapclient.core.checks import WizardToolChecks, VirtualEnvChecks, VCSChecks
 from mapclient.view.syntaxhighlighter import SyntaxHighlighter
+from mapclient.settings.definitions import VIRTUAL_ENVIRONMENT_STRING, \
+    WIZARD_TOOL_STRING, PMR_TOOL_STRING
 
 class  OptionsDialog(QtGui.QDialog):
     '''
@@ -28,6 +30,10 @@ class  OptionsDialog(QtGui.QDialog):
         self._highlighter = SyntaxHighlighter(self._ui.plainTextEditToolTestOutput.document())
 
         self._makeConnections()
+
+        self._venv = False
+        self._wizard_tool = False
+        self._vcs = False
 
         self._location = ''
         self._original_options = {}
@@ -67,7 +73,7 @@ class  OptionsDialog(QtGui.QDialog):
             self._location = os.path.dirname(git_program)
             self._testTools()
 
-    def _testTools(self):
+    def _testToolsOld(self):
         options = self.save()
         checks_wizard = WizardToolChecks(options)
         checks_wizard.doCheck()
@@ -78,6 +84,53 @@ class  OptionsDialog(QtGui.QDialog):
         self._ui.plainTextEditToolTestOutput.setPlainText(checks_wizard.report())
         self._ui.plainTextEditToolTestOutput.appendPlainText(checks_venv.report())
         self._ui.plainTextEditToolTestOutput.appendPlainText(checks_vcs.report())
+
+    def _testTools(self):
+        options = self.save()
+        self._ui.plainTextEditToolTestOutput.setPlainText('')
+        checks_venv = VirtualEnvChecks(options)
+        self._venv, output = self._handleCheck(checks_venv, VIRTUAL_ENVIRONMENT_STRING)
+        self._ui.plainTextEditToolTestOutput.appendPlainText(output)  # labelCheckOutput.setText(output)
+        checks_wizard = WizardToolChecks(options)
+        self._wizard_tool, output = self._handleCheck(checks_wizard, WIZARD_TOOL_STRING)
+        self._ui.plainTextEditToolTestOutput.appendPlainText(output)  # labelCheckOutput.setText(output)
+        checks_vcs = VCSChecks(options)
+        self._vcs, output = self._handleCheck(checks_vcs, PMR_TOOL_STRING)
+        self._ui.plainTextEditToolTestOutput.appendPlainText(output)  # labelCheckOutput.setText(output)
+#         self._ui.labelCheckTitle.setText('All Checks Complete')
+
+    def _handleCheck(self, check, title):
+        output = ''  # self._ui.plainTextEditScreen.document().toPlainText()
+        result = check.doCheck()
+#         self._ui.labelCheckTitle.setText(title)
+        if result:
+            output += 'Success: {0}'.format(title)
+        else:
+            output += 'Failure: {0}\n'.format(title)
+            output += check.report()
+
+        return result, output
+
+    def setCurrentTab(self, tab_index):
+        self._ui.tabWidget.setCurrentIndex(tab_index)
+
+    def reject(self, *args, **kwargs):
+        self._testTools()
+        return QtGui.QDialog.reject(self, *args, **kwargs)
+
+    def accept(self, *args, **kwargs):
+        self._testTools()
+        return QtGui.QDialog.accept(self, *args, **kwargs)
+
+    def checkedOk(self, tool):
+        if tool == WIZARD_TOOL_STRING:
+            return self._wizard_tool
+        elif tool == VIRTUAL_ENVIRONMENT_STRING:
+            return self._venv
+        elif tool == PMR_TOOL_STRING:
+            return self._vcs
+
+        return False
 
     def load(self, options):
         self._original_options = options
@@ -96,6 +149,8 @@ class  OptionsDialog(QtGui.QDialog):
             self._ui.lineEditVirtualEnvironmentPath.setText(options[venv_path_option])
         if vcs_option in options:
             self._ui.lineEditGitExecutable.setText(options[vcs_option])
+
+        self._testTools()
 
     def save(self):
         options = {}

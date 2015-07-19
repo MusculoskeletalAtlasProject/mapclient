@@ -43,10 +43,10 @@ class CheckStatusDialog(QtGui.QDialog):
 
     def _runChecks(self):
         options = self._options
-        checks_wizard = WizardToolChecks(options)
-        self._wizard_tool = self._handleCheck(checks_wizard, WIZARD_TOOL_STRING)
         checks_venv = VirtualEnvChecks(options)
         self._venv = self._handleCheck(checks_venv, VIRTUAL_ENVIRONMENT_STRING)
+        checks_wizard = WizardToolChecks(options)
+        self._wizard_tool = self._handleCheck(checks_wizard, WIZARD_TOOL_STRING)
         checks_vcs = VCSChecks(options)
         self._vcs = self._handleCheck(checks_vcs, PMR_TOOL_STRING)
         self._ui.labelCheckTitle.setText('All Checks Complete')
@@ -58,7 +58,7 @@ class CheckStatusDialog(QtGui.QDialog):
         if result:
             output += 'Success: {0}\n'.format(title)
         else:
-#             output += 'Failure: {0}\n'.format(title)
+            output += 'Failure: {0}\n'.format(title)
             output += check.report() + '\n'
         self._ui.plainTextEditScreen.appendPlainText(output)  # labelCheckOutput.setText(output)
 

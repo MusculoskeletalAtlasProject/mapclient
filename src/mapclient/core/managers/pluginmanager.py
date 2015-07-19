@@ -59,48 +59,6 @@ class PluginManagerThe2nd(object):
         """
         return self._setup_attempted
 
-    def exists(self):
-        return os.path.exists(os.path.join(self._virtualenv_dir, 'bin'))
-
-    def list(self):
-        pip_exe = which(os.path.join(self._virtualenv_dir, 'bin', 'pip'))
-
-        install_list = subprocess.check_output([pip_exe, 'list'])
-        install_list = install_list.decode('utf-8')
-
-        return install_list
-
-    def setup(self):
-        for candidate in getVirtualEnvCandidates():
-            try:
-                p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
-                stdout, stderr = p.communicate()
-
-                if stdout:
-                    logger.info(stdout)
-                if stderr:
-                    logger.error(stderr)
-            except SyntaxError:
-                pass
-
-    def addSitePackages(self):
-        '''
-        Append the site-packages directory of the virtual
-        environment to the system path
-        '''
-        site_packages_path = None
-        for root, _, _ in os.walk(self._virtualenv_dir , topdown=False):
-            if root.endswith('site-packages'):
-                site_packages_path = root
-                break
-
-        if site_packages_path:
-            sys.path.append(site_packages_path)
-        else:
-            logger.warning('Site packages directory not added to sys.path.')
-
     def _loadWorkflowPlugins(self, wf_location):
         wf = _getWorkflowConfiguration(wf_location)
 
@@ -123,8 +81,12 @@ class PluginManagerThe2nd(object):
 
 class PluginManager(object):
 
-    def __init__(self):
+    def __init__(self, virtualenv_dir=None):
         self._directories = []
+        self._virtualenv_enabled = True
+        self._virtualenv_dir = virtualenv_dir
+        self._virtualenv_setup_attempted = False
+        self._reload_plugins = True
         self._load_default_plugins = True
         self._doNotShowPluginErrors = False
         self._plugin_database = PluginDatabase()
@@ -133,8 +95,58 @@ class PluginManager(object):
         self._resourceFiles = ['resources_rc']
         self._updaterSettings = {'syntax':True, 'indentation':True, 'location':True, 'resources':True}
 
+    def setVirtualEnvEnabled(self, state=True):
+        self._virtualenv_enabled = state
+
+    def setVirtualEnvDirectory(self, directory):
+        self._virtualenv_dir = directory
+
+    def virtualEnvDirectory(self):
+        return self._virtualenv_dir
+
     def directories(self):
         return self._directories
+
+    def setReloadPlugins(self, state=True):
+        self._reload_plugins = state
+
+    def reloadPlugins(self):
+        return self._reload_plugins
+
+    def list(self):
+        if self._virtualenv_enabled:
+            pip_exe = which(os.path.join(self._virtualenv_dir, 'bin', 'pip'))
+
+            install_list = subprocess.check_output([pip_exe, 'list'])
+            install_list = install_list.decode('utf-8')
+        else:
+            install_list = []
+            logger.info('VirtualEnv not enabled no list functionality availble.')
+
+        return install_list
+
+    def addSitePackages(self):
+        '''
+        Append the site-packages directory of the virtual
+        environment to the system path
+        '''
+        if self._virtualenv_enabled:
+            site_packages_path = None
+            for root, _, _ in os.walk(self._virtualenv_dir , topdown=False):
+                if root.endswith('site-packages'):
+                    site_packages_path = root
+                    break
+
+            if site_packages_path:
+                logger.info('Adding site packages directory to the system path: "{0}"'.format(site_packages_path))
+                sys.path.append(site_packages_path)
+            else:
+                logger.warning('Site packages directory not added to sys.path.')
+        else:
+            logger.info('VirtualEnv not enabled not adding site-packages directory')
+
+    def setOptions(self, options):
+        self._virtualenv_dir = options[VIRTUAL_ENV_PATH]
 
     def setDirectories(self, directories):
         '''
@@ -142,12 +154,36 @@ class PluginManager(object):
         plugins.  Returns true if the directories listing
         was updated and false otherwise.
         '''
-        directories_changed = False
         if self._directories != directories:
             self._directories = directories
-            directories_changed = True
+            self._reload_plugins = True
 
-        return directories_changed
+    def virtualenvSetupAttempted(self):
+        return self._virtualenv_setup_attempted
+
+    def virtualEnvExists(self):
+        return os.path.exists(os.path.join(self._virtualenv_dir, 'bin'))
+
+    def setupVirtualEnv(self):
+        if self._virtualenv_enabled:
+            for candidate in getVirtualEnvCandidates():
+                try:
+                    p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
+                                          stdout=subprocess.PIPE,
+                                          stderr=subprocess.PIPE)
+                    stdout, stderr = p.communicate()
+
+                    if stdout:
+                        logger.info(stdout.decode('utf-8'))
+                    if stderr:
+                        logger.error(stderr.decode('utf-8'))
+                except SyntaxError:
+                    pass
+
+        else:
+            logger.info('VirtualEnv not enabled cannot setup.')
+
+        self._virtualenv_setup_attempted = True
 
     def loadDefaultPlugins(self):
         return self._load_default_plugins
@@ -161,12 +197,9 @@ class PluginManager(object):
         Returns true if the default load plugin setting is changed
         and false otherwise.
         '''
-        defaults_changed = False
         if self._load_default_plugins != loadDefaultPlugins:
             self._load_default_plugins = loadDefaultPlugins
-            defaults_changed = True
-
-        return defaults_changed
+            self._reload_plugins = True
 
     def allDirectories(self):
         plugin_dirs = self._directories[:]
@@ -215,6 +248,7 @@ class PluginManager(object):
                 return []
 
     def load(self):
+        self._reload_plugins = False
         len_package_modules_prior = len(sys.modules[PLUGINS_PACKAGE_NAME].__path__) if PLUGINS_PACKAGE_NAME in sys.modules else 0
         for directory in self.allDirectories():
             if not self._addPluginDir(directory):
@@ -278,30 +312,19 @@ class PluginManager(object):
                         logger.warn(line)
 #                     logger.warn('\n'.join(traceback.format_tb(tb)))
 
-    def getPluginErrors(self):
-        return {'ImportError':self._import_errors, 'TypeError':self._type_errors, 'SyntaxError':self._syntax_errors, 'TabError':self._tab_errors, 'directories':self._plugin_error_directories}
+    def haveErrors(self):
+        return len(self._import_errors) or len(self._type_errors) or \
+                len(self._syntax_errors) or len(self._tab_errors) or len(self._plugin_error_directories)
 
-    def showPluginErrorsDialog(self):
-        from mapclient.view.managers.plugins.pluginerrors import PluginErrors
-        dlg = PluginErrors(self.getPluginErrors(), self._ignoredPlugins, self._resourceFiles, self._updaterSettings)
-        if not self._doNotShowPluginErrors:
-            dlg.setModal(True)
-            dlg.fillList()
-            dlg.exec_()
-        ignored_plugins = dlg.getIgnoredPlugins()
-        for plugin in ignored_plugins:
-            if plugin not in self._ignoredPlugins:
-                self._ignoredPlugins += [plugin]
-        if dlg._doNotShow:
-            self._doNotShowPluginErrors = True
-        if dlg._hotfixExecuted:
-            self.load()
+    def getPluginErrors(self):
+        return {'ImportError': self._import_errors, 'TypeError': self._type_errors, 'SyntaxError': self._syntax_errors, 'TabError': self._tab_errors, 'directories': self._plugin_error_directories}
 
     def readSettings(self, settings):
         self._directories = []
         settings.beginGroup('Plugins')
         self._load_default_plugins = settings.value('load_defaults', 'true') == 'true'
         self._doNotShowPluginErrors = settings.value('donot_show_plugin_errors', 'true') == 'true'
+        self._virtualenv_setup_attempted = settings.value('virtualenv_setup_attempted', 'false') == 'true'
         directory_count = settings.beginReadArray('directories')
         for i in range(directory_count):
             settings.setArrayIndex(i)
@@ -340,6 +363,7 @@ class PluginManager(object):
         settings.beginGroup('Plugins')
         settings.setValue('load_defaults', self._load_default_plugins)
         settings.setValue('donot_show_plugin_errors', self._doNotShowPluginErrors)
+        settings.setValue('virtualenv_setup_attempted', self._virtualenv_setup_attempted)
         settings.beginWriteArray('directories')
         directory_index = 0
         for directory in self._directories:
