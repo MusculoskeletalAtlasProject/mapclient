@@ -327,10 +327,10 @@ class MainWindow(QtGui.QMainWindow):
             if dlg.isModified():
                 om.setOptions(dlg.save())
                 # set availability of functionality.
+                pm = self._model.pluginManager()
                 self.action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
                 pm.setVirtualEnvEnabled(dlg.checkedOk(VIRTUAL_ENVIRONMENT_STRING))
                 self.action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
-                pm = self._model.pluginManager()
                 # Insist on having a virtual environment so always try to set it up.
                 pm.setVirtualEnvDirectory(om.getOption(VIRTUAL_ENV_PATH))
                 if not pm.virtualEnvExists():
