@@ -230,6 +230,7 @@ class PMRWorkflowWidget(QtGui.QWidget):
                     item = QtGui.QListWidgetItem(r['target'], self._ui.listWidgetResults)
                 item.setData(QtCore.Qt.UserRole, r)
 
+
 class OWLTermsListModel(QtCore.QAbstractListModel):
 
     def __init__(self, list_in, parent=None, *args, **kwargs):

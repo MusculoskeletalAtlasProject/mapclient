@@ -375,9 +375,6 @@ class WorkflowWidget(QtGui.QWidget):
                 except (ValueError, WorkflowError) as e:
                     logger.error('Invalid Workflow.  ' + str(e))
                     QtGui.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + str(e))
-            else:
-                QtGui.QMessageBox.critical(self, 'Error Caught', 'Invalid Import Settings.  Either the workspace url (%s) was not set' \
-                                           ' or the destination directory (%s) does not exist. ' % (workspace_url, destination_dir))
 
     def updateFromPMR(self):
         self._updateFromPMR()
