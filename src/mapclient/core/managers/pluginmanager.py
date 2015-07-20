@@ -14,6 +14,7 @@ import traceback
 from mapclient.core.utils import which
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     VIRTUAL_ENV_SETUP_ATTEMPTED, PLUGINS_PACKAGE_NAME, PLUGINS_PTH
+from mapclient.core.checks import getPipExecutable
 
 from importlib import import_module
 
@@ -29,9 +30,9 @@ def getVirtualEnvCandidates():
     of the virtualenv program for this environment.
     """
     if sys.version_info < (3, 0):
-        virtualenv_candidates = ['virtualenv', 'virtualenv2']
+        virtualenv_candidates = [which('virtualenv'), which('virtualenv2')]
     else:
-        virtualenv_candidates = ['virtualenv', 'virtualenv3']
+        virtualenv_candidates = [which('virtualenv'), which('virtualenv3')]
 
     return virtualenv_candidates
 
@@ -81,10 +82,10 @@ class PluginManagerThe2nd(object):
 
 class PluginManager(object):
 
-    def __init__(self, virtualenv_dir=None):
+    def __init__(self):
         self._directories = []
         self._virtualenv_enabled = True
-        self._virtualenv_dir = virtualenv_dir
+        self._virtualenv_dir = None
         self._virtualenv_setup_attempted = False
         self._reload_plugins = True
         self._load_default_plugins = True
@@ -101,7 +102,7 @@ class PluginManager(object):
     def setVirtualEnvDirectory(self, directory):
         self._virtualenv_dir = directory
 
-    def virtualEnvDirectory(self):
+    def getVirtualEnvDirectory(self):
         return self._virtualenv_dir
 
     def directories(self):
@@ -115,7 +116,7 @@ class PluginManager(object):
 
     def list(self):
         if self._virtualenv_enabled:
-            pip_exe = which(os.path.join(self._virtualenv_dir, 'bin', 'pip'))
+            pip_exe = getPipExecutable(self._virtualenv_dir)
 
             install_list = subprocess.check_output([pip_exe, 'list'])
             install_list = install_list.decode('utf-8')
@@ -162,27 +163,32 @@ class PluginManager(object):
         return self._virtualenv_setup_attempted
 
     def virtualEnvExists(self):
-        return os.path.exists(os.path.join(self._virtualenv_dir, 'bin'))
+        pip_exe = getPipExecutable(self._virtualenv_dir)
+        return pip_exe is not None and os.path.exists(pip_exe)
 
     def setupVirtualEnv(self):
-        if self._virtualenv_enabled:
-            for candidate in getVirtualEnvCandidates():
-                try:
-                    p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
-                                          stdout=subprocess.PIPE,
-                                          stderr=subprocess.PIPE)
-                    stdout, stderr = p.communicate()
 
-                    if stdout:
-                        logger.info(stdout.decode('utf-8'))
-                    if stderr:
-                        logger.error(stderr.decode('utf-8'))
-                except SyntaxError:
-                    pass
+        for candidate in getVirtualEnvCandidates():
+            try:
+                p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
+                                      stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE)
+                stdout, stderr = p.communicate()
 
+                if stdout:
+                    logger.info(stdout.decode('utf-8'))
+                if stderr:
+                    logger.error(stderr.decode('utf-8'))
+            except SyntaxError:
+                pass
+            except:
+                pass
+
+        if self.virtualEnvExists():
+            logger.info('Virtual environment successfully setup')
+            self._virtualenv_enabled = True
         else:
-            logger.info('VirtualEnv not enabled cannot setup.')
-
+            logger.warning('Virtual environment setup unsuccessful')
         self._virtualenv_setup_attempted = True
 
     def loadDefaultPlugins(self):

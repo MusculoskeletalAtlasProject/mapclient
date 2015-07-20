@@ -227,14 +227,18 @@ class MainWindow(QtGui.QMainWindow):
                     om.setOptions(dlg.save())
 
                 # set availability of functionality.
+                self.action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
+                pm.setVirtualEnvEnabled(dlg.checkedOk(VIRTUAL_ENVIRONMENT_STRING))
+                self.action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
                 pm.setVirtualEnvDirectory(om.getOption(VIRTUAL_ENV_PATH))
+                # Insist that virtual environment is setup because it is a core feature.
                 if not pm.virtualEnvExists():
                     self._setupVirtualEnv()
                 self._workflowWidget.applyOptions()
-
-            self.action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
-            pm.setVirtualEnvEnabled(dlg.checkedOk(VIRTUAL_ENVIRONMENT_STRING))
-            self.action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
+            else:
+                self.action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
+                pm.setVirtualEnvEnabled(dlg.checkedOk(VIRTUAL_ENVIRONMENT_STRING))
+                self.action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
 
         pm.setVirtualEnvDirectory(om.getOption(VIRTUAL_ENV_PATH))
         if pm.virtualEnvExists():
@@ -324,11 +328,13 @@ class MainWindow(QtGui.QMainWindow):
                 om.setOptions(dlg.save())
                 # set availability of functionality.
                 self.action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
-                pm = self._model.pluginManager()
                 pm.setVirtualEnvEnabled(dlg.checkedOk(VIRTUAL_ENVIRONMENT_STRING))
+                self.action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
+                pm = self._model.pluginManager()
+                # Insist on having a virtual environment so always try to set it up.
+                pm.setVirtualEnvDirectory(om.getOption(VIRTUAL_ENV_PATH))
                 if not pm.virtualEnvExists():
                     self._setupVirtualEnv()
-                self.action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
                 self._workflowWidget.applyOptions()
 
     def showPluginManagerDialog(self):
