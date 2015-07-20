@@ -4,9 +4,12 @@ Created on Jun 26, 2015
 @author: hsorby
 '''
 import subprocess
+import os.path
+
+from PySide import QtCore
+
 from mapclient.settings.definitions import GIT_EXE, VIRTUAL_ENV_PATH, \
     PYSIDE_UIC_EXE, PYSIDE_RCC_EXE
-import os.path
 from mapclient.core.utils import which
 
 class ApplicationChecks(object):
@@ -48,7 +51,9 @@ class WizardToolChecks(ApplicationChecks):
             else:
                 self._report += "'{0}' did not execute successfully, returned '{1}' on exit.".format(pyside_uic, return_code)
         except Exception as e:
-            self._report += "'{0}' did not execute successfully, caused exception:\n{1}".format(pyside_uic, e)
+            self._report += "The test for pyside-uic [tested executable '{0}'] did not execute successfully, but caused an exception:\n{1}".format(pyside_uic, e)
+        if self._report:
+            self._report += '\n'
         try:
             pyside_rcc = self._options[PYSIDE_RCC_EXE]
             p = subprocess.Popen([pyside_rcc, '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -61,7 +66,7 @@ class WizardToolChecks(ApplicationChecks):
             else:
                 self._report += "'{0}' did not execute successfully, returned '{1}' on exit.".format(pyside_rcc, return_code)
         except Exception as e:
-            self._report += "'{0}' did not execute successfully, caused exception:\n{1}".format(pyside_rcc, e)
+            self._report += "The test for pyside-rcc [tested executable '{0}'] did not execute successfully, but caused an exception:\n{1}".format(pyside_rcc, e)
 
         return uic_result and rcc_result
 
@@ -70,17 +75,14 @@ class VirtualEnvChecks(ApplicationChecks):
 
     title = 'Virtual Environment'
 
-    def _testPipExe(self, venv_path):
-        pip_exe = which(os.path.join(venv_path, 'bin', 'pip'))
-        return pip_exe is not None
-
     def doCheck(self):
         venv_path = self._options[VIRTUAL_ENV_PATH]
         result = False
+        pip_exe = getPipExecutable(venv_path)
         if ' ' in venv_path or not venv_path:
             self._report = "'{0}' is not a valid virtual environment path.".format(venv_path)
-        elif not self._testPipExe(venv_path):
-            self._report = "'{0}' is not a valid pip executable.".format(os.path.join(venv_path, 'bin', 'pip'))
+        elif pip_exe is None:
+            self._report = "pip executable not found."
         else:
             result = True
             self._report = "'{0}' is a valid virtual environment.".format(venv_path)
@@ -124,5 +126,49 @@ def runChecks(options):
         return False
 
     return True
+
+
+def getPipExecutable(venv_path):
+    if os.name == 'nt':
+        int_directory = 'Scripts'
+    else:
+        int_directory = 'bin'
+    pip_exe = which(os.path.join(venv_path, int_directory, 'pip'))
+    return pip_exe
+
+
+def getPySideUicExecutable():
+    pyside_uic_potentials = ['pyside-uic', 'py2side-uic', 'py3side-uic', 'pyside-uic-py2']
+    for pyside_uic_potential in pyside_uic_potentials:
+        pyside_uic = which(pyside_uic_potential)  #  self._options[PYSIDE_UIC_EXE]
+        if pyside_uic:
+            p = subprocess.Popen([pyside_uic, '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            _, _ = p.communicate()
+            return_code = p.returncode
+            if return_code == 0:
+                return pyside_uic
+
+    return None
+
+
+def getPySideRccExecutable():
+    if os.name == 'nt':
+        pyside_rcc_directory = os.path.dirname(QtCore.__file__)
+        pyside_rcc_potentials = [os.path.join(pyside_rcc_directory, 'pyside-rcc'), 'pyside-rcc']
+    else:
+        pyside_rcc_potentials = ['pyside-rcc']
+
+    for pyside_rcc_potential in pyside_rcc_potentials:
+        pyside_rcc = which(pyside_rcc_potential)
+        if pyside_rcc is not None:
+            p = subprocess.Popen([pyside_rcc, '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            _, stderr = p.communicate()
+            return_code = p.returncode
+            # pyside-rcc returns 1 for all program executions that don't actual compile resources.
+            if return_code == 1 and 'Resource Compiler for Qt version' in stderr.decode('utf-8'):
+                return pyside_rcc
+    
+    return None
+
 
 

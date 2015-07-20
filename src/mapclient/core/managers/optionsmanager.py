@@ -5,6 +5,7 @@ Created on Jun 10, 2015
 '''
 from mapclient.core.utils import which
 from mapclient.settings.general import getVirtEnvDirectory
+from mapclient.core.checks import getPySideRccExecutable, getPySideUicExecutable
 from mapclient.settings.definitions import SHOW_STEP_NAMES, \
     DONT_CREATE_VIRTUAL_ENV, OPTIONS_SETTINGS_TAG, PYSIDE_UIC_EXE, \
     PYSIDE_RCC_EXE, VIRTUAL_ENV_PATH, GIT_EXE
@@ -23,8 +24,8 @@ class OptionsManager(object):
         # Set default values
         self._options[SHOW_STEP_NAMES] = True
         self._options[DONT_CREATE_VIRTUAL_ENV] = False
-        self._options[PYSIDE_UIC_EXE] = which('pyside-uic')
-        self._options[PYSIDE_RCC_EXE] = which('pyside-rcc')
+        self._options[PYSIDE_UIC_EXE] = getPySideUicExecutable()
+        self._options[PYSIDE_RCC_EXE] = getPySideRccExecutable()
         self._options[VIRTUAL_ENV_PATH] = getVirtEnvDirectory()
         self._options[GIT_EXE] = which('git')
 

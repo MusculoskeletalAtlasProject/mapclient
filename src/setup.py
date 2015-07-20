@@ -5,9 +5,11 @@ from setuptools.command.install import install as _install
 from setuptools.command.develop import develop as _develop
 
 # Version, this should match the value in mapclient.settings.info
-version = '0.11.2'
+version = '0.12.0'
 # Define the list of requirments
 install_requires = ['rdflib',
+                    'virtualenv',
+                    'python-dateutil',
                     'pmr2.wfctrl',
                     'pmr2.client']
 try:
