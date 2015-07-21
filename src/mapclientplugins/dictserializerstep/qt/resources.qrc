@@ -1,0 +1,6 @@
+
+<RCC>
+  <qresource prefix="dictserializerstep">
+    <file>images/data-sink.png</file>
+  </qresource>
+</RCC>
