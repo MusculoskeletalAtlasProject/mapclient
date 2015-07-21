@@ -64,8 +64,19 @@ def which(cmd, mode=os.F_OK | os.X_OK, path=None):
     # than referring to PATH directories. This includes checking relative to the
     # current directory, e.g. ./script
     if os.path.dirname(cmd):
-        if _access_check(cmd, mode):
-            return cmd
+        if sys.platform == "win32":
+            # PATHEXT is necessary to check on Windows.
+            pathext = os.environ.get("PATHEXT", "").split(os.pathsep)
+            if any(cmd.lower().endswith(ext.lower()) for ext in pathext):
+                files = [cmd]
+            else:
+                files = [cmd + ext for ext in pathext]
+        else:
+            files = [cmd]
+        for name in files:
+            if _access_check(name, mode):
+                return name
+
         return None
 
     if path is None:

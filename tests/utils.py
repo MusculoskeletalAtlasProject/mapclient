@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -32,7 +32,7 @@ class ConsumeOutput(object):
 
 def parseUnitTestOutput(filename):
     '''
-    Function for parsing unittest output for gathering pass and fail counts. 
+    Function for parsing unittest output for gathering pass and fail counts.
     '''
     f = open(filename)
     lines = f.readlines()
@@ -68,22 +68,22 @@ def parseUnitTestOutput(filename):
 
 def createTestApplication():
     from PySide import QtCore, QtGui
-    
+
     from mapclient.settings.info import ORGANISATION_DOMAIN, ORGANISATION_NAME, APPLICATION_NAME, ABOUT
-    
+
     test_app = QtGui.QApplication.instance()
     if test_app is None:
         test_app = QtGui.QApplication(sys.argv)
-    
+
     def setApplicationsSettings(app):
-        
+
         app.setOrganizationDomain(ORGANISATION_DOMAIN)
         app.setOrganizationName(ORGANISATION_NAME)
-        app.setApplicationName(APPLICATION_NAME + ' TEST')
+        app.setApplicationName(APPLICATION_NAME + '-TEST')
         app.setApplicationVersion(ABOUT['version'])
         QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
-    
+
     setApplicationsSettings(test_app)
-    
+
     return test_app
 
