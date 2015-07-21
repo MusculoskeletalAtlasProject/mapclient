@@ -345,9 +345,10 @@ class WorkflowWidget(QtGui.QWidget):
          5. Check for errors
          6. Update step tree
         '''
-        m = self._mainWindow.model().workflowManager()
-        steps_to_install = m.checkPlugins(workflowDir)
-        dependencies_to_install = m.checkDependencies(workflowDir)
+#         wm = self._mainWindow.model().workflowManager()
+        pm = self._mainWindow.model().pluginManager()
+        steps_to_install = pm.checkPlugins(workflowDir)
+        dependencies_to_install = pm.checkDependencies(workflowDir)
         if steps_to_install or dependencies_to_install:
             download_dependencies, download_plugins = self.showDownloadableContent(plugins=steps_to_install, dependencies=dependencies_to_install)
             if download_dependencies:
@@ -357,8 +358,9 @@ class WorkflowWidget(QtGui.QWidget):
 
 #         pm = self._mainWindow.model().pluginManager()
 #         pm.load()
-        self._mainWindow.showPluginErrors()
-        self.updateStepTree()
+        if pm.haveErrors():
+            self._mainWindow.showPluginErrorsDialog()
+            self.updateStepTree()
 
     def importFromPMR(self):
         m = self._mainWindow.model().workflowManager()
