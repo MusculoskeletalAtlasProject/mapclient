@@ -363,12 +363,14 @@ class MainWindow(QtGui.QMainWindow):
         '''
         pm = self._model.pluginManager()
         if self._pluginManagerDlg is not None:
+            pm.setReloadPlugins()
             pm.setDirectories(self._pluginManagerDlg.directories())
             pm.setLoadDefaultPlugins(self._pluginManagerDlg.loadDefaultPlugins())
 
         if pm.reloadPlugins():
             pm.load()
             self._workflowWidget.updateStepTree()
+
 #             self.showPluginErrors()
 
     def showPluginWizardDialog(self):

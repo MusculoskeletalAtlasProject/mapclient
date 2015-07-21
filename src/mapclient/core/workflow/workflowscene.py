@@ -59,18 +59,26 @@ class MetaStep(Item):
     def pos(self):
         return self._pos
 
+    def getName(self):
+        return self._step.getName()
+
     def getIdentifier(self):
-        return self._id
+        if self._id:
+            return self._id
+        return self._uid
 
     def setIdentifier(self, identifier):
         self._step.setIdentifier(identifier)
         self._id = identifier
 
     def getStepIdentifier(self):
-        return self._step.getIdentifier()
+        identifier = self._step.getIdentifier()
+        if identifier:
+            return identifier
+        return self._uid
 
     def hasIdentifierChanged(self):
-        return not self._id == self._step.getIdentifier()
+        return not (self.getIdentifier() == self.getStepIdentifier())
 
     def syncIdentifier(self):
         self._id = self._step.getIdentifier()
@@ -80,6 +88,7 @@ class MetaStep(Item):
 
     def setUniqueIdentifier(self, uniqueIdentifier):
         self._uid = uniqueIdentifier
+
 
 class Connection(Item):
 
@@ -289,21 +298,18 @@ class WorkflowScene(object):
         nodeIndex = 0
         for metastep in stepList:
             if metastep.hasIdentifierChanged():
-                if metastep.getIdentifier():
+                if metastep.getIdentifier() and metastep.getStepIdentifier():
                     self._manager.changeIdentifier(metastep.getIdentifier(), metastep.getStepIdentifier())
                 metastep.syncIdentifier()
 
-            identifier = metastep.getIdentifier() or '.' + metastep.getUniqueIdentifier()
-            if identifier:
-                step_config = metastep._step.serialize()
-                with open(getConfigurationFile(location, identifier), 'w') as f:
-                    f.write(step_config)
+            identifier = metastep.getIdentifier() or metastep.getUniqueIdentifier()
+            step_config = metastep._step.serialize()
+            with open(getConfigurationFile(location, identifier), 'w') as f:
+                f.write(step_config)
             ws.setArrayIndex(nodeIndex)
             ws.setValue('name', metastep._step.getName())
             ws.setValue('position', metastep._pos)
             ws.setValue('selected', metastep._selected)
-            if not identifier:
-                identifier = ''
             ws.setValue('identifier', identifier)
             ws.setValue('unique_identifier', metastep.getUniqueIdentifier())
             ws.beginWriteArray('connections')

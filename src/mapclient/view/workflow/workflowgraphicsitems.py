@@ -227,11 +227,7 @@ class Node(Item):
         self._pixmap = QtGui.QPixmap.fromImage(icon).scaled(self.Size, self.Size, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
 
         self._text = StepText(metastep._step.getName(), self)
-        # Set text position
-        br = self._text.boundingRect()
-        x_pos = self.Size / 2 - br.width() / 2
-        y_pos = self.Size + 5
-        self._text.setPos(x_pos, y_pos)
+        self._updateTextIcon()
 
         self._setToolTip()
 
@@ -268,7 +264,15 @@ class Node(Item):
     def update(self):
         self._updateConfigureIcon()
         self._updatePorts()
+        self._updateTextIcon()
         super(Node, self).update()
+
+    def _updateTextIcon(self):
+        # Set text position
+        br = self._text.boundingRect()
+        x_pos = self.Size / 2 - br.width() / 2
+        y_pos = self.Size + 5
+        self._text.setPos(x_pos, y_pos)
 
     def _updateConfigureIcon(self):
         self._configure_item.setConfigured(self._metastep._step.isConfigured())
@@ -276,6 +280,8 @@ class Node(Item):
 
     def _setToolTip(self):
         self.setToolTip(self._metastep._step.getName() + ": " + self._metastep._step.getIdentifier())
+        self._text.setText(self._metastep.getStepIdentifier() if self._metastep.getStepIdentifier() != self._metastep.getUniqueIdentifier() else self._metastep.getName())
+        self._updateTextIcon()
 
     def _updatePorts(self):
         self._step_port_items = []
@@ -461,7 +467,7 @@ class StepText(QtGui.QGraphicsSimpleTextItem):
 
     def paint(self, painter, option, widget):
         painter.eraseRect(self.boundingRect())
-        painter.setBrush(QtCore.Qt.darkGray)
+        painter.setBrush(QtCore.Qt.white)
         painter.drawRoundedRect(self.boundingRect(), 5, 5)
         super(StepText, self).paint(painter, option, widget)
 
