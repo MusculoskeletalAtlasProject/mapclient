@@ -114,6 +114,12 @@ class PluginManager(object):
     def reloadPlugins(self):
         return self._reload_plugins
 
+    def checkPlugins(self, wf_location):
+        print('implement me')
+
+    def checkDependencies(self, wf_location):
+        print('implment me')
+
     def list(self):
         if self._virtualenv_enabled:
             pip_exe = getPipExecutable(self._virtualenv_dir)
