@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -135,7 +135,7 @@ class PMRTool(object):
 
     def set_info(self, info):
         self._pmr_info = info
-        
+
     def make_session(self):
 
         if self.hasAccess():
@@ -154,7 +154,7 @@ class PMRTool(object):
 
     def hasAccess(self):
         return self._pmr_info.has_access()
-    
+
     def isActive(self):
         return True if self._pmr_info.activeHost() else False
 
@@ -187,6 +187,7 @@ class PMRTool(object):
                 data=data,
             )
         r.raise_for_status()
+        print(r.json())
         return r.json()
 
     def search(self, text, search_type=plain_text_search_string):
@@ -195,7 +196,6 @@ class PMRTool(object):
         can be either 'plain' for plain text searching or
         'ontological' for ricordo knowledge base searching.
         '''
-        self._search(text, search_type)
         try:
             return self._search(text, search_type)
         except HTTPError as e:
@@ -263,7 +263,7 @@ class PMRTool(object):
         r = session.get(target)
         r.raise_for_status()
         return r.json()
-    
+
     def isValidHost(self, host):
         session = Session()
 
@@ -272,7 +272,7 @@ class PMRTool(object):
             'Content-Type': self.PROTOCOL,
             'User-Agent': self.UA,
         })
-        
+
         target = '/'.join([host, endpoints['']['dashboard']])
         r = session.get(target)
         r.raise_for_status()
@@ -346,7 +346,7 @@ class PMRTool(object):
 
     def addFileToIndexer(self, local_workspace_dir, workspace_file):
         '''
-        Add the given workspace file in the remote workspace to the 
+        Add the given workspace file in the remote workspace to the
         indexer for ontological searching.
         '''
         if not self.hasAccess():

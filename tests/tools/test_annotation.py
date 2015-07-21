@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -42,24 +42,24 @@ class AnnotationToolTestCase(unittest.TestCase):
 
 
     def testReadVocab(self):
-        a =  AnnotationTool()
-        
+        a = AnnotationTool()
+
         self.assertEqual(10, len(a.getTerms()))
         self.assertEqual('1.0', a._vocab._version)
         self.assertEqual('http://physiomeproject.org/workflow', a._vocab._namespace)
-        
+
     def testSectionHeaderRe(self):
         s = re.compile(_SECTION_HEADER_RE)
-        
+
         test_1 = '[hello]'
         r = s.match(test_1)
         self.assertEqual('hello', r.group(1))
-        
+
     def testPhysiomeNamespaceRe(self):
         s = re.compile(_NAMESPACE_RE.format('http://physiomeproject.org/workflow', '1.0'))
         test_1 = '<http://physiomeproject.org/workflow/1.0/rdf-schema#port> <http://physiomeproject.org/workflow/1.0/rdf-schema#port> <http://physiomeproject.org/workflow/1.0/rdf-schema#port>.'
         test_2 = '<http://physiomeproject.org/workflow/1.0/rdf-schema#uses> <http://physiomeproject.org/workflow/1.0/rdf-schema#pointcloud> <http://physiomeproject.org/workflow/1.0/rdf-schema#port>.'
-        
+
         r_1 = s.match(test_1)
         self.assertEqual('port', r_1.group(1))
         self.assertEqual('port', r_1.group(2))
@@ -70,22 +70,22 @@ class AnnotationToolTestCase(unittest.TestCase):
         self.assertEqual('pointcloud', r_2.group(2))
         self.assertEqual('port', r_2.group(3))
 
-        
+
     if not DISABLE_GUI_TESTS:
         def testAnnotationDialog(self):
             QtGui.QApplication.instance()
             to_path = os.path.join(os.path.dirname(utils.__file__), 'test_resources/annotation_test/')
             if not os.path.exists(to_path):
                 os.mkdir(to_path)
-            
+
             dlg = AnnotationDialog(to_path)
             dlg.setModal(True)
-            #if dlg.exec_():
+            # if dlg.exec_():
             #    pass
 #            shutil.rmtree(to_path)
-        
+
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
+    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

@@ -7,7 +7,7 @@ import os, unittest
 
 from PySide import QtCore
 
-from mapclient.core.workflowscene import WorkflowScene, WorkflowDependencyGraph, MetaStep, Connection
+from mapclient.core.workflow.workflowscene import WorkflowScene, WorkflowDependencyGraph, MetaStep, Connection
 
 from tests import utils
 

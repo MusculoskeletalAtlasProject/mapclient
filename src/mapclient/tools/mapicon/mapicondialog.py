@@ -62,10 +62,10 @@ class MAPIconDialog(QtGui.QDialog):
 
     def _fileChooser(self):
         sender = self.sender()
-        if sender != self._ui.pushButtonCombinedIcon:
-            icon, _ = QtGui.QFileDialog.getOpenFileName(self, caption='Choose Icon File', dir=self._location, options=QtGui.QFileDialog.ReadOnly)
-        else:
+        if sender == self._ui.pushButtonCombinedIcon:
             icon, _ = QtGui.QFileDialog.getSaveFileName(self, caption='Choose Icon File', dir=self._location)
+        else:
+            icon, _ = QtGui.QFileDialog.getOpenFileName(self, caption='Choose Icon File', dir=self._location, options=QtGui.QFileDialog.ReadOnly)
 
         if len(icon) > 0:
             self._location = os.path.dirname(icon)
