@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -26,8 +26,8 @@ from mapclient.tools.pmr.pmrtool import PMRTool, PMRToolError
 from mapclient.tools.pmr.authoriseapplicationdialog import AuthoriseApplicationDialog
 from mapclient.tools.pmr.ui_pmrsearchdialog import Ui_PMRSearchDialog
 
-from mapclient.widgets.utils import set_wait_cursor
-from mapclient.widgets.utils import handle_runtime_error
+from mapclient.view.utils import set_wait_cursor
+from mapclient.view.utils import handle_runtime_error
 from mapclient.core.utils import convertExceptionToMessage
 from mapclient.tools.pmr.settings.general import PMR
 
@@ -82,7 +82,7 @@ class PMRSearchDialog(QtGui.QDialog):
 
         try:
             results = self._pmrTool.search(search_text)
-    
+
             for r in results:
                 if 'title' in r and r['title']:
                     item = QtGui.QListWidgetItem(r['title'], self._ui.searchResultsListWidget)

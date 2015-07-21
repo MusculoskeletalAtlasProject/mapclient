@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -30,18 +30,20 @@ from mapclient.tools.pluginwizard.skeleton import SkeletonOptions, Skeleton
 from mapclient.tools.pluginwizard.skeleton import PLUGIN_NAMESPACE
 
 from tests.utils import createTestApplication
+from mapclient.core.utils import which
+import subprocess
 
 createTestApplication()
-import mapclient.widgets.resources_rc
+# import mapclient.widgets.resources_rc
 
 from tests import utils
 
 test_path = os.path.join(os.path.dirname(utils.__file__), 'test_resources', 'wizard_test')
-
+IMAGE_FILE_NAME = 'logo.png'
 PLUGIN_WRITE_TO_DIRECTORY = test_path
 PLUGIN_PACKAGE_NAME = 'abcdalphastep'
 PLUGIN_NAME = 'Abcd Alpha'
-PLUGIN_IMAGE_FILE = os.path.join(test_path, 'logo.png')
+PLUGIN_IMAGE_FILE = os.path.join(test_path, IMAGE_FILE_NAME)
 CATEGORY = 'Viewer'
 AUTHOR_NAME = 'Prince of Persia'
 
@@ -83,7 +85,6 @@ class WizardTestCase(_TestCase):
 #         dlg = wizarddialog.WizardDialog()
 #         result = dlg.exec_()
 #         self.assertTrue(result == dlg.Accepted or result == dlg.Rejected)
-
     def testWizard(self):
         dlg = wizarddialog.WizardDialog()
 
@@ -108,7 +109,7 @@ class WizardTestCase(_TestCase):
 
         options = dlg.getOptions()
         self.assertEqual(PLUGIN_NAME, options.getName())
-        self.assertEqual(PLUGIN_IMAGE_FILE, options.getImageFile())
+        self.assertEqual(IMAGE_FILE_NAME, options.getImageFile())
         self.assertEqual(PLUGIN_PACKAGE_NAME, options.getPackageName())
         self.assertEqual(self.working_dir, options.getOutputDirectory())
         self.assertEqual(1, options.portCount())
@@ -127,7 +128,8 @@ class WizardTestCase(_TestCase):
             package_dir, PLUGIN_NAMESPACE, local_package_name)
 
         options = SkeletonOptions()
-        options.setImageFile(PLUGIN_IMAGE_FILE)
+        options.setImageFile(IMAGE_FILE_NAME)
+        options.setIcon(QtGui.QPixmap(PLUGIN_IMAGE_FILE))
         options.setName(PLUGIN_NAME + str(1))
         options.setPackageName(local_package_name)
         options.setOutputDirectory(self.working_dir)
@@ -136,8 +138,10 @@ class WizardTestCase(_TestCase):
         options.addConfig('identifier', '')
         options.setAuthorName(AUTHOR_NAME)
         options.setCategory(CATEGORY)
+        pyside_uic = determentPysideUicExecutable()
+        pyside_rcc = determentPysideURccExecutable()
 
-        s = Skeleton(options)
+        s = Skeleton(options, pyside_uic, pyside_rcc)
         s.write()
 
         step_file = os.path.join(step_dir, 'step.py')
@@ -172,7 +176,8 @@ class WizardTestCase(_TestCase):
             package_dir, PLUGIN_NAMESPACE, local_package_name)
 
         options = SkeletonOptions()
-        options.setImageFile(PLUGIN_IMAGE_FILE)
+        options.setImageFile(IMAGE_FILE_NAME)
+        options.setIcon(QtGui.QPixmap(PLUGIN_IMAGE_FILE))
         options.setName(PLUGIN_NAME + str(2))
         options.setPackageName(local_package_name)
         options.setOutputDirectory(self.working_dir)
@@ -181,7 +186,10 @@ class WizardTestCase(_TestCase):
         options.addPort('http://physiomeproject.org/workflow/1.0/rdf-schema#provides', 'http://my.example.org/1.0/workflowstep#octopus')
         options.addPort('http://physiomeproject.org/workflow/1.0/rdf-schema#uses', 'int')
 
-        s = Skeleton(options)
+        pyside_uic = determentPysideUicExecutable()
+        pyside_rcc = determentPysideURccExecutable()
+
+        s = Skeleton(options, pyside_uic, pyside_rcc)
         s.write()
 
         step_file = os.path.join(step_dir, 'step.py')
@@ -208,7 +216,8 @@ class WizardTestCase(_TestCase):
             package_dir, PLUGIN_NAMESPACE, local_package_name)
 
         options = SkeletonOptions()
-        options.setImageFile(PLUGIN_IMAGE_FILE)
+        options.setImageFile(IMAGE_FILE_NAME)
+        options.setIcon(QtGui.QPixmap(PLUGIN_IMAGE_FILE))
         options.setName(PLUGIN_NAME + str(3))
         options.setPackageName(local_package_name)
         options.setOutputDirectory(self.working_dir)
@@ -221,7 +230,10 @@ class WizardTestCase(_TestCase):
         options.addConfig('Path', '')
         options.addConfig('Carrot', 'tis a long way down')
 
-        s = Skeleton(options)
+        pyside_uic = determentPysideUicExecutable()
+        pyside_rcc = determentPysideURccExecutable()
+
+        s = Skeleton(options, pyside_uic, pyside_rcc)
         s.write()
 
         step_file = os.path.join(step_dir, 'step.py')
@@ -251,7 +263,8 @@ class WizardTestCase(_TestCase):
             package_dir, PLUGIN_NAMESPACE, local_package_name)
 
         options = SkeletonOptions()
-        options.setImageFile(PLUGIN_IMAGE_FILE)
+        options.setImageFile(IMAGE_FILE_NAME)
+        options.setIcon(QtGui.QPixmap(PLUGIN_IMAGE_FILE))
         options.setName(PLUGIN_NAME + str(4))
         options.setPackageName(local_package_name)
         options.setOutputDirectory(self.working_dir)
@@ -263,14 +276,16 @@ class WizardTestCase(_TestCase):
         options.addConfig('Path', '')
         options.addConfig('Carrot', 'tis a long way down')
 
+        pyside_uic = determentPysideUicExecutable()
+        pyside_rcc = determentPysideURccExecutable()
 
-        s = Skeleton(options)
+        s = Skeleton(options, pyside_uic, pyside_rcc)
         s.write()
- 
+
         self.assertTrue(os.path.exists(package_dir))
         step_file = os.path.join(step_dir, 'step.py')
         self.assertTrue(os.path.exists(step_file))
- 
+
         file_contents = open(step_file).read()
         self.assertIn('octopus', file_contents)
         self.assertIn('http://physiomeproject.org/workflow/1.0/rdf-schema#provides', file_contents)
@@ -279,13 +294,31 @@ class WizardTestCase(_TestCase):
         self.assertNotIn('{setidentifiercontent}', file_contents)
         self.assertNotIn('{serializecontent}', file_contents)
         self.assertNotIn('{serializesetvalues}', file_contents)
-     
+
         resources_file = os.path.join(step_dir, 'resources_rc.py')
         self.assertTrue(os.path.exists(resources_file))
- 
+
         config_file = os.path.join(step_dir, 'configuredialog.py')
         self.assertTrue(os.path.exists(config_file))
 
+
+def determentPysideUicExecutable():
+        pyside_uic_potentials = ['pyside-uic', 'py2side-uic', 'py3side-uic', 'pyside-uic-py2']
+        for pyside_uic_potential in pyside_uic_potentials:
+            pyside_uic = which(pyside_uic_potential)  #  self._options[PYSIDE_UIC_EXE]
+            if pyside_uic:
+                p = subprocess.Popen([pyside_uic, '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                _, _ = p.communicate()
+                return_code = p.returncode
+                if return_code == 0:
+                    return pyside_uic
+
+        return pyside_uic_potentials[0]
+
+
+def determentPysideURccExecutable():
+        pyside_rcc_potentials = ['pyside-rcc']
+        return which(pyside_rcc_potentials[0])
 
 
 if __name__ == "__main__":
