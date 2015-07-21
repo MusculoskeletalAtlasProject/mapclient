@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>614</width>
-    <height>602</height>
+    <width>791</width>
+    <height>711</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -60,35 +60,6 @@
         <string>Physiome Model Repository</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
-        <property name="spacing">
-         <number>4</number>
-        </property>
-        <property name="leftMargin">
-         <number>4</number>
-        </property>
-        <property name="topMargin">
-         <number>4</number>
-        </property>
-        <property name="rightMargin">
-         <number>4</number>
-        </property>
-        <property name="bottomMargin">
-         <number>4</number>
-        </property>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Workspace:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="lineEditWorkspace"/>
-          </item>
-         </layout>
-        </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
@@ -119,6 +90,23 @@
         </item>
         <item>
          <widget class="QListWidget" name="listWidgetResults"/>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Workspace:</string>
+            </property>
+            <property name="buddy">
+             <cstring>lineEditWorkspace</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEditWorkspace"/>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>

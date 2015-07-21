@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'qt/pmrworkflowwidget.ui'
 #
-# Created: Fri Sep  5 20:53:14 2014
-#      by: pyside-uic 0.2.15 running on PySide 1.2.1
+# Created: Mon Jul 20 17:08:13 2015
+#      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,7 @@ from PySide import QtCore, QtGui
 class Ui_PMRWorkflowWidget(object):
     def setupUi(self, PMRWorkflowWidget):
         PMRWorkflowWidget.setObjectName("PMRWorkflowWidget")
-        PMRWorkflowWidget.resize(614, 602)
+        PMRWorkflowWidget.resize(791, 711)
         self.verticalLayout_2 = QtGui.QVBoxLayout(PMRWorkflowWidget)
         self.verticalLayout_2.setSpacing(0)
         self.verticalLayout_2.setContentsMargins(4, 4, 4, 4)
@@ -28,18 +28,7 @@ class Ui_PMRWorkflowWidget(object):
         self.groupBox = QtGui.QGroupBox(PMRWorkflowWidget)
         self.groupBox.setObjectName("groupBox")
         self.verticalLayout = QtGui.QVBoxLayout(self.groupBox)
-        self.verticalLayout.setSpacing(4)
-        self.verticalLayout.setContentsMargins(4, 4, 4, 4)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.horizontalLayout = QtGui.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.label = QtGui.QLabel(self.groupBox)
-        self.label.setObjectName("label")
-        self.horizontalLayout.addWidget(self.label)
-        self.lineEditWorkspace = QtGui.QLineEdit(self.groupBox)
-        self.lineEditWorkspace.setObjectName("lineEditWorkspace")
-        self.horizontalLayout.addWidget(self.lineEditWorkspace)
-        self.verticalLayout.addLayout(self.horizontalLayout)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.comboBoxSearch = QtGui.QComboBox(self.groupBox)
@@ -57,6 +46,15 @@ class Ui_PMRWorkflowWidget(object):
         self.listWidgetResults = QtGui.QListWidget(self.groupBox)
         self.listWidgetResults.setObjectName("listWidgetResults")
         self.verticalLayout.addWidget(self.listWidgetResults)
+        self.horizontalLayout = QtGui.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label = QtGui.QLabel(self.groupBox)
+        self.label.setObjectName("label")
+        self.horizontalLayout.addWidget(self.label)
+        self.lineEditWorkspace = QtGui.QLineEdit(self.groupBox)
+        self.lineEditWorkspace.setObjectName("lineEditWorkspace")
+        self.horizontalLayout.addWidget(self.lineEditWorkspace)
+        self.verticalLayout.addLayout(self.horizontalLayout)
         self.gridLayout.addWidget(self.groupBox, 1, 0, 1, 2)
         self.verticalLayout_2.addLayout(self.gridLayout)
         self.horizontalLayout_3 = QtGui.QHBoxLayout()
@@ -70,6 +68,7 @@ class Ui_PMRWorkflowWidget(object):
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem1)
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
+        self.label.setBuddy(self.lineEditWorkspace)
 
         self.retranslateUi(PMRWorkflowWidget)
         QtCore.QMetaObject.connectSlotsByName(PMRWorkflowWidget)
@@ -78,10 +77,10 @@ class Ui_PMRWorkflowWidget(object):
         PMRWorkflowWidget.setWindowTitle(QtGui.QApplication.translate("PMRWorkflowWidget", "PMR Workflow Tool", None, QtGui.QApplication.UnicodeUTF8))
         self.labelLink.setText(QtGui.QApplication.translate("PMRWorkflowWidget", "<a href=\"mapclient.register\">register</a>", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox.setTitle(QtGui.QApplication.translate("PMRWorkflowWidget", "Physiome Model Repository", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("PMRWorkflowWidget", "Workspace:", None, QtGui.QApplication.UnicodeUTF8))
         self.comboBoxSearch.setItemText(0, QtGui.QApplication.translate("PMRWorkflowWidget", "Ontological term", None, QtGui.QApplication.UnicodeUTF8))
         self.comboBoxSearch.setItemText(1, QtGui.QApplication.translate("PMRWorkflowWidget", "Plain text", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonSearch.setText(QtGui.QApplication.translate("PMRWorkflowWidget", "&Search", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("PMRWorkflowWidget", "Workspace:", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonImport.setToolTip(QtGui.QApplication.translate("PMRWorkflowWidget", "Import to local location", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonImport.setText(QtGui.QApplication.translate("PMRWorkflowWidget", "Import", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonExport.setToolTip(QtGui.QApplication.translate("PMRWorkflowWidget", "Export from local location", None, QtGui.QApplication.UnicodeUTF8))

@@ -2,7 +2,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -24,8 +24,6 @@ import ctypes
 import os, sys, locale
 import logging
 from logging import handlers
-from mapclient.settings.general import getVirtEnvDirectory
-from mapclient.tools.virtualenv.manager import VirtualEnvManager
 
 # With PEP366 we need to conditionally import the settings module based on
 # whether we are executing the file directly of indirectly.  This is my
@@ -36,24 +34,24 @@ if __package__:
 else:
     from mapclient.settings import info
     from mapclient.settings.general import getLogLocation
-    
+
 logger = logging.getLogger('mapclient.application')
 
 def initialiseLogger(log_path):
     '''
     Initialise logger settings and information formatting
     '''
-    
-    logging.basicConfig(format='%(asctime)s.%(msecs).03d - %(name)s - %(levelname)s - %(message)s', level = logging.INFO, datefmt='%d/%m/%Y - %H:%M:%S')   
+
+    logging.basicConfig(format='%(asctime)s.%(msecs).03d - %(name)s - %(levelname)s - %(message)s', level=logging.INFO, datefmt='%d/%m/%Y - %H:%M:%S')
     logging.addLevelName(29, 'PLUGIN')
-    
-    rotatingFH = handlers.RotatingFileHandler(log_path, mode='a', maxBytes=5000000, backupCount = 9)
-    rotatingFH.setLevel(logging.DEBUG) 
+
+    rotatingFH = handlers.RotatingFileHandler(log_path, mode='a', maxBytes=5000000, backupCount=9)
+    rotatingFH.setLevel(logging.DEBUG)
     file_formatter = logging.Formatter('%(asctime)s.%(msecs).03d - %(name)s - %(levelname)s - %(message)s', datefmt='%d/%m/%Y - %H:%M:%S')
     rotatingFH.setFormatter(file_formatter)
     logging.getLogger().addHandler(rotatingFH)
     rotatingFH.doRollover()
-       
+
 #     logging.addLevelName(28, 'MSG')
 
 #     ch = logging.StreamHandler()
@@ -78,9 +76,9 @@ def winmain():
     Initialise common settings and check the operating environment before starting the application.
     '''
     if sys.platform == 'win32':
-        myappid = 'MusculoSkeletal.MAPClient' # arbitrary string
+        myappid = 'MusculoSkeletal.MAPClient'  # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-    
+
     # import the locale, and set the locale. This is used for
     # locale-aware number to string formatting
     locale.setlocale(locale.LC_ALL, '')
@@ -98,19 +96,13 @@ def winmain():
     from mapclient.core.mainapplication import MainApplication
     model = MainApplication()
 
-    from mapclient.widgets.mainwindow import MainWindow
+    from mapclient.view.mainwindow import MainWindow
     window = MainWindow(model)
     window.show()
-    
-    virtenv_dir = getVirtEnvDirectory()
-    vem = VirtualEnvManager(virtenv_dir)
-    if vem.exists():
-        vem.addSitePackages()
-    else:
-        window.setupVirtualEnv()
-    window.showPluginErrors()
-    window._workflowWidget.updateStepTree()
-    
+
+    # Run Checks
+    window.checkApplicationSetup()
+
     return app.exec_()
 
 class ConsumeOutput(object):

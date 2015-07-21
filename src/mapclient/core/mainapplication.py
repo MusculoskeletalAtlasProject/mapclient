@@ -21,10 +21,11 @@ import logging
 
 from PySide import QtCore
 
-from mapclient.core.workflow import WorkflowManager
-from mapclient.core.undomanager import UndoManager
-from mapclient.core.pluginframework import PluginManager
-from mapclient.core.optionsmanager import OptionsManager
+from mapclient.core.managers.workflowmanager import WorkflowManager
+from mapclient.core.managers.undomanager import UndoManager
+from mapclient.core.managers.pluginmanager import PluginManager
+from mapclient.core.managers.optionsmanager import OptionsManager
+from mapclient.core.checks import runChecks
 
 logger = logging.getLogger(__name__)
 
@@ -39,10 +40,8 @@ class MainApplication(object):
         self._pos = QtCore.QPoint(100, 150)
         self._pluginManager = PluginManager()
         self._workflowManager = WorkflowManager()
-        self._workflowManager.setPluginDatabase(self._pluginManager.getPluginDatabase())
         self._undoManager = UndoManager()
         self._optionsManager = OptionsManager()
-#         self._threadCommandManager = ThreadCommandManager()
 
     def setSize(self, size):
         self._size = size
@@ -67,6 +66,9 @@ class MainApplication(object):
 
     def optionsManager(self):
         return self._optionsManager
+
+    def doEnvironmentChecks(self):
+        return runChecks(self._optionsManager.getOptions())
 
     def writeSettings(self):
         settings = QtCore.QSettings()

@@ -1,7 +1,7 @@
 '''
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
-    
+
 This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
@@ -19,20 +19,38 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 '''
 import unittest
 
+import os
+
+from PySide.QtCore import QSettings
+
 from mapclient.core.mainapplication import MainApplication
+from mapclient.settings.general import getVirtEnvDirectory
+
 
 class MainApplicationTestCase(unittest.TestCase):
 
 
+    def tearDown(self):
+        ll = getVirtEnvDirectory()
+        if os.path.exists(ll):
+            os.rmdir(ll)
+
+        cf = QSettings().fileName()
+        if os.path.exists(cf):
+            os.remove(cf)
+
+        cd, _ = os.path.splitext(cf)
+        if os.path.exists(cd):
+            os.rmdir(cd)
     def testCreateMainApplication(self):
         ma = MainApplication()
 
         self.assertEqual(ma.size().width(), 600)
         self.assertEqual(ma.size().height(), 400)
-        
+
         self.assertEqual(ma.pos().x(), 100)
         self.assertEqual(ma.pos().y(), 150)
-        
+
     def testWorkflowManagerAPI(self):
         ma = MainApplication()
         wm = ma.workflowManager()
@@ -40,5 +58,5 @@ class MainApplicationTestCase(unittest.TestCase):
         self.assertEqual(wm.previousLocation(), 'here')
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
+    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
