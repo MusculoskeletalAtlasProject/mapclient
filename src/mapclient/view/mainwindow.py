@@ -27,7 +27,7 @@ from mapclient.view.workflow.workflowwidget import WorkflowWidget
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
 from mapclient.settings.general import getVirtEnvDirectory
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, WIZARD_TOOL_STRING, \
-    VIRTUAL_ENVIRONMENT_STRING, PMR_TOOL_STRING
+    VIRTUAL_ENVIRONMENT_STRING, PMR_TOOL_STRING, PYSIDE_RCC_EXE, PYSIDE_UIC_EXE
 from mapclient.view.utils import set_wait_cursor
 
 logger = logging.getLogger(__name__)
@@ -83,8 +83,8 @@ class MainWindow(QtGui.QMainWindow):
         self.menu_File.setObjectName("menu_File")
         self.menu_Edit = QtGui.QMenu(self.menubar)
         self.menu_Edit.setObjectName("menu_Edit")
-        self.menu_Project = QtGui.QMenu(self.menubar)
-        self.menu_Project.setObjectName("menu_Project")
+        self.menu_Workflow = QtGui.QMenu(self.menubar)
+        self.menu_Workflow.setObjectName("menu_Workflow")
         self.menu_Tools = QtGui.QMenu(self.menubar)
         self.menu_Tools.setObjectName("menu_Tools")
         self.action_LogInformation = QtGui.QAction(self)
@@ -122,7 +122,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menu_Edit.menuAction())
         self.menubar.addAction(self.menu_View.menuAction())
-        self.menubar.addAction(self.menu_Project.menuAction())
+        self.menubar.addAction(self.menu_Workflow.menuAction())
         self.menubar.addAction(self.menu_Tools.menuAction())
         self.menubar.addAction(self.menu_Help.menuAction())
 
@@ -133,7 +133,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menu_View.setTitle(QtGui.QApplication.translate("MainWindow", "&View", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Edit.setTitle(QtGui.QApplication.translate("MainWindow", "&Edit", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_Project.setTitle(QtGui.QApplication.translate("MainWindow", "&Project", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_Workflow.setTitle(QtGui.QApplication.translate("MainWindow", "&Workflow", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Tools.setTitle(QtGui.QApplication.translate("MainWindow", "&Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.action_About.setText(QtGui.QApplication.translate("MainWindow", "&About", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Quit.setText(QtGui.QApplication.translate("MainWindow", "&Quit", None, QtGui.QApplication.UnicodeUTF8))
@@ -340,7 +340,9 @@ class MainWindow(QtGui.QMainWindow):
     def showPluginManagerDialog(self):
         from mapclient.view.managers.plugins.pluginmanagerdialog import PluginManagerDialog
         pm = self._model.pluginManager()
-        dlg = PluginManagerDialog(self._model.pluginManager()._ignoredPlugins, self._model.pluginManager()._doNotShowPluginErrors, self._model.pluginManager()._resourceFiles, self._model.pluginManager()._updaterSettings, self._model.pluginManager()._unsuccessful_package_installations)
+        pluginErrors = pm.getPluginErrors()
+        print(pluginErrors)
+        dlg = PluginManagerDialog(self._model.pluginManager()._ignoredPlugins, self._model.pluginManager()._doNotShowPluginErrors, self._model.pluginManager()._resourceFiles, self._model.pluginManager()._updaterSettings, self._model.pluginManager()._unsuccessful_package_installations, self)
         self._pluginManagerDlg = dlg
         dlg.setDirectories(pm.directories())
         dlg.setLoadDefaultPlugins(pm.loadDefaultPlugins())
@@ -367,6 +369,7 @@ class MainWindow(QtGui.QMainWindow):
             pm.setDirectories(self._pluginManagerDlg.directories())
             pm.setLoadDefaultPlugins(self._pluginManagerDlg.loadDefaultPlugins())
 
+        print(pm.reloadPlugins())
         if pm.reloadPlugins():
             pm.load()
             self._workflowWidget.updateStepTree()
@@ -380,19 +383,23 @@ class MainWindow(QtGui.QMainWindow):
 
         dlg.setModal(True)
         if dlg.exec_() == dlg.Accepted:
-            s = Skeleton(dlg.getOptions())
+            om = self._model.optionsManager()
+            s = Skeleton(dlg.getOptions(), om.getOption(PYSIDE_UIC_EXE), om.getOption(PYSIDE_RCC_EXE))
             try:
                 s.write()
+                pm = self._model.pluginManager()
+                pm.setReloadPlugins()
                 self._pluginManagerLoadPlugins()
                 QtGui.QMessageBox.information(self, 'Skeleton Step', 'The Skeleton step has successfully been written to disk.')
             except Exception as e:
                 QtGui.QMessageBox.critical(self, 'Error Writing Step', 'There was an error writing the step, perhaps the step already exists?')
                 logger.critical(e.message)
-                print(s.getPackageDirectory())
                 import os
-                if os.path.exists(s.getPackageDirectory()):
+                package_directory = s.getPackageDirectory()
+                if os.path.exists(package_directory):
+                    logger.info('Removing partially created skeleton step "{0}"'.format(package_directory))
                     import shutil
-#                     shutil.rmtree(s.getPackageDirectory())
+                    shutil.rmtree(package_directory)
 
     def showPMRTool(self):
         from mapclient.tools.pmr.dialogs.pmrdialog import PMRDialog
@@ -419,7 +426,8 @@ class MainWindow(QtGui.QMainWindow):
         from mapclient.view.managers.plugins.pluginerrors import PluginErrors
 
         pm = self._model.pluginManager()
-        if pm.showPluginErrors():
+        if pm.haveErrors():
+            return
             dlg = PluginErrors(pm.getPluginErrors(), pm.getIgnoredPlugins(), pm.getResourceFiles(), pm.getUpdaterSettings())
             if not self._doNotShowPluginErrors:
                 dlg.setModal(True)
