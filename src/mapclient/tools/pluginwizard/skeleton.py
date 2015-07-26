@@ -342,7 +342,7 @@ class Skeleton(object):
                 result = -1
 
             if result < 0:
-                raise Exception('Failed to generate Python rcc file using any known PySide resource compiler.')
+                raise Exception('Failed to generate Python rcc file using the PySide resource compiler "{0}".'.format(self._pyside_rcc))
 
 #             # Generate resources file, I'm going to assume that I can find pyside-rcc
 #             result = call(['pyside-rcc', '-o', os.path.join(step_dir, PYTHON_QT_RESOURCE_FILENAME), os.path.join(qt_dir, QT_RESOURCE_FILENAME)])
@@ -407,7 +407,7 @@ class Skeleton(object):
                 result = -1
 
             if result < 0:
-                raise Exception('Failed to generate Python ui file using any known PySide user interface compiler.')
+                raise Exception('Failed to generate Python ui file using the PySide user interface compiler "{0}".'.format(self._pyside_uic))
 
             dialog_file = os.path.join(step_dir, CONFIG_DIALOG_FILE)
             f = open(dialog_file, 'w')
