@@ -350,6 +350,12 @@ class Node(Item):
         self.scene().setConfigureNode(self)
         self._metastep._step.configure()
 
+    def getConfig(self):
+        return self._metastep._step.serialize()
+
+    def setConfig(self, config):
+        self._metastep._step.deserialize(config)
+
     def annotateMe(self):
         dlg = AnnotationDialog(self._getStepLocation())
         dlg.setModal(True)
@@ -422,7 +428,14 @@ class StepPort(QtGui.QGraphicsEllipseItem):
         return self.boundingRect().height()
 
     def canConnect(self, other):
+        if other.hasConnections():
+            return False
+
         return self._port.canConnect(other._port)
+
+    def hasConnections(self):
+        self._removeDeadwood()
+        return len(self._connections) > 0
 
     def _removeDeadwood(self):
         '''
