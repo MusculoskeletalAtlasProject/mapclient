@@ -115,9 +115,8 @@ class WorkflowWidget(QtGui.QWidget):
     def applyOptions(self):
         om = self._mainWindow.model().optionsManager()
         show_step_names = om.getOption(SHOW_STEP_NAMES)
-        if show_step_names:
-            self._graphicsScene.showStepNames(show_step_names)
-            self._ui.graphicsView.showStepNames(show_step_names)
+        self._graphicsScene.showStepNames(show_step_names)
+        self._ui.graphicsView.showStepNames(show_step_names)
 
     def undoStackIndexChanged(self, index):
         self._mainWindow.model().workflowManager().undoStackIndexChanged(index)
