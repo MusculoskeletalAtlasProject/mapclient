@@ -340,8 +340,8 @@ class MainWindow(QtGui.QMainWindow):
     def showPluginManagerDialog(self):
         from mapclient.view.managers.plugins.pluginmanagerdialog import PluginManagerDialog
         pm = self._model.pluginManager()
-        pluginErrors = pm.getPluginErrors()
-        print(pluginErrors)
+#         pluginErrors = pm.getPluginErrors()
+#         print(pluginErrors)
         dlg = PluginManagerDialog(self._model.pluginManager()._ignoredPlugins, self._model.pluginManager()._doNotShowPluginErrors, self._model.pluginManager()._resourceFiles, self._model.pluginManager()._updaterSettings, self._model.pluginManager()._unsuccessful_package_installations, self)
         self._pluginManagerDlg = dlg
         dlg.setDirectories(pm.directories())

@@ -479,6 +479,7 @@ class StepText(QtGui.QGraphicsSimpleTextItem):
         return br.adjusted(-adjust, -adjust, adjust, adjust)
 
     def paint(self, painter, option, widget):
+
         painter.eraseRect(self.boundingRect())
         painter.setBrush(QtCore.Qt.white)
         painter.drawRoundedRect(self.boundingRect(), 5, 5)
