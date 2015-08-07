@@ -104,6 +104,12 @@ class WorkflowManager(object):
     def execute(self):
         self._scene.execute()
 
+    def canExecute(self):
+        return self._scene.canExecute()
+
+    def registerDoneExecutionForAll(self, callback):
+        self._scene.registerDoneExecutionForAll(callback)
+
     def isModified(self):
         return self._saveStateIndex != self._currentStateIndex
 

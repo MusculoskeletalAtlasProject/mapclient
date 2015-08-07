@@ -21,7 +21,8 @@ import os
 from shutil import copyfile
 from subprocess import call
 
-from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_DIALOG_STRING, CONFIGURE_DIALOG_LINE, CONFIGURE_DIALOG_UI, CLASS_STRING, INIT_METHOD_STRING
+from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_DIALOG_STRING, CONFIGURE_DIALOG_LINE, CONFIGURE_DIALOG_UI, CLASS_STRING, INIT_METHOD_STRING, \
+    APACHE_LICENSE, README_TEMPLATE
 from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_METHOD_STRING, IDENTIFIER_METHOD_STRING, SERIALIZE_METHOD_STRING, IMPORT_STRING, PACKAGE_INIT_STRING
 from mapclient.tools.pluginwizard.skeletonstrings import RESOURCE_FILE_STRING, GETIDENTIFIER_DEFAULT_CONTENT_STRING, GETIDENTIFIER_IDENTIFER_CONTENT_STRING
 from mapclient.tools.pluginwizard.skeletonstrings import SETIDENTIFIER_DEFAULT_CONTENT_STRING, SETIDENTIFIER_IDENTIFER_CONTENT_STRING
@@ -64,16 +65,36 @@ class Skeleton(object):
         target_file = os.path.join(target_dir, 'setup.py')
         f = open(target_file, 'w')
         f.write(SETUP_PY_TEMPLATE % dict(
-            version='0.0',
+            version='0.0.0',
             description='',
             name=self._options.getFullPackageName(),
             author=self._options.getAuthorName(),
             author_email='',
             url='',
-            license='GPL',
+            license='APACHE',
             namespace_packages=[PLUGIN_NAMESPACE],
         ))
         f.close()
+
+        readme_file = os.path.join(target_dir, 'README.rst')
+        requirements_file = os.path.join(target_dir, 'requirements.txt')
+        ext_requirements_file = os.path.join(target_dir, 'ext-requirements.txt')
+        license_file = os.path.join(target_dir, 'LICENSE')
+        with open(readme_file, 'w') as f:
+            step_name = self._options.getName().decode('utf-8')
+            print("'{0}'".format(step_name))
+            myline = '=' * len(step_name)
+            print(myline)
+            f.write(README_TEMPLATE % dict(
+                name=step_name,
+                underline='=' * len(step_name)
+            ))
+        with open(requirements_file, 'w'):
+            pass
+        with open(ext_requirements_file, 'w'):
+            pass
+        with open(license_file, 'w') as f:
+            f.write(APACHE_LICENSE)
 
     def _writeNamespaceInit(self, target_dir):
         '''

@@ -27,7 +27,8 @@ from mapclient.view.workflow.workflowwidget import WorkflowWidget
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
 from mapclient.settings.general import getVirtEnvDirectory
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, WIZARD_TOOL_STRING, \
-    VIRTUAL_ENVIRONMENT_STRING, PMR_TOOL_STRING, PYSIDE_RCC_EXE, PYSIDE_UIC_EXE
+    VIRTUAL_ENVIRONMENT_STRING, PMR_TOOL_STRING, PYSIDE_RCC_EXE, PYSIDE_UIC_EXE, \
+    PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION
 from mapclient.view.utils import set_wait_cursor
 
 logger = logging.getLogger(__name__)
@@ -109,11 +110,11 @@ class MainWindow(QtGui.QMainWindow):
 
         self.menu_Help.addAction(self.action_About)
         self.menu_View.addSeparator()
-        self.menu_View.addAction(self.action_PluginManager)
         self.menu_View.addAction(self.action_LogInformation)
         self.menu_View.addAction(self.action_Options)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.action_Quit)
+        self.menu_Tools.addAction(self.action_PluginManager)
         self.menu_Tools.addAction(self.action_PluginWizard)
         self.menu_Tools.addAction(self.action_PMR)
         self.menu_Tools.addAction(self.action_Annotation)
@@ -379,11 +380,18 @@ class MainWindow(QtGui.QMainWindow):
     def showPluginWizardDialog(self):
         from mapclient.tools.pluginwizard.wizarddialog import WizardDialog
         from mapclient.tools.pluginwizard.skeleton import Skeleton
+
+        om = self._model.optionsManager()
+
         dlg = WizardDialog(self)
+        dlg.setPreviousWriteStepLocation(om.getOption(PREVIOUS_PW_WRITE_STEP_LOCATION))
+        dlg.setPreviousIconLocation(om.getOption(PREVIOUS_PW_ICON_LOCATION))
 
         dlg.setModal(True)
         if dlg.exec_() == dlg.Accepted:
-            om = self._model.optionsManager()
+            om.setOption(PREVIOUS_PW_WRITE_STEP_LOCATION, dlg.getPreviousWriteStepLocation())
+            om.setOption(PREVIOUS_PW_ICON_LOCATION, dlg.getPreviousIconLocation())
+
             s = Skeleton(dlg.getOptions(), om.getOption(PYSIDE_UIC_EXE), om.getOption(PYSIDE_RCC_EXE))
             try:
                 s.write()

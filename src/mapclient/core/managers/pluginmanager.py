@@ -343,6 +343,8 @@ class PluginManager(object):
             self._directories.append(settings.value('directory'))
         settings.endArray()
         settings.endGroup()
+        print('===============')
+        print(self._directories)
         settings.beginGroup('Ignored Plugins')
         plugin_count = settings.beginReadArray('plugins')
         for i in range(plugin_count):
