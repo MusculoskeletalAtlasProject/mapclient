@@ -153,9 +153,7 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
         self._undoStack.push(CommandRemove(self, [node]))
 
     def stepConfigured(self):
-        print(self._currentConfigureNodeConfig)
         new_config = self._currentConfigureNode.getConfig()
-        print(self._currentConfigureNode.getConfig())
         if self._currentConfigureNodeConfig != new_config:
             self._undoStack.push(CommandConfigure(self, self._currentConfigureNode, new_config, self._currentConfigureNodeConfig))
 

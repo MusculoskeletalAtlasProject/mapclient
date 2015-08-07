@@ -147,7 +147,7 @@ class WorkflowWidget(QtGui.QWidget):
         if wfm.isModified():
             errors.append('The workflow has not been saved.')
 
-        if not wfm.scene().canExecute():
+        if not wfm.canExecute():
             errors.append('Not all steps in the workflow have been '
                 'successfully configured.')
 
