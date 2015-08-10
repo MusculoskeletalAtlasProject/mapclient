@@ -82,8 +82,6 @@ class MainApplication(object):
 
     def readSettings(self):
         settings = QtCore.QSettings()
-        print('----------------------------')
-        print(settings.fileName())
         settings.beginGroup('MainWindow')
         self._size = settings.value('size', self._size)
         self._pos = settings.value('pos', self._pos)
