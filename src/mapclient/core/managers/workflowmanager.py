@@ -110,7 +110,10 @@ class WorkflowManager(object):
     def changeIdentifier(self, old_identifier, new_identifier):
         old_config = getConfigurationFile(self._location, old_identifier)
         new_config = getConfigurationFile(self._location, new_identifier)
-        os.rename(old_config, new_config)
+        try:
+            os.rename(old_config, new_config)
+        except OSError:
+            pass
 
     def new(self, location):
         '''

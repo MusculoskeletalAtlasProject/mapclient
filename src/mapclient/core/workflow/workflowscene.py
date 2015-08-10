@@ -87,7 +87,12 @@ class MetaStep(Item):
         return self._uid
 
     def setUniqueIdentifier(self, uniqueIdentifier):
-        self._uid = uniqueIdentifier
+        # Awesome QSettings appears to be changing my string into a
+        # uuid.UUID class
+        if type(uniqueIdentifier) == uuid.UUID:
+            self._uid = str(uniqueIdentifier)
+        else:
+            self._uid = uniqueIdentifier
 
 
 class Connection(Item):
