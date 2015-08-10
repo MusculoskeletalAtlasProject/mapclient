@@ -388,6 +388,11 @@ class WorkflowScene(object):
     def execute(self):
         self._dependencyGraph.execute()
 
+    def registerDoneExecutionForAll(self, callback):
+        for item in self._items:
+            if item.Type == MetaStep.Type:
+                item._step.registerDoneExecution(callback)
+
     def clear(self):
         self._items.clear()
 

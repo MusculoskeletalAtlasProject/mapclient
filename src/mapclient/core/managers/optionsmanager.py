@@ -8,7 +8,8 @@ from mapclient.settings.general import getVirtEnvDirectory
 from mapclient.core.checks import getPySideRccExecutable, getPySideUicExecutable
 from mapclient.settings.definitions import SHOW_STEP_NAMES, \
     DONT_CREATE_VIRTUAL_ENV, OPTIONS_SETTINGS_TAG, PYSIDE_UIC_EXE, \
-    PYSIDE_RCC_EXE, VIRTUAL_ENV_PATH, GIT_EXE
+    PYSIDE_RCC_EXE, VIRTUAL_ENV_PATH, GIT_EXE, PREVIOUS_PW_WRITE_STEP_LOCATION, \
+    PREVIOUS_PW_ICON_LOCATION
 
 class OptionsManager(object):
     '''
@@ -28,6 +29,8 @@ class OptionsManager(object):
         self._options[PYSIDE_RCC_EXE] = getPySideRccExecutable()
         self._options[VIRTUAL_ENV_PATH] = getVirtEnvDirectory()
         self._options[GIT_EXE] = which('git')
+        self._options[PREVIOUS_PW_WRITE_STEP_LOCATION] = ''
+        self._options[PREVIOUS_PW_ICON_LOCATION] = ''
 
 
     def getOptions(self):
