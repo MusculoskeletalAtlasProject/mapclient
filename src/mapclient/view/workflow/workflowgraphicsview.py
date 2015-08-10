@@ -17,7 +17,8 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
-import sys, math
+import math
+import logging
 
 from PySide import QtCore, QtGui
 
@@ -26,6 +27,7 @@ from mapclient.core.workflow.workflowscene import MetaStep
 from mapclient.view.workflow.workflowcommands import CommandSelection, CommandRemove, CommandAdd, CommandMove
 from mapclient.view.workflow.workflowgraphicsitems import Node, Arc, ErrorItem, ArrowLine, StepPort
 
+logger = logging.getLogger()
 
 class WorkflowGraphicsView(QtGui.QGraphicsView):
 
@@ -35,7 +37,7 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
         self._errorIconTimer = QtCore.QTimer()
         self._errorIconTimer.setInterval(2000)
         self._errorIconTimer.setSingleShot(True)
-        self._errorIconTimer.timeout.connect(self.errorIconTimeout)
+        self._errorIconTimer.timeout.connect(self._errorIconTimeout)
         self._errorIcon = None
 
         self._undoStack = None
@@ -80,7 +82,7 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
                 # add temporary line ???
                 if self._errorIconTimer.isActive():
                     self._errorIconTimer.stop()
-                    self.errorIconTimeout()
+                    self._errorIconTimeout()
 
                 self._errorIcon = ErrorItem(node1, node2)
                 self.scene().addItem(self._errorIcon)
@@ -104,7 +106,6 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
             self.connectNodes(self._selectedNodes[0], self._selectedNodes[1])
 
     def keyPressEvent(self, event):
-#        super(WorkflowGraphicsView, self).keyPressEvent(event)
         if event.key() == QtCore.Qt.Key_Backspace or event.key() == QtCore.Qt.Key_Delete:
             command = CommandRemove(self.scene(), self.scene().selectedItems())
             self._undoStack.push(command)
@@ -157,7 +158,7 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
                             self._undoStack.push(CommandMove(item, item.pos() - diff, item.pos()))
                     self._undoStack.endMacro()
 
-    def errorIconTimeout(self):
+    def _errorIconTimeout(self):
         self.scene().removeItem(self._errorIcon)
         del self._errorIcon
 
@@ -185,7 +186,8 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
             hotspot = QtCore.QPoint()
 
             nameLen = stream.readUInt32()
-            name = stream.readRawData(nameLen).decode(sys.stdout.encoding)
+            name = stream.readRawData(nameLen).decode('utf-8')
+
             stream >> hotspot
 
             scene = self.scene()
