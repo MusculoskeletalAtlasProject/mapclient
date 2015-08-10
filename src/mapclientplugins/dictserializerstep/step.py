@@ -22,10 +22,10 @@ class DictSerializerStep(WorkflowStepMountPoint):
 
     def __init__(self, location):
         super(DictSerializerStep, self).__init__('Dict Serializer', location)
-        self._configured = False # A step cannot be executed until it has been configured.
+        self._configured = False  # A step cannot be executed until it has been configured.
         self._category = 'Sink'
         # Add any other initialisation code here:
-        self._icon =  QtGui.QImage(':/dictserializerstep/images/data-sink.png')
+        self._icon = QtGui.QImage(':/dictserializerstep/images/data-sink.png')
         # Ports:
         self.addPort(('http://physiomeproject.org/workflow/1.0/rdf-schema#port',
                       'http://physiomeproject.org/workflow/1.0/rdf-schema#uses',
@@ -64,7 +64,7 @@ class DictSerializerStep(WorkflowStepMountPoint):
         The index is the index of the port in the port list.  If there is only one
         uses port for this step then the index can be ignored.
         '''
-        self._data_in = dataIn # http://physiomeproject.org/workflow/1.0/rdf-schema#dict
+        self._data_in = dataIn  # http://physiomeproject.org/workflow/1.0/rdf-schema#dict
 
     def configure(self):
         '''
@@ -79,10 +79,10 @@ class DictSerializerStep(WorkflowStepMountPoint):
         dlg.setConfig(self._config)
         dlg.validate()
         dlg.setModal(True)
-        
+
         if dlg.exec_():
             self._config = dlg.getConfig()
-        
+
         self._configured = dlg.validate()
         self._configuredObserver()
 
