@@ -136,8 +136,12 @@ def main():
     pm = model.pluginManager()
 
     pm.load()
+    try:
+        wm.load(sys.argv[1])
+    except:
+        logger.error('Not a valid workflow location: {0}'.format(sys.argv[1]))
+        sys.exit(-1)
 
-    wm.load(sys.argv[1])
     wm.registerDoneExecutionForAll(wm.execute)
 
     if wm.canExecute():
