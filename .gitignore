@@ -59,4 +59,7 @@ target/
 .pydevproject
 .settings/
 
+# Intellij projects
+.idea/
+
 
