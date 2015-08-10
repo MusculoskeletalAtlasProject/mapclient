@@ -425,7 +425,7 @@ class PluginManager(object):
 
 #                     message = convertExceptionToMessage(e)
                     logger.warn('Plugin \'' + modname + '\' not loaded')
-                    logger.warn('Reason: {0}'.format(e.message))
+#                    logger.warn('Reason: {0}'.format(e.message))
                     _, _, tb = sys.exc_info()
                     for line in traceback.format_tb(tb):
                         logger.warn(line)
@@ -665,7 +665,7 @@ class PluginDatabase:
         Check the given plugin dependencies against the list of currently available
         dependencies
         '''
-        print 'CHECK ME: INCOMPLETE'
+        print('CHECK ME: INCOMPLETE')
         required_dependencies = {}
         for plugin in to_check:
             pass

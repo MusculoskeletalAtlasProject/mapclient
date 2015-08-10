@@ -244,14 +244,14 @@
             <item row="0" column="0">
              <layout class="QHBoxLayout" name="horizontalLayout_11">
               <item>
-               <widget class="QCheckBox" name="defaultVELocationCheckBox">
+               <widget class="QCheckBox" name="automaticUpdatesCheckBox">
                 <property name="text">
                  <string>Automatically check for updates</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="virtualenvCheckBox">
+               <widget class="QCheckBox" name="documentationCheckBox">
                 <property name="text">
                  <string>Double-click for documentation</string>
                 </property>

@@ -22,6 +22,9 @@ from mapclient.settings.general import getLogDirectory
 
 logger = logging.getLogger(__name__)
 
+# This dictionary of MAP Client plugin information will need to be either manually updated before version releases or, if the API exists in Python,
+# this information could be retrieved and updated directly from the GitHub repositories periodically. This information could then be stored in a text file
+# located in the same directory as the .log files, which could be easily accessed at a later date for plugin updates.
 MAPCLIENT_PLUGIN_LOCATIONS = {'autosegmentationstep':['Automatic Segmenter', 'https://github.com/mapclient-plugins/autosegmentationstep/archive/master.zip'],
                               'fieldworkexportstlsurfacestep':['Fieldwork Export STL Surface', 'https://github.com/mapclient-plugins/fieldworkexportstlsurfacestep/archive/master.zip'],
                               'fieldworkfemurmeasurementstep':['Fieldwork Femur Measurements', 'https://github.com/mapclient-plugins/fieldworkfemurmeasurementstep/archive/master.zip'],

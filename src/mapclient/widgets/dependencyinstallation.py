@@ -150,7 +150,6 @@ class InstallDependencies(PluginProgress):
                 logger.info('Reason: ' + message)
     
     def run(self):
-        print 'bad run'
         python_dir = self._virt_env_dir + '\Scripts\python.exe'
         pip_dir = self._virt_env_dir + '\Scripts\pip.exe'
         logs_dir = self._virt_env_dir[:-13] + '\logs'

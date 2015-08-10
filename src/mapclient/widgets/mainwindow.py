@@ -323,7 +323,6 @@ class MainWindow(QtGui.QMainWindow):
             except Exception as e:
                 QtGui.QMessageBox.critical(self, 'Error Writing Step', 'There was an error writing the step, perhaps the step already exists?')
                 logger.critical(e.message)
-                print s.getOutputDirectory()
                 import os
                 if os.path.exists(s.getOutputDirectory()):
                     import shutil

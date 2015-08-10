@@ -300,7 +300,6 @@ class Skeleton(object):
         )
         icon = self._options.getIcon()
         if icon:
-            print 'write step package init is something'
             (package, _) = os.path.splitext(PYTHON_QT_RESOURCE_FILENAME)
             f.write('# Import the resource file when the module is loaded,\n')
             f.write('# this enables the framework to use the step icon.\n')

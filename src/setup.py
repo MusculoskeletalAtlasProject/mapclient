@@ -57,7 +57,6 @@ class develop(_develop):
             self.execute(createApplication, (self.setup_path,),
                          msg="Creating OS X Application")
 
-
 setup(name='mapclient',
      version=version,
      description='A framework for managing and sharing workflows.',
@@ -70,5 +69,7 @@ setup(name='mapclient',
      # py_modules=['mapclient.mapclient'],
      entry_points={'console_scripts': ['mapclient=mapclient.application:winmain']},
      install_requires=install_requires,
+     zip_safe=False,
      cmdclass={'install': install, 'develop': develop}
 )
+

@@ -17,7 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
-import pkgutil, os, sys, imp, importlib, collections
+import pkgutil, os, sys, imp, importlib, collections, subprocess
 from PySide.QtGui import QDialog, QMessageBox, QApplication, QCursor, QFileDialog
 from PySide.QtCore import Qt
 
@@ -65,7 +65,7 @@ class AdvancedDialog(QDialog):
         if self._2to3Directory:
             self._ui.dir2to3.setText(self._2to3Directory)
             
-        # will need ot modify
+        # will need to modify
         if self._ui.virtEnvLocation.text() == 'a':
             self._ui.modifyVELocation.setText('Setup')
         
@@ -89,10 +89,10 @@ class AdvancedDialog(QDialog):
         self._ui.removeResource.clicked.connect(self.removeResourceFilename)
         self._ui.resourceList.itemSelectionChanged.connect(self._resourceFilenamesSelectionChanged)
         self._ui.listWidget.doubleClicked.connect(self.updatePlugins)
-        self._ui.defaultVELocationCheckBox.stateChanged.connect(self.virtEnvLocation)
+        self._ui.automaticUpdatesCheckBox.stateChanged.connect(self.setAutomaticUpdates)
         self._ui.modifyVELocation.clicked.connect(self.modifyVELocation)
         self._ui.syntaxUpdatesCheckBox.stateChanged.connect(self.packageSyntaxUpdates)
-        self._ui.virtualenvCheckBox.stateChanged.connect(self.installVirtualEnv)
+        self._ui.documentationCheckBox.stateChanged.connect(self.setDoubleClickDocumentation)
         self._ui.installPackages.clicked.connect(self.installSelectedPackages)
         self._ui.uninstallPackages.clicked.connect(self.uninstallSelectedPackages)
         self._ui.packageInformation.clicked.connect(self.displayPackageInfo)
@@ -101,32 +101,64 @@ class AdvancedDialog(QDialog):
         self._ui.recommendedPackagesList.itemSelectionChanged.connect(self._recommendedPackagesSelectionChanged)
         self._ui.failedInstallsButton.clicked.connect(self.displayFailedPackageInstalls)
         
-    def fillInstalledPackagesList(self):
-        #virt_env_dir = self._ui.virtEnvLocation.text()
-        #need to change so that have list stored within applicarion settings that is uodated every time a package is installed - much faster to load
-        '''
-        virt_env_dir = 'C:\\Users\\Jonathan\\AppData\\Roaming\\Musculo Skeletal\\MAP Client\\pluginVirtEnv'
-        output = subprocess.check_output([virt_env_dir + '\Scripts' + '\python.exe', virt_env_dir + '\Scripts' + '\pip.exe', 'list'], shell=True)
-        installed_packages = output.decode('utf-8').split('\n')
+    def setDoubleClickDocumentation(self):
+        # Setting that enables the user to double click on an item in the list of installed OR recommended packages
+        # to view the pip documentation for that particular package. When double clicked the user's default web browser will
+        # be used to access the online documentation. Information about the documentation link is stored with the rest of the 
+        # information on installed/recommended packages.
         
-        count = 0
-        for package in installed_packages[:-1]:
-            package_name = package.split()[0]
-            toolTip = subprocess.check_output([virt_env_dir + '\Scripts\python.exe', virt_env_dir + '\Scripts\pip.exe', 'show', package_name], shell=True)
-            toolTip = toolTip.decode('utf-8')
-            self._ui.installedPackagesList.addItem(package[:-1])
-            item = self._ui.installedPackagesList.item(count)
-            item.setToolTip(toolTip)
-        '''
+        pass
+        
+    def setAutomaticUpdates(self):
+        # Setting that sets the application to automatically check for pacjage updates on start-up.
+        
+        pass
+        
+    def fillInstalledPackagesList(self):
+        # This method fills a list in the dialog with information regarding the packages that have been installed
+        # with pip on the user's machine. This information should be stored either in an easily-accessible text file
+        # or within the application settings. This information is updated every time a new package is installed or updated (there
+        # is an initial lengthy (takes a few minutes) fetching of this information through pip when MAP Client runs for the first
+        # time - maybe should be included in the initial setup of MAP Client before/after the virtual environment is set up).
+        #
+        # Note: skeleton code below needs to be modified.
+        
+        #virt_env_dir = 'C:\\Users\\Jonathan\\AppData\\Roaming\\MusculoSkeletal\\MAP-Client\\venv'
+        #output = subprocess.check_output([virt_env_dir + '\Scripts' + '\python.exe', virt_env_dir + '\Scripts' + '\pip.exe', 'list'], shell=True)
+        #installed_packages = output.decode('utf-8').split('\n')
+        
+        #count = 0
+        #for package in installed_packages[0:5]:
+        #    package_name = package.split()[0]
+        #    toolTip = subprocess.check_output([virt_env_dir + '\Scripts\python.exe', virt_env_dir + '\Scripts\pip.exe', 'show', package_name], shell=True)
+        #    toolTip = toolTip.decode('utf-8')
+        #    self._ui.installedPackagesList.addItem(package[:-1])
+        #    item = self._ui.installedPackagesList.item(count)
+        #    item.setToolTip(toolTip)
+        #    count += 1
+            
+        pass
 
     def fillRecommendedPackagesList(self):
-        # based on list of deependencies from existing plugins and analysing the index list of packages availble through pip
-        # also stored in application settings for faster loading - updated with every version release (maybe include an automatic update button? - contact server?)
+        # This method fills a list in the dialog with recommended dependencies to use in MAP Client.
+        # These recommendations are generated by inspecting the list of packages the user has already installed
+        # and comparing it with a list of packages that are used in MAP Client plugins located on GitHub. Any 
+        # 'missing' packages will be recommended to the user to install.
+        # This additional information about dependencies used in existing MAP Client plugins should be stored
+        # either in an easily-accessible text file or within the application settings and is updated every time a 
+        # package is updated or installed.
+        
         pass
     
     def displayFailedPackageInstalls(self):
-        # implement separate dialog with list of install fails. Analyse corresponding log and package info
-        # --> give helpful tips in tooltips. Also give option to try install using wheels.
+        # This method changes the colour of items in the 'Installed Packages' list if they were not installed properly
+        # and sorts the list by colour with the falied installations displayed at the top of the list.
+        # This information about failed installations is acquired when installing packages with pip through MAP Client
+        # by analysing the install reports generated by pip.
+        #
+        # Helpful tooltips will be added to the failed installation items based on what went wrong during the installation
+        # and possible fixes for the problem. Could also give additional option to try install the package using wheels?
+        
         pass
         
     def _recommendedPackagesSelectionChanged(self):
@@ -162,41 +194,59 @@ class AdvancedDialog(QDialog):
             self._ui.updatePackages.setEnabled(False)
         
     def virtEnvLocation(self):
-        # setting that sets the default location for the setup of the virtual environment for the appplication.
-        # when unchecked the user must choose an alternative location to be used as the default
+        # Setting that sets the default location for the setup of the virtual environment for the application.
+        # When unchecked the user must choose an alternative location to be used as the default.
+        
+        # Note this check box has not been added to the dialog yet. Default should be checked. When unchecked the user
+        # will be prompted to either keep the defualt location or modify it.
+        
         pass
     
     def modifyVELocation(self):
-        # enables user to completely move the virtual environment setup for the application (including all contents and installed packages)
-        # also updates the sys.path so that the system is aware of packages in the VE (+updates any other required links - may need to change some API to deal with modified VE location)
+        # Enables user to completely move the virtual environment setup for the application (including all contents and installed packages).
+        # Also updates the sys.path so that the system is aware of packages in the VE (+updates any other required links - may need to change some API to deal with modified VE location).
+        
+        # By default the user cannot modify the virtual environment location unless they click this button.
+        
         pass
     
     def packageSyntaxUpdates(self):
-        # enables analysis of installed packages for syntax updates with the users run-time python version (3+)
-        # once analysis has been performed the packages that could be updated (using same method as in the plugin updater)
-        # will be highlighted in the list of installed packages (so user can clearly see which ones they can update)
-        pass
-    
-    def installVirtualEnv(self):
-        # setting that determines if the package 'virtualenv' is installed (if not already present in the user's system)
-        # automatically while the application VE is bein setup
+        # Enables analysis of installed packages for syntax updates with the users run-time Python version (3+).
+        # Once analysis has been performed the packages that could be updated (using same method as in the plugin updater).
+        # Will be highlighted yellow in the list of installed packages (so user can clearly see which ones they can update).
+        
         pass
     
     def installSelectedPackages(self):
-        # attemps to install the selected packages
+        # Attemps to install the selected packages in the recommended packages list with pip.
+        
+        # Note that a progress dialog would be useful here because installation of packages with pip
+        # can take a significant amount of time depending on your machine, internet speed etc.
+        
         pass
     
     def uninstallSelectedPackages(self):
-        # attempts to uninstall the selected packages
+        # Attempts to uninstall the selected packages in the installed packages list with pip.
+        
+        # Note that a progress dialog would be useful here because uninstalling a package or multiple packages may
+        # take a significant amount of time depending on the size of the package(s).
+        
         pass
     
     def displayPackageInfo(self):
-        # displays more detailed information about a particular recommended package including recommendatios
-        # for use and reasons why is has been recommended
+        # Displays more detailed information about a particular recommended package including why is has been recommended.
+        
+        # This additional information about package recommendations should be stored either in an easily-accessible text file or
+        # within the application settings and is updated every time a package is updated or installed.
+        
         pass
     
     def updateSelectedPackages(self):
-        # attempts to update the selected packages (these should have some indication to the user that they are outdated)
+        # Attempts to update the selected packages (these should have some indication to the user that they are outdated) with pip.
+        
+        # Note that a progress dialog would be useful here because updating a package or multiple packages may
+        # take a significant amount of time depending on the size of the updates.
+        
         pass
         
     def _setupToolTips(self):
@@ -383,6 +433,8 @@ class AdvancedDialog(QDialog):
                     self._pluginUpdater.pluginUpdateDict(modname, plugin_init_update, plugin_resources_update, plugin_syntax_update, \
                                                         plugin_tabbed_indentation, os.path.join(_.path, modname, '__init__.py'), resourcesDirs, tabbed_modules)
             self.fillUpdatesList()
+            
+            QApplication.restoreOverrideCursor()
             
             if self._ui.listWidget.count() ==  0:
                 self._ui.label_2.setText('None of your plugins require updates at this time.')

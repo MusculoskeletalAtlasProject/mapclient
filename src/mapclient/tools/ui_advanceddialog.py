@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qt/advanceddialog.ui'
 #
-# Created: Mon Apr 13 12:12:58 2015
+# Created: Tue Aug 11 03:30:59 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -121,12 +121,12 @@ class Ui_AdvancedDialog(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.horizontalLayout_11 = QtGui.QHBoxLayout()
         self.horizontalLayout_11.setObjectName("horizontalLayout_11")
-        self.defaultVELocationCheckBox = QtGui.QCheckBox(self.groupBox_2)
-        self.defaultVELocationCheckBox.setObjectName("defaultVELocationCheckBox")
-        self.horizontalLayout_11.addWidget(self.defaultVELocationCheckBox)
-        self.virtualenvCheckBox = QtGui.QCheckBox(self.groupBox_2)
-        self.virtualenvCheckBox.setObjectName("virtualenvCheckBox")
-        self.horizontalLayout_11.addWidget(self.virtualenvCheckBox)
+        self.automaticUpdatesCheckBox = QtGui.QCheckBox(self.groupBox_2)
+        self.automaticUpdatesCheckBox.setObjectName("automaticUpdatesCheckBox")
+        self.horizontalLayout_11.addWidget(self.automaticUpdatesCheckBox)
+        self.documentationCheckBox = QtGui.QCheckBox(self.groupBox_2)
+        self.documentationCheckBox.setObjectName("documentationCheckBox")
+        self.horizontalLayout_11.addWidget(self.documentationCheckBox)
         self.syntaxUpdatesCheckBox = QtGui.QCheckBox(self.groupBox_2)
         self.syntaxUpdatesCheckBox.setObjectName("syntaxUpdatesCheckBox")
         self.horizontalLayout_11.addWidget(self.syntaxUpdatesCheckBox)
@@ -291,8 +291,8 @@ class Ui_AdvancedDialog(object):
         self.installPackages.setText(QtGui.QApplication.translate("AdvancedDialog", "Install", None, QtGui.QApplication.UnicodeUTF8))
         self.packageInformation.setText(QtGui.QApplication.translate("AdvancedDialog", "Information", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_2.setTitle(QtGui.QApplication.translate("AdvancedDialog", "Dependency Settings", None, QtGui.QApplication.UnicodeUTF8))
-        self.defaultVELocationCheckBox.setText(QtGui.QApplication.translate("AdvancedDialog", "Automatically check for updates", None, QtGui.QApplication.UnicodeUTF8))
-        self.virtualenvCheckBox.setText(QtGui.QApplication.translate("AdvancedDialog", "Double-click for documentation", None, QtGui.QApplication.UnicodeUTF8))
+        self.automaticUpdatesCheckBox.setText(QtGui.QApplication.translate("AdvancedDialog", "Automatically check for updates", None, QtGui.QApplication.UnicodeUTF8))
+        self.documentationCheckBox.setText(QtGui.QApplication.translate("AdvancedDialog", "Double-click for documentation", None, QtGui.QApplication.UnicodeUTF8))
         self.syntaxUpdatesCheckBox.setText(QtGui.QApplication.translate("AdvancedDialog", "Check for syntax updates", None, QtGui.QApplication.UnicodeUTF8))
         self.label_7.setText(QtGui.QApplication.translate("AdvancedDialog", "Virtual Environment Location:", None, QtGui.QApplication.UnicodeUTF8))
         self.modifyVELocation.setText(QtGui.QApplication.translate("AdvancedDialog", "Modify", None, QtGui.QApplication.UnicodeUTF8))
