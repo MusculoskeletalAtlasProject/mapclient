@@ -49,14 +49,13 @@ class HeaderDelegate(QtGui.QStyledItemDelegate):
         else:
             super(HeaderDelegate, self).paint(painter, option, index)
 
-
 class StepTree(QtGui.QTreeWidget):
 
     def __init__(self, parent=None):
         super(StepTree, self).__init__(parent)
-        self.stepIconSize = 64
         self.setItemDelegate(HeaderDelegate())
 
+        self.stepIconSize = 64
         size = QtCore.QSize(self.stepIconSize, self.stepIconSize)
         self.setIconSize(size)
         self.setColumnCount(1)

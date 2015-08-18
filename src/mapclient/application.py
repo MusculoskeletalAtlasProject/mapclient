@@ -149,7 +149,6 @@ def main():
     else:
         logger.error('Could not execute workflow.')
 
-
     # Possibly don't need to run app.exec_()
     sys.exit(app.quit())
 

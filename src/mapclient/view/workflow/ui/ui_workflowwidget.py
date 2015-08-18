@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'qt/workflowwidget.ui'
 #
-# Created: Wed Sep 10 15:58:22 2014
-#      by: pyside-uic 0.2.15 running on PySide 1.2.1
+# Created: Tue Aug 18 17:22:36 2015
+#      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,15 +12,34 @@ from PySide import QtCore, QtGui
 class Ui_WorkflowWidget(object):
     def setupUi(self, WorkflowWidget):
         WorkflowWidget.setObjectName("WorkflowWidget")
-        WorkflowWidget.resize(922, 646)
+        WorkflowWidget.resize(992, 697)
         WorkflowWidget.setWindowTitle("")
-        self.gridLayout = QtGui.QGridLayout(WorkflowWidget)
-        self.gridLayout.setObjectName("gridLayout")
+        self.verticalLayout_3 = QtGui.QVBoxLayout(WorkflowWidget)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.splitter = QtGui.QSplitter(WorkflowWidget)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
-        self.stepTree = StepTree(self.splitter)
-        self.stepTree.setObjectName("stepTree")
+        self.layoutWidget_2 = QtGui.QWidget(self.splitter)
+        self.layoutWidget_2.setObjectName("layoutWidget_2")
+        self.verticalLayout_2 = QtGui.QVBoxLayout(self.layoutWidget_2)
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.lineEditFilter = QtGui.QLineEdit(self.layoutWidget_2)
+        self.lineEditFilter.setText("")
+        self.lineEditFilter.setObjectName("lineEditFilter")
+        self.verticalLayout_2.addWidget(self.lineEditFilter)
+        self.stepTreeView = WorkflowStepTreeView(self.layoutWidget_2)
+        self.stepTreeView.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.stepTreeView.setDragEnabled(True)
+        self.stepTreeView.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
+        self.stepTreeView.setIconSize(QtCore.QSize(64, 64))
+        self.stepTreeView.setIndentation(0)
+        self.stepTreeView.setRootIsDecorated(False)
+        self.stepTreeView.setSortingEnabled(True)
+        self.stepTreeView.setHeaderHidden(True)
+        self.stepTreeView.setExpandsOnDoubleClick(True)
+        self.stepTreeView.setObjectName("stepTreeView")
+        self.verticalLayout_2.addWidget(self.stepTreeView)
         self.layoutWidget = QtGui.QWidget(self.splitter)
         self.layoutWidget.setObjectName("layoutWidget")
         self.verticalLayout = QtGui.QVBoxLayout(self.layoutWidget)
@@ -43,13 +62,16 @@ class Ui_WorkflowWidget(object):
         self.executeButton.setObjectName("executeButton")
         self.horizontalLayout.addWidget(self.executeButton)
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
+        self.verticalLayout_3.addWidget(self.splitter)
 
         self.retranslateUi(WorkflowWidget)
         QtCore.QMetaObject.connectSlotsByName(WorkflowWidget)
+        WorkflowWidget.setTabOrder(self.graphicsView, self.lineEditFilter)
+        WorkflowWidget.setTabOrder(self.lineEditFilter, self.executeButton)
 
     def retranslateUi(self, WorkflowWidget):
+        self.lineEditFilter.setPlaceholderText(QtGui.QApplication.translate("WorkflowWidget", "Filter", None, QtGui.QApplication.UnicodeUTF8))
         self.executeButton.setText(QtGui.QApplication.translate("WorkflowWidget", "E&xecute", None, QtGui.QApplication.UnicodeUTF8))
 
-from mapclient.view.workflow.steptree import StepTree
 from mapclient.view.workflow.workflowgraphicsview import WorkflowGraphicsView
+from mapclient.view.workflow.workflowsteptreeview import WorkflowStepTreeView
