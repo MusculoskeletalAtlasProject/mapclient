@@ -370,9 +370,10 @@ class MainWindow(QtGui.QMainWindow):
             pm.setDirectories(self._pluginManagerDlg.directories())
             pm.setLoadDefaultPlugins(self._pluginManagerDlg.loadDefaultPlugins())
 
-        print(pm.reloadPlugins())
         if pm.reloadPlugins():
             pm.load()
+            wm = self._model.workflowManager()
+            wm.updateAvailableSteps()
             self._workflowWidget.updateStepTree()
 
 #             self.showPluginErrors()

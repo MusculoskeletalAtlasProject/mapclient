@@ -79,6 +79,12 @@ def winmain():
     from PySide import QtGui
     app = QtGui.QApplication(sys.argv)
 
+    try:
+        from opencmiss.zinc.context import Context
+        Context("MAP")
+    except ImportError:
+        logger.warning('OpenCMISS-Zinc is not available.')
+
     # Set the default organisation name and application name used to store application settings
     info.setApplicationsSettings(app)
 
@@ -121,12 +127,6 @@ def main():
 #     sys.stdout = redirectstdout = ConsumeOutput()
     progheader()
     sys.stdout = old_stdout
-#     versionstring = ''.join(redirectstdout.messages)
-
-#     progname = os.path.splitext(__file__)[0]
-#     usage = 'usage: {0} [options] workflow\n    Execute the given workflow'.format(progname)
-#     parser = OptionParser(usage, version=versionstring)
-#     options, args = parser.parse_args()
 
     from mapclient.core.mainapplication import MainApplication
     model = MainApplication()
@@ -148,7 +148,6 @@ def main():
         wm.execute()
     else:
         logger.error('Could not execute workflow.')
-
 
     # Possibly don't need to run app.exec_()
     sys.exit(app.quit())
