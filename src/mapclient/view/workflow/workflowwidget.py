@@ -20,7 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import os, logging
 import shutil
 
-from PySide import QtGui
+from PySide import QtCore, QtGui
 
 from requests.exceptions import HTTPError
 from mapclient.exceptions import ClientRuntimeError
@@ -32,7 +32,6 @@ from mapclient.view.utils import set_wait_cursor
 from mapclient.view.utils import handle_runtime_error
 
 from mapclient.view.workflow.ui.ui_workflowwidget import Ui_WorkflowWidget
-from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclient.view.workflow.workflowgraphicsscene import WorkflowGraphicsScene
 from mapclient.tools.pmr.pmrtool import PMRTool
 from mapclient.view.importworkflowdialog import ImportWorkflowDialog
@@ -78,10 +77,23 @@ class WorkflowWidget(QtGui.QWidget):
         self._action_annotation = self._mainWindow.findChild(QtGui.QAction, "actionAnnotation")
         self._createMenuItems()
 
+        model = self._workflowManager.getFilteredStepModel()
+        self._ui.stepTreeView.setModel(model)
+
         self.updateStepTree()
         self.applyOptions()
 
         self._updateUi()
+
+        self._makeConnections()
+
+    def _makeConnections(self):
+        self._ui.lineEditFilter.textChanged.connect(self._filterTextChanged)
+
+    def _filterTextChanged(self, text):
+        reg_exp = QtCore.QRegExp(text, QtCore.Qt.CaseInsensitive)
+#         self._workflowManager.getFilteredStepModel().setFilterRegExp(reg_exp)
+        self._ui.stepTreeView.setFilterRegExp(reg_exp)
 
     def _updateUi(self):
         if hasattr(self, '_mainWindow'):
@@ -108,9 +120,7 @@ class WorkflowWidget(QtGui.QWidget):
             self.action_Continue.setEnabled(workflow_open and not widget_visible)
 
     def updateStepTree(self):
-        self._ui.stepTree.clear()
-        for step in WorkflowStepMountPoint.getPlugins(''):
-            self._ui.stepTree.addStep(step)
+        self._ui.stepTreeView.expandAll()
 
     def applyOptions(self):
         om = self._mainWindow.model().optionsManager()

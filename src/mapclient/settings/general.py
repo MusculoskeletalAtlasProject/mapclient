@@ -62,6 +62,9 @@ def getConfigurationSuffix():
     return '.conf'
 
 def getConfigurationFile(location, identifier):
+    if 'src/mapclient' in location:
+        raise Exception('Saving this in the wrong place.')
+
     return os.path.join(location, identifier + getConfigurationSuffix())
 
 DISPLAY_FULL_PATH = 'AIJDKUUGCNEGELND'
