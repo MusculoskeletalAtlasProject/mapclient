@@ -411,8 +411,8 @@ class MainWindow(QtGui.QMainWindow):
                     shutil.rmtree(package_directory)
 
     def showPMRTool(self):
-        from mapclient.tools.pmr.dialogs.pmrdialog import PMRDialog
-        dlg = PMRDialog(self)
+        from mapclient.tools.pmr.dialogs.register import PMRRegisterDialog
+        dlg = PMRRegisterDialog(self)
         dlg.setModal(True)
         dlg.exec_()
 

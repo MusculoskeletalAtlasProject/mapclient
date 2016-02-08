@@ -167,7 +167,7 @@ def getPySideRccExecutable():
             # pyside-rcc returns 1 for all program executions that don't actual compile resources.
             if return_code == 1 and 'Resource Compiler for Qt version' in stderr.decode('utf-8'):
                 return pyside_rcc
-    
+
     return None
 
 
