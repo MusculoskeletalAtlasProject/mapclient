@@ -204,10 +204,9 @@ class WorkflowManager(object):
         self._scene.saveState(wf)
         self._saveStateIndex = self._currentStateIndex
         af = _getWorkflowMetaAbsoluteFilename(self._location)
-        f = open(af, 'w')
-        f.write(serializeWorkflowAnnotation().decode('utf-8'))
-        self._scene.saveAnnotation(f)
-        f.close()
+        with open(af, 'w') as f:
+            f.write(serializeWorkflowAnnotation().decode('utf-8'))
+            self._scene.saveAnnotation(f)
 
 #        self._title = info.APPLICATION_NAME + ' - ' + self._location
 

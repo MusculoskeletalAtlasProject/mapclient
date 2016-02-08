@@ -18,8 +18,20 @@ try:
     pyside_requirement = 'PySide==' + pyside_version
     # PySide version 1.1.0 is not known about by PyPi
     # but it will work for the MAP Client software
-    if pyside_version != '1.1.0':
+    if pyside_version == '1.1.0':
         pyside_requirement = None
+    else:
+        try:
+            import site
+            site_packages = site.getsitepackages()
+            if len(site_packages) > 1:
+                site_package_dir = site_packages[1]
+                egg_info_file = os.path.join(site_package_dir, 'PySide-' + pyside_version + '.egg-info')
+                if not os.path.exists(egg_info_file):
+                    with open(egg_info_file, 'a'):
+                        pass
+        except ImportError:
+            pass  # Ah well an old version of Python perhaps
 except ImportError:
     # If we don't have PySide we will need to build it
     pyside_requirement = 'PySide'

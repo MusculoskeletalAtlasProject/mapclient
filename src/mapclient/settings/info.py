@@ -26,7 +26,7 @@ VERSION_STRING = str(VERSION_MAJOR) + "." + str(VERSION_MINOR) + "." + str(VERSI
 
 GPL_VERSION = '3'
 
-APPLICATION_NAME = 'MAP-Client'
+APPLICATION_NAME = 'MAPClient'
 ORGANISATION_NAME = 'MusculoSkeletal'
 ORGANISATION_DOMAIN = 'musculoskeletal.org'
 
