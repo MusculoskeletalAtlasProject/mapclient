@@ -37,6 +37,7 @@ else:
 
 logger = logging.getLogger('mapclient.application')
 
+
 def initialiseLogger(log_path):
     '''
     Initialise logger settings and information formatting
@@ -61,6 +62,7 @@ def initialiseLogger(log_path):
 
 #     logger.addHandler(ch)
 
+
 def progheader():
     '''
     Display program header
@@ -69,6 +71,7 @@ def progheader():
     logger.info('-' * len(programHeader))
     logger.info(programHeader)
     logger.info('-' * len(programHeader))
+
 
 # This method starts MAP Client
 def winmain():
@@ -105,12 +108,14 @@ def winmain():
 
     return app.exec_()
 
+
 class ConsumeOutput(object):
     def __init__(self):
         self.messages = list()
 
     def write(self, message):
         self.messages.append(message)
+
 
 def main():
     locale.setlocale(locale.LC_ALL, '')
