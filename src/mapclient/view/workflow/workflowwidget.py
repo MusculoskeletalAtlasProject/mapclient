@@ -20,7 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import os, logging
 import shutil
 
-from PySide import QtGui
+from PySide import QtCore, QtGui
 
 from requests.exceptions import HTTPError
 from mapclient.exceptions import ClientRuntimeError
@@ -32,7 +32,6 @@ from mapclient.view.utils import set_wait_cursor
 from mapclient.view.utils import handle_runtime_error
 
 from mapclient.view.workflow.ui.ui_workflowwidget import Ui_WorkflowWidget
-from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclient.view.workflow.workflowgraphicsscene import WorkflowGraphicsScene
 from mapclient.tools.pmr.pmrtool import PMRTool
 from mapclient.view.importworkflowdialog import ImportWorkflowDialog
@@ -78,10 +77,23 @@ class WorkflowWidget(QtGui.QWidget):
         self._action_annotation = self._mainWindow.findChild(QtGui.QAction, "actionAnnotation")
         self._createMenuItems()
 
+        model = self._workflowManager.getFilteredStepModel()
+        self._ui.stepTreeView.setModel(model)
+
         self.updateStepTree()
         self.applyOptions()
 
         self._updateUi()
+
+        self._makeConnections()
+
+    def _makeConnections(self):
+        self._ui.lineEditFilter.textChanged.connect(self._filterTextChanged)
+
+    def _filterTextChanged(self, text):
+        reg_exp = QtCore.QRegExp(text, QtCore.Qt.CaseInsensitive)
+#         self._workflowManager.getFilteredStepModel().setFilterRegExp(reg_exp)
+        self._ui.stepTreeView.setFilterRegExp(reg_exp)
 
     def _updateUi(self):
         if hasattr(self, '_mainWindow'):
@@ -105,18 +117,16 @@ class WorkflowWidget(QtGui.QWidget):
             self.action_NewPMR.setEnabled(widget_visible)
             self.action_Open.setEnabled(widget_visible)
             self.action_Execute.setEnabled(workflow_open and widget_visible)
+            self.action_Continue.setEnabled(workflow_open and not widget_visible)
 
     def updateStepTree(self):
-        self._ui.stepTree.clear()
-        for step in WorkflowStepMountPoint.getPlugins(''):
-            self._ui.stepTree.addStep(step)
+        self._ui.stepTreeView.expandAll()
 
     def applyOptions(self):
         om = self._mainWindow.model().optionsManager()
         show_step_names = om.getOption(SHOW_STEP_NAMES)
-        if show_step_names:
-            self._graphicsScene.showStepNames(show_step_names)
-            self._ui.graphicsView.showStepNames(show_step_names)
+        self._graphicsScene.showStepNames(show_step_names)
+        self._ui.graphicsView.showStepNames(show_step_names)
 
     def undoStackIndexChanged(self, index):
         self._mainWindow.model().workflowManager().undoStackIndexChanged(index)
@@ -147,7 +157,7 @@ class WorkflowWidget(QtGui.QWidget):
         if wfm.isModified():
             errors.append('The workflow has not been saved.')
 
-        if not wfm.scene().canExecute():
+        if not wfm.canExecute():
             errors.append('Not all steps in the workflow have been '
                 'successfully configured.')
 
@@ -163,6 +173,9 @@ class WorkflowWidget(QtGui.QWidget):
             ))
             QtGui.QMessageBox.critical(self, 'Workflow Execution', error_msg,
                 QtGui.QMessageBox.Ok)
+
+    def continueWorkflow(self):
+        self.executeNext()
 
     def identifierOccursCount(self, identifier):
         return self._mainWindow.model().workflowManager().identifierOccursCount(identifier)
@@ -345,9 +358,10 @@ class WorkflowWidget(QtGui.QWidget):
          5. Check for errors
          6. Update step tree
         '''
-        m = self._mainWindow.model().workflowManager()
-        steps_to_install = m.checkPlugins(workflowDir)
-        dependencies_to_install = m.checkDependencies(workflowDir)
+#         wm = self._mainWindow.model().workflowManager()
+        pm = self._mainWindow.model().pluginManager()
+        steps_to_install = pm.checkPlugins(workflowDir)
+        dependencies_to_install = pm.checkDependencies(workflowDir)
         if steps_to_install or dependencies_to_install:
             download_dependencies, download_plugins = self.showDownloadableContent(plugins=steps_to_install, dependencies=dependencies_to_install)
             if download_dependencies:
@@ -357,8 +371,9 @@ class WorkflowWidget(QtGui.QWidget):
 
 #         pm = self._mainWindow.model().pluginManager()
 #         pm.load()
-        self._mainWindow.showPluginErrors()
-        self.updateStepTree()
+        if pm.haveErrors():
+            self._mainWindow.showPluginErrorsDialog()
+            self.updateStepTree()
 
     def importFromPMR(self):
         m = self._mainWindow.model().workflowManager()
@@ -375,9 +390,6 @@ class WorkflowWidget(QtGui.QWidget):
                 except (ValueError, WorkflowError) as e:
                     logger.error('Invalid Workflow.  ' + str(e))
                     QtGui.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + str(e))
-            else:
-                QtGui.QMessageBox.critical(self, 'Error Caught', 'Invalid Import Settings.  Either the workspace url (%s) was not set' \
-                                           ' or the destination directory (%s) does not exist. ' % (workspace_url, destination_dir))
 
     def updateFromPMR(self):
         self._updateFromPMR()
@@ -503,7 +515,7 @@ class WorkflowWidget(QtGui.QWidget):
 
     def _createMenuItems(self):
         menu_File = self._mainWindow.menubar.findChild(QtGui.QMenu, 'menu_File')
-        menu_Project = self._mainWindow.menubar.findChild(QtGui.QMenu, 'menu_Project')
+        menu_Workflow = self._mainWindow.menubar.findChild(QtGui.QMenu, 'menu_Workflow')
 
         lastFileMenuAction = menu_File.actions()[-1]
         menu_New = QtGui.QMenu('&New', menu_File)
@@ -517,14 +529,16 @@ class WorkflowWidget(QtGui.QWidget):
         self._setActionProperties(self.action_Open, 'action_Open', self.open, 'Ctrl+O', 'Open an existing Workflow')
         self.action_Import = QtGui.QAction('I&mport', menu_File)
         self._setActionProperties(self.action_Import, 'action_Import', self.importFromPMR, 'Ctrl+M', 'Import existing Workflow from PMR')
-        self.action_Update = QtGui.QAction('&Udate', menu_File)
+        self.action_Update = QtGui.QAction('&Update', menu_File)
         self._setActionProperties(self.action_Update, 'action_Update', self.updateFromPMR, 'Ctrl+U', 'update existing PMR Workflow')
         self.action_Close = QtGui.QAction('&Close', menu_File)
         self._setActionProperties(self.action_Close, 'action_Close', self.close, 'Ctrl+W', 'Close open Workflow')
         self.action_Save = QtGui.QAction('&Save', menu_File)
         self._setActionProperties(self.action_Save, 'action_Save', self.save, 'Ctrl+S', 'Save Workflow')
-        self.action_Execute = QtGui.QAction('E&xecute', menu_Project)
+        self.action_Execute = QtGui.QAction('E&xecute', menu_Workflow)
         self._setActionProperties(self.action_Execute, 'action_Execute', self.executeWorkflow, 'Ctrl+X', 'Execute Workflow')
+        self.action_Continue = QtGui.QAction('&Continue', menu_Workflow)
+        self._setActionProperties(self.action_Continue, 'action_Continue', self.continueWorkflow, 'Ctrl+T', 'Continue executing Workflow')
 
         menu_New.insertAction(QtGui.QAction(self), self.action_NewPMR)
         menu_New.insertAction(QtGui.QAction(self), self.action_New)
@@ -538,6 +552,7 @@ class WorkflowWidget(QtGui.QWidget):
         menu_File.insertSeparator(lastFileMenuAction)
         menu_File.insertAction(lastFileMenuAction, self.action_Save)
         menu_File.insertSeparator(lastFileMenuAction)
-        menu_Project.addAction(self.action_Execute)
+        menu_Workflow.addAction(self.action_Execute)
+        menu_Workflow.addAction(self.action_Continue)
 
 

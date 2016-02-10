@@ -49,14 +49,13 @@ class HeaderDelegate(QtGui.QStyledItemDelegate):
         else:
             super(HeaderDelegate, self).paint(painter, option, index)
 
-
 class StepTree(QtGui.QTreeWidget):
 
     def __init__(self, parent=None):
         super(StepTree, self).__init__(parent)
-        self.stepIconSize = 64
         self.setItemDelegate(HeaderDelegate())
 
+        self.stepIconSize = 64
         size = QtCore.QSize(self.stepIconSize, self.stepIconSize)
         self.setIconSize(size)
         self.setColumnCount(1)
@@ -145,7 +144,7 @@ class StepTree(QtGui.QTreeWidget):
         pixmap = pixmap.scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
         hotspot = QtCore.QPoint(pixmap.width() / 2, pixmap.height() / 2)
 
-        name = step.getName()  # bytearray(step.getName(), sys.stdout.encoding)
+        name = step.getName().encode('utf-8')  # bytearray(step.getName(), sys.stdout.encoding)
         dataStream.writeUInt32(len(name))
         dataStream.writeRawData(name)
 

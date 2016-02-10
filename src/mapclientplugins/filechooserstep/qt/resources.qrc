@@ -1,0 +1,6 @@
+
+<RCC>
+  <qresource prefix="filechooserstep">
+    <file>images/data-source.png</file>
+  </qresource>
+</RCC>

@@ -90,6 +90,21 @@ class WizardDialog(QtGui.QWizard):
 #         self.setPixmap(QtGui.QWizard.BackgroundPixmap, QtGui.QPixmap(':/wizard/images/background.png'))
         self._options = SkeletonOptions()
 
+    def setPreviousWriteStepLocation(self, location):
+        page = self.page(5)
+        page.setDirectory(location)
+
+    def setPreviousIconLocation(self, location):
+        page = self.page(1)
+        page.setPreviousLocation(location)
+
+    def getPreviousWriteStepLocation(self):
+        return self.field(OUTPUT_DIRECTORY_FIELD)
+
+    def getPreviousIconLocation(self):
+        icon_file = self.field(IMAGE_FILE_FIELD)
+        return os.path.dirname(icon_file)
+
     def getOptions(self):
         return self._options
 
@@ -167,6 +182,8 @@ class NameWizardPage(QtGui.QWizardPage):
         self._ui = Ui_Name()
         self._ui.setupUi(self)
 
+        self._previous_location = ''
+
         self._invalidPixmap = QtGui.QPixmap(':wizard/images/cross.png')
         self._invalidNameLabel = QtGui.QLabel(self)
         self._invalidNameLabel.setStyleSheet('border: none; padding: 0px;')
@@ -212,8 +229,9 @@ class NameWizardPage(QtGui.QWizardPage):
         self._ui.iconLineEdit.setText(image_file)
 
     def _chooseImage(self):
-        image, _ = QtGui.QFileDialog.getOpenFileName(self, caption='Choose Image File', options=QtGui.QFileDialog.ReadOnly)
+        image, _ = QtGui.QFileDialog.getOpenFileName(self, caption='Choose Image File', dir=self._previous_location, options=QtGui.QFileDialog.ReadOnly)
         if len(image) > 0:
+            self._previous_location = os.path.dirname(image)
             self._ui.iconLineEdit.setText(image)
 
     def _updateImage(self):
@@ -244,6 +262,9 @@ class NameWizardPage(QtGui.QWizardPage):
         painter.end()
 
         return background_image
+
+    def setPreviousLocation(self, location):
+        self._previous_location = location
 
     def resizeEvent(self, event):
         rect = self._ui.nameLineEdit.rect()
@@ -425,6 +446,9 @@ class OutputWizardPage(QtGui.QWizardPage):
         directory = QtGui.QFileDialog.getExistingDirectory(self, caption='Select Output Directory', directory=self._ui.directoryLineEdit.text(), options=QtGui.QFileDialog.ShowDirsOnly | QtGui.QFileDialog.DontResolveSymlinks | QtGui.QFileDialog.ReadOnly)
         if len(directory) > 0:
             self._ui.directoryLineEdit.setText(directory)
+
+    def setDirectory(self, location):
+        self._ui.directoryLineEdit.setText(location)
 
     def resizeEvent(self, event):
         rect = self._ui.directoryLineEdit.rect()

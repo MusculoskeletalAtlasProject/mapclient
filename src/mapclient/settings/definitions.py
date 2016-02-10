@@ -44,4 +44,7 @@ PLUGINS_PACKAGE_NAME = 'mapclientplugins'
 PLUGINS_PTH = PLUGINS_PACKAGE_NAME + '.pth'
 MAIN_MODULE = '__init__'
 
+# Options for previous locations
+PREVIOUS_PW_WRITE_STEP_LOCATION = 'previous_write_step_location'
+PREVIOUS_PW_ICON_LOCATION = 'previous_icon_location'
 
