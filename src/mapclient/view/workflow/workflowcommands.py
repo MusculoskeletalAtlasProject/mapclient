@@ -17,13 +17,16 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
+import logging
 from PySide import QtGui
 
 from mapclient.view.workflow.workflowgraphicsitems import Node
 
+logger = logging.getLogger()
+
+
 class CommandRemove(QtGui.QUndoCommand):
-    '''
-    '''
+
     def __init__(self, scene, selection):
         super(CommandRemove, self).__init__()
         self._scene = scene
@@ -51,12 +54,14 @@ class CommandRemove(QtGui.QUndoCommand):
 
 
 class CommandSelection(QtGui.QUndoCommand):
-    '''
+    """
     We block signals  when setting the selection so that we
     don't end up in a recursive loop.
-    '''
+    """
+
     def __init__(self, scene, selection, previous):
         super(CommandSelection, self).__init__()
+        logger.debug("Selection Command created ...")
         self._scene = scene
         self._selection = selection
         self._previousSelection = previous
@@ -75,8 +80,7 @@ class CommandSelection(QtGui.QUndoCommand):
 
 
 class CommandAdd(QtGui.QUndoCommand):
-    '''
-    '''
+
     def __init__(self, scene, item):
         super(CommandAdd, self).__init__()
         self._scene = scene
@@ -94,8 +98,7 @@ class CommandAdd(QtGui.QUndoCommand):
 
 
 class CommandMove(QtGui.QUndoCommand):
-    '''
-    '''
+
     def __init__(self, node, posFrom, posTo):
         super(CommandMove, self).__init__()
         self._node = node
@@ -111,18 +114,21 @@ class CommandMove(QtGui.QUndoCommand):
 
 class CommandConfigure(QtGui.QUndoCommand):
 
-
-    def __init__(self, scene, node):
+    def __init__(self, scene, node, new_config, old_config):
         super(CommandConfigure, self).__init__()
         self._scene = scene
         self._node = node
+        self._new_config = new_config
+        self._old_config = old_config
 
     def redo(self):
+        self._node.setConfig(self._new_config)
         self._node.update()
 #        for item in self._scene.items():
 #            item.update()
 
     def undo(self):
+        self._node.setConfig(self._old_config)
         self._node.update()
 #        for item in self._scene.items():
 #            item.update()

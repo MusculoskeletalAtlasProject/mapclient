@@ -21,7 +21,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 from __future__ import absolute_import
 import ctypes
 
-import os, sys, locale
+import sys, locale
 import logging
 from logging import handlers
 
@@ -53,14 +53,6 @@ def initialiseLogger(log_path):
     logging.getLogger().addHandler(rotatingFH)
     rotatingFH.doRollover()
 
-#     logging.addLevelName(28, 'MSG')
-
-#     ch = logging.StreamHandler()
-#     ch.setLevel(28)
-#     formatter = logging.Formatter('%(message)s')
-#     ch.setFormatter(formatter)
-
-#     logger.addHandler(ch)
 
 
 def progheader():
@@ -88,6 +80,12 @@ def winmain():
 
     from PySide import QtGui
     app = QtGui.QApplication(sys.argv)
+
+    try:
+        from opencmiss.zinc.context import Context
+        Context("MAP")
+    except ImportError:
+        logger.warning('OpenCMISS-Zinc is not available.')
 
     # Set the default organisation name and application name used to store application settings
     info.setApplicationsSettings(app)
@@ -120,30 +118,40 @@ class ConsumeOutput(object):
 def main():
     locale.setlocale(locale.LC_ALL, '')
 
-    from optparse import OptionParser
-    from PySide import QtCore
-    app = QtCore.QCoreApplication(sys.argv)
-
+#     from optparse import OptionParser
+    from PySide import QtGui
+#     app = QtCore.QCoreApplication(sys.argv)
+    app = QtGui.QApplication(sys.argv)
     logging.basicConfig(level='DEBUG')
 
-    # Set the default organisation name and application name used to store application settings
-    QtCore.QCoreApplication.setOrganizationName(info.ORGANISATION_NAME)
-    QtCore.QCoreApplication.setOrganizationDomain(info.ORGANISATION_DOMAIN)
-    QtCore.QCoreApplication.setApplicationName(info.APPLICATION_NAME)
+    info.setApplicationsSettings(app)
 
     old_stdout = sys.stdout
-    sys.stdout = redirectstdout = ConsumeOutput()
+    sys.stdout = ConsumeOutput()
+#     sys.stdout = redirectstdout = ConsumeOutput()
     progheader()
     sys.stdout = old_stdout
-    versionstring = ''.join(redirectstdout.messages)
 
-    progname = os.path.splitext(__file__)[0]
-    usage = 'usage: {0} [options] workflow\n    Execute the given workflow'.format(progname)
-    parser = OptionParser(usage, version=versionstring)
-    options, args = parser.parse_args()
+    from mapclient.core.mainapplication import MainApplication
+    model = MainApplication()
+    model.readSettings()
 
-    print(sys.argv)
-    print(options, args)
+    wm = model.workflowManager()
+    pm = model.pluginManager()
+
+    pm.load()
+    try:
+        wm.load(sys.argv[1])
+    except:
+        logger.error('Not a valid workflow location: {0}'.format(sys.argv[1]))
+        sys.exit(-1)
+
+    wm.registerDoneExecutionForAll(wm.execute)
+
+    if wm.canExecute():
+        wm.execute()
+    else:
+        logger.error('Could not execute workflow.')
 
     # Possibly don't need to run app.exec_()
     sys.exit(app.quit())

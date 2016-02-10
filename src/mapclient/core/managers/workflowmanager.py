@@ -18,13 +18,14 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
 import os
-import shutil
 import logging
 
-from PySide import QtCore
+from PySide import QtCore, QtGui
 
 from mapclient.settings import info
 from mapclient.core.workflow.workflowscene import WorkflowScene
+from mapclient.core.workflow.workflowsteps import WorkflowSteps, \
+    WorkflowStepsFilter
 from mapclient.core.workflow.workflowerror import WorkflowError
 from mapclient.core.workflow.workflowrdf import serializeWorkflowAnnotation
 from mapclient.settings.general import getConfigurationFile, \
@@ -65,8 +66,12 @@ class WorkflowManager(object):
 
         self._title = None
 
-        self._plugin_database = None
         self._scene = WorkflowScene(self)
+        self._steps = WorkflowSteps(self)
+        self._filtered_steps = WorkflowStepsFilter()
+#         self._filtered_steps = QtGui.QSortFilterProxyModel()
+        self._filtered_steps.setSourceModel(self._steps)
+#         self._filtered_steps.setFilterKeyColumn(-1)
 
     def title(self):
         self._title = info.APPLICATION_NAME
@@ -97,6 +102,16 @@ class WorkflowManager(object):
     def scene(self):
         return self._scene
 
+    def getStepModel(self):
+        return self._steps
+
+    def getFilteredStepModel(self):
+        return self._filtered_steps
+
+    def updateAvailableSteps(self):
+        self._steps.reload()
+        self._filtered_steps.sort(QtCore.Qt.AscendingOrder)
+
     def undoStackIndexChanged(self, index):
         self._currentStateIndex = index
 
@@ -106,13 +121,22 @@ class WorkflowManager(object):
     def execute(self):
         self._scene.execute()
 
+    def canExecute(self):
+        return self._scene.canExecute()
+
+    def registerDoneExecutionForAll(self, callback):
+        self._scene.registerDoneExecutionForAll(callback)
+
     def isModified(self):
         return self._saveStateIndex != self._currentStateIndex
 
     def changeIdentifier(self, old_identifier, new_identifier):
         old_config = getConfigurationFile(self._location, old_identifier)
         new_config = getConfigurationFile(self._location, new_identifier)
-        shutil.move(old_config, new_config)
+        try:
+            os.rename(old_config, new_config)
+        except OSError:
+            pass
 
     def new(self, location):
         '''
@@ -178,7 +202,6 @@ class WorkflowManager(object):
         if 'version' not in wf.allKeys():
             wf.setValue('version', info.VERSION_STRING)
         self._scene.saveState(wf)
-        self._plugin_database.saveState(wf, self._scene)
         self._saveStateIndex = self._currentStateIndex
         af = _getWorkflowMetaAbsoluteFilename(self._location)
         f = open(af, 'w')
