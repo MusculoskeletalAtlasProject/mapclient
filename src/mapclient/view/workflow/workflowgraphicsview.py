@@ -29,6 +29,7 @@ from mapclient.view.workflow.workflowgraphicsitems import Node, Arc, ErrorItem, 
 
 logger = logging.getLogger()
 
+
 class WorkflowGraphicsView(QtGui.QGraphicsView):
 
     def __init__(self, parent=None):
