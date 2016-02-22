@@ -35,16 +35,20 @@ logger = logging.getLogger(__name__)
 
 _PREVIOUS_LOCATION_STRING = 'previousLocation'
 
+
 def _getWorkflowConfiguration(location):
 #     print('get workflow confiburation: ' + location)
     return QtCore.QSettings(_getWorkflowConfigurationAbsoluteFilename(location), QtCore.QSettings.IniFormat)
+
 
 def _getWorkflowConfigurationAbsoluteFilename(location):
 #     print('get workflow configuration abs filename: ' + os.path.join(location, info.DEFAULT_WORKFLOW_PROJECT_FILENAME))
     return os.path.join(location, info.DEFAULT_WORKFLOW_PROJECT_FILENAME)
 
+
 def _getWorkflowMetaAbsoluteFilename(location):
     return os.path.join(location, info.DEFAULT_WORKFLOW_ANNOTATION_FILENAME)
+
 
 class WorkflowManager(object):
     '''

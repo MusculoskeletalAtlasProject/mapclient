@@ -19,12 +19,14 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
 from __future__ import absolute_import
+import os
 import ctypes
 
 import sys, locale
 import logging
 from logging import handlers
 
+os.environ['ETS_TOOLKIT'] = 'qt4'
 # With PEP366 we need to conditionally import the settings module based on
 # whether we are executing the file directly of indirectly.  This is my
 # workaround.
