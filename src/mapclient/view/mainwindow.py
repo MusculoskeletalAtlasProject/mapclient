@@ -22,10 +22,8 @@ import logging
 from PySide import QtGui
 
 from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
-# from mapclient.mountpoints.stackedwidget import StackedWidgetMountPoint
 from mapclient.view.workflow.workflowwidget import WorkflowWidget
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
-from mapclient.settings.general import getVirtEnvDirectory
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, WIZARD_TOOL_STRING, \
     VIRTUAL_ENVIRONMENT_STRING, PMR_TOOL_STRING, PYSIDE_RCC_EXE, PYSIDE_UIC_EXE, \
     PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION
@@ -34,6 +32,7 @@ from mapclient.view.utils import set_wait_cursor
 logger = logging.getLogger(__name__)
 
 ADMIN_MODE = False
+
 
 class MainWindow(QtGui.QMainWindow):
     '''

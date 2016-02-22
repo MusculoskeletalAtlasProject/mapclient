@@ -3,9 +3,10 @@ import platform, sys, os
 from setuptools import setup, find_packages
 from setuptools.command.install import install as _install
 from setuptools.command.develop import develop as _develop
+from mapclient.settings.info import VERSION_STRING
 
 # Version, this should match the value in mapclient.settings.info
-version = '0.12.0'
+version = VERSION_STRING
 # Define the list of requirments
 install_requires = ['rdflib',
                     'virtualenv',
@@ -33,10 +34,12 @@ except ImportError:
     # Python < 2.7 doesn't have importlib in the core distribution
     install_requires.append('importlib')
 
+
 def createApplication(install_dir):
     from subprocess import call
     call([sys.executable, 'shimbundle.py', 'MAP Client', version],
           cwd=os.path.join(install_dir, 'mapclient', 'tools', 'osxapp'))
+
 
 # For OS X we want to install MAP Client into the Applications directory
 class install(_install):
