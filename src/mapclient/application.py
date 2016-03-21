@@ -26,6 +26,11 @@ import sys, locale
 import logging
 from logging import handlers
 
+# import matplotlib
+
+# Set toolbox settings here
+# matplotlib.use('Qt4Agg')
+# matplotlib.rcParams['backend.qt4']='PySide'
 os.environ['ETS_TOOLKIT'] = 'qt4'
 # With PEP366 we need to conditionally import the settings module based on
 # whether we are executing the file directly of indirectly.  This is my
@@ -83,18 +88,20 @@ def winmain():
     from PySide import QtGui
     app = QtGui.QApplication(sys.argv)
 
-    try:
-        from opencmiss.zinc.context import Context
-        Context("MAP")
-    except ImportError:
-        logger.warning('OpenCMISS-Zinc is not available.')
-
     # Set the default organisation name and application name used to store application settings
     info.setApplicationsSettings(app)
 
     log_path = getLogLocation()
     initialiseLogger(log_path)
     progheader()
+
+    logger.info('Setting toolbox settings for matplotlib and enthought to: qt4')
+
+    try:
+        from opencmiss.zinc.context import Context
+        Context("MAP")
+    except ImportError:
+        logger.warning('OpenCMISS-Zinc is not available.')
 
     from mapclient.core.mainapplication import MainApplication
     model = MainApplication()
@@ -104,7 +111,13 @@ def winmain():
     window.show()
 
     # Run Checks
-    window.checkApplicationSetup()
+    if not window.checkApplicationSetup():
+        window.setupApplication()
+
+        if not window.checkApplicationSetup():
+            window.showOptionsDialog(current_tab=1)
+
+    window.loadPlugins()
 
     return app.exec_()
 
