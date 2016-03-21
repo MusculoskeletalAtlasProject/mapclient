@@ -129,6 +129,19 @@ def _workflow_step_getPortData(self, index):
 def _workflow_step_setPortData(self, index, dataIn):
     pass
 
+def _workflow_step_get_source_uri(self):
+    if hasattr(self, '__module__'):
+        module = self.__module__
+        module_sep = module.split('.')
+        module_sep = module_sep[:2]
+        package = '.'.join(module_sep)
+        import importlib
+        p = importlib.import_module(package)
+        if hasattr(p, '__location__'):
+            return p.__location__
+
+    return None
+
 def _workflow_step_registerDoneExecution(self, observer):
     self._doneExecution = observer
 
@@ -187,6 +200,7 @@ attr_dict['addPort'] = _workflow_step_addPort
 attr_dict['getName'] = _workflow_step_getName
 attr_dict['deserialize'] = _workflow_step_deserialize
 attr_dict['serialize'] = _workflow_step_serialize
+attr_dict['getSourceURI'] = _workflow_step_get_source_uri
 
 WorkflowStepMountPoint = pluginframework.MetaPluginMountPoint('WorkflowStepMountPoint', (object,), attr_dict)
 

@@ -148,7 +148,9 @@ class WorkflowWidget(QtGui.QWidget):
         try:
             self._mainWindow.execute()
         except WorkflowError as e:
-            raise ClientRuntimeError('Error in workflow execution', e.message)
+            print('=================')
+            print(dir(e))
+            # raise ClientRuntimeError('Error in workflow execution', e)
 
     def executeWorkflow(self):
         wfm = self._mainWindow.model().workflowManager()

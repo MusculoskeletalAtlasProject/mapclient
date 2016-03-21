@@ -6,17 +6,18 @@ Created on May 19, 2015
 import os, sys
 import logging
 import subprocess
-import site
 import json
 import pkgutil
 import traceback
 
-from mapclient.core.utils import which
+from mapclient.core.utils import which, is_frozen
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     VIRTUAL_ENV_SETUP_ATTEMPTED, PLUGINS_PACKAGE_NAME, PLUGINS_PTH
 from mapclient.core.checks import getPipExecutable
 
 from importlib import import_module
+if not is_frozen():
+    import site
 
 # if sys.version_info < (3, 0):
 #     import imp
@@ -225,10 +226,24 @@ class PluginManager(object):
     def _addPluginDir(self, directory):
         added = False
         if isMapClientPluginsDir(directory):
-            site.addsitedir(directory)
+            if is_frozen():
+                sys.path.append(directory)
+            else:
+                site.addsitedir(directory)
             added = True
 
         return added
+
+    def installPackage(self, uri):
+        if self._virtualenv_enabled:
+            pip_exe = getPipExecutable(self._virtualenv_dir)
+
+            install_report = subprocess.check_output([pip_exe, 'install', uri])
+            # install_report = install_report.decode('utf-8')
+            logger.info(install_report)
+            self.reloadPlugins()
+        else:
+            logger.info('VirtualEnv not enabled no install functionality available.')
 
     def extractPluginDependencies(self, path):
         return []
@@ -274,11 +289,11 @@ class PluginManager(object):
         if len_package_modules_prior == 0:
             package = import_module(PLUGINS_PACKAGE_NAME)
         else:
-            package = reload(sys.modules[PLUGINS_PACKAGE_NAME])
-#             try:
-#                 package = imp.reload(sys.modules[PLUGINS_PACKAGE_NAME])
-#             except Exception:
-#                 package = importlib.reload(sys.modules[PLUGINS_PACKAGE_NAME])
+            if sys.version_info < (3, 0):
+                package = reload(sys.modules[PLUGINS_PACKAGE_NAME])
+            else:
+                import importlib
+                package = importlib.reload(sys.modules[PLUGINS_PACKAGE_NAME])
         self._import_errors = []
         self._type_errors = []
         self._syntax_errors = []
@@ -423,7 +438,7 @@ def isMapClientPluginsDir(plugin_dir):
         init_file = os.path.join(plugin_dir, PLUGINS_PACKAGE_NAME, '__init__.py')
         if os.path.isfile(init_file):
             contents = open(init_file).read()
-            if 'pkgutil' in contents and 'extend_path' in contents:
+            if 'pkg_resources' in contents and 'declare_namespace' in contents:
                 result = True
 
     return result
@@ -452,7 +467,10 @@ class PluginSiteManager(object):
             f.write('\n'.join(pth_entries))
 
     def load_site(self, target_dir):
-        site.addsitedir(target_dir)
+        if is_frozen():
+            sys.path.append(target_dir)
+        else:
+            site.addsitedir(target_dir)
 
 class PluginDatabase:
     '''
