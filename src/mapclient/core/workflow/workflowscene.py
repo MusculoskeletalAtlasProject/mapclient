@@ -37,7 +37,7 @@ class Item(object):
     def __init__(self):
         self._selected = True
 
-    def selected(self):
+    def getSelected(self):
         return self._selected
 
     def setSelected(self, selected):
@@ -45,7 +45,6 @@ class Item(object):
 
 
 class MetaStep(Item):
-
 
     Type = 'Step'
 
@@ -56,8 +55,11 @@ class MetaStep(Item):
         self._uid = str(uuid.uuid1())
         self._id = step.getIdentifier()
 
-    def pos(self):
+    def getPos(self):
         return self._pos
+
+    def getStep(self):
+        return self._step
 
     def getName(self):
         return self._step.getName()
@@ -223,7 +225,7 @@ class WorkflowDependencyGraph(object):
 
         self._topologicalOrder = self._determineTopologicalOrder(self._dependencyGraph, starting_set)
 
-        configured = [metastep for metastep in self._topologicalOrder if metastep._step.isConfigured()]
+        configured = [metastep for metastep in self._topologicalOrder if metastep.getStep().isConfigured()]
         can = len(configured) == len(self._topologicalOrder) and len(self._topologicalOrder) >= 0
         return can and self._current == -1
 
@@ -257,11 +259,11 @@ class WorkflowDependencyGraph(object):
                     # dataIn = source_step.getPortData(source_data_index)
                     # destination_step.setPortData(destination_data_index, dataIn)
 
-                    dataIn = connection.source()._step.getPortData(connection.sourceIndex())
-                    current_node._step.setPortData(connection.destinationIndex(), dataIn)
+                    dataIn = connection.source().geStep().getPortData(connection.sourceIndex())
+                    current_node.getStep().setPortData(connection.destinationIndex(), dataIn)
 
             try:
-                current_node._step.execute()
+                current_node.getStep().execute()
             except Exception as e:
                 self._current = -1
                 log_message = 'Exception caught while executing the workflow: ' + convertExceptionToMessage(e)
@@ -283,6 +285,14 @@ class WorkflowScene(object):
 
     def saveAnnotation(self, f):
         pass
+
+    def updateWorkflowLocation(self, location):
+        for meta_item in self._items:
+            if meta_item.Type == MetaStep.Type:
+                step = meta_item.getStep()
+                step.setLocation(location)
+                step.deserialize(step.serialize())
+                step._configuredObserver()
 
     def saveState(self, ws):
         connectionMap = {}
@@ -308,16 +318,17 @@ class WorkflowScene(object):
                 metastep.syncIdentifier()
 
             identifier = metastep.getIdentifier() or metastep.getUniqueIdentifier()
-            step_config = metastep._step.serialize()
+            step = metastep.getStep()
+            step_config = step.serialize()
             with open(getConfigurationFile(location, identifier), 'w') as f:
                 f.write(step_config)
             ws.setArrayIndex(nodeIndex)
-            source_uri = metastep._step.getSourceURI()
+            source_uri = step.getSourceURI()
             if source_uri is not None:
                 ws.setValue('source_uri', source_uri)
-            ws.setValue('name', metastep._step.getName())
-            ws.setValue('position', metastep._pos)
-            ws.setValue('selected', metastep._selected)
+            ws.setValue('name', step.getName())
+            ws.setValue('position', metastep.getPos())
+            ws.setValue('selected', metastep.getSelected())
             ws.setValue('identifier', identifier)
             ws.setValue('unique_identifier', metastep.getUniqueIdentifier())
             ws.beginWriteArray('connections')
@@ -396,8 +407,8 @@ class WorkflowScene(object):
             metastep = MetaStep(step)
             metastep.setIdentifier(identifier)
             metastep.setUniqueIdentifier(uniqueIdentifier)
-            metastep._pos = position
-            metastep._selected = selected
+            metastep.setPos(position)
+            metastep.setSelected(selected)
             metaStepList.append(metastep)
             self.addItem(metastep)
 
@@ -435,7 +446,7 @@ class WorkflowScene(object):
     def registerDoneExecutionForAll(self, callback):
         for item in self._items:
             if item.Type == MetaStep.Type:
-                item._step.registerDoneExecution(callback)
+                item.getStep.registerDoneExecution(callback)
 
     def clear(self):
         self._items.clear()

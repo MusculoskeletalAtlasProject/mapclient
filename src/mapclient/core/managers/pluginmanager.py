@@ -119,7 +119,7 @@ class PluginManager(object):
         print('implement me')
 
     def checkDependencies(self, wf_location):
-        print('implment me')
+        print('implement me')
 
     def list(self):
         if self._virtualenv_enabled:
