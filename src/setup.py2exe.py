@@ -50,13 +50,13 @@ print(additional_dlls)
 APP = [{
     'script': 'mapclient/application.py',       ### Main Python script
     'icon_resources': [(0, '../res/win/MAPClient.ico')], ### Icon to embed into the PE file.
-    'dest_base' : 'MAP-Client'
+    'dest_base' : 'MAP Client'
 }]
 
 site_packages_dir = site.getsitepackages()[1]
 DATA_FILES = [('.', additional_dlls)]
 PACKAGES = find_packages(exclude=['tests', 'tests.*', ])
-PACKAGES.extend(['numpy', 'scipy', 'gias2', 'pkg_resources', 'opencmiss'])
+PACKAGES.extend(['numpy', 'scipy', 'gias2', 'pkg_resources', 'opencmiss', 'virtualenv'])
 EXCLUDES = ['numpy.distutils.tests',]
 OPTIONS = {'py2exe': {
         'packages': PACKAGES,

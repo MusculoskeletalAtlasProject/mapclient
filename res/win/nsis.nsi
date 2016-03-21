@@ -5,7 +5,7 @@
   
   !define APP_NAME "MAP Client"
   !define APP_VERSION "0.12.0"
-  !define APP_ORGANISATION "MSK"
+  !define APP_ORGANISATION "MAP"
   !define VERSION "1.0.0"
   !define PATCH  "1"
   !define INST_DIR "..\..\src\dist"
