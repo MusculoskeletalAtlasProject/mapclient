@@ -85,9 +85,9 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
                 # Put the node into the scene straight away so that the items scene will
                 # be valid when we set the position.
                 QtGui.QGraphicsScene.addItem(self, node)
-                node.setPos(workflowitem.pos())
+                node.setPos(workflowitem.getPos())
                 self.blockSignals(True)
-                node.setSelected(workflowitem.selected())
+                node.setSelected(workflowitem.getSelected())
                 self.blockSignals(False)
                 meta_steps[workflowitem] = node
             elif workflowitem.Type == Connection.Type:

@@ -255,7 +255,7 @@ class WorkflowWidget(QtGui.QWidget):
                     logger.exception('Error creating new')
                     self.close()
                     raise ClientRuntimeError(
-                        'Error Creating New', e.message)
+                        'Error Creating New', e)
             else:
                 raise ClientRuntimeError('Error Creating New', "Client doesn't have access to PMR")
 
@@ -443,7 +443,7 @@ class WorkflowWidget(QtGui.QWidget):
             workflow_dir = self._getWorkflowDir()
             if workflow_dir:
                 m.setPreviousLocation(workflow_dir)
-                m.setLocation(workflow_dir)
+                m.updateLocation(workflow_dir)
         if m.location():
             m.save()
             if self.commitChanges(m.location()):
