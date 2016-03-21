@@ -3,6 +3,8 @@ Created on Aug 18, 2015
 
 @author: hsorby
 '''
+import sys
+
 from PySide import QtCore, QtGui
 
 
@@ -82,7 +84,11 @@ class WorkflowStepTreeView(QtGui.QTreeView):
 
             name = step.getName().encode('utf-8')  # bytearray(step.getName(), sys.stdout.encoding)
             dataStream.writeUInt32(len(name))
-            dataStream.writeRawData(name)
+            if sys.version_info < (3, 0):
+                dataStream.writeRawData(name)
+            else:
+                buf = QtCore.QByteArray(name)
+                dataStream << buf#.writeRawData(name)
 
             dataStream << hotspot
 

@@ -5,6 +5,7 @@ Created on Jun 26, 2015
 '''
 import subprocess
 import os.path
+import platform
 
 from PySide import QtCore
 
@@ -113,27 +114,29 @@ class VCSChecks(ApplicationChecks):
         return result
 
 def runChecks(options):
+    check_status = True
     checks_wizard = WizardToolChecks(options)
     if not checks_wizard.doCheck():
-        return False
+        check_status = False
 
     checks_venv = VirtualEnvChecks(options)
     if not checks_venv.doCheck():
-        return False
+        check_status = False
 
     checks_vcs = VCSChecks(options)
     if not checks_vcs.doCheck():
-        return False
+        check_status = False
 
-    return True
+    return check_status
 
 
 def getPipExecutable(venv_path):
+    python_version = platform.python_version_tuple()
     if os.name == 'nt':
         int_directory = 'Scripts'
     else:
         int_directory = 'bin'
-    pip_exe = which(os.path.join(venv_path, int_directory, 'pip'))
+    pip_exe = which(os.path.join(venv_path, int_directory, 'pip' + python_version[0] + '.' + python_version[1]))
     return pip_exe
 
 
@@ -164,7 +167,7 @@ def getPySideRccExecutable():
             p = subprocess.Popen([pyside_rcc, '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             _, stderr = p.communicate()
             return_code = p.returncode
-            # pyside-rcc returns 1 for all program executions that don't actual compile resources.
+            # pyside-rcc returns 1 for all program executions that don't actually compile resources.
             if return_code == 1 and 'Resource Compiler for Qt version' in stderr.decode('utf-8'):
                 return pyside_rcc
     

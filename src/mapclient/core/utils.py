@@ -21,6 +21,11 @@ import os
 import sys
 from mapclient.settings.general import getConfigurationFile
 
+
+def is_frozen():
+   return hasattr(sys, "frozen")# new py2exe
+
+
 def convertExceptionToMessage(e):
     string_e = str(e)
     if '\n' in string_e:

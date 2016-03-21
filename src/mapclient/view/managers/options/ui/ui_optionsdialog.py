@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt/optionsdialog.ui'
+# Form implementation generated from reading ui file 'qt\optionsdialog.ui'
 #
-# Created: Mon Jun 29 14:45:27 2015
-#      by: pyside-uic 0.2.15 running on PySide 1.2.2
+# Created: Wed Mar  9 13:49:06 2016
+#      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,7 @@ from PySide import QtCore, QtGui
 class Ui_OptionsDialog(object):
     def setupUi(self, OptionsDialog):
         OptionsDialog.setObjectName("OptionsDialog")
-        OptionsDialog.resize(525, 556)
+        OptionsDialog.resize(525, 569)
         self.gridLayout = QtGui.QGridLayout(OptionsDialog)
         self.gridLayout.setObjectName("gridLayout")
         self.buttonBox = QtGui.QDialogButtonBox(OptionsDialog)
@@ -39,11 +39,11 @@ class Ui_OptionsDialog(object):
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.groupBox_3 = QtGui.QGroupBox(self.tabToolSettings)
         self.groupBox_3.setObjectName("groupBox_3")
-        self.formLayout = QtGui.QFormLayout(self.groupBox_3)
-        self.formLayout.setObjectName("formLayout")
+        self.gridLayout_4 = QtGui.QGridLayout(self.groupBox_3)
+        self.gridLayout_4.setObjectName("gridLayout_4")
         self.labelVirtualEnvironmentPath = QtGui.QLabel(self.groupBox_3)
         self.labelVirtualEnvironmentPath.setObjectName("labelVirtualEnvironmentPath")
-        self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.labelVirtualEnvironmentPath)
+        self.gridLayout_4.addWidget(self.labelVirtualEnvironmentPath, 0, 0, 1, 1)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.lineEditVirtualEnvironmentPath = QtGui.QLineEdit(self.groupBox_3)
@@ -57,11 +57,15 @@ class Ui_OptionsDialog(object):
         self.pushButtonVirtualEnvironmentPath = QtGui.QPushButton(self.groupBox_3)
         self.pushButtonVirtualEnvironmentPath.setObjectName("pushButtonVirtualEnvironmentPath")
         self.horizontalLayout_2.addWidget(self.pushButtonVirtualEnvironmentPath)
-        self.formLayout.setLayout(0, QtGui.QFormLayout.FieldRole, self.horizontalLayout_2)
-        self.checkBoxDontCreateVirtualEnvironment = QtGui.QCheckBox(self.groupBox_3)
-        self.checkBoxDontCreateVirtualEnvironment.setEnabled(False)
-        self.checkBoxDontCreateVirtualEnvironment.setObjectName("checkBoxDontCreateVirtualEnvironment")
-        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.checkBoxDontCreateVirtualEnvironment)
+        self.gridLayout_4.addLayout(self.horizontalLayout_2, 0, 1, 1, 1)
+        self.horizontalLayout_4 = QtGui.QHBoxLayout()
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.pushButtonCreate = QtGui.QPushButton(self.groupBox_3)
+        self.pushButtonCreate.setObjectName("pushButtonCreate")
+        self.horizontalLayout_4.addWidget(self.pushButtonCreate)
+        spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_4.addItem(spacerItem1)
+        self.gridLayout_4.addLayout(self.horizontalLayout_4, 1, 1, 1, 1)
         self.verticalLayout_2.addWidget(self.groupBox_3)
         self.groupBox_4 = QtGui.QGroupBox(self.tabToolSettings)
         self.groupBox_4.setObjectName("groupBox_4")
@@ -114,15 +118,15 @@ class Ui_OptionsDialog(object):
         self.verticalLayout.addWidget(self.plainTextEditToolTestOutput)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem1)
+        spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem2)
         self.pushButtonRunChecks = QtGui.QPushButton(self.groupBox)
         self.pushButtonRunChecks.setObjectName("pushButtonRunChecks")
         self.horizontalLayout.addWidget(self.pushButtonRunChecks)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.verticalLayout_2.addWidget(self.groupBox)
-        spacerItem2 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.verticalLayout_2.addItem(spacerItem2)
+        spacerItem3 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout_2.addItem(spacerItem3)
         self.tabWidget.addTab(self.tabToolSettings, "")
         self.gridLayout.addWidget(self.tabWidget, 0, 0, 1, 1)
 
@@ -140,7 +144,8 @@ class Ui_OptionsDialog(object):
         self.labelVirtualEnvironmentPath.setText(QtGui.QApplication.translate("OptionsDialog", "Path:", None, QtGui.QApplication.UnicodeUTF8))
         self.lineEditVirtualEnvironmentPath.setToolTip(QtGui.QApplication.translate("OptionsDialog", "The virtual environment path has some restrictions, for instance it cannot have any spaces in it.", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonVirtualEnvironmentPath.setText(QtGui.QApplication.translate("OptionsDialog", "...", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBoxDontCreateVirtualEnvironment.setText(QtGui.QApplication.translate("OptionsDialog", "Don\'t create a virtual environment", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButtonCreate.setToolTip(QtGui.QApplication.translate("OptionsDialog", "Create a virtual environment at the virtual environment path", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButtonCreate.setText(QtGui.QApplication.translate("OptionsDialog", "Create", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_4.setTitle(QtGui.QApplication.translate("OptionsDialog", "Step Wizard", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("OptionsDialog", "pyside-uic:", None, QtGui.QApplication.UnicodeUTF8))
         self.lineEditPySideUIC.setToolTip(QtGui.QApplication.translate("OptionsDialog", "The PySide User Interface Compiler executable", None, QtGui.QApplication.UnicodeUTF8))
