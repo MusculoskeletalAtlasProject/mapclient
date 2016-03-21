@@ -6,7 +6,7 @@ Usage:
 """
 import site
 from setuptools import setup, find_packages
-from distutils.spawn import find_executable
+from setuputils import which
 import py2exe
 
 from mapclient.settings.info import VERSION_STRING
@@ -23,25 +23,29 @@ install_requires = ['rdflib',
 
 additional_dlls = []
 # Assuming that we are using the mkl libraries from intel
-mkl_core = find_executable('mkl_core.dll')
-mkl_def = find_executable('mkl_def.dll')
-mkl_intel_thread = find_executable('mkl_intel_thread.dll')
+mkl_core = which('mkl_core.dll')
+mkl_def = which('mkl_def.dll')
+mkl_intel_thread = which('mkl_intel_thread.dll')
 additional_dlls.extend([mkl_core, mkl_def, mkl_intel_thread])
 
 # Assuming that we are using mpich2, what test can we perform to confirm this?
-fmpich2 = find_executable('fmpich2.dll')
-libiomp5md = find_executable('libiomp5md.dll')
-mpich2mpi = find_executable('mpich2mpi.dll')
-mpich2nemesis = find_executable('mpich2nemesis.dll')
+fmpich2 = which('fmpich2.dll')
+libiomp5md = which('libiomp5md.dll')
+mpich2mpi = which('mpich2mpi')
+mpich2nemesis = which('mpich2nemesis.dll')
+print(libiomp5md, mpich2mpi, mpich2nemesis)
+print(additional_dlls)
 additional_dlls.extend([fmpich2, libiomp5md, mpich2mpi, mpich2nemesis])
-
+print(additional_dlls)
 # If visual Studio 2015 need UCRTBASE.dll, but not for windows 10?
-ucrtbase = find_executable('ucrtbase.dll')
-msvcp140 = find_executable('msvcp140.dll')
-concrt140 = find_executable('concrt140.dll')
+ucrtbase = which('ucrtbase.dll')
+msvcp140 = which('msvcp140.dll')
+concrt140 = which('concrt140.dll')
 additional_dlls.extend([ucrtbase, msvcp140, concrt140])
+print(additional_dlls)
 
 additional_dlls = [dll[0] for dll in additional_dlls if dll]
+print(additional_dlls)
 
 APP = [{
     'script': 'mapclient/application.py',       ### Main Python script
@@ -50,7 +54,7 @@ APP = [{
 }]
 
 site_packages_dir = site.getsitepackages()[1]
-DATA_FILES = []
+DATA_FILES = [('.', additional_dlls)]
 PACKAGES = find_packages(exclude=['tests', 'tests.*', ])
 PACKAGES.extend(['numpy', 'scipy', 'gias2', 'pkg_resources', 'opencmiss'])
 EXCLUDES = ['numpy.distutils.tests',]
@@ -63,7 +67,7 @@ OPTIONS = {'py2exe': {
 }
 
 setup(
-    windows=APP,
+    console=APP,
     options=OPTIONS,
     data_files=DATA_FILES,
     install_requires=install_requires,
