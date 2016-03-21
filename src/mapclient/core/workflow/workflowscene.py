@@ -312,6 +312,9 @@ class WorkflowScene(object):
             with open(getConfigurationFile(location, identifier), 'w') as f:
                 f.write(step_config)
             ws.setArrayIndex(nodeIndex)
+            source_uri = metastep._step.getSourceURI()
+            if source_uri is not None:
+                ws.setValue('source_uri', source_uri)
             ws.setValue('name', metastep._step.getName())
             ws.setValue('position', metastep._pos)
             ws.setValue('selected', metastep._selected)
@@ -331,6 +334,47 @@ class WorkflowScene(object):
             nodeIndex += 1
         ws.endArray()
         ws.endGroup()
+
+    def isLoadable(self, ws):
+        loadable = True
+        location = self._manager.location()
+        ws.beginGroup('nodes')
+        nodeCount = ws.beginReadArray('nodelist')
+        try:
+            for i in range(nodeCount):
+                ws.setArrayIndex(i)
+                name = ws.value('name')
+                step = workflowStepFactory(name, location)
+
+        except ValueError:
+            loadable = False
+
+        ws.endArray()
+        ws.endGroup()
+        return loadable
+
+    def doStepReport(self, ws):
+        report = {}
+        location = self._manager.location()
+        ws.beginGroup('nodes')
+        node_count = ws.beginReadArray('nodelist')
+        for i in range(node_count):
+            ws.setArrayIndex(i)
+            name = ws.value('name')
+            try:
+                step = workflowStepFactory(name, location)
+                report[name] = 'Found'
+            except ValueError as e:
+                source_uri = ws.value('source_uri', None)
+                if source_uri is not None:
+                    report[name] = source_uri
+                else:
+                    report[name] = 'Not Found - {0}'.format(e)
+
+        ws.endArray()
+        ws.endGroup()
+
+        return report
 
     def loadState(self, ws):
         self.clear()

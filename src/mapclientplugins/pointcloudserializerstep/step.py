@@ -49,7 +49,7 @@ class PointCloudSerializerStep(WorkflowStepMountPoint):
         self._dataIn = None
 
     def configure(self):
-        d = ConfigureDialog(self._state)
+        d = ConfigureDialog(self._state, QtGui.QApplication.activeWindow().currentWidget())
         d.setModal(True)
         if d.exec_():
             self._state = d.getState()

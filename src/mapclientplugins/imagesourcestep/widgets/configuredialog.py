@@ -77,7 +77,6 @@ class ConfigureDialog(QDialog):
     Configure dialog to present the user with the options to configure this step.
     '''
 
-
     def __init__(self, state, parent=None):
         '''
         Constructor
@@ -86,10 +85,9 @@ class ConfigureDialog(QDialog):
         self._ui = Ui_ConfigureDialog()
         self._ui.setupUi(self)
         self._setupPMRTab()
+        self._workflow_location = None
 
         self.setState(state)
-
-        self.validate()
 
         self._makeConnections()
 
@@ -133,10 +131,13 @@ class ConfigureDialog(QDialog):
 
         if location:
             self._ui.previousLocationLabel.setText(location)
-            self._ui.localLineEdit.setText(location)
+            self._ui.localLineEdit.setText(os.path.relpath(location, self._workflow_location))
 
     def _workspaceChanged(self, text):
         pass
+
+    def setWorkflowLocation(self, location):
+        self._workflow_location = location
 
     def _localLocationEdited(self):
         self.validate()
@@ -146,7 +147,7 @@ class ConfigureDialog(QDialog):
 
     def validate(self):
         identifierValid = len(self._ui.identifierLineEdit.text()) > 0
-        localValid = os.path.exists(self._ui.localLineEdit.text())
+        localValid = os.path.exists(os.path.join(self._workflow_location, self._ui.localLineEdit.text()))
         valid = identifierValid
 
         self._ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(valid)

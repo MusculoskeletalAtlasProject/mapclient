@@ -41,6 +41,10 @@ class ImageSourceData(object):
         return self._identifier
 
     def location(self):
+        """
+        Return a location relative to the workflow directory.
+        :return: relative path
+        """
         return self._location
 
     def imageType(self):
@@ -72,7 +76,8 @@ class ImageSourceStep(WorkflowStepMountPoint):
 #         self._threadCommandManager.registerFinishedCallback(self._threadCommandsFinished)
 
     def configure(self):
-        d = ConfigureDialog(self._state)
+        d = ConfigureDialog(self._state, QtGui.QApplication.activeWindow().currentWidget())
+        d.setWorkflowLocation(self._location)
         d.setModal(True)
         if d.exec_():
             self._state = d.getState()
@@ -110,7 +115,8 @@ class ImageSourceStep(WorkflowStepMountPoint):
     def deserialize(self, string):
         self._state.deserialize(string)
         d = ConfigureDialog(self._state)
+        d.setWorkflowLocation(self._location)
         self._configured = d.validate()
 
     def getPortData(self, index):
-        return ImageSourceData(self._state.identifier(), self._state.location(), self._state.imageType())
+        return ImageSourceData(self._state.identifier(), os.path.join(self._location, self._state.location()), self._state.imageType())

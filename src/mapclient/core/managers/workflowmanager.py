@@ -35,27 +35,41 @@ logger = logging.getLogger(__name__)
 
 _PREVIOUS_LOCATION_STRING = 'previousLocation'
 
+
 def _getWorkflowConfiguration(location):
 #     print('get workflow confiburation: ' + location)
     return QtCore.QSettings(_getWorkflowConfigurationAbsoluteFilename(location), QtCore.QSettings.IniFormat)
+
+
+def _getWorkflowRequirements(location):
+    return {}
+
+
+def _getWorkflowRequirementsAbsoluteFilename(location):
+#     print('get workflow requirements abs filename: ' + os.path.join(location, info.DEFAULT_WORKFLOW_PROJECT_FILENAME))
+    return os.path.join(location, info.DEFAULT_WORKFLOW_REQUIREMENTS_FILENAME)
+
 
 def _getWorkflowConfigurationAbsoluteFilename(location):
 #     print('get workflow configuration abs filename: ' + os.path.join(location, info.DEFAULT_WORKFLOW_PROJECT_FILENAME))
     return os.path.join(location, info.DEFAULT_WORKFLOW_PROJECT_FILENAME)
 
+
 def _getWorkflowMetaAbsoluteFilename(location):
     return os.path.join(location, info.DEFAULT_WORKFLOW_ANNOTATION_FILENAME)
+
 
 class WorkflowManager(object):
     '''
     This class manages (models?) the workflow.
     '''
 
-    def __init__(self):
+    def __init__(self, parent):
         '''
         Constructor
         '''
         self.name = 'WorkflowManager'
+        self._parent = parent
 #        self.widget = None
 #        self.widgetIndex = -1
         self._location = ''
@@ -138,6 +152,9 @@ class WorkflowManager(object):
         except OSError:
             pass
 
+    def _checkRequirements(self):
+        requirements_file = _getWorkflowRequirementsAbsoluteFilename(self._location)
+
     def new(self, location):
         '''
         Create a new workflow at the given location.  The location is a directory, it must exist
@@ -194,7 +211,37 @@ class WorkflowManager(object):
             pass  # should already have thrown an exception
 
         self._location = location
-        self._scene.loadState(wf)
+        if self._scene.isLoadable(wf):
+            self._scene.loadState(wf)
+        else:
+            report = self._scene.doStepReport(wf)
+            new_packages = False
+            not_found = []
+            for name in report:
+                reason = report[name]
+                if reason.startswith('Not Found'):
+                    not_found.append(name)
+                    logger.warn('Workflow not loadable due to missing plugin "{0}"'.format(name))
+                elif reason.startswith('Found'):
+                    pass
+                else:
+                    new_packages = True
+                    self._parent.installPackage(reason)
+
+            if self._scene.isLoadable(wf):
+                self._scene.loadState(wf)
+            elif new_packages:
+                logger.warn('Unable to load workflow.  You may need to restart the application.')
+                raise WorkflowError('The given Workflow configuration file was not loaded. '
+                                    'You may need to restart the application to pick up newly installed Python modules')
+            else:
+                error_text = 'The given Workflow configuration file was not loaded. ' \
+                             'A required plugin was not found (or had an error when loading).' \
+                             '  The missing plugin(s) are: \n'
+                for nf in not_found:
+                    error_text += '\n    {0}'.format(nf)
+                raise WorkflowError(error_text)
+
         self._saveStateIndex = self._currentStateIndex = 0
 
     def save(self):

@@ -39,9 +39,12 @@ class MainApplication(object):
         self._size = QtCore.QSize(600, 400)
         self._pos = QtCore.QPoint(100, 150)
         self._pluginManager = PluginManager()
-        self._workflowManager = WorkflowManager()
+        self._workflowManager = WorkflowManager(self)
         self._undoManager = UndoManager()
         self._optionsManager = OptionsManager()
+
+    def installPackage(self, uri):
+        self._pluginManager.installPackage(uri)
 
     def setSize(self, size):
         self._size = size

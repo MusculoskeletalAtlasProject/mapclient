@@ -22,10 +22,8 @@ import logging
 from PySide import QtGui
 
 from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
-# from mapclient.mountpoints.stackedwidget import StackedWidgetMountPoint
 from mapclient.view.workflow.workflowwidget import WorkflowWidget
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
-from mapclient.settings.general import getVirtEnvDirectory
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, WIZARD_TOOL_STRING, \
     VIRTUAL_ENVIRONMENT_STRING, PMR_TOOL_STRING, PYSIDE_RCC_EXE, PYSIDE_UIC_EXE, \
     PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION
@@ -34,6 +32,7 @@ from mapclient.view.utils import set_wait_cursor
 logger = logging.getLogger(__name__)
 
 ADMIN_MODE = False
+
 
 class MainWindow(QtGui.QMainWindow):
     '''
@@ -203,44 +202,27 @@ class MainWindow(QtGui.QMainWindow):
 
     def checkApplicationSetup(self):
         """
-        Check the application setup and setup anything that is not setup that
-        gets setup in the background, for instance the virtual environment.
+        Check the application setup and return True if the application
+        has been setup and False otherwise.
+        :return: True if setup is ok otherwise False.
+        """
+        return self._model.doEnvironmentChecks()
+
+    def setupApplication(self):
+        """
+        Setup the application, create virtual environment, check for git, pyside-uic and pyside-rcc.
         """
         # Has the virtual environment initialisation been attempted?
         # If it hasn't, setup the virtual environment otherwise run environment
         # checks.
         # Maybe setup Virtual Env. first
-        om = self._model.optionsManager()
         pm = self._model.pluginManager()
         if not pm.virtualenvSetupAttempted():
             self._setupVirtualEnv()
 
-        result = self._model.doEnvironmentChecks()
-        if not result:
-            from mapclient.view.managers.options.optionsdialog import OptionsDialog
-
-            options = om.getOptions()
-            dlg = OptionsDialog(self)
-            dlg.load(options)
-            dlg.setCurrentTab(1)
-            if dlg.exec_() == QtGui.QDialog.Accepted:
-                if dlg.isModified():
-                    om.setOptions(dlg.save())
-
-                # set availability of functionality.
-                self.action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
-                pm.setVirtualEnvEnabled(dlg.checkedOk(VIRTUAL_ENVIRONMENT_STRING))
-                self.action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
-                pm.setVirtualEnvDirectory(om.getOption(VIRTUAL_ENV_PATH))
-                # Insist that virtual environment is setup because it is a core feature.
-                if not pm.virtualEnvExists():
-                    self._setupVirtualEnv()
-                self._workflowWidget.applyOptions()
-            else:
-                self.action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
-                pm.setVirtualEnvEnabled(dlg.checkedOk(VIRTUAL_ENVIRONMENT_STRING))
-                self.action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
-
+    def loadPlugins(self):
+        om = self._model.optionsManager()
+        pm = self._model.pluginManager()
         pm.setVirtualEnvDirectory(om.getOption(VIRTUAL_ENV_PATH))
         if pm.virtualEnvExists():
             pm.addSitePackages()
@@ -249,8 +231,6 @@ class MainWindow(QtGui.QMainWindow):
         # Show plugin errors
         if pm.haveErrors():
             self.showPluginErrorsDialog()
-
-        return result
 
     def setCurrentUndoRedoStack(self, stack):
         current_stack = self._model.undoManager().currentStack()
@@ -317,26 +297,25 @@ class MainWindow(QtGui.QMainWindow):
         dlg.setModal(True)
         dlg.exec_()
 
-    def showOptionsDialog(self):
+    def showOptionsDialog(self, current_tab=0):
         from mapclient.view.managers.options.optionsdialog import OptionsDialog
 
         om = self._model.optionsManager()
         options = om.getOptions()
         dlg = OptionsDialog(self)
+        dlg.setCurrentTab(current_tab)
         dlg.load(options)
         if dlg.exec_() == QtGui.QDialog.Accepted:
             if dlg.isModified():
                 om.setOptions(dlg.save())
-                # set availability of functionality.
-                pm = self._model.pluginManager()
-                self.action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
-                pm.setVirtualEnvEnabled(dlg.checkedOk(VIRTUAL_ENVIRONMENT_STRING))
-                self.action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
-                # Insist on having a virtual environment so always try to set it up.
-                pm.setVirtualEnvDirectory(om.getOption(VIRTUAL_ENV_PATH))
-                if not pm.virtualEnvExists():
-                    self._setupVirtualEnv()
-                self._workflowWidget.applyOptions()
+
+        # set availability of functionality.
+        pm = self._model.pluginManager()
+        self.action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
+        pm.setVirtualEnvEnabled(dlg.checkedOk(VIRTUAL_ENVIRONMENT_STRING))
+        self.action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
+        pm.setVirtualEnvDirectory(om.getOption(VIRTUAL_ENV_PATH))
+        self._workflowWidget.applyOptions()
 
     def showPluginManagerDialog(self):
         from mapclient.view.managers.plugins.pluginmanagerdialog import PluginManagerDialog
@@ -365,6 +344,7 @@ class MainWindow(QtGui.QMainWindow):
         Get the plugin manager to load the current plugins.
         '''
         pm = self._model.pluginManager()
+        # Are we currently using the plugin manager dialog?
         if self._pluginManagerDlg is not None:
             pm.setReloadPlugins()
             pm.setDirectories(self._pluginManagerDlg.directories())
@@ -402,7 +382,7 @@ class MainWindow(QtGui.QMainWindow):
                 QtGui.QMessageBox.information(self, 'Skeleton Step', 'The Skeleton step has successfully been written to disk.')
             except Exception as e:
                 QtGui.QMessageBox.critical(self, 'Error Writing Step', 'There was an error writing the step, perhaps the step already exists?')
-                logger.critical(e.message)
+                logger.critical(e)
                 import os
                 package_directory = s.getPackageDirectory()
                 if os.path.exists(package_directory):
