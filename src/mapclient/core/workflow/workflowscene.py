@@ -58,6 +58,9 @@ class MetaStep(Item):
     def getPos(self):
         return self._pos
 
+    def setPos(self, pos):
+        self._pos = pos
+
     def getStep(self):
         return self._step
 
@@ -292,7 +295,6 @@ class WorkflowScene(object):
                 step = meta_item.getStep()
                 step.setLocation(location)
                 step.deserialize(step.serialize())
-                step._configuredObserver()
 
     def saveState(self, ws):
         connectionMap = {}
