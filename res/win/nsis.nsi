@@ -608,7 +608,7 @@ FunctionEnd
   !define MUI_WELCOMEFINISHPAGE_BITMAP "welcome.bmp"
   ;!define MUI_HEADERIMAGE
   !define MUI_HEADERIMAGE_BITMAP "header.bmp"
-  !define MUI_ICON "MAPClient.ico"
+  !define MUI_ICON "MAP-Client.ico"
 
 ;--------------------------------
 ;Pages
