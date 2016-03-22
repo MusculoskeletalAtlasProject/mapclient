@@ -44,28 +44,31 @@ additional_dlls.extend([ucrtbase, msvcp140, concrt140])
 additional_dlls = [dll[0] for dll in additional_dlls if dll]
 
 pyside_compilers = []
-pyside_uic = which('pyside-uic')
-pyside_compilers.append(pyside_uic)
+pyside_uic = which('pyside-uic.exe')
+pyside_compilers.extend(pyside_uic)
+
+virtualenv_exe = which('virtualenv.exe')
 
 APP = [{
     'script': 'mapclient/application.py',       ### Main Python script
-    'icon_resources': [(0, '../res/win/MAPClient.ico')], ### Icon to embed into the PE file.
-    'dest_base' : 'MAP Client'
+    'icon_resources': [(0, '../res/win/MAP-Client.ico')], ### Icon to embed into the PE file.
+    'dest_base' : 'MAP-Client'
 }]
 
 site_packages_dir = site.getsitepackages()[1]
-DATA_FILES = [('.', additional_dlls), ('.', pyside_compilers)]
+DATA_FILES = [('.', additional_dlls), ('.', pyside_compilers), ('.', virtualenv_exe)]
 PACKAGES = find_packages(exclude=['tests', 'tests.*', ])
-PACKAGES.extend(['numpy', 'scipy', 'gias2', 'pkg_resources', 'opencmiss', 'virtualenv'])
+PACKAGES.extend(['numpy', 'scipy', 'gias2', 'pkg_resources', 'opencmiss'])
 EXCLUDES = ['numpy.distutils.tests',]
 OPTIONS = {'py2exe': {
         'packages': PACKAGES,
         'excludes': EXCLUDES,
-        "skip_archive": True,
-#        "compressed": False,
+        # 'skip_archive': True,
+        'compressed': False,
     }
 }
 
+print(DATA_FILES)
 setup(
     console=APP,
     options=OPTIONS,
