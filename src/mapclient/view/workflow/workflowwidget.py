@@ -110,6 +110,7 @@ class WorkflowWidget(QtGui.QWidget):
             self.action_Close.setEnabled(workflow_open and widget_visible)
             self.setEnabled(workflow_open and widget_visible)
             self.action_Save.setEnabled(wfm.isModified() and widget_visible)
+            self.action_SaveAs.setEnabled(widget_visible)
             self._action_annotation.setEnabled(workflow_open and widget_visible)
             self.action_Import.setEnabled(widget_visible)
             self.action_Update.setEnabled(workflow_tracked)
@@ -126,7 +127,7 @@ class WorkflowWidget(QtGui.QWidget):
         om = self._mainWindow.model().optionsManager()
         show_step_names = om.getOption(SHOW_STEP_NAMES)
         self._graphicsScene.showStepNames(show_step_names)
-        self._ui.graphicsView.showStepNames(show_step_names)
+        # self._ui.graphicsView.showStepNames(show_step_names)
 
     def undoStackIndexChanged(self, index):
         self._mainWindow.model().workflowManager().undoStackIndexChanged(index)
@@ -255,7 +256,7 @@ class WorkflowWidget(QtGui.QWidget):
                     logger.exception('Error creating new')
                     self.close()
                     raise ClientRuntimeError(
-                        'Error Creating New', e.message)
+                        'Error Creating New', e)
             else:
                 raise ClientRuntimeError('Error Creating New', "Client doesn't have access to PMR")
 
@@ -439,12 +440,10 @@ class WorkflowWidget(QtGui.QWidget):
 
     def save(self):
         m = self._mainWindow.model().workflowManager()
-        if not os.path.exists(m.location()):
-            workflow_dir = self._getWorkflowDir()
-            if workflow_dir:
-                m.setPreviousLocation(workflow_dir)
-                m.setLocation(workflow_dir)
-        if m.location():
+        location_set = os.path.exists(m.location())
+        if not location_set:
+            location_set = self._setLocation()
+        if location_set:
             m.save()
             if self.commitChanges(m.location()):
                 self._setIndexerFile(m.location())
@@ -452,6 +451,23 @@ class WorkflowWidget(QtGui.QWidget):
                 pass  # undo changes
 
         self._updateUi()
+
+    def saveAs(self):
+        location_set = self._setLocation()
+        if location_set:
+            self.save()
+
+    def _setLocation(self):
+        location_set = False
+        m = self._mainWindow.model().workflowManager()
+        workflow_dir = self._getWorkflowDir()
+        if workflow_dir:
+            m.setPreviousLocation(workflow_dir)
+            m.updateLocation(workflow_dir)
+            self._graphicsScene.updateModel()
+            location_set = True
+
+        return location_set
 
     def commitChanges(self, workflowDir):
         pmr_info = PMR()
@@ -537,6 +553,8 @@ class WorkflowWidget(QtGui.QWidget):
         self._setActionProperties(self.action_Close, 'action_Close', self.close, 'Ctrl+W', 'Close open Workflow')
         self.action_Save = QtGui.QAction('&Save', menu_File)
         self._setActionProperties(self.action_Save, 'action_Save', self.save, 'Ctrl+S', 'Save Workflow')
+        self.action_SaveAs = QtGui.QAction('Save As', menu_File)
+        self._setActionProperties(self.action_SaveAs, 'action_SaveAs', self.saveAs, '', 'Save Workflow as ...')
         self.action_Execute = QtGui.QAction('E&xecute', menu_Workflow)
         self._setActionProperties(self.action_Execute, 'action_Execute', self.executeWorkflow, 'Ctrl+X', 'Execute Workflow')
         self.action_Continue = QtGui.QAction('&Continue', menu_Workflow)
@@ -544,16 +562,19 @@ class WorkflowWidget(QtGui.QWidget):
 
         menu_New.insertAction(QtGui.QAction(self), self.action_NewPMR)
         menu_New.insertAction(QtGui.QAction(self), self.action_New)
+
         menu_File.insertMenu(lastFileMenuAction, menu_New)
         menu_File.insertAction(lastFileMenuAction, self.action_Open)
+        menu_File.insertSeparator(lastFileMenuAction)
+        menu_File.insertAction(lastFileMenuAction, self.action_Save)
+        menu_File.insertAction(lastFileMenuAction, self.action_SaveAs)
         menu_File.insertSeparator(lastFileMenuAction)
         menu_File.insertAction(lastFileMenuAction, self.action_Import)
         menu_File.insertAction(lastFileMenuAction, self.action_Update)
         menu_File.insertSeparator(lastFileMenuAction)
         menu_File.insertAction(lastFileMenuAction, self.action_Close)
         menu_File.insertSeparator(lastFileMenuAction)
-        menu_File.insertAction(lastFileMenuAction, self.action_Save)
-        menu_File.insertSeparator(lastFileMenuAction)
+
         menu_Workflow.addAction(self.action_Execute)
         menu_Workflow.addAction(self.action_Continue)
 
