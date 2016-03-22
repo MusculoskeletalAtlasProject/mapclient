@@ -3,7 +3,7 @@
 ;--------------------------------
 ; You must define these values
   
-  !define APP_NAME "MAP Client"
+  !define APP_NAME "MAP-Client"
   !define APP_VERSION "0.12.0"
   !define APP_ORGANISATION "MAP"
   !define VERSION "1.0.0"

@@ -33,7 +33,6 @@ fmpich2 = which('fmpich2.dll')
 # libiomp5md = which('libiomp5md.dll')
 mpich2mpi = which('mpich2mpi')
 mpich2nemesis = which('mpich2nemesis.dll')
-print(mpich2mpi, mpich2nemesis)
 additional_dlls.extend([fmpich2, mpich2mpi, mpich2nemesis])
 # If visual Studio 2015 need UCRTBASE.dll, but not for windows 10?
 ucrtbase = which('ucrtbase.dll')
@@ -68,7 +67,7 @@ OPTIONS = {'py2exe': {
     }
 }
 
-print(DATA_FILES)
+
 setup(
     console=APP,
     options=OPTIONS,
