@@ -165,9 +165,9 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
 
     def showStepNames(self, show):
         self._showStepNames = show
-        for workflowitem in self.items():
-            if hasattr(workflowitem, 'Type') and workflowitem.Type == Node.Type:
-                workflowitem.showStepName(show)
+        for workflow_item in self.items():
+            if hasattr(workflow_item, 'Type') and workflow_item.Type == Node.Type:
+                workflow_item.showStepName(show)
 
     def doneExecution(self):
         self.parent().executeNext()
