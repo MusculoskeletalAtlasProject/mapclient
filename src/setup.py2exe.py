@@ -30,41 +30,43 @@ additional_dlls.extend([mkl_core, mkl_def, mkl_intel_thread])
 
 # Assuming that we are using mpich2, what test can we perform to confirm this?
 fmpich2 = which('fmpich2.dll')
-libiomp5md = which('libiomp5md.dll')
+# libiomp5md = which('libiomp5md.dll')
 mpich2mpi = which('mpich2mpi')
 mpich2nemesis = which('mpich2nemesis.dll')
-print(libiomp5md, mpich2mpi, mpich2nemesis)
-print(additional_dlls)
-additional_dlls.extend([fmpich2, libiomp5md, mpich2mpi, mpich2nemesis])
-print(additional_dlls)
+additional_dlls.extend([fmpich2, mpich2mpi, mpich2nemesis])
 # If visual Studio 2015 need UCRTBASE.dll, but not for windows 10?
 ucrtbase = which('ucrtbase.dll')
 msvcp140 = which('msvcp140.dll')
 concrt140 = which('concrt140.dll')
 additional_dlls.extend([ucrtbase, msvcp140, concrt140])
-print(additional_dlls)
 
 additional_dlls = [dll[0] for dll in additional_dlls if dll]
-print(additional_dlls)
+
+pyside_compilers = []
+pyside_uic = which('pyside-uic.exe')
+pyside_compilers.extend(pyside_uic)
+
+virtualenv_exe = which('virtualenv.exe')
 
 APP = [{
     'script': 'mapclient/application.py',       ### Main Python script
-    'icon_resources': [(0, '../res/win/MAPClient.ico')], ### Icon to embed into the PE file.
+    'icon_resources': [(0, '../res/win/MAP-Client.ico')], ### Icon to embed into the PE file.
     'dest_base' : 'MAP-Client'
 }]
 
 site_packages_dir = site.getsitepackages()[1]
-DATA_FILES = [('.', additional_dlls)]
+DATA_FILES = [('.', additional_dlls), ('.', pyside_compilers), ('.', virtualenv_exe)]
 PACKAGES = find_packages(exclude=['tests', 'tests.*', ])
 PACKAGES.extend(['numpy', 'scipy', 'gias2', 'pkg_resources', 'opencmiss'])
 EXCLUDES = ['numpy.distutils.tests',]
 OPTIONS = {'py2exe': {
         'packages': PACKAGES,
         'excludes': EXCLUDES,
-        "skip_archive": True,
-#        "compressed": False,
+        # 'skip_archive': True,
+        'compressed': False,
     }
 }
+
 
 setup(
     console=APP,

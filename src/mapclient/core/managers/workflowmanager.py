@@ -99,9 +99,13 @@ class WorkflowManager(object):
 
         return self._title
 
-    # Why set/get? all _prefix are public anyway, just use attributes...
-    # if they need to be modified they can be turned into properties
+    def updateLocation(self, location):
+        self._location = location
+        self._scene.updateWorkflowLocation(location)
+
+
     def setLocation(self, location):
+        print('setLocation', location)
         self._location = location
 
     def location(self):

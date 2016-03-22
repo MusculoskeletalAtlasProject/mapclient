@@ -3,9 +3,9 @@
 ;--------------------------------
 ; You must define these values
   
-  !define APP_NAME "MAP Client"
+  !define APP_NAME "MAP-Client"
   !define APP_VERSION "0.12.0"
-  !define APP_ORGANISATION "MSK"
+  !define APP_ORGANISATION "MAP"
   !define VERSION "1.0.0"
   !define PATCH  "1"
   !define INST_DIR "..\..\src\dist"
@@ -608,7 +608,7 @@ FunctionEnd
   !define MUI_WELCOMEFINISHPAGE_BITMAP "welcome.bmp"
   ;!define MUI_HEADERIMAGE
   !define MUI_HEADERIMAGE_BITMAP "header.bmp"
-  !define MUI_ICON "MAPClient.ico"
+  !define MUI_ICON "MAP-Client.ico"
 
 ;--------------------------------
 ;Pages
