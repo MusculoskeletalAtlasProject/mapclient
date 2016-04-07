@@ -103,7 +103,7 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
             # Again put the arc into the scene straight away so the scene will be valid
             QtGui.QGraphicsScene.addItem(self, arc)
             self.blockSignals(True)
-            arc.setSelected(connection.setSelected())
+            arc.setSelected(connection.getSelected())
             self.blockSignals(False)
 
         self._previousSelection = self.selectedItems()
