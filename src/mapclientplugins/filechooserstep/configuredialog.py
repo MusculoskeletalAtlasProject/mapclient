@@ -76,12 +76,10 @@ class ConfigureDialog(QtGui.QDialog):
         # The identifierOccursCount method is part of the interface to the workflow framework.
         value = self.identifierOccursCount(self._ui.lineEdit0.text())
         valid = (value == 0) or (value == 1 and self._previousIdentifier == self._ui.lineEdit0.text())
-        if valid:
-            self._ui.lineEdit0.setStyleSheet(DEFAULT_STYLE_SHEET)
-        else:
-            self._ui.lineEdit0.setStyleSheet(INVALID_STYLE_SHEET)
-            
-        location_valid = os.path.isfile(os.path.join(self._workflow_location, self._ui.lineEditFileLocation.text()))
+        self._ui.lineEdit0.setStyleSheet(DEFAULT_STYLE_SHEET if valid else INVALID_STYLE_SHEET)
+
+        location_valid = self._ui.lineEditFileLocation.text() and \
+            os.path.isfile(os.path.join(self._workflow_location, self._ui.lineEditFileLocation.text()))
 
         return valid and location_valid
 
