@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>450</height>
+    <width>645</width>
+    <height>534</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -217,22 +217,6 @@
     <hint type="destinationlabel">
      <x>364</x>
      <y>127</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>information_table</sender>
-   <signal>itemDoubleClicked(QTableWidgetItem*)</signal>
-   <receiver>detailsButton</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>207</x>
-     <y>211</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>128</x>
-     <y>278</y>
     </hint>
    </hints>
   </connection>
