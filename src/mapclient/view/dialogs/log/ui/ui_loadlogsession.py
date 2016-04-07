@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt/loadlogsession.ui'
+# Form implementation generated from reading ui file 'qt\loadlogsession.ui'
 #
-# Created: Tue Dec  2 10:43:58 2014
-#      by: pyside-uic 0.2.15 running on PySide 1.2.2
+# Created: Wed Apr  6 23:01:18 2016
+#      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,11 +12,11 @@ from PySide import QtCore, QtGui
 class Ui_LoadWindow(object):
     def setupUi(self, LoadWindow):
         LoadWindow.setObjectName("LoadWindow")
-        LoadWindow.resize(550, 75)
-        LoadWindow.setMinimumSize(QtCore.QSize(550, 75))
-        LoadWindow.setMaximumSize(QtCore.QSize(550, 75))
+        LoadWindow.resize(558, 134)
         LoadWindow.setModal(True)
         self.verticalLayout = QtGui.QVBoxLayout(LoadWindow)
+        self.verticalLayout.setSpacing(0)
+        self.verticalLayout.setContentsMargins(-1, -1, -1, 11)
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")

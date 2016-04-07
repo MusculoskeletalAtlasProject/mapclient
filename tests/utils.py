@@ -20,6 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
 import re, sys
 
+
 class ConsumeOutput(object):
     def __init__(self):
         self.messages = list()
@@ -29,6 +30,7 @@ class ConsumeOutput(object):
 
     def flush(self):
         pass
+
 
 def parseUnitTestOutput(filename):
     '''
@@ -65,6 +67,7 @@ def parseUnitTestOutput(filename):
             del lines[0]
 
     return rc, passed, failed
+
 
 def createTestApplication():
     from PySide import QtCore, QtGui

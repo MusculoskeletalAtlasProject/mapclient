@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt/logdetails.ui'
+# Form implementation generated from reading ui file 'qt\logdetails.ui'
 #
-# Created: Tue Apr  7 23:17:05 2015
-#      by: pyside-uic 0.2.15 running on PySide 1.2.2
+# Created: Wed Apr  6 22:54:09 2016
+#      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,14 +12,11 @@ from PySide import QtCore, QtGui
 class Ui_LogDetails(object):
     def setupUi(self, LogDetails):
         LogDetails.setObjectName("LogDetails")
-        LogDetails.resize(350, 150)
+        LogDetails.resize(655, 310)
         LogDetails.setMinimumSize(QtCore.QSize(350, 150))
-        LogDetails.setMaximumSize(QtCore.QSize(65535, 65535))
         LogDetails.setSizeGripEnabled(False)
-        self.layout = QtGui.QGridLayout(LogDetails)
-        self.layout.setObjectName("layout")
-        self.verticalLayout = QtGui.QVBoxLayout()
-        self.verticalLayout.setObjectName("verticalLayout")
+        self.horizontalLayout = QtGui.QHBoxLayout(LogDetails)
+        self.horizontalLayout.setObjectName("horizontalLayout")
         self.detailedTable = QtGui.QTableWidget(LogDetails)
         self.detailedTable.setAutoScroll(True)
         self.detailedTable.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
@@ -48,8 +45,7 @@ class Ui_LogDetails(object):
         self.detailedTable.horizontalHeader().setStretchLastSection(True)
         self.detailedTable.verticalHeader().setDefaultSectionSize(20)
         self.detailedTable.verticalHeader().setStretchLastSection(True)
-        self.verticalLayout.addWidget(self.detailedTable)
-        self.layout.addLayout(self.verticalLayout, 0, 0, 1, 1)
+        self.horizontalLayout.addWidget(self.detailedTable)
 
         self.retranslateUi(LogDetails)
         QtCore.QMetaObject.connectSlotsByName(LogDetails)
