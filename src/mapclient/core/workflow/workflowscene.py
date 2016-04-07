@@ -268,13 +268,12 @@ class WorkflowDependencyGraph(object):
             try:
                 current_node.getStep().execute()
             except Exception as e:
+                self._current = -1
                 log_message = 'Exception caught while executing the workflow: ' + convertExceptionToMessage(e)
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 redirect_output = FileTypeObject()
                 traceback.print_exception(exc_type, exc_value, exc_traceback, file=redirect_output)
                 raise WorkflowError(log_message + '\n\n' + ''.join(redirect_output.messages))
-            finally:
-                self._current = -1
 
 
 class WorkflowScene(object):
