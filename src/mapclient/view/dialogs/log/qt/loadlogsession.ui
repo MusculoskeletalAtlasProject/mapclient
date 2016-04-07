@@ -6,21 +6,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>550</width>
-    <height>75</height>
+    <width>558</width>
+    <height>134</height>
    </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>550</width>
-    <height>75</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>550</width>
-    <height>75</height>
-   </size>
   </property>
   <property name="windowTitle">
    <string>Load Previous Session</string>
@@ -29,6 +17,12 @@
    <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>11</number>
+   </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>

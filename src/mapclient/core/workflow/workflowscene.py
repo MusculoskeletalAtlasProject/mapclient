@@ -26,7 +26,7 @@ from PySide import QtCore
 
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflow.workflowerror import WorkflowError
-from mapclient.core.utils import convertExceptionToMessage, loadConfiguration
+from mapclient.core.utils import convertExceptionToMessage, loadConfiguration, FileTypeObject
 from mapclient.settings.general import getConfigurationFile
 
 logger = logging.getLogger(__name__)
@@ -262,18 +262,19 @@ class WorkflowDependencyGraph(object):
                     # dataIn = source_step.getPortData(source_data_index)
                     # destination_step.setPortData(destination_data_index, dataIn)
 
-                    dataIn = connection.source().geStep().getPortData(connection.sourceIndex())
+                    dataIn = connection.source().getStep().getPortData(connection.sourceIndex())
                     current_node.getStep().setPortData(connection.destinationIndex(), dataIn)
 
             try:
                 current_node.getStep().execute()
             except Exception as e:
-                self._current = -1
                 log_message = 'Exception caught while executing the workflow: ' + convertExceptionToMessage(e)
-                logger.critical(log_message)
-                _, _, tb = sys.exc_info()
-                logger.info(traceback.print_tb(tb))
-                raise WorkflowError(log_message)
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                redirect_output = FileTypeObject()
+                traceback.print_exception(exc_type, exc_value, exc_traceback, file=redirect_output)
+                raise WorkflowError(log_message + '\n\n' + ''.join(redirect_output.messages))
+            finally:
+                self._current = -1
 
 
 class WorkflowScene(object):
@@ -322,8 +323,9 @@ class WorkflowScene(object):
             identifier = metastep.getIdentifier() or metastep.getUniqueIdentifier()
             step = metastep.getStep()
             step_config = step.serialize()
-            with open(getConfigurationFile(location, identifier), 'w') as f:
-                f.write(step_config)
+            if step_config:
+                with open(getConfigurationFile(location, identifier), 'w') as f:
+                    f.write(step_config)
             ws.setArrayIndex(nodeIndex)
             source_uri = step.getSourceURI()
             if source_uri is not None:
@@ -341,7 +343,7 @@ class WorkflowScene(object):
                     ws.setValue('connectedFromIndex', connectionItem.sourceIndex())
                     ws.setValue('connectedTo', stepList.index(connectionItem.destination()))
                     ws.setValue('connectedToIndex', connectionItem.destinationIndex())
-                    ws.setValue('selected', connectionItem.selected())
+                    ws.setValue('selected', connectionItem.getSelected())
                     connectionIndex += 1
             ws.endArray()
             nodeIndex += 1
