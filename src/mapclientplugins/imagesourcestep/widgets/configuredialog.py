@@ -147,7 +147,8 @@ class ConfigureDialog(QDialog):
 
     def validate(self):
         identifierValid = len(self._ui.identifierLineEdit.text()) > 0
-        localValid = os.path.exists(os.path.join(self._workflow_location, self._ui.localLineEdit.text()))
+        localValid = self._ui.localLineEdit.text() and \
+            os.path.exists(os.path.join(self._workflow_location, self._ui.localLineEdit.text()))
         valid = identifierValid
 
         self._ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(valid)
