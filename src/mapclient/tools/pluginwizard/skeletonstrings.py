@@ -338,18 +338,20 @@ import sys, os, io
 # List all of your Python package dependencies in the
 # requirements.txt file
 
-def readfile(filename):
+def readfile(filename, split=False):
     with io.open(filename, encoding="utf-8") as stream:
-        return stream.read().split("\\n")
+        if split:
+            return stream.read().split("\\n")
+        return stream.read()
 
-readme = readfile("README.rst")[3:]  # skip title
-requires = readfile("requirements.txt")
+readme = readfile("README.rst", split=True)[3:]  # skip title
+requires = readfile("requirements.txt", split=True)
 license = readfile("LICENSE")
 
 setup(name=%(name)r,
       version=%(version)r,
       description=%(description)r,
-      long_description=readme + license,
+      long_description='\n'.join(readme) + license,
       classifiers=[],
       author=%(author)r,
       author_email=%(author_email)r,

@@ -7,6 +7,7 @@ from PySide import QtCore, QtGui
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 
+
 def addStep(model, step):
     items = model.findItems(step._category)
 
@@ -31,6 +32,7 @@ def addStep(model, step):
 
     item.setData(step.getName(), QtCore.Qt.DisplayRole)
     parentItem.appendRow(item)
+
 
 class WorkflowStepsFilter(QtGui.QSortFilterProxyModel):
 

@@ -158,7 +158,7 @@ class SettingsWidget(QtGui.QWidget):
                 self._model.appendRow(host_item)
         except Exception as e:
             raise ClientRuntimeError(
-                        'Error Adding Host', e.message)
+                        'Error Adding Host', str(e))
 
 
 

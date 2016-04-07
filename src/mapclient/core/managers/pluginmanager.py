@@ -10,7 +10,7 @@ import json
 import pkgutil
 import traceback
 
-from mapclient.core.utils import which, is_frozen
+from mapclient.core.utils import which, is_frozen, FileTypeObject
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     VIRTUAL_ENV_SETUP_ATTEMPTED, PLUGINS_PACKAGE_NAME, PLUGINS_PTH
 from mapclient.core.checks import getPipExecutable
@@ -307,8 +307,10 @@ class PluginManager(object):
                     plugin_dependencies = self.extractPluginDependencies(package.__path__)
                     if hasattr(module, '__version__') and hasattr(module, '__author__'):
                         logger.info('Loaded plugin \'' + modname + '\' version [' + module.__version__ + '] by ' + module.__author__)
-                    if hasattr(module, '__location__') and hasattr(module, '__stepname__'):
+                    if hasattr(module, '__location__') and module.__location__:
                         logger.info('Plugin \'' + modname + '\' available from: ' + module.__location__)
+                    else:
+                        logger.info('Plugin \'' + modname + '\' has no location set.')
 
                     self._plugin_database.addLoadedPluginInformation(modname,
                                                                      module.__stepname__ if hasattr(module, '__stepname__') else 'None',
@@ -331,13 +333,12 @@ class PluginManager(object):
                         self._tab_errors += [modname]
                     self._plugin_error_directories[modname] = _.path
 
-#                     message = convertExceptionToMessage(e)
                     logger.warn('Plugin \'' + modname + '\' not loaded')
                     logger.warn('Reason: {0}'.format(e))
-                    _, _, tb = sys.exc_info()
-                    for line in traceback.format_tb(tb):
-                        logger.warn(line)
-#                     logger.warn('\n'.join(traceback.format_tb(tb)))
+                    exc_type, exc_value, exc_traceback = sys.exc_info()
+                    redirect_output = FileTypeObject()
+                    traceback.print_exception(exc_type, exc_value, exc_traceback, file=redirect_output)
+                    logger.warn(''.join(redirect_output.messages))
 
     def haveErrors(self):
         return len(self._import_errors) or len(self._type_errors) or \
