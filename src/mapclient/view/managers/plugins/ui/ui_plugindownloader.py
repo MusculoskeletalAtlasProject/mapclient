@@ -71,5 +71,3 @@ class Ui_pluginDownloader(object):
         self.dependencyDownload.setText(QtGui.QApplication.translate("pluginDownloader", "Download and install Packages", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonYes.setText(QtGui.QApplication.translate("pluginDownloader", "Ok", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonNo.setText(QtGui.QApplication.translate("pluginDownloader", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
-
-from . import resources_rc
