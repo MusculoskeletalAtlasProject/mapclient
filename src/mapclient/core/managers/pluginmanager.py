@@ -177,9 +177,12 @@ class PluginManager(object):
 
         for candidate in getVirtualEnvCandidates():
             try:
-                p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
+                p = subprocess.Popen([candidate, '--clear', '--no-setuptools', self._virtualenv_dir],
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE)
+                # p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
+                #                       stdout=subprocess.PIPE,
+                #                       stderr=subprocess.PIPE)
                 stdout, stderr = p.communicate()
 
                 if stdout:
@@ -293,7 +296,12 @@ class PluginManager(object):
                 package = reload(sys.modules[PLUGINS_PACKAGE_NAME])
             else:
                 import importlib
+                if sys.version_info > (3, 4):
+                    for pkg_path in sys.modules[PLUGINS_PACKAGE_NAME]:
+                        importlib.reload(sys.modules[pkg_path])
+
                 package = importlib.reload(sys.modules[PLUGINS_PACKAGE_NAME])
+
         self._import_errors = []
         self._type_errors = []
         self._syntax_errors = []

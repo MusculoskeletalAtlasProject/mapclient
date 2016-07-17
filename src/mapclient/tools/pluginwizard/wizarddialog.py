@@ -18,7 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
 
-import os, platform
+import os, sys, platform
 import ast
 
 from PySide import QtCore, QtGui
@@ -499,7 +499,10 @@ def isIdentifier(ident):
 
 def getPredefinedImageLocation(predefinedName):
     filename = imageNameMap[predefinedName]
-    image_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'qt', 'images', filename)
+    if hasattr(sys, 'frozen'):
+        image_file = os.path.join(os.path.dirname(sys.executable), 'res', 'images', filename)
+    else:
+        image_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'qt', 'images', filename)
     return image_file
 
 

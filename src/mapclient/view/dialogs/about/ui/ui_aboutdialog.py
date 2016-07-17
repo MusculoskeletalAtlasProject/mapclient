@@ -74,5 +74,3 @@ class Ui_AboutDialog(object):
         self.btn_Credits.setText(QtGui.QApplication.translate("AboutDialog", "C&redits", None, QtGui.QApplication.UnicodeUTF8))
         self.btn_License.setText(QtGui.QApplication.translate("AboutDialog", "&License", None, QtGui.QApplication.UnicodeUTF8))
         self.btn_Close.setText(QtGui.QApplication.translate("AboutDialog", "&Close", None, QtGui.QApplication.UnicodeUTF8))
-
-from . import resources_rc

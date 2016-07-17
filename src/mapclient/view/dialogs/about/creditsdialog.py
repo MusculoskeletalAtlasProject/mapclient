@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 '''
 from PySide.QtCore import Qt
 from PySide.QtGui import QDialog, QTabWidget, QWidget, QVBoxLayout, QLabel
-from mapclient.view.ui_creditsdialog import Ui_CreditsDialog
+from mapclient.view.dialogs.about.ui.ui_creditsdialog import Ui_CreditsDialog
 from mapclient.settings import info
 
 class CreditsDialog(QDialog):
