@@ -45,8 +45,8 @@ required_builtins = ['collections', 'ctypes', 'distutils', 'email', 'encodings',
                      'datetime', 'enum', 'fnmatch', 'functools', 'genericpath', 'getopt', 'getpass', 'glob', 'hashlib',
                      'heapq', 'hmac', 'imp', 'io', 'ipaddress', 'keyword', 'linecache', 'locale', 'mimetypes',
                      'ntpath', 'nturl2path', 'opcode', 'operator', 'optparse', 'os', 'pickle', 'pkgutil', 'platform',
-                     'plistlib', 'posixpath', 'py_compile', 'queue', 'quopri', 'random', 're', 'reprlib', 'runpy',
-                     'selectors', 'shlex', 'shutil', 'signal', 'site', 'socket', 'socketserver', 'sre_compile',
+                     'plistlib', 'posixpath', 'pprint', 'py_compile', 'queue', 'quopri', 'random', 're', 'reprlib',
+                     'runpy', 'selectors', 'shlex', 'shutil', 'signal', 'site', 'socket', 'socketserver', 'sre_compile',
                      'sre_constants', 'sre_parse', 'ssl', 'stat', 'string', 'stringprep', 'struct', 'subprocess',
                      'symbol', 'sysconfig', 'tarfile', 'tempfile', 'textwrap', 'threading', 'token', 'tokenize',
                      'traceback', 'types', 'uu', 'uuid', 'warnings', 'weakref', 'zipfile', 'virtualenv']
@@ -114,7 +114,9 @@ wizard_image_files = glob.glob(os.path.join('mapclient', 'tools', 'pluginwizard'
 # site_packages_dir = site.getsitepackages()[1]
 DATA_FILES = [('.', additional_dlls), ('.', pyside_compilers), ('.', [sys.executable]),
               ('Include', []), (os.path.join('Lib', 'site-packages', 'virtualenv_support'), virtualenv_support_files),
-              (os.path.join('res', 'images'), wizard_image_files)]
+              (os.path.join('res', 'images'), wizard_image_files), (os.path.join('tcl', 'tcl8.6'), []),
+              (os.path.join('tcl', 'tk8.6'), [])]
+
 # Need to import opencmiss before the py2exe attempts to load it, possibly because of it being a namespace package
 PACKAGES = find_packages(exclude=['tests', 'tests.*', ])
 PACKAGES.extend(['numpy', 'scipy', 'gias2', 'pkg_resources', 'opencmiss', 'opencmiss.zinc', 'opencmiss.iron', 'rdflib'])
