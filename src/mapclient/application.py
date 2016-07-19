@@ -100,8 +100,15 @@ def winmain():
     try:
         from opencmiss.zinc.context import Context
         Context("MAP")
+        logger.info('OpenCMISS-Zinc is available.')
     except ImportError:
         logger.warning('OpenCMISS-Zinc is not available.')
+
+    try:
+        from opencmiss.iron import iron
+        logger.info('OpenCMISS-Iron is available.')
+    except ImportError:
+        logger.warn('OpenCMISS-Iron is available.')
 
     from mapclient.core.mainapplication import MainApplication
     model = MainApplication()
