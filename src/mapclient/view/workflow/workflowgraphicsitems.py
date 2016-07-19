@@ -25,6 +25,7 @@ from mapclient.core.workflow.workflowscene import Connection
 from mapclient.tools.annotation.annotationdialog import AnnotationDialog
 from mapclient.tools.pmr.pmrdvcshelper import repositoryIsUpToDate
 
+
 class ErrorItem(QtGui.QGraphicsItem):
 
     def __init__(self, sourceNode, destNode):
@@ -259,7 +260,7 @@ class Node(Item):
         self._modified_item = MercurialIcon(self)
         self._modified_item.moveBy(5, 40)
 
-        self.updateMercurialIcon()
+        self.updateDVCSIcon()
 
     def update(self):
         self._updateConfigureIcon()
@@ -320,7 +321,10 @@ class Node(Item):
             port_item.setToolTip(tooltip_stub + ', '.join(triple_objects))
             self._step_port_items.append(port_item)
 
-    def updateMercurialIcon(self):
+    def updateDVCSIcon(self):
+        """
+        :TODO: Update this for setting/saving output/input for step to repository
+        """
         if self._metastep._step.getIdentifier():
             if repositoryIsUpToDate(self._getStepLocation()):
                 self._modified_item.hide()
@@ -338,10 +342,13 @@ class Node(Item):
         return Node.Type
 
     def commitMe(self):
+        """
+        :TODO: Update this for setting/saving data to repository
+        """
         step_location = self._getStepLocation()
         if not repositoryIsUpToDate(step_location):
             self.scene().commitChanges(step_location)
-            self.updateMercurialIcon()
+            self.updateDVCSIcon()
 
     def _removeMe(self):
         self.scene().removeStep(self)

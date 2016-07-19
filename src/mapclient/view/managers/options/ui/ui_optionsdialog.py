@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mapclient\view\managers\options\qt\optionsdialog.ui'
 #
-# Created: Tue Jul 19 12:17:02 2016
+# Created: Tue Jul 19 14:56:50 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -96,7 +96,12 @@ class Ui_OptionsDialog(object):
         self.verticalLayout_2.addWidget(self.groupBox_4)
         self.groupBox_5 = QtGui.QGroupBox(self.tabToolSettings)
         self.groupBox_5.setObjectName("groupBox_5")
-        self.horizontalLayout_3 = QtGui.QHBoxLayout(self.groupBox_5)
+        self.verticalLayout_5 = QtGui.QVBoxLayout(self.groupBox_5)
+        self.verticalLayout_5.setObjectName("verticalLayout_5")
+        self.checkBoxUseExternalGit = QtGui.QCheckBox(self.groupBox_5)
+        self.checkBoxUseExternalGit.setObjectName("checkBoxUseExternalGit")
+        self.verticalLayout_5.addWidget(self.checkBoxUseExternalGit)
+        self.horizontalLayout_3 = QtGui.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.labelGitExecutable = QtGui.QLabel(self.groupBox_5)
         self.labelGitExecutable.setObjectName("labelGitExecutable")
@@ -112,6 +117,7 @@ class Ui_OptionsDialog(object):
         self.pushButtonGitExecutable = QtGui.QPushButton(self.groupBox_5)
         self.pushButtonGitExecutable.setObjectName("pushButtonGitExecutable")
         self.horizontalLayout_3.addWidget(self.pushButtonGitExecutable)
+        self.verticalLayout_5.addLayout(self.horizontalLayout_3)
         self.verticalLayout_2.addWidget(self.groupBox_5)
         self.groupBox = QtGui.QGroupBox(self.tabToolSettings)
         self.groupBox.setObjectName("groupBox")
@@ -159,6 +165,7 @@ class Ui_OptionsDialog(object):
         self.lineEditPySideRCC.setToolTip(QtGui.QApplication.translate("OptionsDialog", "The PySide Resource Compiler executable.", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonPySideRCC.setText(QtGui.QApplication.translate("OptionsDialog", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_5.setTitle(QtGui.QApplication.translate("OptionsDialog", "PMR", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBoxUseExternalGit.setText(QtGui.QApplication.translate("OptionsDialog", "Use external Git", None, QtGui.QApplication.UnicodeUTF8))
         self.labelGitExecutable.setText(QtGui.QApplication.translate("OptionsDialog", "Git:", None, QtGui.QApplication.UnicodeUTF8))
         self.lineEditGitExecutable.setToolTip(QtGui.QApplication.translate("OptionsDialog", "The Git version control executable", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonGitExecutable.setText(QtGui.QApplication.translate("OptionsDialog", "...", None, QtGui.QApplication.UnicodeUTF8))

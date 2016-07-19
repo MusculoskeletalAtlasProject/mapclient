@@ -1,1 +1,2 @@
 -e git+https://github.com/PMR/pmr.wfctrl.git#egg=pmr.wfctrl
+dulwich --global-option="--pure"
