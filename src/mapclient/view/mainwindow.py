@@ -191,20 +191,19 @@ class MainWindow(QtGui.QMainWindow):
             self.action_MAPIcon.triggered.connect(self.showMAPIconDialog)
 
     @set_wait_cursor
-    def _setupVirtualEnv(self):
+    def _setupVirtualEnv(self, virtual_env_path):
         """
         Sets up a virtual environment for MAP Client dependencies.
         """
         pm = self._model.pluginManager()
-        om = self._model.optionsManager()
-        pm.setVirtualEnvDirectory(om.getOption(VIRTUAL_ENV_PATH))
-        pm.setupVirtualEnv()
+        pm.setVirtualEnvDirectory(virtual_env_path)
+        return pm.setupVirtualEnv()
 
     def checkApplicationSetup(self):
         """
         Check the application setup and return True if the application
-        has been setup and False otherwise.
-        :return: True if setup is ok otherwise False.
+        has been setup or the checks are not required, False otherwise.
+        :return: True if setup is ok or not required, False otherwise.
         """
         return self._model.doEnvironmentChecks()
 
@@ -218,7 +217,8 @@ class MainWindow(QtGui.QMainWindow):
         # Maybe setup Virtual Env. first
         pm = self._model.pluginManager()
         if not pm.virtualenvSetupAttempted():
-            self._setupVirtualEnv()
+            om = self._model.optionsManager()
+            self._setupVirtualEnv(om.getOption(VIRTUAL_ENV_PATH))
 
     def loadPlugins(self):
         om = self._model.optionsManager()
@@ -303,6 +303,7 @@ class MainWindow(QtGui.QMainWindow):
         om = self._model.optionsManager()
         options = om.getOptions()
         dlg = OptionsDialog(self)
+        dlg.setCreateVenvMethod(self._setupVirtualEnv)
         dlg.setCurrentTab(current_tab)
         dlg.load(options)
         if dlg.exec_() == QtGui.QDialog.Accepted:

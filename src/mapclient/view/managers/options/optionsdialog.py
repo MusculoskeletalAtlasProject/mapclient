@@ -27,6 +27,8 @@ class  OptionsDialog(QtGui.QDialog):
         self._ui = Ui_OptionsDialog()
         self._ui.setupUi(self)
 
+        self._createVenvMethod = None
+
         self._highlighter = SyntaxHighlighter(self._ui.plainTextEditToolTestOutput.document())
 
         self._makeConnections()
@@ -41,7 +43,8 @@ class  OptionsDialog(QtGui.QDialog):
     def _makeConnections(self):
         self._ui.pushButtonPySideRCC.clicked.connect(self._pySideRCCButtonClicked)
         self._ui.pushButtonPySideUIC.clicked.connect(self._pySideUICButtonClicked)
-        self._ui.pushButtonVirtualEnvironmentPath.clicked.connect(self._venvButtonClicked)
+        self._ui.pushButtonVirtualEnvironmentPath.clicked.connect(self._venvPathButtonClicked)
+        self._ui.pushButtonCreate.clicked.connect(self._venvCreateButtonClicked)
         self._ui.pushButtonGitExecutable.clicked.connect(self._gitExecutableButtonClicked)
         self._ui.pushButtonRunChecks.clicked.connect(self._testTools)
 
@@ -59,12 +62,23 @@ class  OptionsDialog(QtGui.QDialog):
             self._location = os.path.dirname(uic_program)
             self._testTools()
 
-    def _venvButtonClicked(self):
+    def _venvPathButtonClicked(self):
         venv_path = QtGui.QFileDialog.getExistingDirectory(self, caption='Select Virtual Environment Path', dir=self._location)
         if venv_path:
             self._ui.lineEditVirtualEnvironmentPath.setText(venv_path)
             self._location = venv_path
             self._testTools()
+
+    def _venvCreateButtonClicked(self):
+        if self._createVenvMethod is not None:
+            virtualenv_path = self._ui.lineEditVirtualEnvironmentPath.text()
+            if not self._createVenvMethod(virtualenv_path):
+                QtGui.QMessageBox.warning("Failed to create virtual environment at '{0}'".format(virtualenv_path))
+
+            self._testTools()
+
+    def setCreateVenvMethod(self, method):
+        self._createVenvMethod = method
 
     def _gitExecutableButtonClicked(self):
         git_program, _ = QtGui.QFileDialog.getOpenFileName(self, caption='Select Git Executable', dir=self._location)
@@ -135,12 +149,15 @@ class  OptionsDialog(QtGui.QDialog):
     def load(self, options):
         self._original_options = options
         step_name_option = self._ui.checkBoxShowStepNames.objectName()
+        check_tools_option = self._ui.checkBoxCheckToolsOnStartup.objectName()
         pysidercc_option = self._ui.lineEditPySideRCC.objectName()
         pysideuic_option = self._ui.lineEditPySideUIC.objectName()
         venv_path_option = self._ui.lineEditVirtualEnvironmentPath.objectName()
         vcs_option = self._ui.lineEditGitExecutable.objectName()
         if step_name_option in options:
             self._ui.checkBoxShowStepNames.setChecked(options[step_name_option])
+        if check_tools_option in options:
+            self._ui.checkBoxCheckToolsOnStartup.setChecked(options[check_tools_option])
         if pysidercc_option in options:
             self._ui.lineEditPySideRCC.setText(options[pysidercc_option])
         if pysideuic_option in options:
@@ -155,6 +172,7 @@ class  OptionsDialog(QtGui.QDialog):
     def save(self):
         options = {}
         options[self._ui.checkBoxShowStepNames.objectName()] = self._ui.checkBoxShowStepNames.isChecked()
+        options[self._ui.checkBoxCheckToolsOnStartup.objectName()] = self._ui.checkBoxCheckToolsOnStartup.isChecked()
         options[self._ui.lineEditPySideRCC.objectName()] = self._ui.lineEditPySideRCC.text()
         options[self._ui.lineEditPySideUIC.objectName()] = self._ui.lineEditPySideUIC.text()
         options[self._ui.lineEditVirtualEnvironmentPath.objectName()] = self._ui.lineEditVirtualEnvironmentPath.text()

@@ -201,6 +201,8 @@ class PluginManager(object):
             logger.warning('Virtual environment setup unsuccessful')
         self._virtualenv_setup_attempted = True
 
+        return self.virtualEnvExists()
+
     def loadDefaultPlugins(self):
         return self._load_default_plugins
 

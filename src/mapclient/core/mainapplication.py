@@ -26,6 +26,7 @@ from mapclient.core.managers.undomanager import UndoManager
 from mapclient.core.managers.pluginmanager import PluginManager
 from mapclient.core.managers.optionsmanager import OptionsManager
 from mapclient.core.checks import runChecks
+from mapclient.settings.definitions import CHECK_TOOLS_ON_STARTUP
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +72,8 @@ class MainApplication(object):
         return self._optionsManager
 
     def doEnvironmentChecks(self):
-        return runChecks(self._optionsManager.getOptions())
+        options = self._optionsManager.getOptions()
+        return runChecks(options) if options[CHECK_TOOLS_ON_STARTUP] else True
 
     def writeSettings(self):
         settings = QtCore.QSettings()

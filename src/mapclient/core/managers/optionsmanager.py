@@ -9,7 +9,7 @@ from mapclient.core.checks import getPySideRccExecutable, getPySideUicExecutable
 from mapclient.settings.definitions import SHOW_STEP_NAMES, \
     DONT_CREATE_VIRTUAL_ENV, OPTIONS_SETTINGS_TAG, PYSIDE_UIC_EXE, \
     PYSIDE_RCC_EXE, VIRTUAL_ENV_PATH, GIT_EXE, PREVIOUS_PW_WRITE_STEP_LOCATION, \
-    PREVIOUS_PW_ICON_LOCATION
+    PREVIOUS_PW_ICON_LOCATION, CHECK_TOOLS_ON_STARTUP
 
 class OptionsManager(object):
     '''
@@ -25,6 +25,7 @@ class OptionsManager(object):
         # Set default values
         self._options[SHOW_STEP_NAMES] = True
         self._options[DONT_CREATE_VIRTUAL_ENV] = False
+        self._options[CHECK_TOOLS_ON_STARTUP] = True
         self._options[PYSIDE_UIC_EXE] = getPySideUicExecutable()
         self._options[PYSIDE_RCC_EXE] = getPySideRccExecutable()
         self._options[VIRTUAL_ENV_PATH] = getVirtEnvDirectory()
@@ -59,6 +60,8 @@ class OptionsManager(object):
         options = settings.allKeys()
         for option in options:
             if option == SHOW_STEP_NAMES:
+                self._options[option] = settings.value(option) == 'true'
+            elif option == CHECK_TOOLS_ON_STARTUP:
                 self._options[option] = settings.value(option) == 'true'
             elif option == DONT_CREATE_VIRTUAL_ENV:
                 self._options[option] = settings.value(option) == 'true'

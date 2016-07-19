@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt\optionsdialog.ui'
+# Form implementation generated from reading ui file 'mapclient\view\managers\options\qt\optionsdialog.ui'
 #
-# Created: Wed Mar  9 13:49:06 2016
+# Created: Tue Jul 19 12:17:02 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PySide import QtCore, QtGui
 class Ui_OptionsDialog(object):
     def setupUi(self, OptionsDialog):
         OptionsDialog.setObjectName("OptionsDialog")
-        OptionsDialog.resize(525, 569)
+        OptionsDialog.resize(525, 579)
         self.gridLayout = QtGui.QGridLayout(OptionsDialog)
         self.gridLayout.setObjectName("gridLayout")
         self.buttonBox = QtGui.QDialogButtonBox(OptionsDialog)
@@ -27,11 +27,15 @@ class Ui_OptionsDialog(object):
         self.gridLayout_3 = QtGui.QGridLayout(self.tabGeneral)
         self.gridLayout_3.setObjectName("gridLayout_3")
         spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.gridLayout_3.addItem(spacerItem, 1, 1, 1, 1)
+        self.gridLayout_3.addItem(spacerItem, 2, 1, 1, 1)
         self.checkBoxShowStepNames = QtGui.QCheckBox(self.tabGeneral)
         self.checkBoxShowStepNames.setChecked(True)
         self.checkBoxShowStepNames.setObjectName("checkBoxShowStepNames")
         self.gridLayout_3.addWidget(self.checkBoxShowStepNames, 0, 0, 1, 1)
+        self.checkBoxCheckToolsOnStartup = QtGui.QCheckBox(self.tabGeneral)
+        self.checkBoxCheckToolsOnStartup.setChecked(True)
+        self.checkBoxCheckToolsOnStartup.setObjectName("checkBoxCheckToolsOnStartup")
+        self.gridLayout_3.addWidget(self.checkBoxCheckToolsOnStartup, 1, 0, 1, 1)
         self.tabWidget.addTab(self.tabGeneral, "")
         self.tabToolSettings = QtGui.QWidget()
         self.tabToolSettings.setObjectName("tabToolSettings")
@@ -139,6 +143,7 @@ class Ui_OptionsDialog(object):
     def retranslateUi(self, OptionsDialog):
         OptionsDialog.setWindowTitle(QtGui.QApplication.translate("OptionsDialog", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.checkBoxShowStepNames.setText(QtGui.QApplication.translate("OptionsDialog", "Show step names", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBoxCheckToolsOnStartup.setText(QtGui.QApplication.translate("OptionsDialog", "Check tools on application start", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGeneral), QtGui.QApplication.translate("OptionsDialog", "&General", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_3.setTitle(QtGui.QApplication.translate("OptionsDialog", "Virtual Environment", None, QtGui.QApplication.UnicodeUTF8))
         self.labelVirtualEnvironmentPath.setText(QtGui.QApplication.translate("OptionsDialog", "Path:", None, QtGui.QApplication.UnicodeUTF8))
