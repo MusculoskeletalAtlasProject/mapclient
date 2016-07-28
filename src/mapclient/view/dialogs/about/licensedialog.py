@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 '''
 
 from PySide.QtGui import QDialog
-from mapclient.view.ui_licensedialog import Ui_LicenseDialog
+from mapclient.view.dialogs.about.ui.ui_licensedialog import Ui_LicenseDialog
 
 class LicenseDialog(QDialog):
     '''

@@ -17,9 +17,10 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
-from PySide.QtGui import QDialog, QTableWidgetItem
+from PySide.QtGui import QDialog, QTableWidgetItem, QLabel
 
 from mapclient.view.dialogs.log.ui.ui_logdetails import Ui_LogDetails
+
 
 class LogDetails(QDialog):
     '''
@@ -39,4 +40,11 @@ class LogDetails(QDialog):
         self._ui.detailedTable.setColumnCount(1)
 
         for row, information in enumerate(log_details):
-            self._ui.detailedTable.setItem(row, 0, QTableWidgetItem(information))
+            if row == 4:
+                label = QLabel(information)
+                self._ui.detailedTable.setCellWidget(row, 0, label)
+            else:
+                self._ui.detailedTable.setItem(row, 0, QTableWidgetItem(information))
+
+        self._ui.detailedTable.resizeColumnsToContents()
+        self._ui.detailedTable.resizeRowsToContents()

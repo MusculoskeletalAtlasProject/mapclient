@@ -22,6 +22,8 @@ class ConfigureDialog(QtGui.QDialog):
         self._ui = Ui_ConfigureDialog()
         self._ui.setupUi(self)
 
+        self._workflow_location = None
+
         # Keep track of the previous identifier so that we can track changes
         # and know how many occurrences of the current identifier there should
         # be.
@@ -45,7 +47,10 @@ class ConfigureDialog(QtGui.QDialog):
 
         if location:
             self._previousLocation = location
-            self._ui.lineEditFileLocation.setText(location)
+            self._ui.lineEditFileLocation.setText(os.path.relpath(location, self._workflow_location))
+
+    def setWorkflowLocation(self, location):
+        self._workflow_location = location
 
     def accept(self):
         '''
@@ -71,12 +76,10 @@ class ConfigureDialog(QtGui.QDialog):
         # The identifierOccursCount method is part of the interface to the workflow framework.
         value = self.identifierOccursCount(self._ui.lineEdit0.text())
         valid = (value == 0) or (value == 1 and self._previousIdentifier == self._ui.lineEdit0.text())
-        if valid:
-            self._ui.lineEdit0.setStyleSheet(DEFAULT_STYLE_SHEET)
-        else:
-            self._ui.lineEdit0.setStyleSheet(INVALID_STYLE_SHEET)
-            
-        location_valid = os.path.isfile(self._ui.lineEditFileLocation.text())
+        self._ui.lineEdit0.setStyleSheet(DEFAULT_STYLE_SHEET if valid else INVALID_STYLE_SHEET)
+
+        location_valid = self._ui.lineEditFileLocation.text() and \
+            os.path.isfile(os.path.join(self._workflow_location, self._ui.lineEditFileLocation.text()))
 
         return valid and location_valid
 
@@ -90,6 +93,7 @@ class ConfigureDialog(QtGui.QDialog):
         config = {}
         config['identifier'] = self._ui.lineEdit0.text()
         config['File'] = self._ui.lineEditFileLocation.text()
+        config['previous_location'] = os.path.relpath(self._previousLocation, self._workflow_location)
         return config
 
     def setConfig(self, config):
@@ -101,4 +105,6 @@ class ConfigureDialog(QtGui.QDialog):
         self._previousIdentifier = config['identifier']
         self._ui.lineEdit0.setText(config['identifier'])
         self._ui.lineEditFileLocation.setText(config['File'])
+        if 'previous_location' in config:
+            self._previousLocation = os.path.join(self._workflow_location, config['previous_location'])
 

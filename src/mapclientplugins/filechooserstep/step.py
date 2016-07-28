@@ -2,6 +2,7 @@
 '''
 MAP Client Plugin Step
 '''
+import os
 import json
 
 from PySide import QtGui
@@ -49,7 +50,7 @@ class FileChooserStep(WorkflowStepMountPoint):
         The index is the index of the port in the port list.  If there is only one
         provides port for this step then the index can be ignored.
         '''
-        return self._config['File'] # http://physiomeproject.org/workflow/1.0/rdf-schema#file_location
+        return os.path.join(self._location, self._config['File']) # http://physiomeproject.org/workflow/1.0/rdf-schema#file_location
 
     def configure(self):
         '''
@@ -59,7 +60,8 @@ class FileChooserStep(WorkflowStepMountPoint):
         then set:
             self._configured = True
         '''
-        dlg = ConfigureDialog()
+        dlg = ConfigureDialog(QtGui.QApplication.activeWindow().currentWidget())
+        dlg.setWorkflowLocation(self._location)
         dlg.identifierOccursCount = self._identifierOccursCount
         dlg.setConfig(self._config)
         dlg.validate()
@@ -99,6 +101,7 @@ class FileChooserStep(WorkflowStepMountPoint):
         self._config.update(json.loads(string))
 
         d = ConfigureDialog()
+        d.setWorkflowLocation(self._location)
         d.identifierOccursCount = self._identifierOccursCount
         d.setConfig(self._config)
         self._configured = d.validate()

@@ -20,7 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 from PySide import QtCore
 
 VERSION_MAJOR = 0
-VERSION_MINOR = 12
+VERSION_MINOR = 13
 VERSION_PATCH = 0
 VERSION_STRING = str(VERSION_MAJOR) + "." + str(VERSION_MINOR) + "." + str(VERSION_PATCH)
 
@@ -52,6 +52,7 @@ ABOUT = {
 # APPLICATION
 DEFAULT_WORKFLOW_PROJECT_FILENAME = '.workflow.conf'
 DEFAULT_WORKFLOW_ANNOTATION_FILENAME = '.workflow.rdf'
+DEFAULT_WORKFLOW_REQUIREMENTS_FILENAME = '.workflow.req'
 
 def setApplicationsSettings(app):
 

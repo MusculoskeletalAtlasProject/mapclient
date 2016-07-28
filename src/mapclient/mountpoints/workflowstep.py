@@ -104,10 +104,11 @@ A plugin that registers this mount point could have:
   
 '''
 
-def _workflow_step_init(self, name, location):
+def _workflow_step_init(self, name, location, parent=None):
     '''
     Constructor
     '''
+    self._parent = parent
     self._name = name
     self._location = location
     self._category = 'General'
@@ -119,6 +120,9 @@ def _workflow_step_init(self, name, location):
     self._setCurrentWidget = None
     self._identifierOccursCount = None
 
+def _workflow_step_setLocation(self, location):
+    self._location = location
+
 def _workflow_step_execute(self, dataIn=None):
     self._doneExecution()
 
@@ -127,6 +131,19 @@ def _workflow_step_getPortData(self, index):
 
 def _workflow_step_setPortData(self, index, dataIn):
     pass
+
+def _workflow_step_get_source_uri(self):
+    if hasattr(self, '__module__'):
+        module = self.__module__
+        module_sep = module.split('.')
+        module_sep = module_sep[:2]
+        package = '.'.join(module_sep)
+        import importlib
+        p = importlib.import_module(package)
+        if hasattr(p, '__location__'):
+            return p.__location__
+
+    return None
 
 def _workflow_step_registerDoneExecution(self, observer):
     self._doneExecution = observer
@@ -173,6 +190,7 @@ def _workflow_step_getName(self):
 
 attr_dict = {}
 attr_dict['__init__'] = _workflow_step_init
+attr_dict['setLocation'] = _workflow_step_setLocation
 attr_dict['execute'] = _workflow_step_execute
 attr_dict['getPortData'] = _workflow_step_getPortData
 attr_dict['setPortData'] = _workflow_step_setPortData
@@ -186,8 +204,10 @@ attr_dict['addPort'] = _workflow_step_addPort
 attr_dict['getName'] = _workflow_step_getName
 attr_dict['deserialize'] = _workflow_step_deserialize
 attr_dict['serialize'] = _workflow_step_serialize
+attr_dict['getSourceURI'] = _workflow_step_get_source_uri
 
 WorkflowStepMountPoint = pluginframework.MetaPluginMountPoint('WorkflowStepMountPoint', (object,), attr_dict)
+
 
 def workflowStepFactory(step_name, location):
     for step in WorkflowStepMountPoint.getPlugins(location):
@@ -195,6 +215,7 @@ def workflowStepFactory(step_name, location):
             return step
 
     raise ValueError('Failed to find/create a step named: ' + step_name)
+
 
 def removeWorkflowStep(step_module):
     '''

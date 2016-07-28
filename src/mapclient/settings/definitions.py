@@ -35,6 +35,8 @@ PYSIDE_RCC_EXE = 'lineEditPySideRCC'
 VIRTUAL_ENV_PATH = 'lineEditVirtualEnvironmentPath'
 GIT_EXE = 'lineEditGitExecutable'
 VIRTUAL_ENV_SETUP_ATTEMPTED = 'venvSetupAttempted'
+CHECK_TOOLS_ON_STARTUP = 'checkBoxCheckToolsOnStartup'
+USE_EXTERNAL_GIT = 'checkBoxUseExternalGit'
 
 WIZARD_TOOL_STRING = 'Wizard Tool'
 VIRTUAL_ENVIRONMENT_STRING = 'Virtual Environment'

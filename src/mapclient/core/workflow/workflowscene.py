@@ -26,7 +26,7 @@ from PySide import QtCore
 
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflow.workflowerror import WorkflowError
-from mapclient.core.utils import convertExceptionToMessage, loadConfiguration
+from mapclient.core.utils import convertExceptionToMessage, loadConfiguration, FileTypeObject
 from mapclient.settings.general import getConfigurationFile
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ class Item(object):
     def __init__(self):
         self._selected = True
 
-    def selected(self):
+    def getSelected(self):
         return self._selected
 
     def setSelected(self, selected):
@@ -45,7 +45,6 @@ class Item(object):
 
 
 class MetaStep(Item):
-
 
     Type = 'Step'
 
@@ -56,8 +55,14 @@ class MetaStep(Item):
         self._uid = str(uuid.uuid1())
         self._id = step.getIdentifier()
 
-    def pos(self):
+    def getPos(self):
         return self._pos
+
+    def setPos(self, pos):
+        self._pos = pos
+
+    def getStep(self):
+        return self._step
 
     def getName(self):
         return self._step.getName()
@@ -223,7 +228,7 @@ class WorkflowDependencyGraph(object):
 
         self._topologicalOrder = self._determineTopologicalOrder(self._dependencyGraph, starting_set)
 
-        configured = [metastep for metastep in self._topologicalOrder if metastep._step.isConfigured()]
+        configured = [metastep for metastep in self._topologicalOrder if metastep.getStep().isConfigured()]
         can = len(configured) == len(self._topologicalOrder) and len(self._topologicalOrder) >= 0
         return can and self._current == -1
 
@@ -257,18 +262,18 @@ class WorkflowDependencyGraph(object):
                     # dataIn = source_step.getPortData(source_data_index)
                     # destination_step.setPortData(destination_data_index, dataIn)
 
-                    dataIn = connection.source()._step.getPortData(connection.sourceIndex())
-                    current_node._step.setPortData(connection.destinationIndex(), dataIn)
+                    dataIn = connection.source().getStep().getPortData(connection.sourceIndex())
+                    current_node.getStep().setPortData(connection.destinationIndex(), dataIn)
 
             try:
-                current_node._step.execute()
+                current_node.getStep().execute()
             except Exception as e:
                 self._current = -1
                 log_message = 'Exception caught while executing the workflow: ' + convertExceptionToMessage(e)
-                logger.critical(log_message)
-                _, _, tb = sys.exc_info()
-                logger.info(traceback.print_tb(tb))
-                raise WorkflowError(log_message)
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                redirect_output = FileTypeObject()
+                traceback.print_exception(exc_type, exc_value, exc_traceback, file=redirect_output)
+                raise WorkflowError(log_message + '\n\n' + ''.join(redirect_output.messages))
 
 
 class WorkflowScene(object):
@@ -283,6 +288,13 @@ class WorkflowScene(object):
 
     def saveAnnotation(self, f):
         pass
+
+    def updateWorkflowLocation(self, location):
+        for meta_item in self._items:
+            if meta_item.Type == MetaStep.Type:
+                step = meta_item.getStep()
+                step.setLocation(location)
+                step.deserialize(step.serialize())
 
     def saveState(self, ws):
         connectionMap = {}
@@ -308,13 +320,18 @@ class WorkflowScene(object):
                 metastep.syncIdentifier()
 
             identifier = metastep.getIdentifier() or metastep.getUniqueIdentifier()
-            step_config = metastep._step.serialize()
-            with open(getConfigurationFile(location, identifier), 'w') as f:
-                f.write(step_config)
+            step = metastep.getStep()
+            step_config = step.serialize()
+            if step_config:
+                with open(getConfigurationFile(location, identifier), 'w') as f:
+                    f.write(step_config)
             ws.setArrayIndex(nodeIndex)
-            ws.setValue('name', metastep._step.getName())
-            ws.setValue('position', metastep._pos)
-            ws.setValue('selected', metastep._selected)
+            source_uri = step.getSourceURI()
+            if source_uri is not None:
+                ws.setValue('source_uri', source_uri)
+            ws.setValue('name', step.getName())
+            ws.setValue('position', metastep.getPos())
+            ws.setValue('selected', metastep.getSelected())
             ws.setValue('identifier', identifier)
             ws.setValue('unique_identifier', metastep.getUniqueIdentifier())
             ws.beginWriteArray('connections')
@@ -325,12 +342,53 @@ class WorkflowScene(object):
                     ws.setValue('connectedFromIndex', connectionItem.sourceIndex())
                     ws.setValue('connectedTo', stepList.index(connectionItem.destination()))
                     ws.setValue('connectedToIndex', connectionItem.destinationIndex())
-                    ws.setValue('selected', connectionItem.selected())
+                    ws.setValue('selected', connectionItem.getSelected())
                     connectionIndex += 1
             ws.endArray()
             nodeIndex += 1
         ws.endArray()
         ws.endGroup()
+
+    def isLoadable(self, ws):
+        loadable = True
+        location = self._manager.location()
+        ws.beginGroup('nodes')
+        nodeCount = ws.beginReadArray('nodelist')
+        try:
+            for i in range(nodeCount):
+                ws.setArrayIndex(i)
+                name = ws.value('name')
+                step = workflowStepFactory(name, location)
+
+        except ValueError:
+            loadable = False
+
+        ws.endArray()
+        ws.endGroup()
+        return loadable
+
+    def doStepReport(self, ws):
+        report = {}
+        location = self._manager.location()
+        ws.beginGroup('nodes')
+        node_count = ws.beginReadArray('nodelist')
+        for i in range(node_count):
+            ws.setArrayIndex(i)
+            name = ws.value('name')
+            try:
+                step = workflowStepFactory(name, location)
+                report[name] = 'Found'
+            except ValueError as e:
+                source_uri = ws.value('source_uri', None)
+                if source_uri is not None:
+                    report[name] = source_uri
+                else:
+                    report[name] = 'Not Found - {0}'.format(e)
+
+        ws.endArray()
+        ws.endGroup()
+
+        return report
 
     def loadState(self, ws):
         self.clear()
@@ -352,8 +410,8 @@ class WorkflowScene(object):
             metastep = MetaStep(step)
             metastep.setIdentifier(identifier)
             metastep.setUniqueIdentifier(uniqueIdentifier)
-            metastep._pos = position
-            metastep._selected = selected
+            metastep.setPos(position)
+            metastep.setSelected(selected)
             metaStepList.append(metastep)
             self.addItem(metastep)
 
@@ -391,7 +449,7 @@ class WorkflowScene(object):
     def registerDoneExecutionForAll(self, callback):
         for item in self._items:
             if item.Type == MetaStep.Type:
-                item._step.registerDoneExecution(callback)
+                item.getStep.registerDoneExecution(callback)
 
     def clear(self):
         self._items.clear()

@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 '''
 from dateutil.parser import parse
 
-from PySide.QtGui import QDialog, QTableWidgetItem
+from PySide.QtGui import QDialog, QTableWidgetItem, QLabel
 
 from mapclient.view.dialogs.log.ui.ui_loginformation import Ui_LogInformation
 from mapclient.settings.general import getLogLocation
@@ -39,6 +39,7 @@ class LogInformation(QDialog):
         QDialog.__init__(self, parent)
         self._ui = Ui_LogInformation()
         self._ui.setupUi(self)
+        self._ui.detailsButton.setEnabled(False)
         self._makeConnections()
 
     def fillTable(self, parent=None):
@@ -46,18 +47,29 @@ class LogInformation(QDialog):
         self.updateTable(logs)
 
     def _makeConnections(self):
+        self._ui.information_table.itemSelectionChanged.connect(self._selectionChanged)
+        self._ui.information_table.cellDoubleClicked.connect(self.showLogDetails)
         self._ui.detailsButton.clicked.connect(self.showLogDetails)
         self._ui.loadButton.clicked.connect(self.loadLogSession)
+
+    def _selectionChanged(self):
+        if self._ui.information_table.selectedItems():
+            self._ui.detailsButton.setEnabled(True)
 
     def showLogDetails(self):
         from mapclient.view.dialogs.log.logdetails import LogDetails
         dlg = LogDetails(self)
         dlg.setModal(True)
-        index = self._ui.information_table.indexFromItem(self._ui.information_table.currentItem())
+        index = self._ui.information_table.indexFromItem(self._ui.information_table.selectedItems()[0])
         row = index.row()
         log_details = []
         for column in range(self._ui.information_table.columnCount()):
-            log_details.append(self._ui.information_table.item(row, column).text())
+            if column == 4:
+                edit = self._ui.information_table.cellWidget(row, column)
+                text = edit.text()
+            else:
+                text = self._ui.information_table.item(row, column).text()
+            log_details.append(text)
         dlg.fillTable(log_details)
         dlg.exec_()
 
@@ -82,7 +94,7 @@ class LogInformation(QDialog):
                         parse(entry[:25])
                         logs.append(entry.split(' - '))
                     except Exception:
-                        logs[-1][-1] += entry
+                        logs[-1][-1] += '\n' + entry
 
         return logs
 
@@ -95,5 +107,12 @@ class LogInformation(QDialog):
 
         for row, log in enumerate(logs):
             for column, entry in enumerate(log):
-                self._ui.information_table.setItem(row, column, QTableWidgetItem(entry))
+                if column == 4:
+                    label = QLabel(entry)
+                    self._ui.information_table.setCellWidget(row, column, label)
+                else:
+                    self._ui.information_table.setItem(row, column, QTableWidgetItem(entry))
 
+        self._ui.information_table.resizeColumnToContents(0)
+        self._ui.information_table.resizeColumnToContents(1)
+        self._ui.information_table.resizeRowsToContents()
