@@ -118,8 +118,8 @@ class VCSChecks(ApplicationChecks):
                 ver = dulwich.__version__
                 self._report += "Internal Git version '{0}.{1}.{2}' successfully ran.".format(ver[0], ver[1], ver[2])
                 result = True
-            except Exception as e:
-                self._report += "Internal Git did not execute successfully, caused exception:\n{0}".format(e)
+            except ImportError:
+                self._report += "Internal Git did not execute successfully."
 
         return result
 

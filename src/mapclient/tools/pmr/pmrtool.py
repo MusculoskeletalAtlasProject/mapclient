@@ -119,22 +119,20 @@ def errmsg(msg, doc, pos, end=None):
 
 
 class PMRTool(object):
-    '''
-    classdocs
-    '''
 
     PROTOCOL = 'application/vnd.physiome.pmr2.json.0'
     UA = 'pmr.jsonclient.Client/0.2'
 
-    def __init__(self, pmr_info=None):
-        '''
-        Constructor
-        '''
+    def __init__(self, pmr_info=None, use_external_git=False):
         self._termLookUpLimit = 32
-        self._pmr_info = pmr_info
+        self.set_info(pmr_info)
+        self.set_use_external_git(use_external_git)
 
     def set_info(self, info):
         self._pmr_info = info
+
+    def set_use_external_git(self, use_external_git):
+        self._git_implementation = 'git' if use_external_git else 'dulwich'
 
     def make_session(self):
 
@@ -327,7 +325,7 @@ class PMRTool(object):
             remote_workspace_url=remote_workspace_url,
         )
 
-        workspace = CmdWorkspace(local_workspace_dir, auto=True)
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
 
         # Another caveat: that workspace is possibly private.  Acquire
         # temporary password.
@@ -352,7 +350,7 @@ class PMRTool(object):
         if not self.hasAccess():
             return
 
-        workspace = CmdWorkspace(local_workspace_dir, auto=True)
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
         cmd = workspace.cmd
         remote_workspace_url = cmd.read_remote(workspace)
         target = '/'.join([remote_workspace_url, 'rdf_indexer'])
@@ -372,7 +370,7 @@ class PMRTool(object):
         # prereq is that the remote must be new.
 
         workspace_obj = self.getObjectInfo(remote_workspace_url)
-        cmd_cls = get_cmd_by_name(workspace_obj.get('storage'))
+        cmd_cls = get_cmd_by_name(self._git_implementation)
         if cmd_cls is None:
             raise PMRToolError('Remote storage format unsupported',
                 'The remote storage `%(storage)s` is not one of the ones that '
@@ -389,11 +387,11 @@ class PMRTool(object):
         cmd.write_remote(workspace)
 
     def hasDVCS(self, local_workspace_dir):
-        workspace = CmdWorkspace(local_workspace_dir, auto=True)
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
         return workspace.cmd is not None
 
     def commitFiles(self, local_workspace_dir, message, files):
-        workspace = CmdWorkspace(local_workspace_dir, auto=True)
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
         cmd = workspace.cmd
         if cmd is None:
             logger.info('skipping commit, no underlying repo detected')
@@ -409,7 +407,7 @@ class PMRTool(object):
         return cmd.commit(workspace, message)
 
     def pushToRemote(self, local_workspace_dir, remote_workspace_url=None):
-        workspace = CmdWorkspace(local_workspace_dir, auto=True)
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
         cmd = workspace.cmd
 
         if remote_workspace_url is None:
@@ -431,7 +429,7 @@ class PMRTool(object):
         return stdout, stderr
 
     def pullFromRemote(self, local_workspace_dir):
-        workspace = CmdWorkspace(local_workspace_dir, auto=True)
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
         cmd = workspace.cmd
 
         remote_workspace_url = cmd.read_remote(workspace)

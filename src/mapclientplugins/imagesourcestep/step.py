@@ -24,9 +24,9 @@ from PySide import QtGui
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclientplugins.imagesourcestep.widgets.configuredialog import ConfigureDialog, ConfigureDialogState
 
-# from mapclient.core.threadcommandmanager import ThreadCommandManager
 from mapclient.tools.pmr.pmrtool import PMRTool
 from mapclient.tools.pmr.settings.general import PMR
+
 
 class ImageSourceData(object):
 
@@ -52,19 +52,14 @@ class ImageSourceData(object):
 
 
 class ImageSourceStep(WorkflowStepMountPoint):
-    '''
+    """
     A step that satisfies the step plugin duck.
     
     It describes the location of an image/a set of images.
     It can be used as an image source.
-    '''
+    """
     def __init__(self, location):
-        '''
-        Constructor
-        '''
         super(ImageSourceStep, self).__init__('Image Source', location)
-#        self._location = location
-#        self._name = 'Image source'
         self._icon = QtGui.QImage(':/imagesource/icons/landscapeimages.png')
         self.addPort(('http://physiomeproject.org/workflow/1.0/rdf-schema#port',
                       'http://physiomeproject.org/workflow/1.0/rdf-schema#provides',
@@ -72,8 +67,6 @@ class ImageSourceStep(WorkflowStepMountPoint):
         self._configured = False
         self._category = 'Source'
         self._state = ConfigureDialogState()
-#         self._threadCommandManager = ThreadCommandManager()
-#         self._threadCommandManager.registerFinishedCallback(self._threadCommandsFinished)
 
     def configure(self):
         d = ConfigureDialog(self._state, QtGui.QApplication.activeWindow().currentWidget())
