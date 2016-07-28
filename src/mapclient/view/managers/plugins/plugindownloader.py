@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 '''
 from PySide.QtGui import QDialog
 
-from mapclient.view.ui_plugindownloader import Ui_pluginDownloader
+from mapclient.view.managers.plugins.ui.ui_plugindownloader import Ui_pluginDownloader
 
 class PluginDownloader(QDialog):
     '''

@@ -17,6 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
+import sys
 import math
 import logging
 
@@ -28,6 +29,7 @@ from mapclient.view.workflow.workflowcommands import CommandSelection, CommandRe
 from mapclient.view.workflow.workflowgraphicsitems import Node, Arc, ErrorItem, ArrowLine, StepPort
 
 logger = logging.getLogger()
+
 
 class WorkflowGraphicsView(QtGui.QGraphicsView):
 
@@ -186,7 +188,13 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
             hotspot = QtCore.QPoint()
 
             nameLen = stream.readUInt32()
-            name = stream.readRawData(nameLen).decode('utf-8')
+            # name = stream.readRawData(nameLen).decode('utf-8')
+            if sys.version_info < (3, 0):
+                name = stream.readRawData(nameLen).decode('utf-8')
+            else:
+                buf = QtCore.QByteArray()
+                stream >> buf
+                name = '{0}'.format(buf)
 
             stream >> hotspot
 

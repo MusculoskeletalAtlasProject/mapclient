@@ -6,17 +6,18 @@ Created on May 19, 2015
 import os, sys
 import logging
 import subprocess
-import site
 import json
 import pkgutil
 import traceback
 
-from mapclient.core.utils import which
+from mapclient.core.utils import which, is_frozen, FileTypeObject
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     VIRTUAL_ENV_SETUP_ATTEMPTED, PLUGINS_PACKAGE_NAME, PLUGINS_PTH
 from mapclient.core.checks import getPipExecutable
 
 from importlib import import_module
+if not is_frozen():
+    import site
 
 # if sys.version_info < (3, 0):
 #     import imp
@@ -118,7 +119,7 @@ class PluginManager(object):
         print('implement me')
 
     def checkDependencies(self, wf_location):
-        print('implment me')
+        print('implement me')
 
     def list(self):
         if self._virtualenv_enabled:
@@ -176,9 +177,12 @@ class PluginManager(object):
 
         for candidate in getVirtualEnvCandidates():
             try:
-                p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
+                p = subprocess.Popen([candidate, '--clear', '--no-setuptools', self._virtualenv_dir],
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE)
+                # p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
+                #                       stdout=subprocess.PIPE,
+                #                       stderr=subprocess.PIPE)
                 stdout, stderr = p.communicate()
 
                 if stdout:
@@ -196,6 +200,8 @@ class PluginManager(object):
         else:
             logger.warning('Virtual environment setup unsuccessful')
         self._virtualenv_setup_attempted = True
+
+        return self.virtualEnvExists()
 
     def loadDefaultPlugins(self):
         return self._load_default_plugins
@@ -225,10 +231,24 @@ class PluginManager(object):
     def _addPluginDir(self, directory):
         added = False
         if isMapClientPluginsDir(directory):
-            site.addsitedir(directory)
+            if is_frozen():
+                sys.path.append(directory)
+            else:
+                site.addsitedir(directory)
             added = True
 
         return added
+
+    def installPackage(self, uri):
+        if self._virtualenv_enabled:
+            pip_exe = getPipExecutable(self._virtualenv_dir)
+
+            install_report = subprocess.check_output([pip_exe, 'install', uri])
+            # install_report = install_report.decode('utf-8')
+            logger.info(install_report)
+            self.reloadPlugins()
+        else:
+            logger.info('VirtualEnv not enabled no install functionality available.')
 
     def extractPluginDependencies(self, path):
         return []
@@ -274,11 +294,16 @@ class PluginManager(object):
         if len_package_modules_prior == 0:
             package = import_module(PLUGINS_PACKAGE_NAME)
         else:
-            package = reload(sys.modules[PLUGINS_PACKAGE_NAME])
-#             try:
-#                 package = imp.reload(sys.modules[PLUGINS_PACKAGE_NAME])
-#             except Exception:
-#                 package = importlib.reload(sys.modules[PLUGINS_PACKAGE_NAME])
+            if sys.version_info < (3, 0):
+                package = reload(sys.modules[PLUGINS_PACKAGE_NAME])
+            else:
+                import importlib
+                if sys.version_info > (3, 4):
+                    for pkg_path in sys.modules[PLUGINS_PACKAGE_NAME]:
+                        importlib.reload(sys.modules[pkg_path])
+
+                package = importlib.reload(sys.modules[PLUGINS_PACKAGE_NAME])
+
         self._import_errors = []
         self._type_errors = []
         self._syntax_errors = []
@@ -292,8 +317,10 @@ class PluginManager(object):
                     plugin_dependencies = self.extractPluginDependencies(package.__path__)
                     if hasattr(module, '__version__') and hasattr(module, '__author__'):
                         logger.info('Loaded plugin \'' + modname + '\' version [' + module.__version__ + '] by ' + module.__author__)
-                    if hasattr(module, '__location__') and hasattr(module, '__stepname__'):
+                    if hasattr(module, '__location__') and module.__location__:
                         logger.info('Plugin \'' + modname + '\' available from: ' + module.__location__)
+                    else:
+                        logger.info('Plugin \'' + modname + '\' has no location set.')
 
                     self._plugin_database.addLoadedPluginInformation(modname,
                                                                      module.__stepname__ if hasattr(module, '__stepname__') else 'None',
@@ -316,13 +343,12 @@ class PluginManager(object):
                         self._tab_errors += [modname]
                     self._plugin_error_directories[modname] = _.path
 
-#                     message = convertExceptionToMessage(e)
                     logger.warn('Plugin \'' + modname + '\' not loaded')
                     logger.warn('Reason: {0}'.format(e))
-                    _, _, tb = sys.exc_info()
-                    for line in traceback.format_tb(tb):
-                        logger.warn(line)
-#                     logger.warn('\n'.join(traceback.format_tb(tb)))
+                    exc_type, exc_value, exc_traceback = sys.exc_info()
+                    redirect_output = FileTypeObject()
+                    traceback.print_exception(exc_type, exc_value, exc_traceback, file=redirect_output)
+                    logger.warn(''.join(redirect_output.messages))
 
     def haveErrors(self):
         return len(self._import_errors) or len(self._type_errors) or \
@@ -423,7 +449,7 @@ def isMapClientPluginsDir(plugin_dir):
         init_file = os.path.join(plugin_dir, PLUGINS_PACKAGE_NAME, '__init__.py')
         if os.path.isfile(init_file):
             contents = open(init_file).read()
-            if 'pkgutil' in contents and 'extend_path' in contents:
+            if 'pkg_resources' in contents and 'declare_namespace' in contents:
                 result = True
 
     return result
@@ -452,7 +478,10 @@ class PluginSiteManager(object):
             f.write('\n'.join(pth_entries))
 
     def load_site(self, target_dir):
-        site.addsitedir(target_dir)
+        if is_frozen():
+            sys.path.append(target_dir)
+        else:
+            site.addsitedir(target_dir)
 
 class PluginDatabase:
     '''

@@ -85,9 +85,9 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
                 # Put the node into the scene straight away so that the items scene will
                 # be valid when we set the position.
                 QtGui.QGraphicsScene.addItem(self, node)
-                node.setPos(workflowitem.pos())
+                node.setPos(workflowitem.getPos())
                 self.blockSignals(True)
-                node.setSelected(workflowitem.selected())
+                node.setSelected(workflowitem.getSelected())
                 self.blockSignals(False)
                 meta_steps[workflowitem] = node
             elif workflowitem.Type == Connection.Type:
@@ -103,7 +103,7 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
             # Again put the arc into the scene straight away so the scene will be valid
             QtGui.QGraphicsScene.addItem(self, arc)
             self.blockSignals(True)
-            arc.setSelected(connection.selected())
+            arc.setSelected(connection.getSelected())
             self.blockSignals(False)
 
         self._previousSelection = self.selectedItems()
@@ -165,9 +165,9 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
 
     def showStepNames(self, show):
         self._showStepNames = show
-        for workflowitem in self.items():
-            if hasattr(workflowitem, 'Type') and workflowitem.Type == Node.Type:
-                workflowitem.showStepName(show)
+        for workflow_item in self.items():
+            if hasattr(workflow_item, 'Type') and workflow_item.Type == Node.Type:
+                workflow_item.showStepName(show)
 
     def doneExecution(self):
         self.parent().executeNext()

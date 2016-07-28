@@ -21,6 +21,7 @@ import os
 
 from PySide import QtCore
 
+
 def getDataDirectory():
     """
     Return the directory where we can store data for the application.
@@ -32,6 +33,7 @@ def getDataDirectory():
 
     return app_dir
 
+
 def _getAppDirectory(name):
     app_dir = getDataDirectory()
     name_dir = os.path.join(app_dir, name)
@@ -41,11 +43,14 @@ def _getAppDirectory(name):
 
     return name_dir
 
+
 def getVirtEnvDirectory():
     return _getAppDirectory('venv')
 
+
 def getLogDirectory():
     return _getAppDirectory('logs')
+
 
 def getLogLocation():
     '''
@@ -61,13 +66,16 @@ def getLogLocation():
 def getConfigurationSuffix():
     return '.conf'
 
+
 def getConfigurationFile(location, identifier):
     if 'src/mapclient' in location:
         raise Exception('Saving this in the wrong place.')
 
     return os.path.join(location, identifier + getConfigurationSuffix())
 
+
 DISPLAY_FULL_PATH = 'AIJDKUUGCNEGELND'
+
 
 def getConfiguration(option):
     if option == DISPLAY_FULL_PATH:

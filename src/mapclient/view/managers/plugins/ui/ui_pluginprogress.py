@@ -44,5 +44,3 @@ class Ui_DownloadProgress(object):
     def retranslateUi(self, DownloadProgress):
         DownloadProgress.setWindowTitle(QtGui.QApplication.translate("DownloadProgress", "Loading Plugins", None, QtGui.QApplication.UnicodeUTF8))
         self.cancelDownload.setText(QtGui.QApplication.translate("DownloadProgress", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
-
-from . import resources_rc

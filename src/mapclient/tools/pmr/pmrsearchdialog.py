@@ -33,16 +33,13 @@ from mapclient.tools.pmr.settings.general import PMR
 
 logger = logging.getLogger(__name__)
 
-class PMRSearchDialog(QtGui.QDialog):
-    '''
-    Dialog for managing interaction with PMR.
-    '''
 
+class PMRSearchDialog(QtGui.QDialog):
+    """
+    Dialog for managing interaction with PMR.
+    """
 
     def __init__(self, parent=None):
-        '''
-        Constructor
-        '''
         QtGui.QDialog.__init__(self, parent)
         self._ui = Ui_PMRSearchDialog()
         self._ui.setupUi(self)

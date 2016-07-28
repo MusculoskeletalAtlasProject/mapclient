@@ -21,16 +21,19 @@ import os
 import sys
 from mapclient.settings.general import getConfigurationFile
 
+
+def is_frozen():
+    return hasattr(sys, "frozen")  # new py2exe
+
+
 def convertExceptionToMessage(e):
     string_e = str(e)
     if '\n' in string_e:
-        message = ''
-        e = string_e.split('\n')
-        for i in range(len(e)):
-            message += e[i] + '  '
+        message = string_e.replace('\n', ' ')
     else:
         message = string_e    
     return message
+
 
 def getSystemPipCandidates():
     """Return a list of strings with the candidates for the pip application
@@ -42,6 +45,7 @@ def getSystemPipCandidates():
         pip_candidates = ['pip', 'pip3']
 
     return pip_candidates
+
 
 def which(cmd, mode=os.F_OK | os.X_OK, path=None):
     """Given a command, mode, and a PATH string, return the path which
@@ -117,6 +121,7 @@ def which(cmd, mode=os.F_OK | os.X_OK, path=None):
 
     return None
 
+
 def loadConfiguration(location, identifier):
     filename = getConfigurationFile(location, identifier)
     configuration = '{}'
@@ -126,4 +131,16 @@ def loadConfiguration(location, identifier):
     except Exception:
         pass
     return configuration
+
+
+class FileTypeObject(object):
+    def __init__(self):
+        self.messages = list()
+
+    def write(self, message):
+        self.messages.append(message)
+
+    def flush(self):
+        pass
+
 

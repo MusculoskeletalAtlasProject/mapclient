@@ -21,16 +21,13 @@ import os
 from PySide import QtGui
 from mapclient.view.managers.plugins.ui.ui_pluginmanagerdialog import Ui_PluginManagerDialog
 
-class PluginManagerDialog(QtGui.QDialog):
-    '''
-    Dialog for managing the list of plugin directories.
-    '''
 
+class PluginManagerDialog(QtGui.QDialog):
+    """
+    Dialog for managing the list of plugin directories.
+    """
 
     def __init__(self, ignored_plugins_list, do_not_show_plugin_errors, resource_filenames, updater_settings, unsuccessful_package_installations, parent=None):
-        '''
-        Constructor
-        '''
         QtGui.QDialog.__init__(self, parent)
         self._ui = Ui_PluginManagerDialog()
         self._ui.setupUi(self)
@@ -79,9 +76,9 @@ class PluginManagerDialog(QtGui.QDialog):
             self._ui.directoryListing.addItem(directory)
 
     def reloadPlugins(self):
-        '''
+        """
         Set this to a callable that will reload the plugins from the current plugin directories.
-        '''
+        """
         pass
 
     def setDirectories(self, directories):
@@ -100,8 +97,8 @@ class PluginManagerDialog(QtGui.QDialog):
     def loadDefaultPlugins(self):
         return self._ui.defaultPluginCheckBox.isChecked()
 
-class PluginDirectories(object):
 
+class PluginDirectories(object):
 
     def __init__(self):
         self._previousLocation = ''

@@ -81,10 +81,10 @@ class Skeleton(object):
         ext_requirements_file = os.path.join(target_dir, 'ext-requirements.txt')
         license_file = os.path.join(target_dir, 'LICENSE')
         with open(readme_file, 'w') as f:
-            step_name = self._options.getName().decode('utf-8')
-            print("'{0}'".format(step_name))
-            myline = '=' * len(step_name)
-            print(myline)
+            step_name = self._options.getName()#.decode('utf-8')
+            # print("'{0}'".format(step_name))
+            # myline = '=' * len(step_name)
+            # print(myline)
             f.write(README_TEMPLATE % dict(
                 name=step_name,
                 underline='=' * len(step_name)

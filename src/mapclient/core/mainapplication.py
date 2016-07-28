@@ -26,6 +26,7 @@ from mapclient.core.managers.undomanager import UndoManager
 from mapclient.core.managers.pluginmanager import PluginManager
 from mapclient.core.managers.optionsmanager import OptionsManager
 from mapclient.core.checks import runChecks
+from mapclient.settings.definitions import CHECK_TOOLS_ON_STARTUP
 
 logger = logging.getLogger(__name__)
 
@@ -39,9 +40,12 @@ class MainApplication(object):
         self._size = QtCore.QSize(600, 400)
         self._pos = QtCore.QPoint(100, 150)
         self._pluginManager = PluginManager()
-        self._workflowManager = WorkflowManager()
+        self._workflowManager = WorkflowManager(self)
         self._undoManager = UndoManager()
         self._optionsManager = OptionsManager()
+
+    def installPackage(self, uri):
+        self._pluginManager.installPackage(uri)
 
     def setSize(self, size):
         self._size = size
@@ -68,7 +72,8 @@ class MainApplication(object):
         return self._optionsManager
 
     def doEnvironmentChecks(self):
-        return runChecks(self._optionsManager.getOptions())
+        options = self._optionsManager.getOptions()
+        return runChecks(options) if options[CHECK_TOOLS_ON_STARTUP] else True
 
     def writeSettings(self):
         settings = QtCore.QSettings()
