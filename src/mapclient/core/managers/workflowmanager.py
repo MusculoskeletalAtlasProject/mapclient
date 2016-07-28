@@ -250,8 +250,14 @@ class WorkflowManager(object):
 
     def save(self):
         wf = _getWorkflowConfiguration(self._location)
+
         if 'version' not in wf.allKeys():
             wf.setValue('version', info.VERSION_STRING)
+        workflow_version = versionTuple(wf.value('version'))
+        application_version = versionTuple(info.VERSION_STRING)
+        if workflow_version != application_version:
+            wf.setValue('version', info.VERSION_STRING)
+
         self._scene.saveState(wf)
         self._saveStateIndex = self._currentStateIndex
         af = _getWorkflowMetaAbsoluteFilename(self._location)

@@ -59,12 +59,12 @@ endpoints = {
 
 }
 
+
 def make_form_request(action_=None, **kw):
     return json.dumps({
         'fields': kw,
         'actions': {action_: 1},
     })
-
 
 
 class PMRToolError(ClientRuntimeError):
