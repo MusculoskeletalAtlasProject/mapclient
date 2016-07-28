@@ -26,7 +26,7 @@ from mapclient.view.workflow.workflowwidget import WorkflowWidget
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, WIZARD_TOOL_STRING, \
     VIRTUAL_ENVIRONMENT_STRING, PMR_TOOL_STRING, PYSIDE_RCC_EXE, PYSIDE_UIC_EXE, \
-    PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION
+    PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION, USE_EXTERNAL_GIT
 from mapclient.view.utils import set_wait_cursor
 
 logger = logging.getLogger(__name__)
@@ -393,7 +393,8 @@ class MainWindow(QtGui.QMainWindow):
 
     def showPMRTool(self):
         from mapclient.tools.pmr.dialogs.pmrdialog import PMRDialog
-        dlg = PMRDialog(self)
+        om = self._model.optionsManager()
+        dlg = PMRDialog(om.getOption(USE_EXTERNAL_GIT), self)
         dlg.setModal(True)
         dlg.exec_()
 

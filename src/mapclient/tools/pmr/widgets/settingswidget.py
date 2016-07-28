@@ -28,6 +28,7 @@ from mapclient.tools.pmr.dialogs.addhostdialog import AddHostDialog
 from mapclient.tools.pmr.pmrtool import PMRTool
 from mapclient.tools.pmr.settings.general import PMR
 
+
 class SettingsWidget(QtGui.QWidget):
 
     hostChanged = QtCore.Signal(int)
@@ -61,6 +62,9 @@ class SettingsWidget(QtGui.QWidget):
         pmr_info = PMR()
         for instance in pmr_info.hosts():
             self.addHost(instance, instance == pmr_info.activeHost())
+
+    def setUseExternalGit(self, use_external_git):
+        self._pmr_tool.set_use_external_git(use_external_git)
 
     def transferModel(self):
         '''

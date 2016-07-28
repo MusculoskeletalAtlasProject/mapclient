@@ -18,21 +18,17 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
 from PySide import QtGui, QtCore
+
+from mapclient.settings.definitions import USE_EXTERNAL_GIT
 from mapclient.view.ui_importworkflowdialog import Ui_ImportWorkflowDialog
 from mapclient.tools.pmr.pmrworkflowwidget import PMRWorkflowWidget
 from mapclient.tools.pmr.pmrtool import workflow_search_string
 import os.path
 
-class ImportWorkflowDialog(QtGui.QDialog):
-    '''
-    classdocs
-    '''
 
+class ImportWorkflowDialog(QtGui.QDialog):
 
     def __init__(self, previousLocation, parent=None):
-        '''
-        Constructor
-        '''
         super(ImportWorkflowDialog, self).__init__(parent)
         self._ui = Ui_ImportWorkflowDialog()
         self._ui.setupUi(self)
@@ -52,7 +48,9 @@ class ImportWorkflowDialog(QtGui.QDialog):
         return QtGui.QDialog.keyPressEvent(self, event)
 
     def _setupPMRWidget(self):
-        self._pmr_widget = PMRWorkflowWidget(self)
+        om = self.parent().model().optionsManager()
+        use_external_git = om.getOption(USE_EXTERNAL_GIT)
+        self._pmr_widget = PMRWorkflowWidget(use_external_git, self)
         self._pmr_widget.setExport(False)
         self._pmr_widget.setImport(False)
         self._pmr_widget.setSearchDomain(workflow_search_string)
