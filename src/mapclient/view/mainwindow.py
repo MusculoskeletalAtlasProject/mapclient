@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,11 +16,12 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 
 import logging
 from PySide import QtGui
 
+from mapclient.settings.general import getVirtualEnvSitePackagesDirectory
 from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
 from mapclient.view.workflow.workflowwidget import WorkflowWidget
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
@@ -35,14 +36,11 @@ ADMIN_MODE = False
 
 
 class MainWindow(QtGui.QMainWindow):
-    '''
+    """
     This is the main window for the MAP Client.
-    '''
+    """
 
     def __init__(self, model):
-        '''
-        Constructor
-        '''
         QtGui.QMainWindow.__init__(self)
         self._model = model
 
@@ -61,7 +59,6 @@ class MainWindow(QtGui.QMainWindow):
         self.resize(self._model.size())
         self.move(self._model.pos())
 
-
         self._workflowWidget = WorkflowWidget(self)
         self._ui.stackedWidget.addWidget(self._workflowWidget)
         self.setCurrentUndoRedoStack(self._workflowWidget.undoRedoStack())
@@ -69,10 +66,10 @@ class MainWindow(QtGui.QMainWindow):
         self._pluginManagerDlg = None
 
     def _setupMenus(self):
-        '''
+        """
         Because of OS X we have to setup the menubar with no parent so we do
         it manually here instead of through designer.
-        '''
+        """
         self.menubar = QtGui.QMenuBar()
         self.menubar.setObjectName("menubar")
         self.menu_Help = QtGui.QMenu(self.menubar)
@@ -341,9 +338,9 @@ class MainWindow(QtGui.QMainWindow):
 
     @set_wait_cursor
     def _pluginManagerLoadPlugins(self):
-        '''
+        """
         Get the plugin manager to load the current plugins.
-        '''
+        """
         pm = self._model.pluginManager()
         # Are we currently using the plugin manager dialog?
         if self._pluginManagerDlg is not None:
@@ -352,7 +349,9 @@ class MainWindow(QtGui.QMainWindow):
             pm.setLoadDefaultPlugins(self._pluginManagerDlg.loadDefaultPlugins())
 
         if pm.reloadPlugins():
-            pm.load()
+            om = self._model.optionsManager()
+            site_packages_path = getVirtualEnvSitePackagesDirectory(om.getOption(VIRTUAL_ENV_PATH))
+            pm.load(virtualenv_site_packages=site_packages_path)
             wm = self._model.workflowManager()
             wm.updateAvailableSteps()
             self._workflowWidget.updateStepTree()

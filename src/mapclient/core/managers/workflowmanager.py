@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import os
 import logging
 
@@ -37,7 +37,6 @@ _PREVIOUS_LOCATION_STRING = 'previousLocation'
 
 
 def _getWorkflowConfiguration(location):
-#     print('get workflow confiburation: ' + location)
     return QtCore.QSettings(_getWorkflowConfigurationAbsoluteFilename(location), QtCore.QSettings.IniFormat)
 
 
@@ -46,12 +45,10 @@ def _getWorkflowRequirements(location):
 
 
 def _getWorkflowRequirementsAbsoluteFilename(location):
-#     print('get workflow requirements abs filename: ' + os.path.join(location, info.DEFAULT_WORKFLOW_PROJECT_FILENAME))
     return os.path.join(location, info.DEFAULT_WORKFLOW_REQUIREMENTS_FILENAME)
 
 
 def _getWorkflowConfigurationAbsoluteFilename(location):
-#     print('get workflow configuration abs filename: ' + os.path.join(location, info.DEFAULT_WORKFLOW_PROJECT_FILENAME))
     return os.path.join(location, info.DEFAULT_WORKFLOW_PROJECT_FILENAME)
 
 
@@ -102,7 +99,6 @@ class WorkflowManager(object):
     def updateLocation(self, location):
         self._location = location
         self._scene.updateWorkflowLocation(location)
-
 
     def setLocation(self, location):
         print('setLocation', location)
