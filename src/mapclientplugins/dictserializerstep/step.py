@@ -14,6 +14,7 @@ from mapclientplugins.dictserializerstep.configuredialog import ConfigureDialog
 
 DICT_OUTPUT_FILENAME = 'dict.json'
 
+
 class DictSerializerStep(WorkflowStepMountPoint):
     '''
     Skeleton step which is intended to be a helpful starting point

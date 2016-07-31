@@ -31,16 +31,18 @@ from logging import handlers
 # Set toolbox settings here
 # matplotlib.use('Qt4Agg')
 # matplotlib.rcParams['backend.qt4']='PySide'
+from mapclient.settings.definitions import VIRTUAL_ENV_PATH
+
 os.environ['ETS_TOOLKIT'] = 'qt4'
 # With PEP366 we need to conditionally import the settings module based on
 # whether we are executing the file directly of indirectly.  This is my
 # workaround.
 if __package__:
     from .settings import info
-    from .settings.general import getLogLocation
+    from .settings.general import getLogLocation, getVirtualEnvSitePackagesDirectory
 else:
     from mapclient.settings import info
-    from mapclient.settings.general import getLogLocation
+    from mapclient.settings.general import getLogLocation, getVirtualEnvSitePackagesDirectory
 
 logger = logging.getLogger('mapclient.application')
 
@@ -160,8 +162,10 @@ def main():
 
     wm = model.workflowManager()
     pm = model.pluginManager()
+    om = model.optionsManager()
 
-    pm.load()
+    site_packages_path = getVirtualEnvSitePackagesDirectory(om.getOption(VIRTUAL_ENV_PATH))
+    pm.load(virtualenv_site_packages=site_packages_path)
     try:
         wm.load(sys.argv[1])
     except:

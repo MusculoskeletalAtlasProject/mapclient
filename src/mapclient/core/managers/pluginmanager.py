@@ -10,12 +10,15 @@ import json
 import pkgutil
 import traceback
 
-from mapclient.core.utils import which, is_frozen, FileTypeObject
+from mapclient.core.utils import which, is_frozen, FileTypeObject, grep
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     VIRTUAL_ENV_SETUP_ATTEMPTED, PLUGINS_PACKAGE_NAME, PLUGINS_PTH
 from mapclient.core.checks import getPipExecutable
 
 from importlib import import_module
+
+from mapclient.settings.general import getVirtualEnvSitePackagesDirectory
+
 if not is_frozen():
     import site
 
@@ -25,6 +28,7 @@ if not is_frozen():
 #     import importlib
 
 logger = logging.getLogger(__name__)
+
 
 def getVirtualEnvCandidates():
     """Return a list of strings which contains possible names
@@ -36,49 +40,6 @@ def getVirtualEnvCandidates():
         virtualenv_candidates = [which('virtualenv'), which('virtualenv3')]
 
     return virtualenv_candidates
-
-
-class PluginManagerThe2nd(object):
-    '''
-    Plugin Manager class
-    '''
-
-
-    def __init__(self, options):
-        '''
-        Constructor
-        '''
-        self._virtualenv_dir = options[VIRTUAL_ENV_PATH]
-        self._setup_attempted = options[VIRTUAL_ENV_SETUP_ATTEMPTED]
-
-    def setupFailed(self):
-        """
-        Check whether the setup of the virtual environment failed.
-        The first time the application is started it will attempt to create
-        a virtual environment for the MAP Client plugins, if this fails then
-        this method will return True.  If no virtual environment setup has
-        been attempted then this method will return False.
-        """
-        return self._setup_attempted
-
-    def _loadWorkflowPlugins(self, wf_location):
-        wf = _getWorkflowConfiguration(wf_location)
-
-        return PluginDatabase.load(wf)
-
-    def checkPlugins(self, wf_location):
-        required_plugins = self._loadWorkflowPlugins(wf_location)
-        missing_plugins = self._plugin_database.checkForMissingPlugins(required_plugins)
-        return missing_plugins
-
-    def checkDependencies(self, wf_location):
-        required_plugins = self._loadWorkflowPlugins(wf_location)
-        virtenv_dir = getVirtEnvDirectory()
-        vem = PluginManager(virtenv_dir)
-        missing_dependencies = {}
-        if vem.exists():
-            missing_dependencies = self._plugin_database.checkForMissingDependencies(required_plugins, vem.list())
-        return missing_dependencies
 
 
 class PluginManager(object):
@@ -134,10 +95,10 @@ class PluginManager(object):
         return install_list
 
     def addSitePackages(self):
-        '''
+        """
         Append the site-packages directory of the virtual
         environment to the system path
-        '''
+        """
         if self._virtualenv_enabled:
             site_packages_path = None
             for root, _, _ in os.walk(self._virtualenv_dir , topdown=False):
@@ -177,13 +138,20 @@ class PluginManager(object):
 
         for candidate in getVirtualEnvCandidates():
             try:
-                p = subprocess.Popen([candidate, '--clear', '--no-setuptools', self._virtualenv_dir],
+                p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE)
                 # p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
                 #                       stdout=subprocess.PIPE,
                 #                       stderr=subprocess.PIPE)
                 stdout, stderr = p.communicate()
+
+                # Make a plugins directory with a namespace package file in it.  This is to avoid problems
+                # with other packages using namespace packages in Python 3.
+                site_packages_dir = getVirtualEnvSitePackagesDirectory(self._virtualenv_dir)
+                os.makedirs(os.path.join(site_packages_dir, PLUGINS_PACKAGE_NAME))
+                with open(os.path.join(site_packages_dir, PLUGINS_PACKAGE_NAME, '__init__.py'), 'w') as f:
+                    f.write("from pkgutil import extend_path\n__path__ = extend_path(__path__, __name__)\n")
 
                 if stdout:
                     logger.info(stdout.decode('utf-8'))
@@ -231,10 +199,11 @@ class PluginManager(object):
     def _addPluginDir(self, directory):
         added = False
         if isMapClientPluginsDir(directory):
-            if is_frozen():
-                sys.path.append(directory)
-            else:
-                site.addsitedir(directory)
+            sys.path.append(directory)
+            # if is_frozen():
+            #     sys.path.append(directory)
+            # else:
+            #     site.addsitedir(directory)
             added = True
 
         return added
@@ -279,7 +248,7 @@ class PluginManager(object):
             else:
                 return []
 
-    def load(self):
+    def load(self, virtualenv_site_packages=None):
         self._reload_plugins = False
         len_package_modules_prior = len(sys.modules[PLUGINS_PACKAGE_NAME].__path__) if PLUGINS_PACKAGE_NAME in sys.modules else 0
         for directory in self.allDirectories():
@@ -291,6 +260,10 @@ class PluginManager(object):
 
                 for name in sorted(names):
                     self._addPluginDir(os.path.join(directory, name))
+
+        if virtualenv_site_packages:
+            self._addPluginDir(virtualenv_site_packages)
+
         if len_package_modules_prior == 0:
             package = import_module(PLUGINS_PACKAGE_NAME)
         else:
@@ -299,8 +272,11 @@ class PluginManager(object):
             else:
                 import importlib
                 if sys.version_info > (3, 4):
-                    for pkg_path in sys.modules[PLUGINS_PACKAGE_NAME]:
-                        importlib.reload(sys.modules[pkg_path])
+                    try:
+                        for pkg_path in sys.modules[PLUGINS_PACKAGE_NAME]:
+                            importlib.reload(sys.modules[pkg_path])
+                    except TypeError:
+                        pass
 
                 package = importlib.reload(sys.modules[PLUGINS_PACKAGE_NAME])
 
@@ -438,6 +414,7 @@ class PluginManager(object):
         settings.endArray()
         settings.endGroup()
 
+
 def isMapClientPluginsDir(plugin_dir):
     result = False
     try:
@@ -446,28 +423,25 @@ def isMapClientPluginsDir(plugin_dir):
         return result
 
     if PLUGINS_PACKAGE_NAME in names:
-        init_file = os.path.join(plugin_dir, PLUGINS_PACKAGE_NAME, '__init__.py')
-        if os.path.isfile(init_file):
-            contents = open(init_file).read()
-            if 'pkg_resources' in contents and 'declare_namespace' in contents:
-                result = True
+        files = grep(os.path.join(plugin_dir, PLUGINS_PACKAGE_NAME),
+                     r'(from|import) mapclient.mountpoints.workflowstep', one_only=True)
+        if files:
+            result = True
+        # init_file = os.path.join(plugin_dir, PLUGINS_PACKAGE_NAME, '__init__.py')
+        # if os.path.isfile(init_file):
+        #     contents = open(init_file).read()
+        #     if 'pkg_resources' in contents and 'declare_namespace' in contents:
+        #         result = True
 
     return result
+
 
 class PluginSiteManager(object):
     """
     Python site module/pth based plugin manager.  WIP.
     """
-
     def __init__(self):
         pass
-
-    def generate_pth_entries(self, target_dir):
-        if not os.path.isdir(target_dir):
-            return []
-        g = os.walk(target_dir)
-        _, dirs, _ = next(g)
-        return [os.path.join(target_dir, d) for d in dirs]
 
     def build_site(self, target_dir):
         pth_entries = self.generate_pth_entries(target_dir)
@@ -482,6 +456,15 @@ class PluginSiteManager(object):
             sys.path.append(target_dir)
         else:
             site.addsitedir(target_dir)
+
+
+def generate_pth_entries(target_dir):
+    if not os.path.isdir(target_dir):
+        return []
+    g = os.walk(target_dir)
+    _, dirs, _ = next(g)
+    return [os.path.join(target_dir, d) for d in dirs]
+
 
 class PluginDatabase:
     '''

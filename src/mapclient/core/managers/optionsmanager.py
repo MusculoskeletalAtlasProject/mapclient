@@ -13,15 +13,8 @@ from mapclient.settings.definitions import SHOW_STEP_NAMES, \
 
 
 class OptionsManager(object):
-    '''
-    classdocs
-    '''
-
 
     def __init__(self):
-        '''
-        Constructor
-        '''
         self._options = {}
         # Set default values
         self._options[SHOW_STEP_NAMES] = True

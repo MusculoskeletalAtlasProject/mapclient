@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
     
@@ -16,8 +16,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import os
+import re
 import sys
 from mapclient.settings.general import getConfigurationFile
 
@@ -143,4 +144,23 @@ class FileTypeObject(object):
     def flush(self):
         pass
 
+
+def grep(path, regex, one_only=False):
+    re_obj = re.compile(regex)
+    res = []
+    for root, dirs, fnames in os.walk(path):
+        if '.git' in dirs:
+            dirs.remove('.git')
+        if '__pycache__' in dirs:
+            dirs.remove('__pycache__')
+        for fname in fnames:
+            if fname.endswith('.py'):
+                with open(os.path.join(root, fname)) as f:
+                    contents = f.read()
+                    if re_obj.search(contents):
+                        res.append(os.path.join(root, fname))
+                        if one_only:
+                            return res
+
+    return res
 

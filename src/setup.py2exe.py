@@ -31,8 +31,12 @@ import glob
 import virtualenv_support
 import subprocess
 import tempfile
-import opencmiss
 import py2exe
+# Py2exe needs some help when importing packages from namespace packages
+# by pre-importing them.
+import opencmiss
+import pmr2
+import pmr2.wfctrl
 
 from PySide import QtCore
 
@@ -119,7 +123,9 @@ DATA_FILES = [('.', additional_dlls), ('.', pyside_compilers), ('.', [sys.execut
 
 # Need to import opencmiss before the py2exe attempts to load it, possibly because of it being a namespace package
 PACKAGES = find_packages(exclude=['tests', 'tests.*', ])
-PACKAGES.extend(['numpy', 'scipy', 'gias2', 'pkg_resources', 'opencmiss', 'opencmiss.zinc', 'opencmiss.iron', 'rdflib'])
+PACKAGES.extend(['numpy', 'scipy', 'gias2', 'pkg_resources',
+                 'opencmiss', 'opencmiss.zinc', 'opencmiss.iron', 'rdflib',
+                 'pmr2', 'pmr2.wfctrl'])
 EXCLUDES = ['numpy.distutils.tests',]
 INCLUDES = ['virtualenv']
 OPTIONS = {'py2exe': {
