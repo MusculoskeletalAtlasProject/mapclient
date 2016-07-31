@@ -150,6 +150,17 @@ def getPipExecutable(venv_path):
     return pip_exe
 
 
+def getActivateScript(venv_path):
+    if os.name == 'nt':
+        int_directory = 'Scripts'
+        suffix = '.bat'
+    else:
+        int_directory = 'bin'
+        suffix = ''
+    activate_script = which(os.path.join(venv_path, int_directory, 'activate' + suffix))
+    return activate_script
+
+
 def getPySideUicExecutable():
     pyside_uic_potentials = ['pyside-uic', 'py2side-uic', 'py3side-uic', 'pyside-uic-py2']
     for pyside_uic_potential in pyside_uic_potentials:

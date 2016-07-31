@@ -42,6 +42,8 @@ from PySide import QtCore
 
 from mapclient.settings.info import VERSION_STRING
 
+python_dir = os.path.dirname(sys.executable)
+
 required_builtins = ['collections', 'ctypes', 'distutils', 'email', 'encodings', 'html', 'http', 'importlib', 'json',
                      'logging', 'urllib', 'xml', 'xmlrpc', '__future__', '_bootlocale', '_collections_abc',
                      '_compat_pickle', '_markupbase', '_sitebuiltins', '_weakrefset', 'abc', 'ast', 'base64', 'bisect',
@@ -55,9 +57,26 @@ required_builtins = ['collections', 'ctypes', 'distutils', 'email', 'encodings',
                      'symbol', 'sysconfig', 'tarfile', 'tempfile', 'textwrap', 'threading', 'token', 'tokenize',
                      'traceback', 'types', 'uu', 'uuid', 'warnings', 'weakref', 'zipfile', 'virtualenv']
 
-virtualenv_support_files = [fn for fn in glob.glob(os.path.join(os.path.dirname(virtualenv_support.__file__), '*'))
+inbuilt_modules = os.listdir(os.path.join(python_dir, 'Lib'))
+if 'site-packages' in inbuilt_modules:
+    inbuilt_modules.remove('site-packages')
+if 'test' in inbuilt_modules:
+    inbuilt_modules.remove('test')
+
+inbuilt_modules.append('virtualenv')
+inbuilt_modules = [os.path.splitext(mod)[0] if mod.endswith('.py') else mod for mod in inbuilt_modules]
+
+inbuilt_dlls = os.listdir(os.path.join(python_dir, 'DLLs'))
+inbuilt_dlls = [os.path.join(python_dir, 'DLLs', dll) for dll in inbuilt_dlls if dll.endswith('.pyd')]
+
+required_builtin_dlls = ['_ctypes.pyd', '_socket.pyd', '_ssl.pyd', 'pyexpat.pyd', 'select.pyd', 'unicodedata.pyd']
+required_builtin_dlls = [os.path.join(python_dir, 'DLLs', dll) for dll in required_builtin_dlls]
+
+support_files_virtualenv = [fn for fn in glob.glob(os.path.join(os.path.dirname(virtualenv_support.__file__), '*'))
                             if not os.path.basename(fn).startswith('__pycache__')]
 
+support_files_lib2to3 = ['Grammar.txt', 'Grammar3.5.1.final.0.pickle', 'PatternGrammar.txt', 'PatternGrammar3.5.1.final.0.pickle']
+support_files_lib2to3 = [os.path.join(python_dir, 'Lib', 'lib2to3', f) for f in support_files_lib2to3]
 # Version, this should match the value in mapclient.settings.info
 version = VERSION_STRING
 
@@ -74,7 +93,8 @@ additional_dlls = []
 mkl_core = which('mkl_core.dll')
 mkl_def = which('mkl_def.dll')
 mkl_intel_thread = which('mkl_intel_thread.dll')
-additional_dlls.extend([mkl_core, mkl_def, mkl_intel_thread])
+libiomp5md = which('libiomp5md.dll')
+additional_dlls.extend([mkl_core, mkl_def, mkl_intel_thread, libiomp5md])
 
 # Assuming that we are using mpich2, what test can we perform to confirm this?
 fmpich2 = which('fmpich2.dll')
@@ -117,9 +137,10 @@ wizard_image_files = glob.glob(os.path.join('mapclient', 'tools', 'pluginwizard'
 
 # site_packages_dir = site.getsitepackages()[1]
 DATA_FILES = [('.', additional_dlls), ('.', pyside_compilers), ('.', [sys.executable]),
-              ('Include', []), (os.path.join('Lib', 'site-packages', 'virtualenv_support'), virtualenv_support_files),
+              ('Include', []), (os.path.join('Lib', 'site-packages', 'virtualenv_support'), support_files_virtualenv),
               (os.path.join('res', 'images'), wizard_image_files), (os.path.join('tcl', 'tcl8.6'), []),
-              (os.path.join('tcl', 'tk8.6'), [])]
+              (os.path.join('tcl', 'tk8.6'), []), ('DLLs', inbuilt_dlls),
+              (os.path.join('Lib', 'lib2to3'), support_files_lib2to3)]
 
 # Need to import opencmiss before the py2exe attempts to load it, possibly because of it being a namespace package
 PACKAGES = find_packages(exclude=['tests', 'tests.*', ])
@@ -139,7 +160,6 @@ OPTIONS = {'py2exe': {
 
 
 def get_target_module_path(base_dir, module_path):
-    python_dir = os.path.dirname(sys.executable)
     target_module_path = module_path.replace(python_dir + '\\', '')
     target_module_path = os.path.join(base_dir, target_module_path)
     return target_module_path
@@ -174,7 +194,7 @@ def recurse_through_packages(base_dir, packages_list):
 
 
 def code_and_store_builtins(base_dir):
-    take_copies_of = [(ff, name, package) for ff, name, package in pkgutil.iter_modules() if name in required_builtins]
+    take_copies_of = [(ff, name, package) for ff, name, package in pkgutil.iter_modules() if name in inbuilt_modules]
     recurse_through_packages(base_dir, take_copies_of)
 
 
