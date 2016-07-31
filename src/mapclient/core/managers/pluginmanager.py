@@ -248,7 +248,7 @@ class PluginManager(object):
             else:
                 return []
 
-    def load(self, virtualenv_site_packages=None):
+    def load(self):
         self._reload_plugins = False
         len_package_modules_prior = len(sys.modules[PLUGINS_PACKAGE_NAME].__path__) if PLUGINS_PACKAGE_NAME in sys.modules else 0
         for directory in self.allDirectories():
@@ -260,9 +260,6 @@ class PluginManager(object):
 
                 for name in sorted(names):
                     self._addPluginDir(os.path.join(directory, name))
-
-        if virtualenv_site_packages:
-            self._addPluginDir(virtualenv_site_packages)
 
         if len_package_modules_prior == 0:
             package = import_module(PLUGINS_PACKAGE_NAME)

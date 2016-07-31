@@ -349,9 +349,7 @@ class MainWindow(QtGui.QMainWindow):
             pm.setLoadDefaultPlugins(self._pluginManagerDlg.loadDefaultPlugins())
 
         if pm.reloadPlugins():
-            om = self._model.optionsManager()
-            site_packages_path = getVirtualEnvSitePackagesDirectory(om.getOption(VIRTUAL_ENV_PATH))
-            pm.load(virtualenv_site_packages=site_packages_path)
+            pm.load()
             wm = self._model.workflowManager()
             wm.updateAvailableSteps()
             self._workflowWidget.updateStepTree()
