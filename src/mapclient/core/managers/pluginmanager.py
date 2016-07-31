@@ -3,17 +3,19 @@ Created on May 19, 2015
 
 @author: hsorby
 '''
-import os, sys
+import os
+import sys
 import logging
 import subprocess
 import json
 import pkgutil
 import traceback
+import shutil
 
 from mapclient.core.utils import which, is_frozen, FileTypeObject, grep
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     VIRTUAL_ENV_SETUP_ATTEMPTED, PLUGINS_PACKAGE_NAME, PLUGINS_PTH
-from mapclient.core.checks import getPipExecutable
+from mapclient.core.checks import getPipExecutable, getActivateScript
 
 from importlib import import_module
 
@@ -77,10 +79,12 @@ class PluginManager(object):
         return self._reload_plugins
 
     def checkPlugins(self, wf_location):
-        print('implement me')
+        # TODO: Re-think how this will work
+        pass
 
     def checkDependencies(self, wf_location):
-        print('implement me')
+        # TODO: Re-think how this will work
+        pass
 
     def list(self):
         if self._virtualenv_enabled:
@@ -153,6 +157,9 @@ class PluginManager(object):
                 with open(os.path.join(site_packages_dir, PLUGINS_PACKAGE_NAME, '__init__.py'), 'w') as f:
                     f.write("from pkgutil import extend_path\n__path__ = extend_path(__path__, __name__)\n")
 
+                if os.name == 'nt' and os.path.isfile('VCRUNTIME140.dll'):
+                    shutil.copy('VCRUNTIME140.dll', os.path.join(self._virtualenv_dir, 'Scripts'))
+
                 if stdout:
                     logger.info(stdout.decode('utf-8'))
                 if stderr:
@@ -210,12 +217,31 @@ class PluginManager(object):
 
     def installPackage(self, uri):
         if self._virtualenv_enabled:
-            pip_exe = getPipExecutable(self._virtualenv_dir)
+            activate_script = getActivateScript(self._virtualenv_dir)
 
-            install_report = subprocess.check_output([pip_exe, 'install', uri])
-            # install_report = install_report.decode('utf-8')
-            logger.info(install_report)
+            p = subprocess.Popen([activate_script, '&&', 'pip', 'install', uri],
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE)
+            # p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
+            #                       stdout=subprocess.PIPE,
+            #                       stderr=subprocess.PIPE)
+            stdout, stderr = p.communicate()
+            if stdout:
+                logger.info(stdout.decode('utf-8'))
+            if stderr:
+                logger.error(stderr.decode('utf-8'))
+
             self.reloadPlugins()
+            # try:
+            #     install_report = subprocess.check_output([activate_script, '&&', 'echo %CD%', '&&', 'pip', 'install', uri],
+            #                                              stderr=subprocess.STDOUT)
+            # except subprocess.CalledProcessError as e:
+            #     logger.error(e.returncode)
+            #     logger.error(e.output)
+            # else:
+                # install_report = install_report.decode('utf-8')
+                # logger.info(install_report)
+                # self.reloadPlugins()
         else:
             logger.info('VirtualEnv not enabled no install functionality available.')
 
