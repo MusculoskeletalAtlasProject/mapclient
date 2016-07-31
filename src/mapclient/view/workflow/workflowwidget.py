@@ -39,19 +39,14 @@ from mapclient.view.managers.plugins.pluginupdater import PluginUpdater
 from mapclient.tools.pmr.settings.general import PMR
 from mapclient.settings.general import getVirtEnvDirectory
 from mapclient.core.workflow.workflowerror import WorkflowError
-from mapclient.settings.definitions import SHOW_STEP_NAMES
+from mapclient.settings.definitions import SHOW_STEP_NAMES, USE_EXTERNAL_GIT
 
 logger = logging.getLogger(__name__)
 
 
 class WorkflowWidget(QtGui.QWidget):
-    '''
-    classdocs
-    '''
+
     def __init__(self, mainWindow):
-        '''
-        Constructor
-        '''
         QtGui.QWidget.__init__(self, parent=mainWindow)
         self._mainWindow = mainWindow
         self._ui = Ui_WorkflowWidget()
@@ -239,12 +234,13 @@ class WorkflowWidget(QtGui.QWidget):
     @set_wait_cursor
     def _createNewWorkflow(self, workflowDir, pmr):
         m = self._mainWindow.model().workflowManager()
+        om = self._mainWindow.model().optionsManager()
         m.new(workflowDir)
         m.setPreviousLocation(workflowDir)
 
         if pmr:
             pmr_info = PMR()
-            pmr_tool = PMRTool(pmr_info)
+            pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
             if pmr_tool.hasAccess():
                 dir_name = os.path.basename(workflowDir)
                 try:
@@ -399,16 +395,18 @@ class WorkflowWidget(QtGui.QWidget):
     @set_wait_cursor
     def _updateFromPMR(self):
         m = self._mainWindow.model().workflowManager()
+        om = self._mainWindow.model().optionsManager()
         pmr_info = PMR()
-        pmr_tool = PMRTool(pmr_info)
+        pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
 
         pmr_tool.pullFromRemote(m.location())
 
     @handle_runtime_error
     @set_wait_cursor
     def _cloneFromPMR(self, workspace_url, workflowDir):
+        om = self._mainWindow.model().optionsManager()
         pmr_info = PMR()
-        pmr_tool = PMRTool(pmr_info)
+        pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
 
         pmr_tool.cloneWorkspace(
             remote_workspace_url=workspace_url,
@@ -468,8 +466,9 @@ class WorkflowWidget(QtGui.QWidget):
         return location_set
 
     def commitChanges(self, workflowDir):
+        om = self._mainWindow.model().optionsManager()
         pmr_info = PMR()
-        pmr_tool = PMRTool(pmr_info)
+        pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
         if not pmr_tool.hasDVCS(workflowDir):
             # nothing to commit.
             return True
@@ -480,8 +479,9 @@ class WorkflowWidget(QtGui.QWidget):
     @set_wait_cursor
     def _commitChanges(self, workflowDir, comment, commit_local=False):
         committed_changes = False
+        om = self._mainWindow.model().optionsManager()
         pmr_info = PMR()
-        pmr_tool = PMRTool(pmr_info)
+        pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
         try:
             workflow_files = [workflowDir + '/%s' % (DEFAULT_WORKFLOW_PROJECT_FILENAME),
                               workflowDir + '/%s' % (DEFAULT_WORKFLOW_ANNOTATION_FILENAME)]
@@ -510,8 +510,9 @@ class WorkflowWidget(QtGui.QWidget):
     @handle_runtime_error
     @set_wait_cursor
     def _setIndexerFile(self, workflow_dir):
+        om = self._mainWindow.model().optionsManager()
         pmr_info = PMR()
-        pmr_tool = PMRTool(pmr_info)
+        pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
 
         if not pmr_tool.hasDVCS(workflow_dir):
             return

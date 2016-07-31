@@ -30,6 +30,7 @@ from mapclient.tools.pmr.settings.general import PMR
 
 logger = logging.getLogger(__name__)
 
+
 class SearchWidget(QtGui.QWidget):
 
     def __init__(self, parent=None):
@@ -45,6 +46,9 @@ class SearchWidget(QtGui.QWidget):
 
     def setPMRInfo(self, info):
         self._pmrTool.set_info(info)
+
+    def setUseExternalGit(self, use_external_git):
+        self._pmrTool.set_use_external_git(use_external_git)
 
     def _makeConnections(self):
         self._ui.searchButton.clicked.connect(self._searchClicked)

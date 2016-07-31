@@ -20,13 +20,13 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 from PySide import QtCore
 
 VERSION_MAJOR = 0
-VERSION_MINOR = 12
+VERSION_MINOR = 13
 VERSION_PATCH = 0
 VERSION_STRING = str(VERSION_MAJOR) + "." + str(VERSION_MINOR) + "." + str(VERSION_PATCH)
 
 GPL_VERSION = '3'
 
-APPLICATION_NAME = 'MAP-Client'
+APPLICATION_NAME = 'MAPClient'
 ORGANISATION_NAME = 'MusculoSkeletal'
 ORGANISATION_DOMAIN = 'musculoskeletal.org'
 

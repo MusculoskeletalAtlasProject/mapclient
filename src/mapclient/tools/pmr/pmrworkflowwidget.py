@@ -30,21 +30,19 @@ from pmr2.client.client import Client
 from mapclient.tools.pmr.settings import general
 from mapclient.tools.pmr.settings.general import PMR
 
-class PMRWorkflowWidget(QtGui.QWidget):
-    '''
-    A Widget for importing and exporting to and from PMR.
-    '''
 
-    def __init__(self, parent=None):
-        '''
-        Constructor
-        '''
+class PMRWorkflowWidget(QtGui.QWidget):
+    """
+    A Widget for importing and exporting to and from PMR.
+    """
+
+    def __init__(self, use_external_git, parent=None):
         super(PMRWorkflowWidget, self).__init__(parent)
         self._ui = Ui_PMRWorkflowWidget()
         self._ui.setupUi(self)
 
         pmr_info = PMR()
-        self._pmrTool = PMRTool(pmr_info)
+        self._pmrTool = PMRTool(pmr_info, use_external_git)
 
         self._termLookUpLimit = 32
 

@@ -44,5 +44,3 @@ class Ui_ProgressDialog(object):
     def retranslateUi(self, ProgressDialog):
         ProgressDialog.setWindowTitle(QtGui.QApplication.translate("ProgressDialog", "Progress", None, QtGui.QApplication.UnicodeUTF8))
         self.cancelDownload.setText(QtGui.QApplication.translate("ProgressDialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
-
-from . import resources_rc

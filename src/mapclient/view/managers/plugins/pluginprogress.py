@@ -20,7 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import os, zipfile, requests
 from PySide import QtGui
 
-from mapclient.view.ui_pluginprogress import Ui_DownloadProgress
+from mapclient.view.managers.plugins.ui.ui_pluginprogress import Ui_DownloadProgress
 
 class PluginProgress(QtGui.QDialog):
     '''

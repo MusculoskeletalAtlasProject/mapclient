@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import logging
 
 from PySide import QtCore
@@ -26,14 +26,15 @@ from mapclient.core.managers.undomanager import UndoManager
 from mapclient.core.managers.pluginmanager import PluginManager
 from mapclient.core.managers.optionsmanager import OptionsManager
 from mapclient.core.checks import runChecks
+from mapclient.settings.definitions import CHECK_TOOLS_ON_STARTUP
 
 logger = logging.getLogger(__name__)
 
-class MainApplication(object):
-    '''
-    This object is the main application object for the framework.
-    '''
 
+class MainApplication(object):
+    """
+    This object is the main application object for the framework.
+    """
 
     def __init__(self):
         self._size = QtCore.QSize(600, 400)
@@ -71,7 +72,8 @@ class MainApplication(object):
         return self._optionsManager
 
     def doEnvironmentChecks(self):
-        return runChecks(self._optionsManager.getOptions())
+        options = self._optionsManager.getOptions()
+        return runChecks(options) if options[CHECK_TOOLS_ON_STARTUP] else True
 
     def writeSettings(self):
         settings = QtCore.QSettings()

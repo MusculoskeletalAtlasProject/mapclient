@@ -20,7 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 from PySide.QtGui import QDialog
 
 from mapclient.settings import info
-from mapclient.view.ui_aboutdialog import Ui_AboutDialog
+from mapclient.view.dialogs.about.ui.ui_aboutdialog import Ui_AboutDialog
 
 class AboutDialog(QDialog):
     '''
@@ -44,13 +44,13 @@ class AboutDialog(QDialog):
         self._ui.btn_License.clicked.connect(self.showLicenseDialog)
 
     def showCreditsDialog(self):
-        from mapclient.view.creditsdialog import CreditsDialog
+        from mapclient.view.dialogs.about.creditsdialog import CreditsDialog
         dlg = CreditsDialog(self)
         dlg.setModal(True)
         dlg.exec_()
 
     def showLicenseDialog(self):
-        from mapclient.view.licensedialog import LicenseDialog
+        from mapclient.view.dialogs.about.licensedialog import LicenseDialog
         dlg = LicenseDialog(self)
         dlg.setModal(True)
         dlg.exec_()
