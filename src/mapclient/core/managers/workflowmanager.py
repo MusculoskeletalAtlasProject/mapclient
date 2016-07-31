@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import os
 import logging
 
@@ -37,7 +37,6 @@ _PREVIOUS_LOCATION_STRING = 'previousLocation'
 
 
 def _getWorkflowConfiguration(location):
-#     print('get workflow confiburation: ' + location)
     return QtCore.QSettings(_getWorkflowConfigurationAbsoluteFilename(location), QtCore.QSettings.IniFormat)
 
 
@@ -46,12 +45,10 @@ def _getWorkflowRequirements(location):
 
 
 def _getWorkflowRequirementsAbsoluteFilename(location):
-#     print('get workflow requirements abs filename: ' + os.path.join(location, info.DEFAULT_WORKFLOW_PROJECT_FILENAME))
     return os.path.join(location, info.DEFAULT_WORKFLOW_REQUIREMENTS_FILENAME)
 
 
 def _getWorkflowConfigurationAbsoluteFilename(location):
-#     print('get workflow configuration abs filename: ' + os.path.join(location, info.DEFAULT_WORKFLOW_PROJECT_FILENAME))
     return os.path.join(location, info.DEFAULT_WORKFLOW_PROJECT_FILENAME)
 
 
@@ -102,7 +99,6 @@ class WorkflowManager(object):
     def updateLocation(self, location):
         self._location = location
         self._scene.updateWorkflowLocation(location)
-
 
     def setLocation(self, location):
         print('setLocation', location)
@@ -250,15 +246,20 @@ class WorkflowManager(object):
 
     def save(self):
         wf = _getWorkflowConfiguration(self._location)
+
         if 'version' not in wf.allKeys():
             wf.setValue('version', info.VERSION_STRING)
+        workflow_version = versionTuple(wf.value('version'))
+        application_version = versionTuple(info.VERSION_STRING)
+        if workflow_version != application_version:
+            wf.setValue('version', info.VERSION_STRING)
+
         self._scene.saveState(wf)
         self._saveStateIndex = self._currentStateIndex
         af = _getWorkflowMetaAbsoluteFilename(self._location)
-        f = open(af, 'w')
-        f.write(serializeWorkflowAnnotation().decode('utf-8'))
-        self._scene.saveAnnotation(f)
-        f.close()
+        with open(af, 'w') as f:
+            f.write(serializeWorkflowAnnotation().decode('utf-8'))
+            self._scene.saveAnnotation(f)
 
 #        self._title = info.APPLICATION_NAME + ' - ' + self._location
 
@@ -308,6 +309,9 @@ def compatibleVersions(workflow_version, application_version):
     # Start with database of known compatible versions then check for
     # standard problems.
     if application_version == (0, 12, 0) and workflow_version == (0, 11, 3):
+        return True
+
+    if application_version == (0, 13, 0) and workflow_version == (0, 11, 3):
         return True
 
     if not workflow_version[0:2] == application_version[0:2]:

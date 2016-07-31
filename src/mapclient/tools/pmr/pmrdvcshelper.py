@@ -23,11 +23,14 @@ from subprocess import Popen, PIPE
 
 from mapclient.core.utils import which
 
+
 def isHgRepository(location):
     return os.path.exists(os.path.join(location, '.hg'))
 
+
 def isGitRepository(location):
     return os.path.exists(os.path.join(location, '.git'))
+
 
 def repositoryIsUpToDate(location):
     result = True

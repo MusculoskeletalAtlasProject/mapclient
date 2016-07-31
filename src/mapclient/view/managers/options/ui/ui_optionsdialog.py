@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt\optionsdialog.ui'
+# Form implementation generated from reading ui file 'mapclient\view\managers\options\qt\optionsdialog.ui'
 #
-# Created: Wed Mar  9 13:49:06 2016
+# Created: Tue Jul 19 14:56:50 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PySide import QtCore, QtGui
 class Ui_OptionsDialog(object):
     def setupUi(self, OptionsDialog):
         OptionsDialog.setObjectName("OptionsDialog")
-        OptionsDialog.resize(525, 569)
+        OptionsDialog.resize(525, 579)
         self.gridLayout = QtGui.QGridLayout(OptionsDialog)
         self.gridLayout.setObjectName("gridLayout")
         self.buttonBox = QtGui.QDialogButtonBox(OptionsDialog)
@@ -27,11 +27,15 @@ class Ui_OptionsDialog(object):
         self.gridLayout_3 = QtGui.QGridLayout(self.tabGeneral)
         self.gridLayout_3.setObjectName("gridLayout_3")
         spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.gridLayout_3.addItem(spacerItem, 1, 1, 1, 1)
+        self.gridLayout_3.addItem(spacerItem, 2, 1, 1, 1)
         self.checkBoxShowStepNames = QtGui.QCheckBox(self.tabGeneral)
         self.checkBoxShowStepNames.setChecked(True)
         self.checkBoxShowStepNames.setObjectName("checkBoxShowStepNames")
         self.gridLayout_3.addWidget(self.checkBoxShowStepNames, 0, 0, 1, 1)
+        self.checkBoxCheckToolsOnStartup = QtGui.QCheckBox(self.tabGeneral)
+        self.checkBoxCheckToolsOnStartup.setChecked(True)
+        self.checkBoxCheckToolsOnStartup.setObjectName("checkBoxCheckToolsOnStartup")
+        self.gridLayout_3.addWidget(self.checkBoxCheckToolsOnStartup, 1, 0, 1, 1)
         self.tabWidget.addTab(self.tabGeneral, "")
         self.tabToolSettings = QtGui.QWidget()
         self.tabToolSettings.setObjectName("tabToolSettings")
@@ -92,7 +96,12 @@ class Ui_OptionsDialog(object):
         self.verticalLayout_2.addWidget(self.groupBox_4)
         self.groupBox_5 = QtGui.QGroupBox(self.tabToolSettings)
         self.groupBox_5.setObjectName("groupBox_5")
-        self.horizontalLayout_3 = QtGui.QHBoxLayout(self.groupBox_5)
+        self.verticalLayout_5 = QtGui.QVBoxLayout(self.groupBox_5)
+        self.verticalLayout_5.setObjectName("verticalLayout_5")
+        self.checkBoxUseExternalGit = QtGui.QCheckBox(self.groupBox_5)
+        self.checkBoxUseExternalGit.setObjectName("checkBoxUseExternalGit")
+        self.verticalLayout_5.addWidget(self.checkBoxUseExternalGit)
+        self.horizontalLayout_3 = QtGui.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.labelGitExecutable = QtGui.QLabel(self.groupBox_5)
         self.labelGitExecutable.setObjectName("labelGitExecutable")
@@ -108,6 +117,7 @@ class Ui_OptionsDialog(object):
         self.pushButtonGitExecutable = QtGui.QPushButton(self.groupBox_5)
         self.pushButtonGitExecutable.setObjectName("pushButtonGitExecutable")
         self.horizontalLayout_3.addWidget(self.pushButtonGitExecutable)
+        self.verticalLayout_5.addLayout(self.horizontalLayout_3)
         self.verticalLayout_2.addWidget(self.groupBox_5)
         self.groupBox = QtGui.QGroupBox(self.tabToolSettings)
         self.groupBox.setObjectName("groupBox")
@@ -139,6 +149,7 @@ class Ui_OptionsDialog(object):
     def retranslateUi(self, OptionsDialog):
         OptionsDialog.setWindowTitle(QtGui.QApplication.translate("OptionsDialog", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.checkBoxShowStepNames.setText(QtGui.QApplication.translate("OptionsDialog", "Show step names", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBoxCheckToolsOnStartup.setText(QtGui.QApplication.translate("OptionsDialog", "Check tools on application start", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGeneral), QtGui.QApplication.translate("OptionsDialog", "&General", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_3.setTitle(QtGui.QApplication.translate("OptionsDialog", "Virtual Environment", None, QtGui.QApplication.UnicodeUTF8))
         self.labelVirtualEnvironmentPath.setText(QtGui.QApplication.translate("OptionsDialog", "Path:", None, QtGui.QApplication.UnicodeUTF8))
@@ -154,6 +165,7 @@ class Ui_OptionsDialog(object):
         self.lineEditPySideRCC.setToolTip(QtGui.QApplication.translate("OptionsDialog", "The PySide Resource Compiler executable.", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonPySideRCC.setText(QtGui.QApplication.translate("OptionsDialog", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_5.setTitle(QtGui.QApplication.translate("OptionsDialog", "PMR", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBoxUseExternalGit.setText(QtGui.QApplication.translate("OptionsDialog", "Use external Git", None, QtGui.QApplication.UnicodeUTF8))
         self.labelGitExecutable.setText(QtGui.QApplication.translate("OptionsDialog", "Git:", None, QtGui.QApplication.UnicodeUTF8))
         self.lineEditGitExecutable.setToolTip(QtGui.QApplication.translate("OptionsDialog", "The Git version control executable", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonGitExecutable.setText(QtGui.QApplication.translate("OptionsDialog", "...", None, QtGui.QApplication.UnicodeUTF8))

@@ -48,6 +48,11 @@ def getVirtEnvDirectory():
     return _getAppDirectory('venv')
 
 
+def getVirtualEnvSitePackagesDirectory(virtualenv_dir):
+    print('Confirm path on other OSes, so far only checked on Windows.')
+    return os.path.join(virtualenv_dir, 'Lib', 'site-packages')
+
+
 def getLogDirectory():
     return _getAppDirectory('logs')
 

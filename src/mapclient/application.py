@@ -31,6 +31,8 @@ from logging import handlers
 # Set toolbox settings here
 # matplotlib.use('Qt4Agg')
 # matplotlib.rcParams['backend.qt4']='PySide'
+from mapclient.settings.definitions import VIRTUAL_ENV_PATH
+
 os.environ['ETS_TOOLKIT'] = 'qt4'
 # With PEP366 we need to conditionally import the settings module based on
 # whether we are executing the file directly of indirectly.  This is my
@@ -100,8 +102,15 @@ def winmain():
     try:
         from opencmiss.zinc.context import Context
         Context("MAP")
+        logger.info('OpenCMISS-Zinc is available.')
     except ImportError:
         logger.warning('OpenCMISS-Zinc is not available.')
+
+    try:
+        from opencmiss.iron import iron
+        logger.info('OpenCMISS-Iron is available.')
+    except ImportError:
+        logger.warn('OpenCMISS-Iron is available.')
 
     from mapclient.core.mainapplication import MainApplication
     model = MainApplication()

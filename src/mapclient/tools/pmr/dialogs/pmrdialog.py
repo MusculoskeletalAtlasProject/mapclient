@@ -25,15 +25,18 @@ from mapclient.tools.pmr.pmrtool import PMRTool
 from mapclient.tools.pmr.authoriseapplicationdialog import AuthoriseApplicationDialog
 from mapclient.tools.pmr.settings.general import PMR
 
+
 class PMRDialog(QtGui.QDialog):
     
-    def __init__(self, parent=None):
+    def __init__(self, use_external_git, parent=None):
         super(PMRDialog, self).__init__(parent)
         self._ui = Ui_PMRDialog()
         self._ui.setupUi(self)
+        self._ui.searchWidget.setUseExternalGit(use_external_git)
+        self._ui.settingsWidget.setUseExternalGit(use_external_git)
         
         pmr_info = PMR()
-        self._pmr_tool = PMRTool(pmr_info)
+        self._pmr_tool = PMRTool(pmr_info, use_external_git)
 
         self._makeConnections()
 

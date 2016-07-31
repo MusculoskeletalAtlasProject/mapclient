@@ -10,7 +10,7 @@ import platform
 from PySide import QtCore
 
 from mapclient.settings.definitions import GIT_EXE, VIRTUAL_ENV_PATH, \
-    PYSIDE_UIC_EXE, PYSIDE_RCC_EXE
+    PYSIDE_UIC_EXE, PYSIDE_RCC_EXE, USE_EXTERNAL_GIT
 from mapclient.core.utils import which
 
 class ApplicationChecks(object):
@@ -98,18 +98,28 @@ class VCSChecks(ApplicationChecks):
     def doCheck(self):
         result = False
         self._report = ''
-        try:
-            vcs_tool = self._options[GIT_EXE]
-            p = subprocess.Popen([vcs_tool, '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            stdout, _ = p.communicate()
-            return_code = p.returncode
-            if return_code == 0 and 'git version' in stdout.decode('utf-8'):
+
+        if self._options[USE_EXTERNAL_GIT]:
+            try:
+                vcs_tool = self._options[GIT_EXE]
+                p = subprocess.Popen([vcs_tool, '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, _ = p.communicate()
+                return_code = p.returncode
+                if return_code == 0 and 'git version' in stdout.decode('utf-8'):
+                    result = True
+                    self._report += "'{0}' successfully ran.".format(vcs_tool)
+                else:
+                    self._report += "'{0}' did not execute successfully, returned '{1}' on exit.".format(vcs_tool, return_code)
+            except Exception as e:
+                self._report += "'{0}' did not execute successfully, caused exception:\n{1}".format(vcs_tool, e)
+        else:
+            try:
+                import dulwich
+                ver = dulwich.__version__
+                self._report += "Internal Git version '{0}.{1}.{2}' successfully ran.".format(ver[0], ver[1], ver[2])
                 result = True
-                self._report += "'{0}' successfully ran.".format(vcs_tool)
-            else:
-                self._report += "'{0}' did not execute successfully, returned '{1}' on exit.".format(vcs_tool, return_code)
-        except Exception as e:
-            self._report += "'{0}' did not execute successfully, caused exception:\n{1}".format(vcs_tool, e)
+            except ImportError:
+                self._report += "Internal Git did not execute successfully."
 
         return result
 
@@ -138,6 +148,17 @@ def getPipExecutable(venv_path):
         int_directory = 'bin'
     pip_exe = which(os.path.join(venv_path, int_directory, 'pip' + python_version[0] + '.' + python_version[1]))
     return pip_exe
+
+
+def getActivateScript(venv_path):
+    if os.name == 'nt':
+        int_directory = 'Scripts'
+        suffix = '.bat'
+    else:
+        int_directory = 'bin'
+        suffix = ''
+    activate_script = which(os.path.join(venv_path, int_directory, 'activate' + suffix))
+    return activate_script
 
 
 def getPySideUicExecutable():
@@ -170,7 +191,7 @@ def getPySideRccExecutable():
             # pyside-rcc returns 1 for all program executions that don't actually compile resources.
             if return_code == 1 and 'Resource Compiler for Qt version' in stderr.decode('utf-8'):
                 return pyside_rcc
-    
+
     return None
 
 
