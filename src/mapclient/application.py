@@ -39,10 +39,10 @@ os.environ['ETS_TOOLKIT'] = 'qt4'
 # workaround.
 if __package__:
     from .settings import info
-    from .settings.general import getLogLocation, getVirtualEnvSitePackagesDirectory
+    from .settings.general import getLogLocation
 else:
     from mapclient.settings import info
-    from mapclient.settings.general import getLogLocation, getVirtualEnvSitePackagesDirectory
+    from mapclient.settings.general import getLogLocation
 
 logger = logging.getLogger('mapclient.application')
 
@@ -162,10 +162,8 @@ def main():
 
     wm = model.workflowManager()
     pm = model.pluginManager()
-    om = model.optionsManager()
 
-    site_packages_path = getVirtualEnvSitePackagesDirectory(om.getOption(VIRTUAL_ENV_PATH))
-    pm.load(virtualenv_site_packages=site_packages_path)
+    pm.load()
     try:
         wm.load(sys.argv[1])
     except:
