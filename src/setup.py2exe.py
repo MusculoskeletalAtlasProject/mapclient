@@ -99,7 +99,7 @@ additional_dlls.extend([mkl_core, mkl_def, mkl_intel_thread, libiomp5md])
 # Assuming that we are using mpich2, what test can we perform to confirm this?
 fmpich2 = which('fmpich2.dll')
 # libiomp5md = which('libiomp5md.dll')
-mpich2mpi = which('mpich2mpi')
+mpich2mpi = which('mpich2mpi.dll')
 mpich2nemesis = which('mpich2nemesis.dll')
 additional_dlls.extend([fmpich2, mpich2mpi, mpich2nemesis])
 # If visual Studio 2015 need UCRTBASE.dll, but not for windows 10?

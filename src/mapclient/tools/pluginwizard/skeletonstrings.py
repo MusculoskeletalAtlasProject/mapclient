@@ -349,20 +349,24 @@ requires = readfile("requirements.txt", split=True)
 license = readfile("LICENSE")
 
 setup(name=%(name)r,
-      version=%(version)r,
-      description=%(description)r,
-      long_description='\n'.join(readme) + license,
-      classifiers=[],
-      author=%(author)r,
-      author_email=%(author_email)r,
-      url=%(url)r,
-      license=%(license)r,
-      packages=find_packages(exclude=['ez_setup',]),
-      namespace_packages=%(namespace_packages)r,
-      include_package_data=True,
-      zip_safe=False,
-      install_requires=requires,
-      )
+    version=%(version)r,
+    description=%(description)r,
+    long_description='\n'.join(readme) + license,
+    classifiers=[
+      "Development Status :: 3 - Alpha",
+      "License :: OSI Approved :: Apache Software License",
+      "Programming Language :: Python",
+    ],
+    author=%(author)r,
+    author_email=%(author_email)r,
+    url=%(url)r,
+    license=%(license)r,
+    packages=find_packages(exclude=['ez_setup',]),
+    namespace_packages=%(namespace_packages)r,
+    include_package_data=True,
+    zip_safe=False,
+    install_requires=requires,
+    )
 """
 
 
