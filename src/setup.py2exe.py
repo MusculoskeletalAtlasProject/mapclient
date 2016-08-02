@@ -44,18 +44,7 @@ from mapclient.settings.info import VERSION_STRING
 
 python_dir = os.path.dirname(sys.executable)
 
-required_builtins = ['collections', 'ctypes', 'distutils', 'email', 'encodings', 'html', 'http', 'importlib', 'json',
-                     'logging', 'urllib', 'xml', 'xmlrpc', '__future__', '_bootlocale', '_collections_abc',
-                     '_compat_pickle', '_markupbase', '_sitebuiltins', '_weakrefset', 'abc', 'ast', 'base64', 'bisect',
-                     'calendar', 'cgi', 'codecs', 'compileall', 'configparser', 'contextlib', 'copy', 'copyreg', 'csv',
-                     'datetime', 'enum', 'fnmatch', 'functools', 'genericpath', 'getopt', 'getpass', 'glob', 'hashlib',
-                     'heapq', 'hmac', 'imp', 'io', 'ipaddress', 'keyword', 'linecache', 'locale', 'mimetypes',
-                     'ntpath', 'nturl2path', 'opcode', 'operator', 'optparse', 'os', 'pickle', 'pkgutil', 'platform',
-                     'plistlib', 'posixpath', 'pprint', 'py_compile', 'queue', 'quopri', 'random', 're', 'reprlib',
-                     'runpy', 'selectors', 'shlex', 'shutil', 'signal', 'site', 'socket', 'socketserver', 'sre_compile',
-                     'sre_constants', 'sre_parse', 'ssl', 'stat', 'string', 'stringprep', 'struct', 'subprocess',
-                     'symbol', 'sysconfig', 'tarfile', 'tempfile', 'textwrap', 'threading', 'token', 'tokenize',
-                     'traceback', 'types', 'uu', 'uuid', 'warnings', 'weakref', 'zipfile', 'virtualenv']
+import matplotlib
 
 inbuilt_modules = os.listdir(os.path.join(python_dir, 'Lib'))
 if 'site-packages' in inbuilt_modules:
@@ -141,6 +130,7 @@ DATA_FILES = [('.', additional_dlls), ('.', pyside_compilers), ('.', [sys.execut
               (os.path.join('res', 'images'), wizard_image_files), (os.path.join('tcl', 'tcl8.6'), []),
               (os.path.join('tcl', 'tk8.6'), []), ('DLLs', inbuilt_dlls),
               (os.path.join('Lib', 'lib2to3'), support_files_lib2to3)]
+DATA_FILES.extend(matplotlib.get_py2exe_datafiles())
 
 # Need to import opencmiss before the py2exe attempts to load it, possibly because of it being a namespace package
 PACKAGES = find_packages(exclude=['tests', 'tests.*', ])
@@ -148,7 +138,7 @@ PACKAGES.extend(['numpy', 'scipy', 'gias2', 'pkg_resources',
                  'opencmiss', 'opencmiss.zinc', 'opencmiss.iron', 'rdflib',
                  'pmr2', 'pmr2.wfctrl'])
 EXCLUDES = ['numpy.distutils.tests',]
-INCLUDES = ['virtualenv']
+INCLUDES = ['virtualenv', 'matplotlib.backends.backend_qt4agg']
 OPTIONS = {'py2exe': {
         'packages': PACKAGES,
         'excludes': EXCLUDES,
