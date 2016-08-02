@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
     
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 
 from PySide import QtCore
 
@@ -86,11 +86,11 @@ class PMR(object):
         settings.endGroup()
         
     def setActiveHost(self, uri):
-        '''
+        """
         if the uri argument is in the dict of instances it will
         set that host as the active host.  if the uri evaluates 
         to False the active host will be set to None.
-        '''
+        """
         status = False
         if uri in self._instances:
             self._active_host = uri
@@ -138,19 +138,19 @@ class PMR(object):
         return self._active_host
 
     def update_token(self, oauth_token, oauth_token_secret):
-        '''
+        """
         update the oauth tokens for the currently active PMR target
-        '''
+        """
         if self._active_host is not None:
             self._instances[self._active_host]['user-public-token'] = oauth_token
             self._instances[self._active_host]['user-secret-token'] = oauth_token_secret
             self.writeSettings()
 
     def has_access(self):
-        '''
+        """
         return true if both the user tokens are something for the currently active 
         PMR target, false otherwise
-        '''
+        """
         if self._active_host is None:
             return False
         

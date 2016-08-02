@@ -1,8 +1,8 @@
-'''
+"""
 Created on Jun 24, 2015
 
 @author: hsorby
-'''
+"""
 from PySide import QtCore, QtGui
 
 from mapclient.tools.mapicon.ui_mapicondialog import Ui_MAPIconDialog
@@ -10,15 +10,8 @@ import os.path
 
 
 class MAPIconDialog(QtGui.QDialog):
-    '''
-    classdocs
-    '''
-
 
     def __init__(self, location, parent=None):
-        '''
-        Constructor
-        '''
         super(MAPIconDialog, self).__init__(parent)
         self._ui = Ui_MAPIconDialog()
         self._ui.setupUi(self)

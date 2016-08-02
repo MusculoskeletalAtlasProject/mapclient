@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
     
@@ -16,15 +16,15 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 
 class SkeletonStep(WorkflowStepMountPoint):
-    '''
+    """
     Skeleton step which is intended to be used as a starting point
     for new steps.
-    '''
+    """
 
     def __init__(self, location):
         super(SkeletonStep, self).__init__('Skeleton', location)

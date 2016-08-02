@@ -155,14 +155,14 @@ Having created the user interface part of the configuration dialog we need to ad
   from zincmodelsourcestep.widgets.ui_configuredialog import Ui_ConfigureDialog
 
   class ConfigureDialog(QDialog):
-      '''
+      """
       Configure dialog to present the user with the options to configure this step.
-      '''
+      """
 
       def __init__(self, state, parent=None):
-          '''
+          """
           Constructor
-          '''
+          """
           QDialog.__init__(self, parent)
           self._ui = Ui_ConfigureDialog()
           self._ui.setupUi(self)

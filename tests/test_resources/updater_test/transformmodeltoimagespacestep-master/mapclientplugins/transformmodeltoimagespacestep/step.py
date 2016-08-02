@@ -1,7 +1,7 @@
 
-'''
+"""
 MAP Client Plugin Step
-'''
+"""
 import os
 
 from PySide import QtGui
@@ -13,10 +13,10 @@ from mapclientplugins.transformmodeltoimagespacestep.configuredialog import Conf
 from gias.musculoskeletal import fw_segmentation_tools as fst
 
 class TransformModeltoImageSpaceStep(WorkflowStepMountPoint):
-    '''
+    """
     Skeleton step which is intended to be a helpful starting point
     for new steps.
-    '''
+    """
 
     def __init__(self, location):
         super(TransformModeltoImageSpaceStep, self).__init__('Transform Model to Image Space', location)
@@ -43,11 +43,11 @@ class TransformModeltoImageSpaceStep(WorkflowStepMountPoint):
         self._outputModelDict = None
 
     def execute(self):
-        '''
+        """
         Add your code here that will kick off the execution of the step.
         Make sure you call the _doneExecution() method when finished.  This method
         may be connected up to a button in a widget for example.
-        '''
+        """
         if self._config['Mirror']=='False':
             ns = False
         elif self._config['Mirror']=='True':
@@ -65,11 +65,11 @@ class TransformModeltoImageSpaceStep(WorkflowStepMountPoint):
         self._doneExecution()
 
     def setPortData(self, index, dataIn):
-        '''
+        """
         Add your code here that will set the appropriate objects for this step.
         The index is the index of the port in the port list.  If there is only one
         uses port for this step then the index can be ignored.
-        '''
+        """
         if index == 1:
             if len(dataIn)>1:
                 raise ValueError, 'only one image supported.'
@@ -79,21 +79,21 @@ class TransformModeltoImageSpaceStep(WorkflowStepMountPoint):
             self._inputModelDict = dataIn # ju#fieldworkmodeldict
 
     def getPortData(self, index):
-        '''
+        """
         Add your code here that will return the appropriate objects for this step.
         The index is the index of the port in the port list.  If there is only one
         provides port for this step then the index can be ignored.
-        '''
+        """
         return self._outputModelDict
 
     def configure(self):
-        '''
+        """
         This function will be called when the configure icon on the step is
         clicked.  It is appropriate to display a configuration dialog at this
         time.  If the conditions for the configuration of this step are complete
         then set:
             self._configured = True
-        '''
+        """
         dlg = ConfigureDialog()
         dlg.identifierOccursCount = self._identifierOccursCount
         dlg.setConfig(self._config)
@@ -107,25 +107,25 @@ class TransformModeltoImageSpaceStep(WorkflowStepMountPoint):
         self._configuredObserver()
 
     def getIdentifier(self):
-        '''
+        """
         The identifier is a string that must be unique within a workflow.
-        '''
+        """
         return self._config['identifier']
 
     def setIdentifier(self, identifier):
-        '''
+        """
         The framework will set the identifier for this step when it is loaded.
-        '''
+        """
         self._config['identifier'] = identifier
 
     def serialize(self, location):
-        '''
+        """
         Add code to serialize this step to disk.  The filename should
         use the step identifier (received from getIdentifier()) to keep it
         unique within the workflow.  The suggested name for the file on
         disk is:
             filename = getIdentifier() + '.conf'
-        '''
+        """
         configuration_file = os.path.join(location, self.getIdentifier() + '.conf')
         conf = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
         conf.beginGroup('config')
@@ -136,12 +136,12 @@ class TransformModeltoImageSpaceStep(WorkflowStepMountPoint):
 
 
     def deserialize(self, location):
-        '''
+        """
         Add code to deserialize this step from disk.  As with the serialize 
         method the filename should use the step identifier.  Obviously the 
         filename used here should be the same as the one used by the
         serialize method.
-        '''
+        """
         configuration_file = os.path.join(location, self.getIdentifier() + '.conf')
         conf = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
         conf.beginGroup('config')

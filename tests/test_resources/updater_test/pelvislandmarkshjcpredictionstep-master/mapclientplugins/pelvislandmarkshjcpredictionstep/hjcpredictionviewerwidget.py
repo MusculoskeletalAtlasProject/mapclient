@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
     
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import os
 os.environ['ETS_TOOLKIT'] = 'qt4'
 
@@ -31,10 +31,11 @@ from traits.api import HasTraits, Instance, on_trait_change, \
 from mappluginutils.mayaviviewer import MayaviViewerObjectsContainer, MayaviViewerLandmark, colours
 import numpy as np
 
+
 class MayaviHJCPredictionViewerWidget(QDialog):
-    '''
+    """
     Configure dialog to present the user with the options to configure this step.
-    '''
+    """
     defaultColor = colours['bone']
     objectTableHeaderColumns = {'landmarks':0}
     backgroundColour = (0.0,0.0,0.0)
@@ -42,9 +43,6 @@ class MayaviHJCPredictionViewerWidget(QDialog):
     _hjcRenderArgs = {'mode':'sphere', 'scale_factor':10.0, 'color':(1,0,0)}
 
     def __init__(self, landmarks, config, predictFunc, predMethods, popClasses, parent=None):
-        '''
-        Constructor
-        '''
         QDialog.__init__(self, parent)
         self._ui = Ui_Dialog()
         self._ui.setupUi(self)
@@ -73,7 +71,7 @@ class MayaviHJCPredictionViewerWidget(QDialog):
 
         # self.testPlot()
         # self.drawObjects()
-        print 'finished init...', self._config
+        print('finished init...', self._config)
 
     def _initViewerObjects(self):
         self._objects = MayaviViewerObjectsContainer()
@@ -173,7 +171,7 @@ class MayaviHJCPredictionViewerWidget(QDialog):
 
     def _addObjectToTable(self, row, name, obj, checked=True):
         typeName = obj.typeName
-        print 'adding to table: %s (%s)'%(name, typeName)
+        print('adding to table: %s (%s)'%(name, typeName))
         tableItem = QTableWidgetItem(name)
         if checked:
             tableItem.setCheckState(Qt.Checked)
@@ -189,8 +187,8 @@ class MayaviHJCPredictionViewerWidget(QDialog):
                                     selectedRow,
                                     self.objectTableHeaderColumns['landmarks']
                                     ).text()
-        print selectedRow
-        print self.selectedObjectName
+        print(selectedRow)
+        print(self.selectedObjectName)
 
     def _visibleBoxChanged(self, tableItem):
         # get name of object selected
@@ -202,17 +200,17 @@ class MayaviHJCPredictionViewerWidget(QDialog):
             name = tableItem.text()
             visible = tableItem.checkState().name=='Checked'
 
-            print 'visibleboxchanged name', name
-            print 'visibleboxchanged visible', visible
+            print('visibleboxchanged name', name)
+            print('visibleboxchanged visible', visible)
 
             # toggle visibility
             obj = self._objects.getObject(name)
-            print obj.name
+            print(obj.name)
             if obj.sceneObject:
-                print 'changing existing visibility'
+                print('changing existing visibility')
                 obj.setVisibility(visible)
             else:
-                print 'drawing new'
+                print('drawing new')
                 obj.draw(self._scene)
 
     def _getSelectedObjectName(self):
@@ -303,12 +301,12 @@ class MayaviHJCPredictionViewerWidget(QDialog):
             name = tableItem.text()
             visible = tableItem.checkState().name=='Checked'
             obj = self._objects.getObject(name)
-            print obj.name
+            print(obj.name)
             if obj.sceneObject:
-                print 'changing existing visibility'
+                print('changing existing visibility')
                 obj.setVisibility(visible)
             else:
-                print 'drawing new'
+                print('drawing new')
                 obj.draw(self._scene)
 
     def _saveScreenShot(self):
@@ -323,12 +321,10 @@ class MayaviHJCPredictionViewerWidget(QDialog):
         # This function is called when the view is opened. We don't
         # populate the scene when the view is not yet open, as some
         # VTK features require a GLContext.
-        print 'trait_changed'
+        print('trait_changed')
 
         # We can do normal mlab calls on the embedded scene.
         self._scene.mlab.test_points3d()
 
-
     # def _saveImage_fired( self ):
     #     self.scene.mlab.savefig( str(self.saveImageFilename), size=( int(self.saveImageWidth), int(self.saveImageLength) ) )
-        

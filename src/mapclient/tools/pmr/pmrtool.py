@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 
 import json
 import logging
@@ -189,11 +189,11 @@ class PMRTool(object):
         return r.json()
 
     def search(self, text, search_type=plain_text_search_string):
-        '''
+        """
         Search PMR for the given text, the search type
         can be either 'plain' for plain text searching or
         'ontological' for ricordo knowledge base searching.
-        '''
+        """
         try:
             return self._search(text, search_type)
         except HTTPError as e:
@@ -343,10 +343,10 @@ class PMRTool(object):
         return result
 
     def addFileToIndexer(self, local_workspace_dir, workspace_file):
-        '''
+        """
         Add the given workspace file in the remote workspace to the
         indexer for ontological searching.
-        '''
+        """
         if not self.hasAccess():
             return
 

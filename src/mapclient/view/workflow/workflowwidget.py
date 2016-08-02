@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import os, logging
 import shutil
 
@@ -330,9 +330,9 @@ class WorkflowWidget(QtGui.QWidget):
         return unsuccessful_installs
 
     def getMissingDependencies(self, dependencies):
-        '''
+        """
         Determine which dependencies are missing from the given dependencies list.
-        '''
+        """
         virtenv_dir = getVirtEnvDirectory()
 
         virtenv_exists = os.path.exists(os.path.join(virtenv_dir, 'bin'))
@@ -346,7 +346,7 @@ class WorkflowWidget(QtGui.QWidget):
         return required_dependencies
 
     def performWorkflowChecks(self, workflowDir):
-        '''
+        """
         Perform workflow checks
          1. Check plugins
          2. Check dependencies
@@ -354,7 +354,7 @@ class WorkflowWidget(QtGui.QWidget):
          4. Get missing dependencies
          5. Check for errors
          6. Update step tree
-        '''
+        """
 #         wm = self._mainWindow.model().workflowManager()
         pm = self._mainWindow.model().pluginManager()
         steps_to_install = pm.checkPlugins(workflowDir)

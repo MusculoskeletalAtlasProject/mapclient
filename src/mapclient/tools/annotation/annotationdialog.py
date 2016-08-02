@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
     
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import re
 
 from PySide import QtGui
@@ -24,16 +24,13 @@ from PySide import QtGui
 from mapclient.tools.annotation.ui_annotationdialog import Ui_AnnotationDialog
 from mapclient.tools.annotation.annotationtool import AnnotationTool
 
-class AnnotationDialog(QtGui.QDialog):
-    '''
-    Dialog for annotating a directory.
-    '''
 
+class AnnotationDialog(QtGui.QDialog):
+    """
+    Dialog for annotating a directory.
+    """
 
     def __init__(self, location, annotation_filename=None, parent=None):
-        '''
-        Constructor
-        '''
         QtGui.QDialog.__init__(self, parent)
         self._ui = Ui_AnnotationDialog()
         self._ui.setupUi(self)

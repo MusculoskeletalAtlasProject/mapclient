@@ -57,14 +57,11 @@ def _getWorkflowMetaAbsoluteFilename(location):
 
 
 class WorkflowManager(object):
-    '''
+    """
     This class manages (models?) the workflow.
-    '''
+    """
 
     def __init__(self, parent):
-        '''
-        Constructor
-        '''
         self.name = 'WorkflowManager'
         self._parent = parent
 #        self.widget = None
@@ -156,11 +153,11 @@ class WorkflowManager(object):
         requirements_file = _getWorkflowRequirementsAbsoluteFilename(self._location)
 
     def new(self, location):
-        '''
+        """
         Create a new workflow at the given location.  The location is a directory, it must exist
         it will not be created.  A file '.workflow.conf' is created in the directory at 'location' which holds
         information relating to the workflow.
-        '''
+        """
         if location is None:
             raise WorkflowError('No location given to create new Workflow.')
 
@@ -174,10 +171,10 @@ class WorkflowManager(object):
         self._scene.clear()
 
     def exists(self, location):
-        '''
+        """
         Determines whether a workflow exists in the given location.
         Returns True if a valid workflow exists, False otherwise.
-        '''
+        """
         if location is None:
             return False
 
@@ -191,10 +188,10 @@ class WorkflowManager(object):
         return False
 
     def load(self, location):
-        '''
+        """
         Open a workflow from the given location.
         :param location:
-        '''
+        """
         if location is None:
             raise WorkflowError('No location given to open Workflow.')
 
@@ -264,9 +261,9 @@ class WorkflowManager(object):
 #        self._title = info.APPLICATION_NAME + ' - ' + self._location
 
     def close(self):
-        '''
+        """
         Close the current workflow
-        '''
+        """
         self._location = ''
         self._saveStateIndex = self._currentStateIndex = 0
 #        self._title = info.APPLICATION_NAME

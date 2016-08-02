@@ -1,7 +1,7 @@
 
-'''
+"""
 MAP Client Plugin Step
-'''
+"""
 import os
 
 from PySide import QtGui
@@ -20,10 +20,10 @@ POP_CLASS = ('adults', 'men', 'women')
 HIPLANDMARKS = ('LASIS', 'RASIS', 'LPSIS', 'RPSIS', 'PS')
 
 class PelvisLandmarksHJCPredictionStep(WorkflowStepMountPoint):
-    '''
+    """
     Skeleton step which is intended to be a helpful starting point
     for new steps.
-    '''
+    """
 
     def __init__(self, location):
         super(PelvisLandmarksHJCPredictionStep, self).__init__('Pelvis Landmark HJC Prediction', location)
@@ -51,11 +51,11 @@ class PelvisLandmarksHJCPredictionStep(WorkflowStepMountPoint):
 
 
     def execute(self):
-		'''
+		"""
 		Add your code here that will kick off the execution of the step.
 		Make sure you call the _doneExecution() method when finished.  This method
 		may be connected up to a button in a widget for example.
-		'''
+		"""
 		self._landmarks['HJC_left'] = np.array([0,0,0], dtype=float)
 		self._landmarks['HJC_right'] = np.array([0,0,0], dtype=float)
 		self._getHipLandmarks()
@@ -144,29 +144,29 @@ class PelvisLandmarksHJCPredictionStep(WorkflowStepMountPoint):
         # self._landmarks['HJC_right'] = ma.transform3D.transformAffine( [predictions[1],], self._inverseT )
 
     def setPortData(self, index, dataIn):
-        '''
+        """
         Add your code here that will set the appropriate objects for this step.
         The index is the index of the port in the port list.  If there is only one
         uses port for this step then the index can be ignored.
-        '''
+        """
         self._landmarks = dataIn # ju#landmarks
 
     def getPortData(self, index):
-        '''
+        """
         Add your code here that will return the appropriate objects for this step.
         The index is the index of the port in the port list.  If there is only one
         provides port for this step then the index can be ignored.
-        '''
+        """
         return self._landmarks # ju#landmarks
 
     def configure(self):
-        '''
+        """
         This function will be called when the configure icon on the step is
         clicked.  It is appropriate to display a configuration dialog at this
         time.  If the conditions for the configuration of this step are complete
         then set:
             self._configured = True
-        '''
+        """
         dlg = ConfigureDialog(METHODS, POP_CLASS)
         dlg.identifierOccursCount = self._identifierOccursCount
         dlg.setConfig(self._config)
@@ -180,25 +180,25 @@ class PelvisLandmarksHJCPredictionStep(WorkflowStepMountPoint):
         self._configuredObserver()
 
     def getIdentifier(self):
-        '''
+        """
         The identifier is a string that must be unique within a workflow.
-        '''
+        """
         return self._config['identifier']
 
     def setIdentifier(self, identifier):
-        '''
+        """
         The framework will set the identifier for this step when it is loaded.
-        '''
+        """
         self._config['identifier'] = identifier
 
     def serialize(self, location):
-        '''
+        """
         Add code to serialize this step to disk.  The filename should
         use the step identifier (received from getIdentifier()) to keep it
         unique within the workflow.  The suggested name for the file on
         disk is:
             filename = getIdentifier() + '.conf'
-        '''
+        """
         configuration_file = os.path.join(location, self.getIdentifier() + '.conf')
         conf = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
         conf.beginGroup('config')
@@ -218,12 +218,12 @@ class PelvisLandmarksHJCPredictionStep(WorkflowStepMountPoint):
 
 
     def deserialize(self, location):
-        '''
+        """
         Add code to deserialize this step from disk.  As with the serialize 
         method the filename should use the step identifier.  Obviously the 
         filename used here should be the same as the one used by the
         serialize method.
-        '''
+        """
         configuration_file = os.path.join(location, self.getIdentifier() + '.conf')
         conf = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
         conf.beginGroup('config')
