@@ -48,9 +48,9 @@ logger = logging.getLogger('mapclient.application')
 
 
 def initialiseLogger(log_path):
-    '''
+    """
     Initialise logger settings and information formatting
-    '''
+    """
 
     logging.basicConfig(format='%(asctime)s.%(msecs).03d - %(name)s - %(levelname)s - %(message)s', level=logging.INFO, datefmt='%d/%m/%Y - %H:%M:%S')
     logging.addLevelName(29, 'PLUGIN')
