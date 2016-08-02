@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import sys
 import uuid
 import logging
@@ -136,9 +136,9 @@ class WorkflowDependencyGraph(object):
         self._current = -1
 
     def _findAllConnectedNodes(self):
-        '''
+        """
         Return a list of all the nodes that have a connection.
-        '''
+        """
         nodes = []
         for item in self._scene.items():
             if item.Type == Connection.Type:
@@ -150,11 +150,11 @@ class WorkflowDependencyGraph(object):
         return nodes
 
     def _nodeIsDestination(self, graph, node):
-        '''
+        """
         Determine whether or not the given node features
         in a destination of another node.  Return True if
         the node is a destination, False otherwise..
-        '''
+        """
         for graph_node in graph:
             if node in graph[graph_node]:
                 return True
@@ -162,10 +162,10 @@ class WorkflowDependencyGraph(object):
         return False
 
     def _findStartingSet(self, graph, nodes):
-        '''
+        """
         Find the set of all nodes that are connected but are
         not destinations for any other node.
-        '''
+        """
         starting_set = []
         for node in nodes:
             # Determine if node is a destination, if it is it is not a starting node
@@ -175,10 +175,10 @@ class WorkflowDependencyGraph(object):
         return starting_set
 
     def _determineTopologicalOrder(self, graph, starting_set):
-        '''
+        """
         Determine the topological order of the graph.  Returns
         an empty list if the graph contains a loop.
-        '''
+        """
         # Find topological order
         temp_graph = graph.copy()
         topologicalOrder = []
@@ -277,9 +277,9 @@ class WorkflowDependencyGraph(object):
 
 
 class WorkflowScene(object):
-    '''
+    """
     This is the authoratative model for the workflow scene.
-    '''
+    """
 
     def __init__(self, manager):
         self._manager = manager
@@ -473,13 +473,13 @@ class WorkflowScene(object):
             self._items[item]._selected = selected
 
     def identifierOccursCount(self, identifier):
-        '''
+        """
         Return the number of times the given identifier occurs in
         all the steps present in the workflow.  The count stops at two
         and returns indicating an excess number of the given identifier.
         An empty identifier will return the value 2 also, this is used
         to signify that the identifier is invalid.
-        '''
+        """
         if len(identifier) == 0:
             return 2
 

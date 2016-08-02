@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -17,7 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 from __future__ import absolute_import
 import os
 import ctypes
@@ -65,9 +65,9 @@ def initialiseLogger(log_path):
 
 
 def progheader():
-    '''
+    """
     Display program header
-    '''
+    """
     programHeader = '   MAP Client (version %s)   ' % info.ABOUT['version']
     logger.info('-' * len(programHeader))
     logger.info(programHeader)
@@ -76,9 +76,9 @@ def progheader():
 
 # This method starts MAP Client
 def winmain():
-    '''
+    """
     Initialise common settings and check the operating environment before starting the application.
-    '''
+    """
     if sys.platform == 'win32':
         myappid = 'MusculoSkeletal.MAPClient'  # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)

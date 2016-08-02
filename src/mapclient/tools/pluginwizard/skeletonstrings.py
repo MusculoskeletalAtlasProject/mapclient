@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,93 +16,93 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 
-IMPORT_STRING = '''
-\'\'\'
+IMPORT_STRING = """
+\"\"\"
 MAP Client Plugin Step
-\'\'\'
+\"\"\"
 {json_import}{qtgui_import}from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
-'''
+"""
 
-CLASS_STRING = '''
+CLASS_STRING = """
 
 class {step_object_name}Step(WorkflowStepMountPoint):
-    \'\'\'
+    \"\"\"
     Skeleton step which is intended to be a helpful starting point
     for new steps.
-    \'\'\'
-'''
+    \"\"\"
+"""
 
-INIT_METHOD_STRING = '''
+INIT_METHOD_STRING = """
     def __init__(self, location):
         super({step_object_name}Step, self).__init__('{step_name}', location)
         self._configured = False # A step cannot be executed until it has been configured.
         self._category = '{step_category}'
         # Add any other initialisation code here:
-'''
+"""
 
-CONFIGURE_METHOD_STRING = '''
+CONFIGURE_METHOD_STRING = """
     def configure(self):
-        \'\'\'
+        \"\"\"
         This function will be called when the configure icon on the step is
         clicked.  It is appropriate to display a configuration dialog at this
         time.  If the conditions for the configuration of this step are complete
         then set:
             self._configured = True
-        \'\'\'
-'''
+        \"\"\"
+"""
 
-IDENTIFIER_METHOD_STRING = '''
+IDENTIFIER_METHOD_STRING = """
     def getIdentifier(self):
-        \'\'\'
+        \"\"\"
         The identifier is a string that must be unique within a workflow.
-        \'\'\'
+        \"\"\"
         {getidentifiercontent}
 
     def setIdentifier(self, identifier):
-        \'\'\'
+        \"\"\"
         The framework will set the identifier for this step when it is loaded.
-        \'\'\'
+        \"\"\"
         {setidentifiercontent}
-'''
+"""
 
 GETIDENTIFIER_DEFAULT_CONTENT_STRING = 'return \'{step_object_name}\' # TODO: The string must be replaced with the step\'s unique identifier'
 SETIDENTIFIER_DEFAULT_CONTENT_STRING = 'pass # TODO: Must actually set the step\'s identifier here'
 GETIDENTIFIER_IDENTIFER_CONTENT_STRING = 'return self._config[\'identifier\']'
 SETIDENTIFIER_IDENTIFER_CONTENT_STRING = 'self._config[\'identifier\'] = identifier'
 
-SERIALIZE_METHOD_STRING = '''
+SERIALIZE_METHOD_STRING = """
     def serialize(self):
-        \'\'\'
+        \"\"\"
         Add code to serialize this step to string.  This method should
         implement the opposite of 'deserialize'.
-        \'\'\'
+        \"\"\"
         {serializecontent}
 
     def deserialize(self, string):
-        \'\'\'
+        \"\"\"
         Add code to deserialize this step from string.  This method should
         implement the opposite of 'serialize'.
-        \'\'\'
+        \"\"\"
         {deserializecontent}
 
-'''
+"""
 
 SERIALIZE_DEFAULT_CONTENT_STRING = 'pass'
 DESERIALIZE_DEFAULT_CONTENT_STRING = 'pass'
-SERIALIZE_IDENTIFIER_CONTENT_STRING = '''return json.dumps(self._config, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-'''
+SERIALIZE_IDENTIFIER_CONTENT_STRING = """return json.dumps(self._config, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+"""
 
-DESERIALIZE_IDENTIFIER_CONTENT_STRING = '''self._config.update(json.loads(string))
+DESERIALIZE_IDENTIFIER_CONTENT_STRING = """self._config.update(json.loads(string))
 
         d = ConfigureDialog()
         d.identifierOccursCount = self._identifierOccursCount
         d.setConfig(self._config)
         self._configured = d.validate()
-'''
+"""
 
-CONFIGURE_DIALOG_STRING = '''
+CONFIGURE_DIALOG_STRING = """
 
 from PySide import QtGui
 from {package_name}.ui_configuredialog import Ui_ConfigureDialog
@@ -110,22 +110,20 @@ from {package_name}.ui_configuredialog import Ui_ConfigureDialog
 INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
 DEFAULT_STYLE_SHEET = ''
 
+
 class ConfigureDialog(QtGui.QDialog):
-    \'\'\'
+    \"\"\"
     Configure dialog to present the user with the options to configure this step.
-    \'\'\'
+    \"\"\"
 
     def __init__(self, parent=None):
-        \'\'\'
-        Constructor
-        \'\'\'
         QtGui.QDialog.__init__(self, parent)
 
         self._ui = Ui_ConfigureDialog()
         self._ui.setupUi(self)
-'''
+"""
 
-CONFIGURE_DIALOG_INIT_ADDITIONS = '''
+CONFIGURE_DIALOG_INIT_ADDITIONS = """
         # Keep track of the previous identifier so that we can track changes
         # and know how many occurrences of the current identifier there should
         # be.
@@ -135,19 +133,19 @@ CONFIGURE_DIALOG_INIT_ADDITIONS = '''
         self.identifierOccursCount = None
 
         self._makeConnections()
-'''
+"""
 
-CONFIGURE_DIALOG_MAKE_CONNECTIONS_METHOD = '''
+CONFIGURE_DIALOG_MAKE_CONNECTIONS_METHOD = """
     def _makeConnections(self):
         self._ui.lineEdit0.textChanged.connect(self.validate)
-'''
+"""
 
-CONFIGURE_DIALOG_ACCEPT_METHOD = '''
+CONFIGURE_DIALOG_ACCEPT_METHOD = """
     def accept(self):
-        \'\'\'
+        \"\"\"
         Override the accept method so that we can confirm saving an
         invalid configuration.
-        \'\'\'
+        \"\"\"
         result = QtGui.QMessageBox.Yes
         if not self.validate():
             result = QtGui.QMessageBox.warning(self, 'Invalid Configuration',
@@ -156,25 +154,25 @@ CONFIGURE_DIALOG_ACCEPT_METHOD = '''
 
         if result == QtGui.QMessageBox.Yes:
             QtGui.QDialog.accept(self)
-'''
+"""
 
-CONFIGURE_DIALOG_DEFAULT_VALIDATE_METHOD = '''
+CONFIGURE_DIALOG_DEFAULT_VALIDATE_METHOD = """
     def validate(self):
-        \'\'\'
+        \"\"\"
         Validate the configuration dialog fields.  For any field that is not valid
         set the style sheet to the INVALID_STYLE_SHEET.  Return the outcome of the
         overall validity of the configuration.
-        \'\'\'
+        \"\"\"
         return False
-'''
+"""
 
-CONFIGURE_DIALOG_IDENTIFIER_VALIDATE_METHOD = '''
+CONFIGURE_DIALOG_IDENTIFIER_VALIDATE_METHOD = """
     def validate(self):
-        \'\'\'
+        \"\"\"
         Validate the configuration dialog fields.  For any field that is not valid
         set the style sheet to the INVALID_STYLE_SHEET.  Return the outcome of the
         overall validity of the configuration.
-        \'\'\'
+        \"\"\"
         # Determine if the current identifier is unique throughout the workflow
         # The identifierOccursCount method is part of the interface to the workflow framework.
         value = self.identifierOccursCount(self._ui.lineEdit0.text())
@@ -185,12 +183,12 @@ CONFIGURE_DIALOG_IDENTIFIER_VALIDATE_METHOD = '''
             self._ui.lineEdit0.setStyleSheet(INVALID_STYLE_SHEET)
 
         return valid
-'''
+"""
 
-PACKAGE_INIT_STRING = '''
-\'\'\'
+PACKAGE_INIT_STRING = """
+\"\"\"
 MAP Client Plugin
-\'\'\'
+\"\"\"
 __version__ = '0.1.0'
 __author__ = '{author_name}'
 
@@ -208,12 +206,12 @@ from {package_name} import step
 ( _, tail ) = os.path.split(current_dir)
 print("Plugin '{{0}}' version {{1}} by {{2}} loaded".format(tail, __version__, __author__))
 
-'''
+"""
 
-STEP_PACKAGE_INIT_STRING = '''
-\'\'\'
+STEP_PACKAGE_INIT_STRING = """
+\"\"\"
 MAP Client Plugin
-\'\'\'
+\"\"\"
 
 __version__ = '0.1.0'
 __author__ = '{author_name}'
@@ -223,18 +221,18 @@ __location__ = '{plugin_location}'
 # import class that derives itself from the step mountpoint.
 from {package_name} import step
 
-'''
+"""
 
-RESOURCE_FILE_STRING = '''
+RESOURCE_FILE_STRING = """
 <RCC>
   <qresource prefix="{step_package_name}">
     <file>images/{image_filename}</file>
   </qresource>
 </RCC>
-'''
+"""
 
 
-CONFIGURE_DIALOG_LINE = '''
+CONFIGURE_DIALOG_LINE = """
       <item row="{row}" column="0">
        <widget class="QLabel" name="label{row}">
         <property name="text">
@@ -245,9 +243,9 @@ CONFIGURE_DIALOG_LINE = '''
       <item row="{row}" column="1">
        <widget class="QLineEdit" name="lineEdit{row}"/>
       </item>
-'''
+"""
 
-CONFIGURE_DIALOG_UI = '''<?xml version="1.0" encoding="UTF-8"?>
+CONFIGURE_DIALOG_UI = """<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>ConfigureDialog</class>
  <widget class="QDialog" name="ConfigureDialog">
@@ -319,7 +317,7 @@ CONFIGURE_DIALOG_UI = '''<?xml version="1.0" encoding="UTF-8"?>
   </connection>
  </connections>
 </ui>
-'''
+"""
 
 
 README_TEMPLATE = """\

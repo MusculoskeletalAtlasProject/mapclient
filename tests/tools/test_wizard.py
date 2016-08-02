@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import unittest
 
 import os
@@ -52,7 +52,7 @@ AUTHOR_NAME = 'Prince of Persia'
 class _TestCase(unittest.TestCase):
 
     def assertIn(self, a, b, *args, **kwargs):
-        ''''Python < v2.7 compatibility.  Assert "a" in "b"'''
+        """'Python < v2.7 compatibility.  Assert "a" in "b""""
         try:
             f = super(_TestCase, self).assertIn
         except AttributeError:
@@ -61,7 +61,7 @@ class _TestCase(unittest.TestCase):
             f(a, b, *args, **kwargs)
 
     def assertNotIn(self, a, b, *args, **kwargs):
-        ''''Python < v2.7 compatibility.  Assert "a" NOT in "b"'''
+        """'Python < v2.7 compatibility.  Assert "a" NOT in "b""""
         try:
             f = super(_TestCase, self).assertNotIn
         except AttributeError:
@@ -79,9 +79,9 @@ class WizardTestCase(_TestCase):
         shutil.rmtree(self.working_dir, ignore_errors=True)
 
 #     def testRunWizard(self):
-#         '''
+#         """
 #         Visual test for wizard, uncomment to manually test.
-#         '''
+#         """
 #         dlg = wizarddialog.WizardDialog()
 #         result = dlg.exec_()
 #         self.assertTrue(result == dlg.Accepted or result == dlg.Rejected)

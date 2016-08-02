@@ -1,8 +1,8 @@
-'''
+"""
 Created on Jul 1, 2015
 
 @author: hsorby
-'''
+"""
 import re
 
 from PySide import QtCore, QtGui

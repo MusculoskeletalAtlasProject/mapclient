@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import os, math, weakref
 
 from PySide import QtCore, QtGui
@@ -81,9 +81,9 @@ class ErrorItem(QtGui.QGraphicsItem):
         painter.drawPixmap(midPoint.x() - 8, midPoint.y() - 8, self._pixmap)
 
 class Item(QtGui.QGraphicsItem):
-    '''
+    """
     Class to contain the selection information that selectable scene items can be derived from.
-    '''
+    """
 
 
     def __init__(self):
@@ -445,10 +445,10 @@ class StepPort(QtGui.QGraphicsEllipseItem):
         return len(self._connections) > 0
 
     def _removeDeadwood(self):
-        '''
+        """
         Unfortunately the weakref doesn't work correctly for c based classes.  This function
         removes any None type references in _connections.
-        '''
+        """
         prunedArcList = [ arc for arc in self._connections if arc() ]
         self._connections = prunedArcList
 

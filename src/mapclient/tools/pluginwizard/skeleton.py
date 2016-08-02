@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import os
 from shutil import copyfile
 from subprocess import call
@@ -48,10 +48,10 @@ PLUGIN_NAMESPACE = 'mapclientplugins'
 
 
 class Skeleton(object):
-    '''
+    """
     This class uses the skeleton options to write the
     skeleton code to disk.
-    '''
+    """
 
     def __init__(self, options, pyside_uic=None, pyside_rcc=None):
         self._options = options
@@ -59,9 +59,9 @@ class Skeleton(object):
         self._pyside_rcc = pyside_rcc
 
     def _writeSetup(self, target_dir):
-        '''
+        """
         Write the setup file, for integration with setuptools.
-        '''
+        """
         target_file = os.path.join(target_dir, 'setup.py')
         f = open(target_file, 'w')
         f.write(SETUP_PY_TEMPLATE % dict(
@@ -97,19 +97,19 @@ class Skeleton(object):
             f.write(APACHE_LICENSE)
 
     def _writeNamespaceInit(self, target_dir):
-        '''
+        """
         Write the namespace declaration init file.
-        '''
+        """
         target_file = os.path.join(target_dir, '__init__.py')
         f = open(target_file, 'w')
         f.write(NAMESPACE_INIT)
         f.close()
 
     def _writePackageInit(self, init_dir):
-        '''
+        """
         Write the package __init__ file.  This file imports the step, sets the
         version number and lists the author(s) name.
-        '''
+        """
         init_file = os.path.join(init_dir, '__init__.py')
         f = open(init_file, 'w')
         f.write(PACKAGE_INIT_STRING.format(
@@ -119,7 +119,7 @@ class Skeleton(object):
         f.close()
 
     def _generateExecuteMethod(self):
-        method_string = '''
+        method_string = """
     def execute(self):
         \'\'\'
         Add your code here that will kick off the execution of the step.
@@ -128,15 +128,15 @@ class Skeleton(object):
         \'\'\'
         # Put your execute step code here before calling the '_doneExecution' method.
         self._doneExecution()
-'''
+"""
 
         return method_string
 
     def _generateSetPortDataMethod(self, ports):
-        '''
+        """
         Generates the set port data method string.  Returns an empty
         string if this step has no uses ports.
-        '''
+        """
         method_string = ''
         uses_total = 0
         for current_port in ports:
@@ -144,14 +144,14 @@ class Skeleton(object):
                 uses_total += 1
 
         if uses_total > 0:
-            method_string += '''
+            method_string += """
     def setPortData(self, index, dataIn):
         \'\'\'
         Add your code here that will set the appropriate objects for this step.
         The index is the index of the port in the port list.  If there is only one
         uses port for this step then the index can be ignored.
         \'\'\'
-'''
+"""
             uses_count = 0
             for index, current_port in enumerate(ports):
                 if current_port[0].endswith('uses'):
@@ -160,21 +160,21 @@ class Skeleton(object):
                         method_string += '        self._portData{0} = dataIn # {1}\n'.format(index, current_port[1])
                     else:
                         if uses_count == 1:
-                            method_string += '''        if index == {0}:
+                            method_string += """        if index == {0}:
             self._portData{0} = dataIn # {1}
-'''.format(index, current_port[1])
+""".format(index, current_port[1])
                         else:
-                            method_string += '''        elif index == {0}:
+                            method_string += """        elif index == {0}:
             self._portData{0} = dataIn # {1}
-'''.format(index, current_port[1])
+""".format(index, current_port[1])
 
         return method_string
 
     def _generateGetPortDataMethod(self, ports):
-        '''
+        """
         Generate the get port data method string.  Returns the empty
         string if this step has no provides ports.
-        '''
+        """
         method_string = ''
         provides_total = 0
         for current_port in ports:
@@ -182,14 +182,14 @@ class Skeleton(object):
                 provides_total += 1
 
         if provides_total > 0:
-            method_string += '''
+            method_string += """
     def getPortData(self, index):
         \'\'\'
         Add your code here that will return the appropriate objects for this step.
         The index is the index of the port in the port list.  If there is only one
         provides port for this step then the index can be ignored.
         \'\'\'
-'''
+"""
             provides_count = 0
             for index, current_port in enumerate(ports):
                 if current_port[0].endswith('provides'):
@@ -198,20 +198,20 @@ class Skeleton(object):
                         method_string += '        return self._portData{0} # {1}\n'.format(index, current_port[1])
                     else:
                         if provides_count == 1:
-                            method_string += '''        if index == {0}:
+                            method_string += """        if index == {0}:
             return self._portData{0} # {1}
-'''.format(index, current_port[1])
+""".format(index, current_port[1])
                         else:
-                            method_string += '''        elif index == {0}:
+                            method_string += """        elif index == {0}:
             return self._portData{0} # {1}
-'''.format(index, current_port[1])
+""".format(index, current_port[1])
 
         return method_string
 
     def _generateConfigureMethod(self):
         method_string = CONFIGURE_METHOD_STRING
         if self._options.configCount() > 0:
-            method_string += '''        dlg = ConfigureDialog()
+            method_string += """        dlg = ConfigureDialog()
         dlg.identifierOccursCount = self._identifierOccursCount
         dlg.setConfig(self._config)
         dlg.validate()
@@ -222,7 +222,7 @@ class Skeleton(object):
 
         self._configured = dlg.validate()
         self._configuredObserver()
-'''
+"""
         else:
             method_string += '        pass\n'
 
@@ -244,9 +244,9 @@ class Skeleton(object):
         return import_string
 
     def _writeStep(self, step_dir):
-        '''
+        """
         Write the step file subject to the options set in the __init__ method.
-        '''
+        """
         object_name = self._options.getName().replace(' ', '')
         init_string = INIT_METHOD_STRING.format(step_object_name=object_name, step_name=self._options.getName(), step_category=self._options.getCategory())
         icon = self._options.getIcon()
@@ -256,13 +256,13 @@ class Skeleton(object):
             init_string += icon_string.format(step_package_name=self._options.getPackageName(), image_filename=image_filename)
         port_index = 0
         ports = []
-        init_string += '''        # Ports:
-'''
+        init_string += """        # Ports:
+"""
         while port_index < self._options.portCount():
             current_port = self._options.getPort(port_index)
-            init_string += '''        self.addPort(('http://physiomeproject.org/workflow/1.0/rdf-schema#port',
+            init_string += """        self.addPort(('http://physiomeproject.org/workflow/1.0/rdf-schema#port',
                       '{0}',
-                      '{1}'))\n'''.format(current_port[0], current_port[1])
+                      '{1}'))\n""".format(current_port[0], current_port[1])
             port_index += 1
             ports.append(current_port)
 
@@ -308,11 +308,11 @@ class Skeleton(object):
         f.close()
 
     def _writeStepPackageInit(self, init_dir):
-        '''
+        """
         Write the step package __init__ file.  If a resource file
         is present then load the module in here. Displays the author name,
         plugin name and plugin location.
-        '''
+        """
         init_file = os.path.join(init_dir, '__init__.py')
         f = open(init_file, 'w')
         f.write(STEP_PACKAGE_INIT_STRING.format(
@@ -330,12 +330,12 @@ class Skeleton(object):
         f.close()
 
     def _createStepIcon(self, step_dir):
-        '''
+        """
         The step icon requires the creation of directories, resources
         and files if an image file has been specified.
 
         The image file in the options is assumed to exist.
-        '''
+        """
         icon = self._options.getIcon()
         if icon:
             # Create directories
@@ -371,12 +371,12 @@ class Skeleton(object):
 #                 print('result = ' + str(-result))
 
     def _createConfigDialog(self, step_dir):
-        '''
+        """
         The Config dialog requires the existence of the qt directory in the
         step directory.
 
         Assume the program pyside-uic is available from the shell.
-        '''
+        """
         config_count = self._options.configCount()
         if config_count > 0:
             qt_dir = os.path.join(step_dir, 'qt')
@@ -384,19 +384,19 @@ class Skeleton(object):
                 os.mkdir(qt_dir)
 
             widgets_string = ''
-            set_config_string = '''
+            set_config_string = """
     def setConfig(self, config):
         \'\'\'
         Set the current value of the configuration for the dialog.{additional_comment}
         \'\'\'{previous_identifier}
-'''
-            get_config_string = '''
+"""
+            get_config_string = """
     def getConfig(self):
         \'\'\'
         Get the current value of the configuration from the dialog.{additional_comment}
         \'\'\'{previous_identifier}
         config = {{}}
-'''
+"""
             if self._options.hasIdentifierConfig():
                 set_config_string = set_config_string.format(additional_comment='  Also\n        set the _previousIdentifier value so that we can check uniqueness of the\n        identifier over the whole of the workflow.', previous_identifier='\n        self._previousIdentifier = config[\'identifier\']')
                 get_config_string = get_config_string.format(additional_comment='  Also\n        set the _previousIdentifier value so that we can check uniqueness of the\n        identifier over the whole of the workflow.', previous_identifier='\n        self._previousIdentifier = self._ui.lineEdit0.text()')
@@ -453,10 +453,10 @@ class Skeleton(object):
         return package_dir
 
     def write(self):
-        '''
+        """
         Write out the step using the options set on initialisation, assumes the output
         directory is writable otherwise an exception will be raised.
-        '''
+        """
 
         out_dir = self._options.getOutputDirectory()
         package_name = self._options.getPackageName()
@@ -494,15 +494,13 @@ class Skeleton(object):
 DEFAULT_AUTHOR_NAME = 'Xxxx Yyyyy'
 DEFAULT_CATEGORY = 'General'
 
+
 class SkeletonOptions(object):
-    '''
+    """
     This class hold all the options for the skeleton plugin code.
-    '''
+    """
 
     def __init__(self):
-        '''
-        Constructor
-        '''
         self._name = ''
         self._packageName = ''
         self._pluginLocation = ''

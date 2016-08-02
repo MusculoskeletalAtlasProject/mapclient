@@ -1,8 +1,8 @@
-'''
+"""
 Created on Jun 10, 2015
 
 @author: hsorby
-'''
+"""
 from mapclient.core.utils import which
 from mapclient.settings.general import getVirtEnvDirectory
 from mapclient.core.checks import getPySideRccExecutable, getPySideUicExecutable

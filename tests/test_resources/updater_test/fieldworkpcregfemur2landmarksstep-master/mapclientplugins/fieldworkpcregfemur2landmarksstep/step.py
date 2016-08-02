@@ -1,13 +1,13 @@
 
-'''
+"""
 MAP Client Plugin Step
-'''
+"""
 import os
 import copy
 
-'''
+"""
 MAP Client Plugin Step
-'''
+"""
 from PySide import QtGui
 from PySide import QtCore
 
@@ -24,10 +24,10 @@ import numpy as np
 FEMURLANDMARKS = ('FHC', 'MEC', 'LEC', 'FGT')
 
 class FieldworkPCRegFemur2LandmarksStep(WorkflowStepMountPoint):
-    '''
+    """
     Skeleton step which is intended to be a helpful starting point
     for new steps.
-    '''
+    """
 
     _pcfitmw0 = 1e2
     _pcfitmwn = 1e2
@@ -73,11 +73,11 @@ class FieldworkPCRegFemur2LandmarksStep(WorkflowStepMountPoint):
         self._transform = None
 
     def execute(self):
-        '''
+        """
         Add your code here that will kick off the execution of the step.
         Make sure you call the _doneExecution() method when finished.  This method
         may be connected up to a button in a widget for example.
-        '''
+        """
         self._inputModel.set_field_parameters(self._pc.getMean().reshape((3,-1,1)))
         if self._config['GUI']:
             print 'launching registration gui'
@@ -130,11 +130,11 @@ class FieldworkPCRegFemur2LandmarksStep(WorkflowStepMountPoint):
         return self._outputModel, self._rmse, T
 
     def setPortData(self, index, dataIn):
-        '''
+        """
         Add your code here that will set the appropriate objects for this step.
         The index is the index of the port in the port list.  If there is only one
         uses port for this step then the index can be ignored.
-        '''
+        """
         if index==0:
             self._landmarks = dataIn # ju#landmarks
         elif index==1:
@@ -143,11 +143,11 @@ class FieldworkPCRegFemur2LandmarksStep(WorkflowStepMountPoint):
             self._inputModel = dataIn
 
     def getPortData(self, index):
-        '''
+        """
         Add your code here that will return the appropriate objects for this step.
         The index is the index of the port in the port list.  If there is only one
         provides port for this step then the index can be ignored.
-        '''
+        """
         if index==3:
             return self._outputModel # ju#landmarks
         elif index==4:
@@ -156,13 +156,13 @@ class FieldworkPCRegFemur2LandmarksStep(WorkflowStepMountPoint):
             return self._rmse
 
     def configure(self):
-        '''
+        """
         This function will be called when the configure icon on the step is
         clicked.  It is appropriate to display a configuration dialog at this
         time.  If the conditions for the configuration of this step are complete
         then set:
             self._configured = True
-        '''
+        """
         dlg = ConfigureDialog()
         dlg.identifierOccursCount = self._identifierOccursCount
         dlg.setConfig(self._config)
@@ -176,25 +176,25 @@ class FieldworkPCRegFemur2LandmarksStep(WorkflowStepMountPoint):
         self._configuredObserver()
 
     def getIdentifier(self):
-        '''
+        """
         The identifier is a string that must be unique within a workflow.
-        '''
+        """
         return self._config['identifier']
 
     def setIdentifier(self, identifier):
-        '''
+        """
         The framework will set the identifier for this step when it is loaded.
-        '''
+        """
         self._config['identifier'] = identifier
 
     def serialize(self, location):
-        '''
+        """
         Add code to serialize this step to disk.  The filename should
         use the step identifier (received from getIdentifier()) to keep it
         unique within the workflow.  The suggested name for the file on
         disk is:
             filename = getIdentifier() + '.conf'
-        '''
+        """
         configuration_file = os.path.join(location, self.getIdentifier() + '.conf')
         conf = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
         conf.beginGroup('config')
@@ -208,12 +208,12 @@ class FieldworkPCRegFemur2LandmarksStep(WorkflowStepMountPoint):
         conf.endGroup()
 
     def deserialize(self, location):
-        '''
+        """
         Add code to deserialize this step from disk.  As with the serialize 
         method the filename should use the step identifier.  Obviously the 
         filename used here should be the same as the one used by the
         serialize method.
-        '''
+        """
         configuration_file = os.path.join(location, self.getIdentifier() + '.conf')
         conf = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
         conf.beginGroup('config')

@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
     
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import os
 os.environ['ETS_TOOLKIT'] = 'qt4'
 import random
@@ -38,9 +38,9 @@ from mappluginutils.mayaviviewer.mayaviviewerdatapoints import MayaviViewerDataP
 from mappluginutils.mayaviviewer import mayaviviewerfieldworkmeasurements as MVFM
 
 class MayaviViewerStep(WorkflowStepMountPoint):
-    '''
+    """
     Step for displaying 3D objects using mayavi.
-    '''
+    """
     
     def __init__(self, location):
         super(MayaviViewerStep, self).__init__('Mayavi 3D Model Viewer', location)

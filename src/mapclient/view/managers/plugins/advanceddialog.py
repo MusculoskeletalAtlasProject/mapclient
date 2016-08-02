@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import pkgutil, os, sys, imp, importlib, collections
 from PySide.QtGui import QDialog, QMessageBox, QApplication, QCursor, QFileDialog
 from PySide.QtCore import Qt
@@ -26,15 +26,13 @@ from mapclient.view.managers.plugins.pluginupdater import PluginUpdater
 from mapclient.view.utils import set_wait_cursor
 from mapclient.settings.definitions import PLUGINS_PACKAGE_NAME
 
+
 class AdvancedDialog(QDialog):
-    '''
+    """
     Dialog containing advanced plugin tools, settings and information.
-    '''
+    """
 
     def __init__(self, ignored_plugins, do_not_show_errors, resource_files, updater_settings, parent=None):
-        '''
-        Constructor
-        '''
         QDialog.__init__(self, parent)
         self._ui = Ui_AdvancedDialog()
         self._ui.setupUi(self)
@@ -105,7 +103,7 @@ class AdvancedDialog(QDialog):
     def fillInstalledPackagesList(self):
         # virt_env_dir = self._ui.virtEnvLocation.text()
         # need to change so that have list stored within applicarion settings that is uodated every time a package is installed - much faster to load
-        '''
+        """
         virt_env_dir = 'C:\\Users\\Jonathan\\AppData\\Roaming\\Musculo Skeletal\\MAP Client\\pluginVirtEnv'
         output = subprocess.check_output([virt_env_dir + '\Scripts' + '\python.exe', virt_env_dir + '\Scripts' + '\pip.exe', 'list'], shell=True)
         installed_packages = output.decode('utf-8').split('\n')
@@ -118,7 +116,7 @@ class AdvancedDialog(QDialog):
             self._ui.installedPackagesList.addItem(package[:-1])
             item = self._ui.installedPackagesList.item(count)
             item.setToolTip(toolTip)
-        '''
+        """
 
     def fillRecommendedPackagesList(self):
         # based on list of deependencies from existing plugins and analysing the index list of packages availble through pip

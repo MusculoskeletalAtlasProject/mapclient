@@ -1,8 +1,8 @@
-'''
+"""
 Created on Feb 26, 2015
 
 @author: hsorby
-'''
+"""
 import unittest
 
 from mapclient.tools.pmr.settings.general import PMR

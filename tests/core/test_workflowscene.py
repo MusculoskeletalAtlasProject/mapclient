@@ -1,8 +1,8 @@
-'''
+"""
 Created on Mar 14, 2013
 
 @author: hsorby
-'''
+"""
 import os, unittest
 
 from PySide import QtCore
@@ -58,7 +58,7 @@ class WorkflowSceneTestCase(unittest.TestCase):
 
 
     def assertIn(self, a, b, *args, **kwargs):
-        ''''Python < v2.7 compatibility.  Assert "a" in "b"'''
+        """'Python < v2.7 compatibility.  Assert "a" in "b""""
         try:
             f = super(WorkflowSceneTestCase, self).assertIn
         except AttributeError:
@@ -67,7 +67,7 @@ class WorkflowSceneTestCase(unittest.TestCase):
             f(a, b, *args, **kwargs)
 
     def assertNotIn(self, a, b, *args, **kwargs):
-        ''''Python < v2.7 compatibility.  Assert "a" NOT in "b"'''
+        """'Python < v2.7 compatibility.  Assert "a" NOT in "b""""
         try:
             f = super(WorkflowSceneTestCase, self).assertNotIn
         except AttributeError:
@@ -128,7 +128,7 @@ class WorkflowDependencyGraphTestCase(unittest.TestCase):
 
 
     def assertIn(self, a, b, *args, **kwargs):
-        ''''Python < v2.7 compatibility.  Assert "a" in "b"'''
+        """'Python < v2.7 compatibility.  Assert "a" in "b""""
         try:
             f = super(WorkflowDependencyGraphTestCase, self).assertIn
         except AttributeError:
@@ -137,7 +137,7 @@ class WorkflowDependencyGraphTestCase(unittest.TestCase):
             f(a, b, *args, **kwargs)
 
     def assertNotIn(self, a, b, *args, **kwargs):
-        ''''Python < v2.7 compatibility.  Assert "a" NOT in "b"'''
+        """'Python < v2.7 compatibility.  Assert "a" NOT in "b""""
         try:
             f = super(WorkflowDependencyGraphTestCase, self).assertNotIn
         except AttributeError:
@@ -146,7 +146,7 @@ class WorkflowDependencyGraphTestCase(unittest.TestCase):
             f(a, b, *args, **kwargs)
 
     def assertLess(self, a, b, *args, **kwargs):
-        ''''Python < v2.7 compatibility.  Assert "a" less "b"'''
+        """'Python < v2.7 compatibility.  Assert "a" less "b""""
         try:
             f = super(WorkflowDependencyGraphTestCase, self).assertLess
         except AttributeError:
@@ -335,9 +335,9 @@ class WorkflowDependencyGraphTestCase(unittest.TestCase):
         self.assertLess(index0, index1)
 
     def testGraph7(self):
-        '''
+        """
         Testing independent graphs
-        '''
+        """
         g = WorkflowDependencyGraph(self._s)
         c1 = Connection(self._nodes[0], 0, self._nodes[2], 0)
         c2 = Connection(self._nodes[1], 0, self._nodes[2], 0)
@@ -366,9 +366,9 @@ class WorkflowDependencyGraphTestCase(unittest.TestCase):
         self.assertEqual(7, len(order))
 
     def testGraph8(self):
-        '''
+        """
         Testing graph with loop
-        '''
+        """
         g = WorkflowDependencyGraph(self._s)
         c1 = Connection(self._nodes[0], 0, self._nodes[1], 0)
         c2 = Connection(self._nodes[1], 0, self._nodes[2], 0)
@@ -423,7 +423,7 @@ class DictUtilsTestCase(unittest.TestCase):
 
 
     def assertIn(self, a, b, *args, **kwargs):
-        ''''Python < v2.7 compatibility.  Assert "a" in "b"'''
+        """'Python < v2.7 compatibility.  Assert "a" in "b""""
         try:
             f = super(DictUtilsTestCase, self).assertIn
         except AttributeError:

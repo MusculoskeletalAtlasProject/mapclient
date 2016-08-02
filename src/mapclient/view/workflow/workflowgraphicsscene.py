@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 from PySide import QtGui
 
 from mapclient.core.workflow.workflowscene import MetaStep, Connection
@@ -25,11 +25,11 @@ from mapclient.view.workflow.workflowcommands import CommandConfigure, CommandRe
 
 
 class WorkflowGraphicsScene(QtGui.QGraphicsScene):
-    '''
+    """
     This view side class is a non-authoratative representation
     of the current workflow scene model.  It must be kept in
     sync with the authoratative workflow scene model.
-    '''
+    """
 
     sceneWidth = 500
     sceneHeight = 1.618 * sceneWidth
@@ -67,10 +67,10 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
                 self._workflow_scene.removeItem(item.metaItem())
 
     def updateModel(self):
-        '''
+        """
         Clears the QGraphicScene and re-populates it with what is currently
         in the WorkflowScene.
-        '''
+        """
         QtGui.QGraphicsScene.clear(self)
         meta_steps = {}
         connections = []

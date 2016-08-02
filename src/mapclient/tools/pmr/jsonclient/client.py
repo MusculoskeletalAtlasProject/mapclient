@@ -49,8 +49,8 @@ class Client(object):
         return self._credential.access()
     
     def search(self, text):
-        ''' This is a Plone style search so wildcards are necessary.
-        '''
+        """ This is a Plone style search so wildcards are necessary.
+        """
         url = '%s/search' % self._site
         headers = std_headers()
         if self.hasAccess():
