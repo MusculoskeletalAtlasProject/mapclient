@@ -91,7 +91,11 @@ class ConfigureDialog(QtGui.QDialog):
         config = {}
         config['identifier'] = self._ui.lineEdit0.text()
         config['File'] = self._ui.lineEditFileLocation.text()
-        config['previous_location'] = os.path.relpath(self._previousLocation, self._workflow_location)
+        if self._previousLocation:
+            config['previous_location'] = os.path.relpath(self._previousLocation, self._workflow_location)
+        else:
+            config['previous_location'] = ''
+
         return config
 
     def setConfig(self, config):
