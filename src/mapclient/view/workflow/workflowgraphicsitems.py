@@ -39,8 +39,8 @@ class ErrorItem(QtGui.QGraphicsItem):
         self._dest().addArc(self)
         self.setZValue(-1.5)
         self.adjust()
-        if hasattr(sourceNode, '_step_port_items'):
-            print(sourceNode._step_port_items)
+        # if hasattr(sourceNode, '_step_port_items'):
+        #     print(sourceNode._step_port_items)
 
     def boundingRect(self):
         extra = (16) / 2.0  # Icon size divided by two
@@ -80,11 +80,11 @@ class ErrorItem(QtGui.QGraphicsItem):
 
         painter.drawPixmap(midPoint.x() - 8, midPoint.y() - 8, self._pixmap)
 
+
 class Item(QtGui.QGraphicsItem):
     """
     Class to contain the selection information that selectable scene items can be derived from.
     """
-
 
     def __init__(self):
         QtGui.QGraphicsItem.__init__(self)
@@ -97,6 +97,9 @@ class Item(QtGui.QGraphicsItem):
 
 
 class Arc(Item):
+    """
+    This class represents a connection between two ports.
+    """
     Pi = math.pi
     TwoPi = 2.0 * Pi
 
@@ -151,8 +154,6 @@ class Arc(Item):
         self._destPoint = line.p2() - arcOffset
 
     def shape(self):
-#         print('shape')
-#        path = super(Arc, self).shape()
         path = QtGui.QPainterPath()
         path.addPolygon(self._arrow)
         return path
@@ -169,7 +170,6 @@ class Arc(Item):
                                        self._destPoint.y() - self._sourcePoint.y())).normalized().adjusted(-extra, -extra, extra, extra)
 
         return sceneRect
-
 
     def paint(self, painter, option, widget):
         if not self._source() or not self._dest():
@@ -193,7 +193,6 @@ class Arc(Item):
         if line.dy() >= 0:
             angle = Arc.TwoPi - angle
 
-
         # Draw the arrows if there's enough room.
         if line.dy() * line.dy() + line.dx() * line.dx() > 200 * self._arrowSize:
             midPoint = (self._destPoint + self._sourcePoint) / 2
@@ -213,7 +212,11 @@ class Arc(Item):
         # painter.setPen(QtGui.QPen(QtCore.Qt.SolidLine))
         painter.drawLine(line)
 
+
 class Node(Item):
+    """
+    This class is a graphical representation of the step on the canvas or in the step box.
+    """
     Type = QtGui.QGraphicsItem.UserType + 1
     Size = 64
 
@@ -227,6 +230,7 @@ class Node(Item):
 
         self._pixmap = QtGui.QPixmap.fromImage(icon).scaled(self.Size, self.Size, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
 
+        self._step_port_items = []
         self._text = StepText(metastep._step.getName(), self)
         self._updateTextIcon()
 
@@ -285,17 +289,25 @@ class Node(Item):
         self._updateTextIcon()
 
     def _updatePorts(self):
+        previous_step_ports = {}
+        current_step_ports = self._metastep._step._ports
+        for p in self._step_port_items:
+            previous_step_ports[p.port()] = p
+
         self._step_port_items = []
         # Collect all ports that provide or use from the step
-        uses_ports = [port for port in self._metastep._step._ports if port.hasUses()]
-        provides_ports = [port for port in self._metastep._step._ports if port.hasProvides()]
+        uses_ports = [port for port in current_step_ports if port.hasUses()]
+        provides_ports = [port for port in current_step_ports if port.hasProvides()]
 
         uses_count = 0
         uses_total = len(uses_ports)
         provides_count = 0
         provides_total = len(provides_ports)
-        for port in self._metastep._step._ports:
-            port_item = StepPort(port, self)
+        for port in current_step_ports:
+            if port in previous_step_ports:
+                port_item = previous_step_ports[port]
+            else:
+                port_item = StepPort(port, self)
             w = port_item.width()
             h = port_item.height()
             if port in uses_ports:
@@ -317,7 +329,7 @@ class Node(Item):
             triple_objects = [triple[2] for triple in triples]
             alpha = h / 4.0  # Controls the spacing between the ports
             y_pos = self.Size / 2.0 - (port_total * h + (port_total - 1) * alpha) / 2.0 + (h + alpha) * index
-            port_item.moveBy(x_pos, y_pos)
+            port_item.setPos(x_pos, y_pos)
             port_item.setToolTip(tooltip_stub + ', '.join(triple_objects))
             self._step_port_items.append(port_item)
 
@@ -381,12 +393,12 @@ class Node(Item):
                              self._pixmap.height() + 2 * adjust)
 
     def paint(self, painter, option, widget):
-            if option.state & QtGui.QStyle.State_Selected:  # or self.selected:
-                painter.setBrush(QtCore.Qt.darkGray)
-                painter.drawRoundedRect(self.boundingRect(), 5, 5)
+        if option.state & QtGui.QStyle.State_Selected:  # or self.selected:
+            painter.setBrush(QtCore.Qt.darkGray)
+            painter.drawRoundedRect(self.boundingRect(), 5, 5)
 
 #            super(Node, self).paint(painter, option, widget)
-            painter.drawPixmap(0, 0, self._pixmap)
+        painter.drawPixmap(0, 0, self._pixmap)
 #            if not self._metastep._step.isConfigured():
 #                painter.drawPixmap(40, 40, self._configure_red)
 
@@ -424,6 +436,12 @@ class StepPort(QtGui.QGraphicsEllipseItem):
 
     def type(self):
         return StepPort.Type
+
+    def connections(self):
+        return self._connections
+
+    def port(self):
+        return self._port
 
     def portIndex(self):
         return self._port.index()
@@ -513,8 +531,8 @@ class MercurialIcon(QtGui.QGraphicsItem):
         if self.scene().itemAt(event.scenePos()) == self:
             self.parentItem().commitMe()
 
-class ConfigureIcon(QtGui.QGraphicsItem):
 
+class ConfigureIcon(QtGui.QGraphicsItem):
 
     def __init__(self, *args, **kwargs):
         super(ConfigureIcon, self).__init__(*args, **kwargs)
@@ -584,5 +602,3 @@ class ArrowLine(QtGui.QGraphicsLineItem):
             painter.setBrush(QtCore.Qt.black)
 #        painter.drawPolygon(QtGui.QPolygonF([line.p1(), sourceArrowP1, sourceArrowP2]))
             painter.drawPolygon(QtGui.QPolygonF([midPoint, destArrowP1, destArrowP2]))
-
-
