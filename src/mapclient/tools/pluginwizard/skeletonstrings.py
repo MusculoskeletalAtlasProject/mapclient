@@ -84,6 +84,8 @@ SERIALIZE_METHOD_STRING = """
         \"\"\"
         Add code to deserialize this step from string.  This method should
         implement the opposite of 'serialize'.
+
+        :param string: JSON representation of the configuration in a string.
         \"\"\"
         {deserializecontent}
 
@@ -91,8 +93,7 @@ SERIALIZE_METHOD_STRING = """
 
 SERIALIZE_DEFAULT_CONTENT_STRING = 'pass'
 DESERIALIZE_DEFAULT_CONTENT_STRING = 'pass'
-SERIALIZE_IDENTIFIER_CONTENT_STRING = """return json.dumps(self._config, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-"""
+SERIALIZE_IDENTIFIER_CONTENT_STRING = """return json.dumps(self._config, default=lambda o: o.__dict__, sort_keys=True, indent=4)"""
 
 DESERIALIZE_IDENTIFIER_CONTENT_STRING = """self._config.update(json.loads(string))
 
