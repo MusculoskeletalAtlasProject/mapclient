@@ -65,7 +65,7 @@ class Skeleton(object):
         target_file = os.path.join(target_dir, 'setup.py')
         f = open(target_file, 'w')
         f.write(SETUP_PY_TEMPLATE % dict(
-            version='0.0.0',
+            version='0.1.0',
             description='',
             name=self._options.getFullPackageName(),
             author=self._options.getAuthorName(),
@@ -121,11 +121,11 @@ class Skeleton(object):
     def _generateExecuteMethod(self):
         method_string = """
     def execute(self):
-        \'\'\'
+        \"\"\"
         Add your code here that will kick off the execution of the step.
         Make sure you call the _doneExecution() method when finished.  This method
         may be connected up to a button in a widget for example.
-        \'\'\'
+        \"\"\"
         # Put your execute step code here before calling the '_doneExecution' method.
         self._doneExecution()
 """
@@ -146,11 +146,14 @@ class Skeleton(object):
         if uses_total > 0:
             method_string += """
     def setPortData(self, index, dataIn):
-        \'\'\'
+        \"\"\"
         Add your code here that will set the appropriate objects for this step.
         The index is the index of the port in the port list.  If there is only one
         uses port for this step then the index can be ignored.
-        \'\'\'
+
+        :param index: Index of the port to return.
+        :param dataIn: The data to set for the port at the given index.
+        \"\"\"
 """
             uses_count = 0
             for index, current_port in enumerate(ports):
@@ -184,11 +187,13 @@ class Skeleton(object):
         if provides_total > 0:
             method_string += """
     def getPortData(self, index):
-        \'\'\'
+        \"\"\"
         Add your code here that will return the appropriate objects for this step.
         The index is the index of the port in the port list.  If there is only one
         provides port for this step then the index can be ignored.
-        \'\'\'
+
+        :param index: Index of the port to return.
+        \"\"\"
 """
             provides_count = 0
             for index, current_port in enumerate(ports):
