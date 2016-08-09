@@ -21,6 +21,7 @@ import os
 
 from PySide import QtCore
 
+from mapclient.settings.info import VERSION_STRING
 
 def getDataDirectory():
     """
@@ -45,7 +46,7 @@ def _getAppDirectory(name):
 
 
 def getVirtEnvDirectory():
-    return _getAppDirectory('venv')
+    return _getAppDirectory('venv_' + VERSION_STRING)
 
 
 def getVirtualEnvSitePackagesDirectory(virtualenv_dir):
@@ -67,6 +68,7 @@ def getLogLocation():
     logging_file_location = os.path.join(log_directory, log_filename)
 
     return logging_file_location
+
 
 def getConfigurationSuffix():
     return '.conf'
