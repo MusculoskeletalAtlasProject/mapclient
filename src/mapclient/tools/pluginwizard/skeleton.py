@@ -18,7 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import os
-from shutil import copyfile
+import datetime
 from subprocess import call
 
 from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_DIALOG_STRING, CONFIGURE_DIALOG_LINE, CONFIGURE_DIALOG_UI, CLASS_STRING, INIT_METHOD_STRING, \
@@ -85,7 +85,7 @@ class Skeleton(object):
             # print("'{0}'".format(step_name))
             # myline = '=' * len(step_name)
             # print(myline)
-            f.write(README_TEMPLATE % dict(
+            f.write(README_TEMPLATE.format(
                 name=step_name,
                 underline='=' * len(step_name)
             ))
@@ -94,7 +94,9 @@ class Skeleton(object):
         with open(ext_requirements_file, 'w'):
             pass
         with open(license_file, 'w') as f:
-            f.write(APACHE_LICENSE)
+            now = datetime.datetime.now()
+            f.write(APACHE_LICENSE.format(yyyy=now.year,
+                                          name_of_copyright_owner=self._options.getAuthorName()))
 
     def _writeNamespaceInit(self, target_dir):
         """
