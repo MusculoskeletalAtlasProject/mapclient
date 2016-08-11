@@ -85,7 +85,7 @@ class RenameDialog(QtGui.QDialog):
                     line_leaf = self._find_matching_leaf_item(file_branch, line_no)
 
                 if line_leaf is None:
-                    line_leaf = QtGui.QTreeWidgetItem(file_branch)  # , ['(line #{0}) {1}'.format(line_no, preview_string)])
+                    line_leaf = QtGui.QTreeWidgetItem(file_branch)
                     line_leaf.setCheckState(0, QtCore.Qt.Checked)
                     preview_string = results[1]
                 else:
@@ -172,11 +172,8 @@ class RenameDialog(QtGui.QDialog):
         target = self._ui.lineEditStepLocation.text()
         qrc_file = find_file('resources.qrc', target)
         python_rc_file = find_file('resources_rc.py', target)
-        print([self._pyside_rcc, '-py3', qrc_file, '-o', python_rc_file])
         if qrc_file is None or python_rc_file is None:
             return -1
-        # qrc_file = os.path.join(target, PLUGINS_PACKAGE_NAME, old_package)
-        # python_rc_file = os.path.join(target, PLUGINS_PACKAGE_NAME, old_package)
         p = subprocess.Popen([self._pyside_rcc, '-py3', qrc_file, '-o', python_rc_file],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         p.communicate()
