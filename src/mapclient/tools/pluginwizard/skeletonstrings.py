@@ -259,7 +259,7 @@ CONFIGURE_DIALOG_UI = """<?xml version="1.0" encoding="UTF-8"?>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ConfigureDialog</string>
+   <string>Configure Step</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">

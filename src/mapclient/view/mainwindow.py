@@ -96,6 +96,8 @@ class MainWindow(QtGui.QMainWindow):
         self.action_PluginManager.setObjectName("action_PluginManager")
         self.action_PMR = QtGui.QAction(self)
         self.action_PMR.setObjectName("action_PMR")
+        self.action_RenamePlugin = QtGui.QAction(self)
+        self.action_RenamePlugin.setObjectName("action_RenamePlugin")
         self.action_Annotation = QtGui.QAction(self)
         self.action_Annotation.setObjectName("action_Annotation")
         self.action_PluginWizard = QtGui.QAction(self)
@@ -113,6 +115,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menu_Tools.addAction(self.action_PluginManager)
         self.menu_Tools.addAction(self.action_PluginWizard)
         self.menu_Tools.addAction(self.action_PMR)
+        self.menu_Tools.addAction(self.action_RenamePlugin)
         self.menu_Tools.addAction(self.action_Annotation)
         if ADMIN_MODE:
             self.menu_Tools.addAction(self.action_MAPIcon)
@@ -145,6 +148,7 @@ class MainWindow(QtGui.QMainWindow):
         self.action_PMR.setText(QtGui.QApplication.translate("MainWindow", "&PMR", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Annotation.setText(QtGui.QApplication.translate("MainWindow", "&Annotation", None, QtGui.QApplication.UnicodeUTF8))
         self.action_PluginWizard.setText(QtGui.QApplication.translate("MainWindow", "Plugin Wi&zard", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_RenamePlugin.setText(QtGui.QApplication.translate("MainWindow", "&Rename Plugin", None, QtGui.QApplication.UnicodeUTF8))
         if ADMIN_MODE:
             self.action_MAPIcon.setText(QtGui.QApplication.translate("MainWindow", "MAP &Icon", None, QtGui.QApplication.UnicodeUTF8))
 
@@ -184,6 +188,7 @@ class MainWindow(QtGui.QMainWindow):
         self.action_PluginWizard.triggered.connect(self.showPluginWizardDialog)
         self.action_PMR.triggered.connect(self.showPMRTool)
         self.action_Annotation.triggered.connect(self.showAnnotationTool)
+        self.action_RenamePlugin.triggered.connect(self.showRenamePluginDialog)
         if ADMIN_MODE:
             self.action_MAPIcon.triggered.connect(self.showMAPIconDialog)
 
@@ -387,6 +392,14 @@ class MainWindow(QtGui.QMainWindow):
                     logger.info('Removing partially created skeleton step "{0}"'.format(package_directory))
                     import shutil
                     shutil.rmtree(package_directory)
+
+    def showRenamePluginDialog(self):
+        from mapclient.tools.renameplugin.renamedialog import RenameDialog
+
+        om = self._model.optionsManager()
+        dlg = RenameDialog(om.getOption(PYSIDE_RCC_EXE), self)
+        dlg.setModal(True)
+        dlg.exec_()
 
     def showPMRTool(self):
         om = self._model.optionsManager()
