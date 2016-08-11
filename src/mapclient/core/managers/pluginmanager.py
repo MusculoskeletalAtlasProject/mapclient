@@ -14,7 +14,7 @@ import shutil
 
 from mapclient.core.utils import which, is_frozen, FileTypeObject, grep
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
-    VIRTUAL_ENV_SETUP_ATTEMPTED, PLUGINS_PACKAGE_NAME, PLUGINS_PTH
+    PLUGINS_PACKAGE_NAME, PLUGINS_PTH
 from mapclient.core.checks import getPipExecutable, getActivateScript
 
 from importlib import import_module
@@ -447,14 +447,9 @@ def isMapClientPluginsDir(plugin_dir):
 
     if PLUGINS_PACKAGE_NAME in names:
         files = grep(os.path.join(plugin_dir, PLUGINS_PACKAGE_NAME),
-                     r'(from|import) mapclient.mountpoints.workflowstep', one_only=True)
+                     r'(from|import) mapclient.mountpoints.workflowstep', one_only=True, file_endswith='.py')
         if files:
             result = True
-        # init_file = os.path.join(plugin_dir, PLUGINS_PACKAGE_NAME, '__init__.py')
-        # if os.path.isfile(init_file):
-        #     contents = open(init_file).read()
-        #     if 'pkg_resources' in contents and 'declare_namespace' in contents:
-        #         result = True
 
     return result
 
