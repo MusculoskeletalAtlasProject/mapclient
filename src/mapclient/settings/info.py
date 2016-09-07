@@ -19,10 +19,8 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 from PySide import QtCore
 
-VERSION_MAJOR = 0
-VERSION_MINOR = 13
-VERSION_PATCH = 0
-VERSION_STRING = str(VERSION_MAJOR) + "." + str(VERSION_MINOR) + "." + str(VERSION_PATCH)
+from mapclient.settings import version
+VERSION_STRING = version.__version__
 
 GPL_VERSION = '3'
 

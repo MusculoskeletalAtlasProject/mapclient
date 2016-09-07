@@ -149,7 +149,7 @@ class ConsumeOutput(object):
         self.messages.append(message)
 
 
-def main(app_args):
+def non_gui_main(app_args):
     locale.setlocale(locale.LC_ALL, '')
 
 #     from optparse import OptionParser
@@ -188,10 +188,10 @@ def main(app_args):
         logger.error('Could not execute workflow.')
 
     # Possibly don't need to run app.exec_()
-    sys.exit(app.quit())
+    return app.quit()
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(prog=info.APPLICATION_NAME)
     parser.add_argument("-x", "--execute", action="store_true", help="execute a workflow")
     parser.add_argument("--headless", action="store_true",
@@ -204,6 +204,9 @@ if __name__ == '__main__':
         sys.exit(-2)
 
     if args.headless and args.workflow:
-        main(args)
+        sys.exit(non_gui_main(args))
     else:
         sys.exit(winmain(args))
+
+if __name__ == '__main__':
+    main()
