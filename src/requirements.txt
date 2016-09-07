@@ -1,2 +1,1 @@
 git+https://github.com/PMR/pmr.wfctrl.git#egg=pmr.wfctrl
-git+https://github.com/hsorby/dulwich.git#egg=dulwich
