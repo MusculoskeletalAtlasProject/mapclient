@@ -367,7 +367,7 @@ class InstallCommand(install):
 setup(name=%(name)r,
     version=%(version)r,
     description=%(description)r,
-    long_description='\n'.join(readme) + source_license,
+    long_description='\\n'.join(readme) + source_license,
     classifiers=[
       "Development Status :: 3 - Alpha",
       "License :: OSI Approved :: Apache Software License",

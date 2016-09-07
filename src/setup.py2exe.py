@@ -42,7 +42,7 @@ import pmr2.wfctrl
 
 from PySide import QtCore
 
-from mapclient.settings.info import VERSION_STRING
+from mapclient.settings import version as app_version
 
 python_dir = os.path.dirname(sys.executable)
 
@@ -66,14 +66,14 @@ support_files_virtualenv = [fn for fn in glob.glob(os.path.join(os.path.dirname(
 
 support_files_lib2to3 = ['Grammar.txt', 'Grammar3.5.1.final.0.pickle', 'PatternGrammar.txt', 'PatternGrammar3.5.1.final.0.pickle']
 support_files_lib2to3 = [os.path.join(python_dir, 'Lib', 'lib2to3', f) for f in support_files_lib2to3]
-# Version, this should match the value in mapclient.settings.info
-version = VERSION_STRING
+
+# Version, this should match the value in mapclient.settings.version
+version = app_version.__version__
 
 # Define the list of requirments
 install_requires = ['rdflib',
                     'virtualenv',
                     'python-dateutil',
-                    'pmr2.wfctrl',
                     'pmr2.client',
                     ]
 
@@ -238,7 +238,7 @@ class nsis(build_py2exe):
             with open('../res/win/nsis.nsi.template') as f:
                 contents = f.read()
 
-            match_keys = ReplaceOnlyDict(map_client_version=VERSION_STRING,
+            match_keys = ReplaceOnlyDict(map_client_version=version,
                                          dist_dir=os.path.abspath(self.dist_dir),
                                          win_res_dir=os.path.abspath('../res/win/'),
                                          package_dir=os.path.abspath('package'))

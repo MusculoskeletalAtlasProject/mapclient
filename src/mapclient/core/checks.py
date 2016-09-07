@@ -166,6 +166,15 @@ def getPySideUicExecutable():
             if return_code == 0:
                 return pyside_uic
 
+    # Fallback for Anaconda??
+    try:
+        from PySide.scripts import uic
+        uic_script = uic.__file__
+
+        return uic_script
+    except ImportError:
+        pass
+
     return None
 
 
