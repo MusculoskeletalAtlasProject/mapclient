@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,11 +16,11 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
-'''
+"""
+"""
 Inspired by Marty Alchin's Simple plugin framework.
 http://martyalchin.com/2008/jan/10/simple-plugin-framework/
-'''
+"""
 
 import logging
 import os
@@ -31,9 +31,9 @@ from mapclient.settings.definitions import MAIN_MODULE
 logger = logging.getLogger(__name__)
 
 def getPlugins(pluginDirectory):
-    '''
+    """
     Get all plugins from the given directory.
-    '''
+    """
     plugins = []
     try:
         possibleplugins = os.listdir(pluginDirectory)
@@ -55,7 +55,7 @@ def loadPlugin(plugin):
 
 
 class MetaPluginMountPoint(type):
-    '''
+    """
     * A way to declare a mount point for plugins. Since plugins are an example
       of loose coupling, there needs to be a neutral location, somewhere between
       the plugins and the code that uses them, that each side of the system can
@@ -73,7 +73,7 @@ class MetaPluginMountPoint(type):
     For compatibility across python 2.x and python 3.x we must construct the PluginMountPoint
     classes like so:
     MyPlugin = MetaPluginMountPoint('MyPlugin', (object, ), {})
-    '''
+    """
 
     def __init__(cls, name, bases, attrs):
         if not hasattr(cls, 'plugins'):
@@ -111,7 +111,7 @@ class MetaQObjectPluginMountPoint(MetaQObject, MetaPluginMountPoint):
 #
 # Template plugin comment:
 #
-# '''
+# """
 # Plugins can inherit this mount point to extend
 #
 # A plugin that registers this mount point must have attributes
@@ -123,10 +123,10 @@ class MetaQObjectPluginMountPoint(MetaQObject, MetaPluginMountPoint):
 # It must implement
 # * pass
 #
-# '''
+# """
 #
 
-'''
+"""
 Plugins can inherit this mount point to add a tool to the tool menu.  It is passed two
 keyword arguments, the tool menu ('menu_Tool') and the parent widget ('parent').
 
@@ -139,7 +139,7 @@ keyword arguments, the tool menu ('menu_Tool') and the parent widget ('parent').
  It must implement
  * pass
 
-'''
+"""
 ToolMountPoint = MetaPluginMountPoint('ToolMountPoint', (object,), {})
 
 

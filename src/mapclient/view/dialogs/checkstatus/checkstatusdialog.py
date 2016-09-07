@@ -1,8 +1,8 @@
-'''
+"""
 Created on Jul 1, 2015
 
 @author: hsorby
-'''
+"""
 from PySide import QtCore, QtGui
 
 from mapclient.view.dialogs.checkstatus.ui.ui_checkstatusdialog import Ui_CheckStatusDialog

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''This creates an app to launch a python script so that it
+"""This creates an app to launch a python script so that it
 appears as a genuine OS X application. A version of Python
 is created via a softlink, named to match the app, which means that
 the name of the app rather than Python shows up as the name in the
@@ -14,7 +14,7 @@ The script path may be specified relative to the current path or given
 an absolute path, but will be accessed via an absolute path. If the
 project name is not specified, it will be taken from the root name of
 the script.
-'''
+"""
 import sys, os, stat
 from subprocess import check_output
 import shutil
@@ -54,7 +54,7 @@ os.makedirs(os.path.join(apppath, "Contents", "MacOS"))
 os.makedirs(os.path.join(apppath, "Contents", "Resources"))
 
 f = open(os.path.join(apppath, "Contents", "Info.plist"), "w")
-f.write('''<?xml version="1.0" encoding="UTF-8"?>
+f.write("""<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -88,7 +88,7 @@ f.write('''<?xml version="1.0" encoding="UTF-8"?>
     <string>NSApplication</string>
 </dict>
 </plist>
-'''.format(projectversion, bundleIdentifier, project, projectversion, version)
+""".format(projectversion, bundleIdentifier, project, projectversion, version)
     )
 f.close()
 

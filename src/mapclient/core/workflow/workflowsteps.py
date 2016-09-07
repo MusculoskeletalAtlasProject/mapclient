@@ -1,8 +1,8 @@
-'''
+"""
 Created on Aug 18, 2015
 
 @author: hsorby
-'''
+"""
 from PySide import QtCore, QtGui
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
@@ -60,15 +60,8 @@ class WorkflowStepsFilter(QtGui.QSortFilterProxyModel):
 
 
 class WorkflowSteps(QtGui.QStandardItemModel):
-    '''
-    classdocs
-    '''
-
 
     def __init__(self, manager, parent=None):
-        '''
-        Constructor
-        '''
         super(WorkflowSteps, self).__init__(parent)
         self._manager = manager
 

@@ -32,6 +32,8 @@ import virtualenv_support
 import subprocess
 import tempfile
 import py2exe
+import matplotlib
+
 # Py2exe needs some help when importing packages from namespace packages
 # by pre-importing them.
 import opencmiss
@@ -43,8 +45,6 @@ from PySide import QtCore
 from mapclient.settings.info import VERSION_STRING
 
 python_dir = os.path.dirname(sys.executable)
-
-import matplotlib
 
 inbuilt_modules = os.listdir(os.path.join(python_dir, 'Lib'))
 if 'site-packages' in inbuilt_modules:

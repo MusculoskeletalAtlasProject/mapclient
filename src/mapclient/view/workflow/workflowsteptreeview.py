@@ -1,8 +1,8 @@
-'''
+"""
 Created on Aug 18, 2015
 
 @author: hsorby
-'''
+"""
 import sys
 
 from PySide import QtCore, QtGui
@@ -39,15 +39,8 @@ class HeaderDelegate(QtGui.QStyledItemDelegate):
 
 
 class WorkflowStepTreeView(QtGui.QTreeView):
-    '''
-    classdocs
-    '''
-
 
     def __init__(self, parent=None):
-        '''
-        Constructor
-        '''
         super(WorkflowStepTreeView, self).__init__(parent)
         self.setItemDelegate(HeaderDelegate())
         self.setMinimumWidth(250)

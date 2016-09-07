@@ -1,8 +1,8 @@
-'''
+"""
 Created on Feb 25, 2015
 
 @author: hsorby
-'''
+"""
 import os.path
 
 from PySide import QtGui
@@ -13,16 +13,13 @@ from mapclient.view.syntaxhighlighter import SyntaxHighlighter
 from mapclient.settings.definitions import VIRTUAL_ENVIRONMENT_STRING, \
     WIZARD_TOOL_STRING, PMR_TOOL_STRING
 
-class  OptionsDialog(QtGui.QDialog):
-    '''
-    Options dialog for setting global options
-    '''
 
+class  OptionsDialog(QtGui.QDialog):
+    """
+    Options dialog for setting global options
+    """
 
     def __init__(self, parent=None):
-        '''
-        Constructor
-        '''
         super(OptionsDialog, self).__init__(parent)
         self._ui = Ui_OptionsDialog()
         self._ui.setupUi(self)

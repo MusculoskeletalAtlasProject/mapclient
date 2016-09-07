@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
     
@@ -16,10 +16,10 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 
 from mapclient.core.pluginframework import MetaPluginMountPoint
-'''
+"""
 Plugins can inherit this mount point to extend
 
  A plugin that registers this mount point must have attributes
@@ -31,6 +31,6 @@ Plugins can inherit this mount point to extend
  It must implement
  * setWidgetIndex 
  
-'''
+"""
 StackedWidgetMountPoint = MetaPluginMountPoint('StackedWidgetMountPoint', (object,), {})
 
