@@ -3,10 +3,10 @@ import platform, sys, os
 from setuptools import setup, find_packages
 from setuptools.command.install import install as _install
 from setuptools.command.develop import develop as _develop
-from mapclient.settings.info import VERSION_STRING
+from mapclient.settings import version
 
-# Version, this should match the value in mapclient.settings.info
-version = VERSION_STRING
+version = version.__version__
+
 # Define the list of requirments
 install_requires = ['rdflib',
                     'virtualenv',
@@ -23,11 +23,17 @@ try:
     else:
         try:
             import site
-            site_packages = site.getsitepackages()
+            if hasattr(site, 'getsitepackages'):
+                site_packages = site.getsitepackages()
+            else:
+                from distutils.sysconfig import get_python_lib
+                site_packages = [get_python_lib()]
+
             if len(site_packages) > 1:
                 site_package_dir = site_packages[1]
                 egg_info_file = os.path.join(site_package_dir, 'PySide-' + pyside_version + '.egg-info')
-                if not os.path.exists(egg_info_file):
+                dist_info_file = os.path.join(site_package_dir, 'PySide-' + pyside_version + '.dist-info')
+                if not os.path.exists(egg_info_file) or not os.path.exists(dist_info_file):
                     with open(egg_info_file, 'a'):
                         pass
         except ImportError:
@@ -84,7 +90,7 @@ setup(name='mapclient',
      packages=find_packages(exclude=['tests', 'tests.*', ]),
      package_data={'mapclient.tools.annotation': ['annotation.voc'], 'mapclient.tools.osxapp': ['mapclient.icns']},
      # py_modules=['mapclient.mapclient'],
-     entry_points={'console_scripts': ['mapclient=mapclient.application:winmain']},
+     entry_points={'console_scripts': ['mapclient=mapclient.application:main']},
      install_requires=install_requires,
      cmdclass={'install': install, 'develop': develop}
 )
