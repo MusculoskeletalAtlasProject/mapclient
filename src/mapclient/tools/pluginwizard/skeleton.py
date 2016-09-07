@@ -291,10 +291,7 @@ class Skeleton(object):
                 init_string += '        self._config[\'{0}\'] = \'{1}\'\n'.format(config[0], config[1])
                 config_index += 1
 
-            init_string += '\n'
-
-#         conf.setValue('identifier', self._config['identifier'])
-#         self._config['identifier'] = conf.value('identifier', '')
+            # init_string += '\n'
 
         if self._options.hasIdentifierConfig():
             serialize_method_string = SERIALIZE_METHOD_STRING.format(serializecontent=SERIALIZE_IDENTIFIER_CONTENT_STRING, deserializecontent=DESERIALIZE_IDENTIFIER_CONTENT_STRING)

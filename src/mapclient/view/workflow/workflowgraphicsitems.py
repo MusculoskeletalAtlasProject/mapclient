@@ -306,6 +306,7 @@ class Node(Item):
         for port in current_step_ports:
             if port in previous_step_ports:
                 port_item = previous_step_ports[port]
+                del previous_step_ports[port]
             else:
                 port_item = StepPort(port, self)
             w = port_item.width()
@@ -332,6 +333,10 @@ class Node(Item):
             port_item.setPos(x_pos, y_pos)
             port_item.setToolTip(tooltip_stub + ', '.join(triple_objects))
             self._step_port_items.append(port_item)
+
+        for port in previous_step_ports:
+            old_port = previous_step_ports[port]
+            old_port.setParentItem(None)
 
     def updateDVCSIcon(self):
         """

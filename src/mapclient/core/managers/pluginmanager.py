@@ -21,7 +21,9 @@ from importlib import import_module
 
 from mapclient.settings.general import getVirtualEnvSitePackagesDirectory
 
-if not is_frozen():
+if is_frozen():
+    import mapclient.core.frozen_site as site
+else:
     import site
 
 # if sys.version_info < (3, 0):
@@ -112,7 +114,7 @@ class PluginManager(object):
 
             if site_packages_path:
                 logger.info('Adding site packages directory to the system path: "{0}"'.format(site_packages_path))
-                sys.path.append(site_packages_path)
+                site.addsitedir(site_packages_path)
             else:
                 logger.warning('Site packages directory not added to sys.path.')
         else:
@@ -470,10 +472,7 @@ class PluginSiteManager(object):
             f.write('\n'.join(pth_entries))
 
     def load_site(self, target_dir):
-        if is_frozen():
-            sys.path.append(target_dir)
-        else:
-            site.addsitedir(target_dir)
+        site.addsitedir(target_dir)
 
 
 def generate_pth_entries(target_dir):
