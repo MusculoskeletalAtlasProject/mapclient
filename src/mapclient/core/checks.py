@@ -1,8 +1,8 @@
-'''
+"""
 Created on Jun 26, 2015
 
 @author: hsorby
-'''
+"""
 import subprocess
 import os.path
 import platform
@@ -13,16 +13,10 @@ from mapclient.settings.definitions import GIT_EXE, VIRTUAL_ENV_PATH, \
     PYSIDE_UIC_EXE, PYSIDE_RCC_EXE, USE_EXTERNAL_GIT
 from mapclient.core.utils import which
 
-class ApplicationChecks(object):
-    '''
-    classdocs
-    '''
 
+class ApplicationChecks(object):
 
     def __init__(self, options):
-        '''
-        Constructor
-        '''
         self._options = options
         self._report = 'Failure: This test failed'
 

@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 
 from PySide import QtGui, QtCore
 
@@ -67,10 +67,10 @@ class SettingsWidget(QtGui.QWidget):
         self._pmr_tool.set_use_external_git(use_external_git)
 
     def transferModel(self):
-        '''
+        """
         Transfer the current status of the model into the PMR
         information object.
-        '''
+        """
         pmr_info = PMR()
         hosts = pmr_info.hosts()
         host_names_remove = [name for name in hosts]

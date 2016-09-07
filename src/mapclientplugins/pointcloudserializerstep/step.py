@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
     
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import os
 
 from PySide import QtGui
@@ -25,20 +25,19 @@ from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 
 from mapclientplugins.pointcloudserializerstep.widgets.configuredialog import ConfigureDialog, ConfigureDialogState
 
+
 def getConfigFilename(identifier):
     return identifier + '.conf'
 
+
 class PointCloudSerializerStep(WorkflowStepMountPoint):
-    '''
+    """
     A step satisfies the step plugin duck.
     
     It stores point cloud data.
     It can be used as a point cloud data store.
-    '''
+    """
     def __init__(self, location):
-        '''
-        Constructor
-        '''
         super(PointCloudSerializerStep, self).__init__('Point Cloud Serializer', location)
 #        self._name = 'Point Cloud Store'
 #        self._location = location

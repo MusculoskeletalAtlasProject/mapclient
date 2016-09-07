@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
     
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 from os.path import join, dirname
 import re, os
 
@@ -28,14 +28,8 @@ _NAMESPACE_FORMAT = '<{0}/{1}/rdf-schema#{2}>'
 
 
 class AnnotationTool(object):
-    '''
-    classdocs
-    '''
 
     def __init__(self):
-        '''
-        Constructor
-        '''
         self._vocab = Vocabulary()
         self._readVocabulary()
         self._triple_store = []

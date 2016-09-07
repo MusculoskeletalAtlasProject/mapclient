@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,20 +16,18 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 from PySide.QtGui import QDialog
 
 from mapclient.view.managers.plugins.ui.ui_plugindownloader import Ui_pluginDownloader
 
+
 class PluginDownloader(QDialog):
-    '''
+    """
     Dialog showing the plugins required to run the desired workflow from PMR.
-    '''
+    """
 
     def __init__(self, parent=None):
-        '''
-        Constructor
-        '''
         QDialog.__init__(self, parent)
         self._ui = Ui_pluginDownloader()
         self._ui.setupUi(self)

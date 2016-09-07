@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
     
@@ -16,15 +16,15 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 
 class UndoManager(object):
-    '''
+    """
     This class is the undo redo manager for multiple undo stacks. It is a
     singleton class. 
     
     Don't inherit from this class.
-    '''
+    """
     _instance = None
     _stack = None
 

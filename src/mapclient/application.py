@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -17,10 +17,11 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 from __future__ import absolute_import
 import os
 import ctypes
+import argparse
 
 import sys, locale
 import logging
@@ -63,22 +64,21 @@ def initialiseLogger(log_path):
     rotatingFH.doRollover()
 
 
-
 def progheader():
-    '''
+    """
     Display program header
-    '''
-    programHeader = '   MAP Client (version %s)   ' % info.ABOUT['version']
+    """
+    programHeader = '   {0} (version {1})   '.format(info.APPLICATION_NAME, info.ABOUT['version'])
     logger.info('-' * len(programHeader))
     logger.info(programHeader)
     logger.info('-' * len(programHeader))
 
 
 # This method starts MAP Client
-def winmain():
-    '''
+def winmain(app_args):
+    """
     Initialise common settings and check the operating environment before starting the application.
-    '''
+    """
     if sys.platform == 'win32':
         myappid = 'MusculoSkeletal.MAPClient'  # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
@@ -128,6 +128,16 @@ def winmain():
 
     window.loadPlugins()
 
+    if app_args.workflow:
+        window.openWorkflow(app_args.workflow)
+
+    if app_args.execute:
+        wm = model.workflowManager()
+        if wm.canExecute():
+            window.execute()
+        else:
+            logger.error('Could not execute workflow.')
+
     return app.exec_()
 
 
@@ -139,7 +149,7 @@ class ConsumeOutput(object):
         self.messages.append(message)
 
 
-def main():
+def main(app_args):
     locale.setlocale(locale.LC_ALL, '')
 
 #     from optparse import OptionParser
@@ -165,9 +175,9 @@ def main():
 
     pm.load()
     try:
-        wm.load(sys.argv[1])
+        wm.load(app_args.workflow)
     except:
-        logger.error('Not a valid workflow location: {0}'.format(sys.argv[1]))
+        logger.error('Not a valid workflow location: {0}'.format(app_args.workflow))
         sys.exit(-1)
 
     wm.registerDoneExecutionForAll(wm.execute)
@@ -182,7 +192,18 @@ def main():
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 1:  # No command line arguments
-        sys.exit(winmain())
+    parser = argparse.ArgumentParser(prog=info.APPLICATION_NAME)
+    parser.add_argument("-x", "--execute", action="store_true", help="execute a workflow")
+    parser.add_argument("--headless", action="store_true",
+                        help="operate in headless mode, without a gui.  Requires a location of a workflow to be set")
+    parser.add_argument("-w", "--workflow", help="location of workflow")
+    args = parser.parse_args()
+
+    if args.headless and args.workflow is None:
+        parser.print_help()
+        sys.exit(-2)
+
+    if args.headless and args.workflow:
+        main(args)
     else:
-        main()
+        sys.exit(winmain(args))

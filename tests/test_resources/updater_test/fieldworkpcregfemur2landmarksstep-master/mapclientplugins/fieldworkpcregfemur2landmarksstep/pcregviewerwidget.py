@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
     
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import os
 os.environ['ETS_TOOLKIT'] = 'qt4'
 
@@ -37,6 +37,7 @@ from mappluginutils.mayaviviewer import MayaviViewerObjectsContainer,\
 import numpy as np
 import copy
 
+
 class _ExecThread(QThread):
     finalUpdate = Signal(tuple)
     update = Signal(tuple)
@@ -49,10 +50,11 @@ class _ExecThread(QThread):
         output = self.func(self.update)
         self.finalUpdate.emit(output)
 
+
 class MayaviPCRegViewerWidget(QDialog):
-    '''
+    """
     Configure dialog to present the user with the options to configure this step.
-    '''
+    """
     defaultColor = colours['bone']
     objectTableHeaderColumns = {'Visible':0}
     backgroundColour = (0.0,0.0,0.0)
@@ -61,9 +63,6 @@ class MayaviPCRegViewerWidget(QDialog):
     _landmarkRenderArgs = {'mode':'sphere', 'scale_factor':20.0, 'color':(0,1,0)}
 
     def __init__(self, landmarks, model, config, regFunc, parent=None):
-        '''
-        Constructor
-        '''
         QDialog.__init__(self, parent)
         self._ui = Ui_Dialog()
         self._ui.setupUi(self)

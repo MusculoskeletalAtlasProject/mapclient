@@ -1,8 +1,8 @@
-'''
+"""
 Created on Jun 9, 2015
 
 @author: hsorby
-'''
+"""
 import unittest
 
 from tests.utils import createTestApplication

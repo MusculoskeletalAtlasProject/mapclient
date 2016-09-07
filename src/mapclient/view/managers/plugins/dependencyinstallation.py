@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 
 from PySide import QtGui, QtCore
 from PySide.QtCore import QThread, QObject, Signal
@@ -30,8 +30,10 @@ from mapclient.view.managers.plugins.manager import PluginManager
 
 logger = logging.getLogger(__name__)
 
+
 class MySignal(QObject):
         sig = Signal(str)
+
 
 class Thread(QThread):
 
@@ -50,12 +52,10 @@ class Thread(QThread):
             message = convertExceptionToMessage(e)
             self.signal.sig.emit(message)
 
+
 class VirtualEnvSetup(PluginProgress):
 
     def __init__(self, env_dir, parent=None):
-        '''
-        Constructor
-        '''
         QtGui.QDialog.__init__(self, parent)
         self._ui = Ui_ProgressDialog()
         self._ui.setupUi(self)
@@ -123,9 +123,6 @@ class VirtualEnvSetup(PluginProgress):
 class InstallDependencies(PluginProgress):
 
     def __init__(self, packages_to_install, virt_env_dir, parent=None):
-        '''
-        Constructor
-        '''
         QtGui.QDialog.__init__(self, parent)
         self._ui = Ui_ProgressDialog()
         self._ui.setupUi(self)

@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
@@ -16,13 +16,14 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 
 import os, sys, platform
 import ast
 
 from PySide import QtCore, QtGui
 
+from mapclient.core.utils import convertNameToPythonPackage
 from mapclient.tools.pluginwizard.skeleton import SkeletonOptions
 from mapclient.tools.pluginwizard.ui_output import Ui_Output
 from mapclient.tools.pluginwizard.ui_name import Ui_Name
@@ -215,9 +216,8 @@ class NameWizardPage(QtGui.QWizardPage):
 
     def _nameChanged(self):
         if not self._packageNameEdited:
-            package_name = self._ui.nameLineEdit.text().lower()
-            package_name = package_name.replace(' ', '')
-            self._ui.packageNameLineEdit.setText(package_name + 'step')
+            package_name = convertNameToPythonPackage(self._ui.nameLineEdit.text())
+            self._ui.packageNameLineEdit.setText(package_name)
 
         self.completeChanged.emit()
 

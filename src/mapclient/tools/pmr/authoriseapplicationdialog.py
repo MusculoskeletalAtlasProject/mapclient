@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
     
@@ -16,7 +16,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import logging
 import webbrowser
 
@@ -30,15 +30,11 @@ from mapclient.tools.pmr.core import TokenHelper
 logger = logging.getLogger(__name__)
 
 class AuthoriseApplicationDialog(QtGui.QDialog):
-    '''
+    """
     Dialog for authorising the application.
-    '''
-
+    """
 
     def __init__(self, parent=None):
-        '''
-        Constructor
-        '''
         QtGui.QDialog.__init__(self, parent)
         self._ui = Ui_AuthoriseApplicationDialog()
         self._ui.setupUi(self)

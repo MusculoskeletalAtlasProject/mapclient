@@ -1,8 +1,8 @@
-'''
+"""
 Created on May 19, 2015
 
 @author: hsorby
-'''
+"""
 import os
 import sys
 import logging
@@ -14,14 +14,16 @@ import shutil
 
 from mapclient.core.utils import which, is_frozen, FileTypeObject, grep
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
-    VIRTUAL_ENV_SETUP_ATTEMPTED, PLUGINS_PACKAGE_NAME, PLUGINS_PTH
+    PLUGINS_PACKAGE_NAME, PLUGINS_PTH
 from mapclient.core.checks import getPipExecutable, getActivateScript
 
 from importlib import import_module
 
 from mapclient.settings.general import getVirtualEnvSitePackagesDirectory
 
-if not is_frozen():
+if is_frozen():
+    import mapclient.core.frozen_site as site
+else:
     import site
 
 # if sys.version_info < (3, 0):
@@ -112,7 +114,7 @@ class PluginManager(object):
 
             if site_packages_path:
                 logger.info('Adding site packages directory to the system path: "{0}"'.format(site_packages_path))
-                sys.path.append(site_packages_path)
+                site.addsitedir(site_packages_path)
             else:
                 logger.warning('Site packages directory not added to sys.path.')
         else:
@@ -122,11 +124,11 @@ class PluginManager(object):
         self._virtualenv_dir = options[VIRTUAL_ENV_PATH]
 
     def setDirectories(self, directories):
-        '''
+        """
         Set the list of directories to be searched for
         plugins.  Returns true if the directories listing
         was updated and false otherwise.
-        '''
+        """
         if self._directories != directories:
             self._directories = directories
             self._reload_plugins = True
@@ -185,11 +187,11 @@ class PluginManager(object):
         return self._plugin_database
 
     def setLoadDefaultPlugins(self, loadDefaultPlugins):
-        '''
+        """
         Set whether or not the default plugins should be loaded.
         Returns true if the default load plugin setting is changed
         and false otherwise.
-        '''
+        """
         if self._load_default_plugins != loadDefaultPlugins:
             self._load_default_plugins = loadDefaultPlugins
             self._reload_plugins = True
@@ -447,14 +449,9 @@ def isMapClientPluginsDir(plugin_dir):
 
     if PLUGINS_PACKAGE_NAME in names:
         files = grep(os.path.join(plugin_dir, PLUGINS_PACKAGE_NAME),
-                     r'(from|import) mapclient.mountpoints.workflowstep', one_only=True)
+                     r'(from|import) mapclient.mountpoints.workflowstep', one_only=True, file_endswith='.py')
         if files:
             result = True
-        # init_file = os.path.join(plugin_dir, PLUGINS_PACKAGE_NAME, '__init__.py')
-        # if os.path.isfile(init_file):
-        #     contents = open(init_file).read()
-        #     if 'pkg_resources' in contents and 'declare_namespace' in contents:
-        #         result = True
 
     return result
 
@@ -475,10 +472,7 @@ class PluginSiteManager(object):
             f.write('\n'.join(pth_entries))
 
     def load_site(self, target_dir):
-        if is_frozen():
-            sys.path.append(target_dir)
-        else:
-            site.addsitedir(target_dir)
+        site.addsitedir(target_dir)
 
 
 def generate_pth_entries(target_dir):
@@ -490,18 +484,18 @@ def generate_pth_entries(target_dir):
 
 
 class PluginDatabase:
-    '''
+    """
     Manages plugin information for the current workflow.
-    '''
+    """
 
     def __init__(self):
         self._database = {}
 
     def saveState(self, ws, scene):
-        '''
+        """
         Save the state of the current workflow plugin requirements
         to the given workflow configuration.
-        '''
+        """
         ws.remove('required_plugins')
         ws.beginGroup('required_plugins')
         ws.beginWriteArray('plugin')
@@ -530,9 +524,9 @@ class PluginDatabase:
 
     @staticmethod
     def load(ws):
-        '''
+        """
         Load the given Workflow configuration and return it as a dict.
-        '''
+        """
         pluginDict = {}
         ws.beginGroup('required_plugins')
         pluginCount = ws.beginReadArray('plugin')
@@ -566,9 +560,9 @@ class PluginDatabase:
         self._database[step_name] = plugin_dict
 
     def checkForMissingPlugins(self, to_check):
-        '''
+        """
         Check for the given plugin dict against the dict of plugins currently available.
-        '''
+        """
         missing_plugins = {}
         for plugin in to_check:
             if not (plugin in self._database and \
@@ -579,10 +573,10 @@ class PluginDatabase:
         return missing_plugins
 
     def checkForMissingDependencies(self, to_check, available_dependencies):
-        '''
+        """
         Check the given plugin dependencies against the list of currently available
         dependencies
-        '''
+        """
         print('CHECK ME: INCOMPLETE')
         required_dependencies = {}
         for plugin in to_check:

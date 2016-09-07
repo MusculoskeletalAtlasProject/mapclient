@@ -1,4 +1,4 @@
-'''
+"""
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
     
@@ -16,14 +16,14 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
-'''
+"""
 import sys
 from mapclient.core import pluginframework
 
 class WorkflowStepPort(object):
-    '''
+    """
     Describes the location and properties of a port for a workflow step.
-    '''
+    """
     def __init__(self):
         self.subj = {}
         self.pred = {}
@@ -86,7 +86,7 @@ class WorkflowStepPort(object):
 
         return False
 
-'''
+"""
 Plugins can inherit this mount point to add a workflow step.
 
 A plugin that registers this mount point must:
@@ -102,12 +102,10 @@ A plugin that registers this mount point could have:
   - An attribute _icon that is a QImage icon for a visual representation of the step
   - An attribute _category that is a string representation of the step's category
   
-'''
+"""
+
 
 def _workflow_step_init(self, name, location, parent=None):
-    '''
-    Constructor
-    '''
     self._parent = parent
     self._name = name
     self._location = location
@@ -120,17 +118,22 @@ def _workflow_step_init(self, name, location, parent=None):
     self._setCurrentWidget = None
     self._identifierOccursCount = None
 
+
 def _workflow_step_setLocation(self, location):
     self._location = location
+
 
 def _workflow_step_execute(self, dataIn=None):
     self._doneExecution()
 
+
 def _workflow_step_getPortData(self, index):
     return None
 
+
 def _workflow_step_setPortData(self, index, dataIn):
     pass
+
 
 def _workflow_step_get_source_uri(self):
     if hasattr(self, '__module__'):
@@ -145,36 +148,47 @@ def _workflow_step_get_source_uri(self):
 
     return None
 
+
 def _workflow_step_registerDoneExecution(self, observer):
     self._doneExecution = observer
+
 
 def _workflow_step_registerOnExecuteEntry(self, observer, setCurrentUndoRedoStackObserver=None):
     self._setCurrentWidget = observer
     self._setCurrentUndoRedoStack = setCurrentUndoRedoStackObserver
 
+
 def _workflow_step_registerConfiguredObserver(self, observer):
     self._configuredObserver = observer
+
 
 def _workflow_step_registerIdentifierOccursCount(self, observer):
     self._identifierOccursCount = observer
 
+
 def _workflow_step_configure(self, location):
     raise NotImplementedError
+
 
 def _workflow_step_getIdentifier(self):
     raise NotImplementedError
 
+
 def _workflow_step_setIdentifier(self):
     raise NotImplementedError
+
 
 def _workflow_step_serialize(self):
     raise NotImplementedError
 
+
 def _workflow_step_deserialize(self, string):
     raise NotImplementedError
 
+
 def _workflow_step_isConfigured(self):
     return self._configured
+
 
 def _workflow_step_addPort(self, triple):
     port = WorkflowStepPort()
@@ -182,11 +196,13 @@ def _workflow_step_addPort(self, triple):
     port.addProperty(('http://physiomeproject.org/workflow/1.0/rdf-schema#port', 'http://physiomeproject.org/workflow/1.0/rdf-schema#index', len(self._ports)))
     self._ports.append(port)
 
+
 def _workflow_step_getName(self):
     if hasattr(self, '_name'):
         return self._name
 
     return self.__class__.__name__
+
 
 attr_dict = {}
 attr_dict['__init__'] = _workflow_step_init
@@ -218,11 +234,11 @@ def workflowStepFactory(step_name, location):
 
 
 def removeWorkflowStep(step_module):
-    '''
+    """
     takes a module name (as a string) and removes all references
      - from sys.modules
      - from WorkflowStepMountPoint class
-    '''
+    """
     for key in list(sys.modules.keys()):
         if step_module in key:
             del sys.modules[key]
