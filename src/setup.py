@@ -11,7 +11,6 @@ version = VERSION_STRING
 install_requires = ['rdflib',
                     'virtualenv',
                     'python-dateutil',
-                    'pmr2.wfctrl',
                     'pmr2.client']
 try:
     import PySide

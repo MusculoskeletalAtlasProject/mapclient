@@ -234,6 +234,9 @@ class MainWindow(QtGui.QMainWindow):
         if pm.haveErrors():
             self.showPluginErrorsDialog()
 
+    def openWorkflow(self, workflowDir):
+        self._workflowWidget.openWorkflow(workflowDir)
+
     def setCurrentUndoRedoStack(self, stack):
         current_stack = self._model.undoManager().currentStack()
         if current_stack:

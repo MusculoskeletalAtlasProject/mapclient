@@ -276,14 +276,22 @@ class WorkflowWidget(QtGui.QWidget):
                 QtGui.QFileDialog.DontResolveSymlinks |
                 QtGui.QFileDialog.ReadOnly))
 
+        err = self.openWorkflow(workflowDir)
+        if err:
+            QtGui.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + err)
+
+    def openWorkflow(self, workflowDir):
+        result = ''
         if len(workflowDir):
             try:
-                logger.info('Perform workflow checks on open ...')
+                logger.info('Performing workflow checks on open ...')
                 self.performWorkflowChecks(workflowDir)
                 self._load(workflowDir)
             except (ValueError, WorkflowError) as e:
                 logger.error('Invalid Workflow.  ' + str(e))
-                QtGui.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + str(e))
+                result = str(e)
+
+        return result
 
     def showDownloadableContent(self, plugins={}, dependencies={}):
         from mapclient.view.managers.plugins.plugindownloader import PluginDownloader

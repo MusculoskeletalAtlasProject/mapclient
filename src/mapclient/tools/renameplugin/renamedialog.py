@@ -23,9 +23,6 @@ class RenameDialog(QtGui.QDialog):
 
         self._pyside_rcc = pyside_rcc
 
-        self._ui.lineEditStepLocation.setText('D:\work\musculoskeletal-software\mapclient-DTP-working-plugins\mapclientplugins.ironsimulationstep')
-        self._interrogateTarget()
-
         self._editDelayTimer = QtCore.QTimer()
         self._editDelayTimer.setInterval(500)
         self._editDelayTimer.setSingleShot(True)
@@ -70,7 +67,6 @@ class RenameDialog(QtGui.QDialog):
     def _addSearchResults(self, root_item, result_files, search_string, replace_string):
         tree = root_item.treeWidget()
         for result_file in result_files:
-            print(result_file)
             items = tree.findItems(result_file, QtCore.Qt.MatchFixedString | QtCore.Qt.MatchRecursive)
             if items:
                 file_branch = items[0]
