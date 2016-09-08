@@ -18,25 +18,35 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import os
+import logging
 import datetime
-from subprocess import call
+import subprocess
 
-from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_DIALOG_STRING, CONFIGURE_DIALOG_LINE, CONFIGURE_DIALOG_UI, CLASS_STRING, INIT_METHOD_STRING, \
-    APACHE_LICENSE, README_TEMPLATE
-from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_METHOD_STRING, IDENTIFIER_METHOD_STRING, SERIALIZE_METHOD_STRING, IMPORT_STRING, PACKAGE_INIT_STRING
-from mapclient.tools.pluginwizard.skeletonstrings import RESOURCE_FILE_STRING, GETIDENTIFIER_DEFAULT_CONTENT_STRING, GETIDENTIFIER_IDENTIFER_CONTENT_STRING
-from mapclient.tools.pluginwizard.skeletonstrings import SETIDENTIFIER_DEFAULT_CONTENT_STRING, SETIDENTIFIER_IDENTIFER_CONTENT_STRING
-from mapclient.tools.pluginwizard.skeletonstrings import SERIALIZE_DEFAULT_CONTENT_STRING, SERIALIZE_IDENTIFIER_CONTENT_STRING, STEP_PACKAGE_INIT_STRING
-from mapclient.tools.pluginwizard.skeletonstrings import DESERIALIZE_DEFAULT_CONTENT_STRING, DESERIALIZE_IDENTIFIER_CONTENT_STRING
-from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_DIALOG_INIT_ADDITIONS, CONFIGURE_DIALOG_ACCEPT_METHOD, CONFIGURE_DIALOG_MAKE_CONNECTIONS_METHOD
-from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_DIALOG_IDENTIFIER_VALIDATE_METHOD, CONFIGURE_DIALOG_DEFAULT_VALIDATE_METHOD
+from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_DIALOG_STRING, CONFIGURE_DIALOG_LINE, \
+    CONFIGURE_DIALOG_UI, CLASS_STRING, INIT_METHOD_STRING, APACHE_LICENSE, README_TEMPLATE
+from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_METHOD_STRING, IDENTIFIER_METHOD_STRING, \
+    SERIALIZE_METHOD_STRING, IMPORT_STRING, PACKAGE_INIT_STRING
+from mapclient.tools.pluginwizard.skeletonstrings import RESOURCE_FILE_STRING, GETIDENTIFIER_DEFAULT_CONTENT_STRING,\
+    GETIDENTIFIER_IDENTIFER_CONTENT_STRING
+from mapclient.tools.pluginwizard.skeletonstrings import SETIDENTIFIER_DEFAULT_CONTENT_STRING, \
+    SETIDENTIFIER_IDENTIFER_CONTENT_STRING
+from mapclient.tools.pluginwizard.skeletonstrings import SERIALIZE_DEFAULT_CONTENT_STRING, \
+    SERIALIZE_IDENTIFIER_CONTENT_STRING, STEP_PACKAGE_INIT_STRING
+from mapclient.tools.pluginwizard.skeletonstrings import DESERIALIZE_DEFAULT_CONTENT_STRING, \
+    DESERIALIZE_IDENTIFIER_CONTENT_STRING
+from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_DIALOG_INIT_ADDITIONS, \
+    CONFIGURE_DIALOG_ACCEPT_METHOD, CONFIGURE_DIALOG_MAKE_CONNECTIONS_METHOD
+from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_DIALOG_IDENTIFIER_VALIDATE_METHOD, \
+    CONFIGURE_DIALOG_DEFAULT_VALIDATE_METHOD
 
 from mapclient.tools.pluginwizard.skeletonstrings import (
     SETUP_PY_TEMPLATE,
     NAMESPACE_INIT,
 )
 
-# from mapclient.tools.pluginwizard.skeletonstrings import
+
+logger = logging.getLogger(__name__)
+
 QT_RESOURCE_FILENAME = 'resources.qrc'
 PYTHON_QT_RESOURCE_FILENAME = 'resources_rc.py'
 IMAGES_DIRECTORY = 'images'
@@ -356,11 +366,14 @@ class Skeleton(object):
 
             resource_file = os.path.join(qt_dir, QT_RESOURCE_FILENAME)
             f = open(resource_file, 'w')
-            f.write(RESOURCE_FILE_STRING.format(step_package_name=self._options.getPackageName(), image_filename=image_filename))
+            f.write(RESOURCE_FILE_STRING.format(step_package_name=self._options.getPackageName(),
+                                                image_filename=image_filename))
             f.close()
 
             try:
-                result = call([self._pyside_rcc, '-py3', '-o', os.path.join(step_dir, PYTHON_QT_RESOURCE_FILENAME), os.path.join(qt_dir, QT_RESOURCE_FILENAME)])
+                result = subprocess.call([self._pyside_rcc, '-py3', '-o',
+                                          os.path.join(step_dir, PYTHON_QT_RESOURCE_FILENAME),
+                                          os.path.join(qt_dir, QT_RESOURCE_FILENAME)])
             except SyntaxError:
                 result = -1
             except Exception:
@@ -368,11 +381,6 @@ class Skeleton(object):
 
             if result < 0:
                 raise Exception('Failed to generate Python rcc file using the PySide resource compiler "{0}".'.format(self._pyside_rcc))
-
-#             # Generate resources file, I'm going to assume that I can find pyside-rcc
-#             result = call(['pyside-rcc', '-o', os.path.join(step_dir, PYTHON_QT_RESOURCE_FILENAME), os.path.join(qt_dir, QT_RESOURCE_FILENAME)])
-#             if result < 0:
-#                 print('result = ' + str(-result))
 
     def _createConfigDialog(self, step_dir):
         """
@@ -427,7 +435,18 @@ class Skeleton(object):
 
             # Difficulties arise when cross Python version calling pyside-uic.
             try:
-                result = call([self._pyside_uic, '--from-imports', '-o', os.path.join(step_dir, PYTHON_QT_CONFDIALOG_UI_FILENAME), ui_file])
+                result = subprocess.call([self._pyside_uic, '--from-imports', '-o', os.path.join(step_dir, PYTHON_QT_CONFDIALOG_UI_FILENAME), ui_file])
+            except OSError as e:
+                # Trying to run the uic.py script?
+                p = subprocess.Popen(['python', self._pyside_uic, '--from-imports',
+                                      '-o', os.path.join(step_dir, PYTHON_QT_CONFDIALOG_UI_FILENAME), ui_file],
+                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = p.communicate()
+                result = 0
+                if stdout:
+                    logger.info(stdout)
+                if stderr:
+                    logger.info(stderr)
             except Exception:
                 result = -1
 
