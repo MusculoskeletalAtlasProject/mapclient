@@ -3,6 +3,7 @@ Created on Jun 26, 2015
 
 @author: hsorby
 """
+import logging
 import subprocess
 import os.path
 import platform
@@ -12,6 +13,9 @@ from PySide import QtCore
 from mapclient.settings.definitions import GIT_EXE, VIRTUAL_ENV_PATH, \
     PYSIDE_UIC_EXE, PYSIDE_RCC_EXE, USE_EXTERNAL_GIT
 from mapclient.core.utils import which
+
+
+logger = logging.getLogger(__name__)
 
 
 class ApplicationChecks(object):
@@ -37,8 +41,22 @@ class WizardToolChecks(ApplicationChecks):
         self._report = ''  # {0}\n'.format(self.title)
         try:
             pyside_uic = self._options[PYSIDE_UIC_EXE]
-            p = subprocess.Popen([pyside_uic, '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            _, stderr = p.communicate()
+            try:
+                p = subprocess.Popen([pyside_uic, '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = p.communicate()
+                if stdout:
+                    logger.info(stdout)
+                if stderr:
+                    logger.info(stderr)
+            except OSError as e:
+                # Trying to run the uic.py script?
+                p = subprocess.Popen(['python', pyside_uic, '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = p.communicate()
+                if stdout:
+                    logger.info(stdout)
+                if stderr:
+                    logger.info(stderr)
+#c:\python35amd64\Scripts\pyside-uic.EXE
             return_code = p.returncode
             if return_code == 0:
                 uic_result = True
