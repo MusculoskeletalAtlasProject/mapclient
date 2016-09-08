@@ -1,1 +1,1 @@
-git+https://github.com/PMR/pmr.wfctrl.git#egg=pmr.wfctrl
+https://github.com/PMR2/pmr2.wfctrl/archive/v0.3.0.zip
