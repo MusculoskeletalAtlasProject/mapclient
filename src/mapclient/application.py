@@ -32,7 +32,6 @@ from logging import handlers
 # Set toolbox settings here
 # matplotlib.use('Qt4Agg')
 # matplotlib.rcParams['backend.qt4']='PySide'
-from mapclient.settings.definitions import VIRTUAL_ENV_PATH
 
 os.environ['ETS_TOOLKIT'] = 'qt4'
 # With PEP366 we need to conditionally import the settings module based on
@@ -64,7 +63,7 @@ def initialiseLogger(log_path):
     rotatingFH.doRollover()
 
 
-def progheader():
+def programme_header():
     """
     Display program header
     """
@@ -75,7 +74,7 @@ def progheader():
 
 
 # This method starts MAP Client
-def winmain(app_args):
+def windows_main(app_args):
     """
     Initialise common settings and check the operating environment before starting the application.
     """
@@ -95,7 +94,7 @@ def winmain(app_args):
 
     log_path = getLogLocation()
     initialiseLogger(log_path)
-    progheader()
+    programme_header()
 
     logger.info('Setting toolbox settings for matplotlib and enthought to: qt4')
 
@@ -110,7 +109,7 @@ def winmain(app_args):
         from opencmiss.iron import iron
         logger.info('OpenCMISS-Iron is available.')
     except ImportError:
-        logger.warn('OpenCMISS-Iron is available.')
+        logger.warn('OpenCMISS-Iron is not available.')
 
     from mapclient.core.mainapplication import MainApplication
     model = MainApplication()
@@ -163,7 +162,7 @@ def non_gui_main(app_args):
     old_stdout = sys.stdout
     sys.stdout = ConsumeOutput()
 #     sys.stdout = redirectstdout = ConsumeOutput()
-    progheader()
+    programme_header()
     sys.stdout = old_stdout
 
     from mapclient.core.mainapplication import MainApplication
@@ -206,7 +205,7 @@ def main():
     if args.headless and args.workflow:
         sys.exit(non_gui_main(args))
     else:
-        sys.exit(winmain(args))
+        sys.exit(windows_main(args))
 
 if __name__ == '__main__':
     main()
