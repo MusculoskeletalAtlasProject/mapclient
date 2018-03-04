@@ -63,8 +63,8 @@ def which(cmd, mode=os.F_OK | os.X_OK, path=None):
     # Check that a given file can be accessed with the correct mode.
     # Additionally check that `file` is not a directory, as on Windows
     # directories pass the os.access check.
-    def _access_check(fn, mode):
-        return (os.path.exists(fn) and os.access(fn, mode)
+    def _access_check(fn, permissions):
+        return (os.path.exists(fn) and os.access(fn, permissions)
                 and not os.path.isdir(fn))
 
     # If we're given a path with a directory part, look it up directly rather
