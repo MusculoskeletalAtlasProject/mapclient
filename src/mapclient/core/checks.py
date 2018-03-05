@@ -11,7 +11,7 @@ import platform
 from PySide import QtCore
 
 from mapclient.settings.definitions import GIT_EXE, VIRTUAL_ENV_PATH, \
-    PYSIDE_UIC_EXE, PYSIDE_RCC_EXE, USE_EXTERNAL_GIT
+    PYSIDE_RCC_EXE, USE_EXTERNAL_GIT
 from mapclient.core.utils import which
 
 
@@ -36,37 +36,8 @@ class WizardToolChecks(ApplicationChecks):
     title = 'Wizard Tool'
 
     def doCheck(self):
-        uic_result = False
         rcc_result = False
         self._report = ''  # {0}\n'.format(self.title)
-        try:
-            pyside_uic = self._options[PYSIDE_UIC_EXE]
-            try:
-                p = subprocess.Popen([pyside_uic, '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                stdout, stderr = p.communicate()
-                if stdout:
-                    logger.info(stdout)
-                if stderr:
-                    logger.info(stderr)
-            except OSError as e:
-                # Trying to run the uic.py script?
-                p = subprocess.Popen(['python', pyside_uic, '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                stdout, stderr = p.communicate()
-                if stdout:
-                    logger.info(stdout)
-                if stderr:
-                    logger.info(stderr)
-#c:\python35amd64\Scripts\pyside-uic.EXE
-            return_code = p.returncode
-            if return_code == 0:
-                uic_result = True
-                self._report += "'{0}' successfully ran.".format(pyside_uic)
-            else:
-                self._report += "'{0}' did not execute successfully, returned '{1}' on exit.".format(pyside_uic, return_code)
-        except Exception as e:
-            self._report += "The test for pyside-uic [tested executable '{0}'] did not execute successfully, but caused an exception:\n{1}".format(pyside_uic, e)
-        if self._report:
-            self._report += '\n'
         try:
             pyside_rcc = self._options[PYSIDE_RCC_EXE]
             p = subprocess.Popen([pyside_rcc, '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -81,7 +52,7 @@ class WizardToolChecks(ApplicationChecks):
         except Exception as e:
             self._report += "The test for pyside-rcc [tested executable '{0}'] did not execute successfully, but caused an exception:\n{1}".format(pyside_rcc, e)
 
-        return uic_result and rcc_result
+        return rcc_result
 
 
 class VirtualEnvChecks(ApplicationChecks):
@@ -171,29 +142,6 @@ def getActivateScript(venv_path):
         suffix = ''
     activate_script = which(os.path.join(venv_path, int_directory, 'activate' + suffix))
     return activate_script
-
-
-def getPySideUicExecutable():
-    pyside_uic_potentials = ['pyside-uic', 'py2side-uic', 'py3side-uic', 'pyside-uic-py2']
-    for pyside_uic_potential in pyside_uic_potentials:
-        pyside_uic = which(pyside_uic_potential)  #  self._options[PYSIDE_UIC_EXE]
-        if pyside_uic:
-            p = subprocess.Popen([pyside_uic, '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            _, _ = p.communicate()
-            return_code = p.returncode
-            if return_code == 0:
-                return pyside_uic
-
-    # Fallback for Anaconda??
-    try:
-        from PySide.scripts import uic
-        uic_script = uic.__file__
-
-        return uic_script
-    except ImportError:
-        pass
-
-    return None
 
 
 def getPySideRccExecutable():

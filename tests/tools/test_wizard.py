@@ -52,7 +52,7 @@ AUTHOR_NAME = 'Prince of Persia'
 class _TestCase(unittest.TestCase):
 
     def assertIn(self, a, b, *args, **kwargs):
-        """'Python < v2.7 compatibility.  Assert "a" in "b""""
+        """Python < v2.7 compatibility.  Assert "a" in "b" """
         try:
             f = super(_TestCase, self).assertIn
         except AttributeError:
@@ -61,7 +61,7 @@ class _TestCase(unittest.TestCase):
             f(a, b, *args, **kwargs)
 
     def assertNotIn(self, a, b, *args, **kwargs):
-        """'Python < v2.7 compatibility.  Assert "a" NOT in "b""""
+        """Python < v2.7 compatibility.  Assert "a" NOT in "b" """
         try:
             f = super(_TestCase, self).assertNotIn
         except AttributeError:
@@ -138,10 +138,9 @@ class WizardTestCase(_TestCase):
         options.addConfig('identifier', '')
         options.setAuthorName(AUTHOR_NAME)
         options.setCategory(CATEGORY)
-        pyside_uic = determentPysideUicExecutable()
-        pyside_rcc = determentPysideURccExecutable()
+        pyside_rcc = determinePysideURccExecutable()
 
-        s = Skeleton(options, pyside_uic, pyside_rcc)
+        s = Skeleton(options, pyside_rcc)
         s.write()
 
         step_file = os.path.join(step_dir, 'step.py')
@@ -186,10 +185,9 @@ class WizardTestCase(_TestCase):
         options.addPort('http://physiomeproject.org/workflow/1.0/rdf-schema#provides', 'http://my.example.org/1.0/workflowstep#octopus')
         options.addPort('http://physiomeproject.org/workflow/1.0/rdf-schema#uses', 'int')
 
-        pyside_uic = determentPysideUicExecutable()
-        pyside_rcc = determentPysideURccExecutable()
+        pyside_rcc = determinePysideURccExecutable()
 
-        s = Skeleton(options, pyside_uic, pyside_rcc)
+        s = Skeleton(options, pyside_rcc)
         s.write()
 
         step_file = os.path.join(step_dir, 'step.py')
@@ -230,10 +228,9 @@ class WizardTestCase(_TestCase):
         options.addConfig('Path', '')
         options.addConfig('Carrot', 'tis a long way down')
 
-        pyside_uic = determentPysideUicExecutable()
-        pyside_rcc = determentPysideURccExecutable()
+        pyside_rcc = determinePysideURccExecutable()
 
-        s = Skeleton(options, pyside_uic, pyside_rcc)
+        s = Skeleton(options, pyside_rcc)
         s.write()
 
         step_file = os.path.join(step_dir, 'step.py')
@@ -276,10 +273,9 @@ class WizardTestCase(_TestCase):
         options.addConfig('Path', '')
         options.addConfig('Carrot', 'tis a long way down')
 
-        pyside_uic = determentPysideUicExecutable()
-        pyside_rcc = determentPysideURccExecutable()
+        pyside_rcc = determinePysideURccExecutable()
 
-        s = Skeleton(options, pyside_uic, pyside_rcc)
+        s = Skeleton(options, pyside_rcc)
         s.write()
 
         self.assertTrue(os.path.exists(package_dir))
@@ -302,21 +298,7 @@ class WizardTestCase(_TestCase):
         self.assertTrue(os.path.exists(config_file))
 
 
-def determentPysideUicExecutable():
-        pyside_uic_potentials = ['pyside-uic', 'py2side-uic', 'py3side-uic', 'pyside-uic-py2']
-        for pyside_uic_potential in pyside_uic_potentials:
-            pyside_uic = which(pyside_uic_potential)  #  self._options[PYSIDE_UIC_EXE]
-            if pyside_uic:
-                p = subprocess.Popen([pyside_uic, '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                _, _ = p.communicate()
-                return_code = p.returncode
-                if return_code == 0:
-                    return pyside_uic
-
-        return pyside_uic_potentials[0]
-
-
-def determentPysideURccExecutable():
+def determinePysideURccExecutable():
         pyside_rcc_potentials = ['pyside-rcc']
         return which(pyside_rcc_potentials[0])
 

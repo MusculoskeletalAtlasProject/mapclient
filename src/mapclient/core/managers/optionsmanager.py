@@ -7,7 +7,7 @@ from mapclient.core.utils import which
 from mapclient.settings.general import getVirtEnvDirectory
 from mapclient.core.checks import getPySideRccExecutable, getPySideUicExecutable
 from mapclient.settings.definitions import SHOW_STEP_NAMES, \
-    DONT_CREATE_VIRTUAL_ENV, OPTIONS_SETTINGS_TAG, PYSIDE_UIC_EXE, \
+    DONT_CREATE_VIRTUAL_ENV, OPTIONS_SETTINGS_TAG, \
     PYSIDE_RCC_EXE, VIRTUAL_ENV_PATH, GIT_EXE, PREVIOUS_PW_WRITE_STEP_LOCATION, \
     PREVIOUS_PW_ICON_LOCATION, CHECK_TOOLS_ON_STARTUP, USE_EXTERNAL_GIT
 
@@ -21,7 +21,6 @@ class OptionsManager(object):
         self._options[DONT_CREATE_VIRTUAL_ENV] = False
         self._options[CHECK_TOOLS_ON_STARTUP] = True
         self._options[USE_EXTERNAL_GIT] = False
-        self._options[PYSIDE_UIC_EXE] = getPySideUicExecutable()
         self._options[PYSIDE_RCC_EXE] = getPySideRccExecutable()
         self._options[VIRTUAL_ENV_PATH] = getVirtEnvDirectory()
         self._options[GIT_EXE] = which('git')

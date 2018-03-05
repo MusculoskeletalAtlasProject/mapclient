@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mapclient/view/managers/options/qt/optionsdialog.ui'
 #
-# Created: Fri Mar  2 15:05:32 2018
+# Created: Mon Mar  5 13:03:19 2018
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -76,24 +76,15 @@ class Ui_OptionsDialog(object):
         self.groupBox_4.setObjectName("groupBox_4")
         self.gridLayout_2 = QtGui.QGridLayout(self.groupBox_4)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.label = QtGui.QLabel(self.groupBox_4)
-        self.label.setObjectName("label")
-        self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
-        self.lineEditPySideUIC = QtGui.QLineEdit(self.groupBox_4)
-        self.lineEditPySideUIC.setObjectName("lineEditPySideUIC")
-        self.gridLayout_2.addWidget(self.lineEditPySideUIC, 0, 1, 1, 1)
-        self.pushButtonPySideUIC = QtGui.QPushButton(self.groupBox_4)
-        self.pushButtonPySideUIC.setObjectName("pushButtonPySideUIC")
-        self.gridLayout_2.addWidget(self.pushButtonPySideUIC, 0, 2, 1, 1)
         self.label_2 = QtGui.QLabel(self.groupBox_4)
         self.label_2.setObjectName("label_2")
-        self.gridLayout_2.addWidget(self.label_2, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_2, 0, 0, 1, 1)
         self.lineEditPySideRCC = QtGui.QLineEdit(self.groupBox_4)
         self.lineEditPySideRCC.setObjectName("lineEditPySideRCC")
-        self.gridLayout_2.addWidget(self.lineEditPySideRCC, 1, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.lineEditPySideRCC, 0, 1, 1, 1)
         self.pushButtonPySideRCC = QtGui.QPushButton(self.groupBox_4)
         self.pushButtonPySideRCC.setObjectName("pushButtonPySideRCC")
-        self.gridLayout_2.addWidget(self.pushButtonPySideRCC, 1, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.pushButtonPySideRCC, 0, 2, 1, 1)
         self.verticalLayout_2.addWidget(self.groupBox_4)
         self.groupBox_5 = QtGui.QGroupBox(self.tabToolSettings)
         self.groupBox_5.setObjectName("groupBox_5")
@@ -159,9 +150,6 @@ class Ui_OptionsDialog(object):
         self.pushButtonCreate.setToolTip(QtGui.QApplication.translate("OptionsDialog", "Create a virtual environment at the virtual environment path", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonCreate.setText(QtGui.QApplication.translate("OptionsDialog", "Create", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_4.setTitle(QtGui.QApplication.translate("OptionsDialog", "Step Wizard", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("OptionsDialog", "pyside-uic:", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEditPySideUIC.setToolTip(QtGui.QApplication.translate("OptionsDialog", "The PySide User Interface Compiler executable", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonPySideUIC.setText(QtGui.QApplication.translate("OptionsDialog", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("OptionsDialog", "pyside-rcc", None, QtGui.QApplication.UnicodeUTF8))
         self.lineEditPySideRCC.setToolTip(QtGui.QApplication.translate("OptionsDialog", "The PySide Resource Compiler executable.", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonPySideRCC.setText(QtGui.QApplication.translate("OptionsDialog", "...", None, QtGui.QApplication.UnicodeUTF8))
