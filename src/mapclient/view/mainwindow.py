@@ -26,7 +26,7 @@ from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
 from mapclient.view.workflow.workflowwidget import WorkflowWidget
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, WIZARD_TOOL_STRING, \
-    VIRTUAL_ENVIRONMENT_STRING, PMR_TOOL_STRING, PYSIDE_RCC_EXE, PYSIDE_UIC_EXE, \
+    VIRTUAL_ENVIRONMENT_STRING, PMR_TOOL_STRING, PYSIDE_RCC_EXE, \
     PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION, USE_EXTERNAL_GIT
 from mapclient.view.utils import set_wait_cursor
 
@@ -379,7 +379,7 @@ class MainWindow(QtGui.QMainWindow):
             om.setOption(PREVIOUS_PW_WRITE_STEP_LOCATION, dlg.getPreviousWriteStepLocation())
             om.setOption(PREVIOUS_PW_ICON_LOCATION, dlg.getPreviousIconLocation())
 
-            s = Skeleton(dlg.getOptions(), om.getOption(PYSIDE_UIC_EXE), om.getOption(PYSIDE_RCC_EXE))
+            s = Skeleton(dlg.getOptions(), om.getOption(PYSIDE_RCC_EXE))
             try:
                 s.write()
                 pm = self._model.pluginManager()

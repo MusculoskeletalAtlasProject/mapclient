@@ -21,6 +21,7 @@ import os
 import logging
 import datetime
 import subprocess
+import pysideuic
 
 from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_DIALOG_STRING, CONFIGURE_DIALOG_LINE, \
     CONFIGURE_DIALOG_UI, CLASS_STRING, INIT_METHOD_STRING, APACHE_LICENSE, README_TEMPLATE
@@ -63,9 +64,8 @@ class Skeleton(object):
     skeleton code to disk.
     """
 
-    def __init__(self, options, pyside_uic=None, pyside_rcc=None):
+    def __init__(self, options, pyside_rcc=None):
         self._options = options
-        self._pyside_uic = pyside_uic
         self._pyside_rcc = pyside_rcc
 
     def _writeSetup(self, target_dir):
@@ -429,29 +429,10 @@ class Skeleton(object):
             get_config_string += '        return config\n'
 
             ui_file = os.path.join(qt_dir, QT_CONFDIALOG_UI_FILENAME)
-            fui = open(ui_file, 'w')
-            fui.write(CONFIGURE_DIALOG_UI.format(widgets_string))
-            fui.close()
+            with open(ui_file, 'w') as fui:
+                fui.write(CONFIGURE_DIALOG_UI.format(widgets_string))
 
-            # Difficulties arise when cross Python version calling pyside-uic.
-            try:
-                result = subprocess.call([self._pyside_uic, '--from-imports', '-o', os.path.join(step_dir, PYTHON_QT_CONFDIALOG_UI_FILENAME), ui_file])
-            except OSError as e:
-                # Trying to run the uic.py script?
-                p = subprocess.Popen(['python', self._pyside_uic, '--from-imports',
-                                      '-o', os.path.join(step_dir, PYTHON_QT_CONFDIALOG_UI_FILENAME), ui_file],
-                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                stdout, stderr = p.communicate()
-                result = 0
-                if stdout:
-                    logger.info(stdout)
-                if stderr:
-                    logger.info(stderr)
-            except Exception:
-                result = -1
-
-            if result < 0:
-                raise Exception('Failed to generate Python ui file using the PySide user interface compiler "{0}".'.format(self._pyside_uic))
+            pysideuic.compileUi(ui_file, os.path.join(step_dir, PYTHON_QT_CONFDIALOG_UI_FILENAME), from_imports=True)
 
             dialog_file = os.path.join(step_dir, CONFIG_DIALOG_FILE)
             f = open(dialog_file, 'w')
