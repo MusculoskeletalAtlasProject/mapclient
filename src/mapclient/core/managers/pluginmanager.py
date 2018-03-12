@@ -100,26 +100,6 @@ class PluginManager(object):
 
         return install_list
 
-    def addSitePackages(self):
-        """
-        Append the site-packages directory of the virtual
-        environment to the system path
-        """
-        if self._virtualenv_enabled:
-            site_packages_path = None
-            for root, _, _ in os.walk(self._virtualenv_dir , topdown=False):
-                if root.endswith('site-packages'):
-                    site_packages_path = root
-                    break
-
-            if site_packages_path:
-                logger.info('Adding site packages directory to the system path: "{0}"'.format(site_packages_path))
-                site.addsitedir(site_packages_path)
-            else:
-                logger.warning('Site packages directory not added to sys.path.')
-        else:
-            logger.info('VirtualEnv not enabled not adding site-packages directory')
-
     def setOptions(self, options):
         self._virtualenv_dir = options[VIRTUAL_ENV_PATH]
 

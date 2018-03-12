@@ -192,15 +192,6 @@ class MainWindow(QtGui.QMainWindow):
         if ADMIN_MODE:
             self.action_MAPIcon.triggered.connect(self.showMAPIconDialog)
 
-    @set_wait_cursor
-    def _setupVirtualEnv(self, virtual_env_path):
-        """
-        Sets up a virtual environment for MAP Client dependencies.
-        """
-        pm = self._model.pluginManager()
-        pm.setVirtualEnvDirectory(virtual_env_path)
-        return pm.setupVirtualEnv()
-
     def checkApplicationSetup(self):
         """
         Check the application setup and return True if the application
@@ -211,23 +202,12 @@ class MainWindow(QtGui.QMainWindow):
 
     def setupApplication(self):
         """
-        Setup the application, create virtual environment, check for git, pyside-uic and pyside-rcc.
+        Setup the application, check for git, and pyside-rcc.
         """
-        # Has the virtual environment initialisation been attempted?
-        # If it hasn't, setup the virtual environment otherwise run environment
-        # checks.
-        # Maybe setup Virtual Env. first
-        pm = self._model.pluginManager()
-        if not pm.virtualenvSetupAttempted():
-            om = self._model.optionsManager()
-            self._setupVirtualEnv(om.getOption(VIRTUAL_ENV_PATH))
+        pass
 
     def loadPlugins(self):
-        om = self._model.optionsManager()
         pm = self._model.pluginManager()
-        pm.setVirtualEnvDirectory(om.getOption(VIRTUAL_ENV_PATH))
-        if pm.virtualEnvExists():
-            pm.addSitePackages()
 
         self._pluginManagerLoadPlugins()
         # Show plugin errors
@@ -308,7 +288,6 @@ class MainWindow(QtGui.QMainWindow):
         om = self._model.optionsManager()
         options = om.getOptions()
         dlg = OptionsDialog(self)
-        dlg.setCreateVenvMethod(self._setupVirtualEnv)
         dlg.setCurrentTab(current_tab)
         dlg.load(options)
         if dlg.exec_() == QtGui.QDialog.Accepted:
@@ -318,9 +297,7 @@ class MainWindow(QtGui.QMainWindow):
         # set availability of functionality.
         pm = self._model.pluginManager()
         self.action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
-        pm.setVirtualEnvEnabled(dlg.checkedOk(VIRTUAL_ENVIRONMENT_STRING))
         self.action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
-        pm.setVirtualEnvDirectory(om.getOption(VIRTUAL_ENV_PATH))
         self._workflowWidget.applyOptions()
 
     def showPluginManagerDialog(self):
