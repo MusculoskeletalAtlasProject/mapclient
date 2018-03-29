@@ -13,6 +13,7 @@ version = app_version.__version__
 install_requires = ['rdflib',
                     'virtualenv',
                     'python-dateutil',
+                    'dulwich',
                     'pmr2.client']
 try:
     import PySide
@@ -91,8 +92,8 @@ setup(name='mapclient',
      author='MAP Client Developers',
      author_email='mapclient-devs@physiomeproject.org',
      url='https://github.com/MusculoskeletalAtlasProject',
-     namespace_packages=['mapclient', ],
-     packages=find_packages(exclude=['tests', 'tests.*', ]),
+     # namespace_packages=['mapclientplugins', ],
+     packages=find_packages(exclude=['tests', 'tests.*', 'mapclientplugins', 'mapclientplugins.*', 'utils', 'utils.*' ]),
      package_data={'mapclient.tools.annotation': ['annotation.voc'], 'mapclient.tools.osxapp': ['mapclient.icns']},
      # py_modules=['mapclient.mapclient'],
      entry_points={'console_scripts': ['mapclient=mapclient.application:main']},

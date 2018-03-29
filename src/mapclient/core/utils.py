@@ -26,7 +26,7 @@ from mapclient.settings.general import getConfigurationFile
 
 
 def is_frozen():
-    return hasattr(sys, "frozen")  # new py2exe
+    return getattr(sys, 'frozen', False)  # new py2exe
 
 
 def convertExceptionToMessage(e):

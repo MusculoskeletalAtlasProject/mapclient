@@ -314,6 +314,15 @@ def compatibleVersions(workflow_version, application_version):
     if application_version == (0, 13, 0) and workflow_version == (0, 12, 0):
         return True
 
+    if application_version == (0, 14, 0) and workflow_version == (0, 11, 3):
+        return True
+
+    if application_version == (0, 14, 0) and workflow_version == (0, 12, 0):
+        return True
+
+    if application_version == (0, 14, 0) and workflow_version == (0, 13, 0):
+        return True
+
     if not workflow_version[0:2] == application_version[0:2]:
         # compare first two elements of version (major, minor)
         raise WorkflowError(

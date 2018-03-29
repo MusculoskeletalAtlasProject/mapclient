@@ -23,7 +23,7 @@ import ast
 
 from PySide import QtCore, QtGui
 
-from mapclient.core.utils import convertNameToPythonPackage
+from mapclient.core.utils import convertNameToPythonPackage, is_frozen
 from mapclient.tools.pluginwizard.skeleton import SkeletonOptions
 from mapclient.tools.pluginwizard.ui_output import Ui_Output
 from mapclient.tools.pluginwizard.ui_name import Ui_Name
@@ -499,11 +499,11 @@ def isIdentifier(ident):
 
 def getPredefinedImageLocation(predefinedName):
     filename = imageNameMap[predefinedName]
-    if hasattr(sys, 'frozen'):
-        image_file = os.path.join(os.path.dirname(sys.executable), 'res', 'images', filename)
+    if is_frozen():
+        image_file_dir = os.path.join(sys._MEIPASS, 'res', 'images')
     else:
-        image_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'qt', 'images', filename)
-    return image_file
+        image_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'qt', 'images')
+    return os.path.join(image_file_dir, filename)
 
 
 

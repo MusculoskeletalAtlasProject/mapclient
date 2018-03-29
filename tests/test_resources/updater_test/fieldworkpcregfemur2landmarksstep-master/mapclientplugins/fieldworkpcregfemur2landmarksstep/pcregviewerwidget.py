@@ -97,7 +97,7 @@ class MayaviPCRegViewerWidget(QDialog):
 
         # self.testPlot()
         # self.drawObjects()
-        print 'finished init...', self._config
+        print('finished init...', self._config)
 
     def _initViewerObjects(self):
         self._objects = MayaviViewerObjectsContainer()

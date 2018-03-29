@@ -4,11 +4,11 @@
 ; You must define these values
   
   !define APP_NAME "MAP-Client"
-  !define APP_VERSION "0.12.0"
+  !define APP_VERSION "0.14.0"
   !define APP_ORGANISATION "MAP"
   !define VERSION "1.0.0"
   !define PATCH  "1"
-  !define INST_DIR "..\..\src\dist"
+  !define INST_DIR "..\..\dist"
 
 ;--------------------------------
 ;Variables
@@ -35,7 +35,7 @@
 
   ;Name and file
   Name "${APP_NAME} ${APP_VERSION}"
-  OutFile "..\..\src\package\${APP_NAME}-${APP_VERSION}.exe"
+  OutFile "..\..\package\${APP_NAME}-${APP_VERSION}.exe"
 
   ;Set compression
   SetCompressor lzma
