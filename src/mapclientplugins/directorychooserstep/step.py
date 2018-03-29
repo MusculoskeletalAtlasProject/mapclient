@@ -2,6 +2,7 @@
 """
 MAP Client Plugin Step
 """
+import os
 import json
 
 from PySide import QtGui
@@ -49,7 +50,7 @@ class DirectoryChooserStep(WorkflowStepMountPoint):
         The index is the index of the port in the port list.  If there is only one
         provides port for this step then the index can be ignored.
         """
-        return self._config['Directory']  # http://physiomeproject.org/workflow/1.0/rdf-schema#directory_location
+        return os.path.realpath(os.path.join(self._location, self._config['Directory']))  # http://physiomeproject.org/workflow/1.0/rdf-schema#directory_location
 
     def configure(self):
         """

@@ -21,4 +21,3 @@ __version__ = '0.3.0'
 __author__ = 'Hugh Sorby'
 
 from mapclientplugins.pointcloudserializerstep import step
-

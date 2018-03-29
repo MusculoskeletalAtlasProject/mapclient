@@ -55,25 +55,6 @@ class WizardToolChecks(ApplicationChecks):
         return rcc_result
 
 
-class VirtualEnvChecks(ApplicationChecks):
-
-    title = 'Virtual Environment'
-
-    def doCheck(self):
-        venv_path = self._options[VIRTUAL_ENV_PATH]
-        result = False
-        pip_exe = getPipExecutable(venv_path)
-        if ' ' in venv_path or not venv_path:
-            self._report = "'{0}' is not a valid virtual environment path.".format(venv_path)
-        elif pip_exe is None:
-            self._report = "pip executable not found."
-        else:
-            result = True
-            self._report = "'{0}' is a valid virtual environment.".format(venv_path)
-
-        return result
-
-
 class VCSChecks(ApplicationChecks):
 
     title = 'Version Control'
@@ -110,10 +91,6 @@ def runChecks(options):
     check_status = True
     checks_wizard = WizardToolChecks(options)
     if not checks_wizard.doCheck():
-        check_status = False
-
-    checks_venv = VirtualEnvChecks(options)
-    if not checks_venv.doCheck():
         check_status = False
 
     checks_vcs = VCSChecks(options)

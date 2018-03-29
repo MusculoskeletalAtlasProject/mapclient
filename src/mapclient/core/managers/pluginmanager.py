@@ -5,14 +5,17 @@ Created on May 19, 2015
 """
 import os
 import sys
+import pip
 import logging
 import subprocess
 import json
 import pkgutil
 import traceback
 import shutil
+import types
+import importlib
 
-from mapclient.core.utils import which, is_frozen, FileTypeObject, grep
+from mapclient.core.utils import which, FileTypeObject, grep
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     PLUGINS_PACKAGE_NAME, PLUGINS_PTH
 from mapclient.core.checks import getPipExecutable, getActivateScript
@@ -20,16 +23,6 @@ from mapclient.core.checks import getPipExecutable, getActivateScript
 from importlib import import_module
 
 from mapclient.settings.general import getVirtualEnvSitePackagesDirectory
-
-if is_frozen():
-    import mapclient.core.frozen_site as site
-else:
-    import site
-
-# if sys.version_info < (3, 0):
-#     import imp
-# else:
-#     import importlib
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +89,7 @@ class PluginManager(object):
             install_list = install_list.decode('utf-8')
         else:
             install_list = []
-            logger.info('VirtualEnv not enabled no list functionality availble.')
+            logger.info('VirtualEnv not enabled no list functionality available.')
 
         return install_list
 
@@ -189,43 +182,13 @@ class PluginManager(object):
         added = False
         if isMapClientPluginsDir(directory):
             sys.path.append(directory)
-            # if is_frozen():
-            #     sys.path.append(directory)
-            # else:
-            #     site.addsitedir(directory)
             added = True
 
         return added
 
     def installPackage(self, uri):
-        if self._virtualenv_enabled:
-            activate_script = getActivateScript(self._virtualenv_dir)
-
-            p = subprocess.Popen([activate_script, '&&', 'pip', 'install', uri],
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE)
-            # p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
-            #                       stdout=subprocess.PIPE,
-            #                       stderr=subprocess.PIPE)
-            stdout, stderr = p.communicate()
-            if stdout:
-                logger.info(stdout.decode('utf-8'))
-            if stderr:
-                logger.error(stderr.decode('utf-8'))
-
-            self.reloadPlugins()
-            # try:
-            #     install_report = subprocess.check_output([activate_script, '&&', 'echo %CD%', '&&', 'pip', 'install', uri],
-            #                                              stderr=subprocess.STDOUT)
-            # except subprocess.CalledProcessError as e:
-            #     logger.error(e.returncode)
-            #     logger.error(e.output)
-            # else:
-                # install_report = install_report.decode('utf-8')
-                # logger.info(install_report)
-                # self.reloadPlugins()
-        else:
-            logger.info('VirtualEnv not enabled no install functionality available.')
+        logger.info('Installing package : %s.' % uri)
+        pip.main(['install', uri])
 
     def extractPluginDependencies(self, path):
         return []
@@ -257,7 +220,12 @@ class PluginManager(object):
                 return []
 
     def load(self):
+        print('load plugins ...')
         self._reload_plugins = False
+        print('load plugins:  %s' % PLUGINS_PACKAGE_NAME in sys.modules)
+        if PLUGINS_PACKAGE_NAME in sys.modules:
+            print('mapclientplugins already loaded???')
+            print(sys.modules[PLUGINS_PACKAGE_NAME].__path__)
         len_package_modules_prior = len(sys.modules[PLUGINS_PACKAGE_NAME].__path__) if PLUGINS_PACKAGE_NAME in sys.modules else 0
         for directory in self.allDirectories():
             if not self._addPluginDir(directory):
@@ -269,6 +237,8 @@ class PluginManager(object):
                 for name in sorted(names):
                     self._addPluginDir(os.path.join(directory, name))
 
+        print(sys.path)
+        print(len_package_modules_prior)
         if len_package_modules_prior == 0:
             package = import_module(PLUGINS_PACKAGE_NAME)
         else:
@@ -277,13 +247,19 @@ class PluginManager(object):
             else:
                 import importlib
                 if sys.version_info > (3, 4):
+                    print(sys.modules[PLUGINS_PACKAGE_NAME])
+                    print(sys.modules[PLUGINS_PACKAGE_NAME].__path__)
                     try:
                         for pkg_path in sys.modules[PLUGINS_PACKAGE_NAME]:
                             importlib.reload(sys.modules[pkg_path])
-                    except TypeError:
-                        pass
+                    except TypeError as e:
+                        print(e)
+                        # print('importing module')
+                        # print(sys.modules[PLUGINS_PACKAGE_NAME].__path__)
 
                 package = importlib.reload(sys.modules[PLUGINS_PACKAGE_NAME])
+                # reload_package(sys.modules[PLUGINS_PACKAGE_NAME])
+                print(sys.modules[PLUGINS_PACKAGE_NAME].__path__)
 
         self._import_errors = []
         self._type_errors = []
@@ -452,7 +428,30 @@ class PluginSiteManager(object):
             f.write('\n'.join(pth_entries))
 
     def load_site(self, target_dir):
-        site.addsitedir(target_dir)
+        # site.addsitedir(target_dir)
+        pass
+
+
+def reload_package(package):
+    assert(hasattr(package, "__package__"))
+    fn = package.__file__
+    fn_dir = os.path.dirname(fn) + os.sep
+    module_visit = {fn}
+    del fn
+
+    def reload_recursive_ex(module):
+        importlib.reload(module)
+        print('reloading module: %s' % module)
+        for module_child in vars(module).values():
+            if isinstance(module_child, types.ModuleType):
+                fn_child = getattr(module_child, "__file__", None)
+                if (fn_child is not None) and fn_child.startswith(fn_dir):
+                    if fn_child not in module_visit:
+                        # print("reloading:", fn_child, "from", module)
+                        module_visit.add(fn_child)
+                        reload_recursive_ex(module_child)
+
+    return reload_recursive_ex(package)
 
 
 def generate_pth_entries(target_dir):

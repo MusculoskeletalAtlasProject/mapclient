@@ -5,7 +5,7 @@ Created on Jun 10, 2015
 """
 from mapclient.core.utils import which
 from mapclient.settings.general import getVirtEnvDirectory
-from mapclient.core.checks import getPySideRccExecutable, getPySideUicExecutable
+from mapclient.core.checks import getPySideRccExecutable
 from mapclient.settings.definitions import SHOW_STEP_NAMES, \
     DONT_CREATE_VIRTUAL_ENV, OPTIONS_SETTINGS_TAG, \
     PYSIDE_RCC_EXE, VIRTUAL_ENV_PATH, GIT_EXE, PREVIOUS_PW_WRITE_STEP_LOCATION, \

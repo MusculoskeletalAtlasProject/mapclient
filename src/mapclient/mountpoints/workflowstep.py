@@ -20,6 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import sys
 from mapclient.core import pluginframework
 
+
 class WorkflowStepPort(object):
     """
     Describes the location and properties of a port for a workflow step.
@@ -242,7 +243,6 @@ def removeWorkflowStep(step_module):
     for key in list(sys.modules.keys()):
         if step_module in key:
             del sys.modules[key]
-
 
     for cls in WorkflowStepMountPoint.plugins[:]:
         if cls and step_module in cls.__module__:

@@ -30,6 +30,7 @@ from mapclient.settings.definitions import MAIN_MODULE
 
 logger = logging.getLogger(__name__)
 
+
 def getPlugins(pluginDirectory):
     """
     Get all plugins from the given directory.
