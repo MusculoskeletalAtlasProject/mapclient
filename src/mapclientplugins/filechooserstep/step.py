@@ -34,7 +34,6 @@ class FileChooserStep(WorkflowStepMountPoint):
         self._config['identifier'] = ''
         self._config['File'] = ''
 
-
     def execute(self):
         """
         Add your code here that will kick off the execution of the step.
