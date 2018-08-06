@@ -18,6 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import logging
+import sys
 
 from functools import wraps
 from PySide import QtCore, QtGui
@@ -25,6 +26,7 @@ from PySide import QtCore, QtGui
 from mapclient.exceptions import ClientRuntimeError
 
 logger = logging.getLogger(__name__)
+
 
 def createDefaultImageIcon(name):
     """
@@ -65,6 +67,7 @@ def createDefaultImageIcon(name):
 
     return image
 
+
 def set_wait_cursor(f):
     """
     Decorator to a gui action method (e.g. methods in QtGui.QWidget) to
@@ -76,10 +79,14 @@ def set_wait_cursor(f):
         try:
             QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
             return f(*a, **kw)
+        except Exception:
+            raise
         finally:
             # Always unset
             QtGui.QApplication.restoreOverrideCursor()
+
     return do_wait_cursor
+
 
 def handle_runtime_error(f):
     """

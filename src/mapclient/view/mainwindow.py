@@ -242,6 +242,7 @@ class MainWindow(QtGui.QMainWindow):
             self.setCurrentUndoRedoStack(self._workflowWidget.undoRedoStack())
         self.model().workflowManager().execute()
 
+    @set_wait_cursor
     def setCurrentWidget(self, widget):
         if self._ui.stackedWidget.indexOf(widget) <= 0:
             self._ui.stackedWidget.addWidget(widget)
