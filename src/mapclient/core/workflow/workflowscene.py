@@ -285,6 +285,7 @@ class WorkflowScene(object):
         self._manager = manager
         self._items = {}
         self._dependencyGraph = WorkflowDependencyGraph(self)
+        self._main_window = None
 
     def saveAnnotation(self, f):
         pass
@@ -406,6 +407,7 @@ class WorkflowScene(object):
             uniqueIdentifier = ws.value('unique_identifier', uuid.uuid1())
 
             step = workflowStepFactory(name, location)
+            step.setMainWindow(self._main_window)
             step.registerIdentifierOccursCount(self.identifierOccursCount)
             metastep = MetaStep(step)
             metastep.setIdentifier(identifier)
@@ -436,6 +438,9 @@ class WorkflowScene(object):
             c = Connection(node1, arc[1], node2, arc[3])
             c._selected = arc[4]
             self.addItem(c)
+
+    def setMainWindow(self, main_window):
+        self._main_window = main_window
 
     def manager(self):
         return self._manager

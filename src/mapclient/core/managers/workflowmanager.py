@@ -19,6 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import os
 import logging
+from pkg_resources import parse_version
 
 from PySide import QtCore, QtGui
 
@@ -330,10 +331,11 @@ def compatibleVersions(workflow_version, application_version):
             'workflow version: %s; application version: %s.' %
                 (workflow_version, application_version)
         )
-    if not application_version[2] <= workflow_version[2]:
+
+    if not parse_version('.'.join(map(str,workflow_version))) <=\
+       parse_version('.'.join(map(str,application_version))):
         raise WorkflowError(
-            'Patch version number of the workflow cannot be newer than '
-            'application - '
+            'Workflow version is newer than MAP Client - '
             'workflow version: %s; application version: %s.' %
                 (workflow_version, application_version)
         )
