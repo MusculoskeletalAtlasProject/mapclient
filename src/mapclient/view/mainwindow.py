@@ -63,6 +63,7 @@ class MainWindow(QtGui.QMainWindow):
         self._ui.stackedWidget.addWidget(self._workflowWidget)
         self.setCurrentUndoRedoStack(self._workflowWidget.undoRedoStack())
 
+        self._model.workflowManager().scene().setMainWindow(self)
         self._pluginManagerDlg = None
 
     def _setupMenus(self):

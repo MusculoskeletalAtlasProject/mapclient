@@ -110,6 +110,7 @@ def _workflow_step_init(self, name, location, parent=None):
     self._parent = parent
     self._name = name
     self._location = location
+    self._main_window = None
     self._category = 'General'
     self._ports = []
     self._icon = None
@@ -134,6 +135,10 @@ def _workflow_step_getPortData(self, index):
 
 def _workflow_step_setPortData(self, index, dataIn):
     pass
+
+
+def _workflow_step_setMainWindow(self, main_window):
+    self._main_window = main_window
 
 
 def _workflow_step_get_source_uri(self):
@@ -211,6 +216,7 @@ attr_dict['setLocation'] = _workflow_step_setLocation
 attr_dict['execute'] = _workflow_step_execute
 attr_dict['getPortData'] = _workflow_step_getPortData
 attr_dict['setPortData'] = _workflow_step_setPortData
+attr_dict['setMainWindow'] = _workflow_step_setMainWindow
 attr_dict['registerDoneExecution'] = _workflow_step_registerDoneExecution
 attr_dict['registerOnExecuteEntry'] = _workflow_step_registerOnExecuteEntry
 attr_dict['configure'] = _workflow_step_configure

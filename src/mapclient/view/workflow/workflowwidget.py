@@ -60,6 +60,7 @@ class WorkflowWidget(QtGui.QWidget):
         self._workflowManager = self._mainWindow.model().workflowManager()
         self._graphicsScene = WorkflowGraphicsScene(self)
         self._ui.graphicsView.setScene(self._graphicsScene)
+        self._ui.graphicsView.setMainWindow(mainWindow)
 
         self._ui.graphicsView.setUndoStack(self._undoStack)
         self._graphicsScene.setUndoStack(self._undoStack)

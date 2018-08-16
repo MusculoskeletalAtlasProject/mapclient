@@ -42,6 +42,8 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
         self._errorIconTimer.timeout.connect(self._errorIconTimeout)
         self._errorIcon = None
 
+        self._main_window = None
+
         self._undoStack = None
         self._location = ''
         self._showStepNames = True
@@ -70,6 +72,9 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
 
     def setLocation(self, location):
         self._location = location
+
+    def setMainWindow(self, main_window):
+        self._main_window = main_window
 
     def showStepNames(self, show):
         self._showStepNames = show
@@ -200,7 +205,9 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
 
             scene = self.scene()
             position = self.mapToScene(event.pos() - hotspot)
-            metastep = MetaStep(workflowStepFactory(name, self._location))
+            step = workflowStepFactory(name, self._location)
+            step.setMainWindow(self._main_window)
+            metastep = MetaStep(step)
             node = Node(metastep)
             node.showStepName(self._showStepNames)
             metastep._step.registerConfiguredObserver(scene.stepConfigured)
