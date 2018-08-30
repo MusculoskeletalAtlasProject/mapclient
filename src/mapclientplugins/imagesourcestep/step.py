@@ -18,6 +18,8 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import os
+import re
+import imghdr
 
 from PySide import QtGui
 
@@ -26,6 +28,20 @@ from mapclientplugins.imagesourcestep.widgets.configuredialog import ConfigureDi
 
 from mapclient.tools.pmr.pmrtool import PMRTool
 from mapclient.tools.pmr.settings.general import PMR
+
+
+def try_int(s):
+    try:
+        return int(s)
+    except ValueError:
+        return s
+
+
+def alphanum_key(s):
+    """ Turn a string into a list of string and number chunks.
+        "z23a" -> ["z", 23, "a"]
+    """
+    return [try_int(c) for c in re.split('([0-9]+)', s)]
 
 
 class ImageSourceData(object):
@@ -47,7 +63,21 @@ class ImageSourceData(object):
         """
         return self._location
 
-    def imageType(self):
+    def image_files(self):
+        images = []
+        location = self._location
+        if os.path.isdir(location):
+            for item in sorted(os.listdir(location), key=alphanum_key):
+                image_candidate = os.path.join(location, item)
+                if imghdr.what(image_candidate):
+                    images.append(image_candidate)
+        elif os.path.exists(location):
+            if imghdr.what(location):
+                images.append(location)
+
+        return images
+
+    def image_type(self):
         return self._image_type
 
 
@@ -112,4 +142,6 @@ class ImageSourceStep(WorkflowStepMountPoint):
         self._configured = d.validate()
 
     def getPortData(self, index):
-        return ImageSourceData(self._state.identifier(), os.path.join(self._location, self._state.location()), self._state.imageType())
+        return ImageSourceData(self._state.identifier(),
+                               os.path.join(self._location, self._state.location()),
+                               self._state.imageType())

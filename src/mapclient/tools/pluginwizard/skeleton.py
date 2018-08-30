@@ -73,18 +73,17 @@ class Skeleton(object):
         Write the setup file, for integration with setuptools.
         """
         target_file = os.path.join(target_dir, 'setup.py')
-        f = open(target_file, 'w')
-        f.write(SETUP_PY_TEMPLATE % dict(
-            version='0.1.0',
-            description='',
-            name=self._options.getFullPackageName(),
-            author=self._options.getAuthorName(),
-            author_email='',
-            url='',
-            license='APACHE',
-            namespace_packages=[PLUGIN_NAMESPACE],
-        ))
-        f.close()
+        with  open(target_file, 'w') as f:
+            f.write(SETUP_PY_TEMPLATE % dict(
+                version='0.1.0',
+                description='',
+                name=self._options.getFullPackageName(),
+                author=self._options.getAuthorName(),
+                author_email='',
+                url='',
+                license='APACHE',
+                namespace_packages=[PLUGIN_NAMESPACE],
+            ))
 
         readme_file = os.path.join(target_dir, 'README.rst')
         requirements_file = os.path.join(target_dir, 'requirements.txt')
@@ -228,7 +227,7 @@ class Skeleton(object):
     def _generateConfigureMethod(self):
         method_string = CONFIGURE_METHOD_STRING
         if self._options.configCount() > 0:
-            method_string += """        dlg = ConfigureDialog()
+            method_string += """        dlg = ConfigureDialog(self._main_window)
         dlg.identifierOccursCount = self._identifierOccursCount
         dlg.setConfig(self._config)
         dlg.validate()
@@ -253,7 +252,6 @@ class Skeleton(object):
             qtgui_import = 'from PySide import QtGui\n\n'
         if self._options.configCount() > 0:
             json_import = 'import json\n\n'
-
 
         import_string = IMPORT_STRING.format(json_import=json_import, qtgui_import=qtgui_import)
         import_string += 'from mapclientplugins.{package_name}.configuredialog import ConfigureDialog\n'.format(package_name=self._options.getPackageName())
@@ -309,17 +307,16 @@ class Skeleton(object):
             serialize_method_string = SERIALIZE_METHOD_STRING.format(serializecontent=SERIALIZE_DEFAULT_CONTENT_STRING, deserializecontent=DESERIALIZE_DEFAULT_CONTENT_STRING)
 
         step_file = os.path.join(step_dir, 'step.py')
-        f = open(step_file, 'w')
-        f.write(self._generateImportStatements())
-        f.write(CLASS_STRING.format(step_object_name=object_name, step_name=self._options.getName()))
-        f.write(init_string)
-        f.write(self._generateExecuteMethod())
-        f.write(self._generateSetPortDataMethod(ports))
-        f.write(self._generateGetPortDataMethod(ports))
-        f.write(self._generateConfigureMethod())
-        f.write(id_method_string)
-        f.write(serialize_method_string)
-        f.close()
+        with open(step_file, 'w') as f:
+            f.write(self._generateImportStatements())
+            f.write(CLASS_STRING.format(step_object_name=object_name, step_name=self._options.getName()))
+            f.write(init_string)
+            f.write(self._generateExecuteMethod())
+            f.write(self._generateSetPortDataMethod(ports))
+            f.write(self._generateGetPortDataMethod(ports))
+            f.write(self._generateConfigureMethod())
+            f.write(id_method_string)
+            f.write(serialize_method_string)
 
     def _writeStepPackageInit(self, init_dir):
         """
@@ -432,21 +429,22 @@ class Skeleton(object):
             with open(ui_file, 'w') as fui:
                 fui.write(CONFIGURE_DIALOG_UI.format(widgets_string))
 
-            pysideuic.compileUi(ui_file, os.path.join(step_dir, PYTHON_QT_CONFDIALOG_UI_FILENAME), from_imports=True)
+            py_file = os.path.join(step_dir, PYTHON_QT_CONFDIALOG_UI_FILENAME)
+            with open(py_file, 'w') as f:
+                pysideuic.compileUi(ui_file, f, from_imports=True)
 
             dialog_file = os.path.join(step_dir, CONFIG_DIALOG_FILE)
-            f = open(dialog_file, 'w')
-            f.write(CONFIGURE_DIALOG_STRING.format(package_name=self._options.getFullPackageName()))
-            if self._options.hasIdentifierConfig():
-                f.write(CONFIGURE_DIALOG_INIT_ADDITIONS)
-                f.write(CONFIGURE_DIALOG_MAKE_CONNECTIONS_METHOD)
-                f.write(CONFIGURE_DIALOG_ACCEPT_METHOD)
-                f.write(CONFIGURE_DIALOG_IDENTIFIER_VALIDATE_METHOD)
-            else:
-                f.write(CONFIGURE_DIALOG_DEFAULT_VALIDATE_METHOD)
-            f.write(get_config_string)
-            f.write(set_config_string)
-            f.close()
+            with open(dialog_file, 'w') as f:
+                f.write(CONFIGURE_DIALOG_STRING.format(package_name=self._options.getFullPackageName()))
+                if self._options.hasIdentifierConfig():
+                    f.write(CONFIGURE_DIALOG_INIT_ADDITIONS)
+                    f.write(CONFIGURE_DIALOG_MAKE_CONNECTIONS_METHOD)
+                    f.write(CONFIGURE_DIALOG_ACCEPT_METHOD)
+                    f.write(CONFIGURE_DIALOG_IDENTIFIER_VALIDATE_METHOD)
+                else:
+                    f.write(CONFIGURE_DIALOG_DEFAULT_VALIDATE_METHOD)
+                f.write(get_config_string)
+                f.write(set_config_string)
 
     def getPackageDirectory(self):
         out_dir = self._options.getOutputDirectory()
