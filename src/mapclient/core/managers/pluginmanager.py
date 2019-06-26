@@ -22,7 +22,7 @@ from mapclient.core.checks import getPipExecutable, getActivateScript
 
 from importlib import import_module
 
-from mapclient.settings.general import getVirtualEnvSitePackagesDirectory
+from mapclient.settings.general import get_virtualenv_site_packages_directory
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +127,7 @@ class PluginManager(object):
 
                 # Make a plugins directory with a namespace package file in it.  This is to avoid problems
                 # with other packages using namespace packages in Python 3.
-                site_packages_dir = getVirtualEnvSitePackagesDirectory(self._virtualenv_dir)
+                site_packages_dir = get_virtualenv_site_packages_directory(self._virtualenv_dir)
                 os.makedirs(os.path.join(site_packages_dir, PLUGINS_PACKAGE_NAME))
                 with open(os.path.join(site_packages_dir, PLUGINS_PACKAGE_NAME, '__init__.py'), 'w') as f:
                     f.write("from pkgutil import extend_path\n__path__ = extend_path(__path__, __name__)\n")

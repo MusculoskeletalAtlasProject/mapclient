@@ -5,10 +5,10 @@ Created on Aug 18, 2015
 """
 import sys
 
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtWidgets, QtGui
 
 
-class HeaderDelegate(QtGui.QStyledItemDelegate):
+class HeaderDelegate(QtWidgets.QStyledItemDelegate):
 
     def __init__(self, parent=None):
         super(HeaderDelegate, self).__init__(parent)
@@ -27,7 +27,7 @@ class HeaderDelegate(QtGui.QStyledItemDelegate):
             painter.setBrush(QtGui.QBrush(QtCore.Qt.lightGray))
             painter.drawRoundedRect(rx + 1, ry + 1, wd - 2, ht - 2, 7, 7, QtCore.Qt.RelativeSize)
 
-            if option.state & QtGui.QStyle.State_Open:
+            if option.state & QtWidgets.QStyle.State_Open:
                 required_arrow = self._arrow_down
             else:
                 required_arrow = self._arrow_right
@@ -38,7 +38,7 @@ class HeaderDelegate(QtGui.QStyledItemDelegate):
             super(HeaderDelegate, self).paint(painter, option, index)
 
 
-class WorkflowStepTreeView(QtGui.QTreeView):
+class WorkflowStepTreeView(QtWidgets.QTreeView):
 
     def __init__(self, parent=None):
         super(WorkflowStepTreeView, self).__init__(parent)
@@ -61,7 +61,7 @@ class WorkflowStepTreeView(QtGui.QTreeView):
         self.model().setFilterRegExp(reg_exp)
 
     def _handleMousePress(self, index):
-        self._leftMouseButton = int(QtGui.QApplication.mouseButtons()) == QtCore.Qt.LeftButton
+        self._leftMouseButton = int(QtWidgets.QApplication.mouseButtons()) == QtCore.Qt.LeftButton
         if index.parent().isValid() and self._leftMouseButton:
             itemData = QtCore.QByteArray()
             dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
@@ -105,5 +105,3 @@ class WorkflowStepTreeView(QtGui.QTreeView):
 
         if not index.parent().isValid():
             self.setExpanded(index, not self.isExpanded(index))
-
-

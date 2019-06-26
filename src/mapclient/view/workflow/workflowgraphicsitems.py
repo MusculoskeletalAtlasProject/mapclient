@@ -19,22 +19,22 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import os, math, weakref
 
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtWidgets
 
 from mapclient.core.workflow.workflowscene import Connection
 from mapclient.tools.annotation.annotationdialog import AnnotationDialog
 from mapclient.tools.pmr.pmrdvcshelper import repositoryIsUpToDate
 
 
-class ErrorItem(QtGui.QGraphicsItem):
+class ErrorItem(QtWidgets.QGraphicsItem):
 
     def __init__(self, sourceNode, destNode):
-        QtGui.QGraphicsItem.__init__(self)
+        QtWidgets.QGraphicsItem.__init__(self)
         self._source = weakref.ref(sourceNode)
         self._dest = weakref.ref(destNode)
         self._sourcePoint = QtCore.QPointF()
         self._destPoint = QtCore.QPointF()
-        self._pixmap = QtGui.QPixmap(':/workflow/images/cancel_256.png').scaled(16, 16, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        self._pixmap = QtWidgets.QPixmap(':/workflow/images/cancel_256.png').scaled(16, 16, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
         self._source().addArc(self)
         self._dest().addArc(self)
         self.setZValue(-1.5)
@@ -75,24 +75,24 @@ class ErrorItem(QtGui.QGraphicsItem):
         if line.length() == 0.0:
             return
 
-        painter.setPen(QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.DashLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
+        painter.setPen(QtWidgets.QPen(QtCore.Qt.black, 1, QtCore.Qt.DashLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
         painter.drawLine(line)
 
         painter.drawPixmap(midPoint.x() - 8, midPoint.y() - 8, self._pixmap)
 
 
-class Item(QtGui.QGraphicsItem):
+class Item(QtWidgets.QGraphicsItem):
     """
     Class to contain the selection information that selectable scene items can be derived from.
     """
 
     def __init__(self):
-        QtGui.QGraphicsItem.__init__(self)
+        QtWidgets.QGraphicsItem.__init__(self)
 
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
+        self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable)
 
     def setSelected(self, selected):
-        QtGui.QGraphicsItem.setSelected(self, selected)
+        QtWidgets.QGraphicsItem.setSelected(self, selected)
         self.scene().workflowScene().setItemSelected(self.metaItem(), selected)
 
 
@@ -103,13 +103,13 @@ class Arc(Item):
     Pi = math.pi
     TwoPi = 2.0 * Pi
 
-    Type = QtGui.QGraphicsItem.UserType + 2
+    Type = QtWidgets.QGraphicsItem.UserType + 2
 
     def __init__(self, sourceNode, destNode):
         Item.__init__(self)
 
         self._arrowSize = 10.0
-        self._arrow = QtGui.QPolygonF()
+        self._arrow = QtWidgets.QPolygonF()
 
         self._connection = Connection(sourceNode.parentItem()._metastep, sourceNode.portIndex(), destNode.parentItem()._metastep, destNode.portIndex())
         self._connection.setSelected(False)
@@ -154,7 +154,7 @@ class Arc(Item):
         self._destPoint = line.p2() - arcOffset
 
     def shape(self):
-        path = QtGui.QPainterPath()
+        path = QtWidgets.QPainterPath()
         path.addPolygon(self._arrow)
         return path
 
@@ -166,8 +166,9 @@ class Arc(Item):
         extra = (penWidth + self._arrowSize) / 2.0
 
         sceneRect = QtCore.QRectF(self._sourcePoint,
-                         QtCore.QSizeF(self._destPoint.x() - self._sourcePoint.x(),
-                                       self._destPoint.y() - self._sourcePoint.y())).normalized().adjusted(-extra, -extra, extra, extra)
+                                  QtCore.QSizeF(self._destPoint.x() - self._sourcePoint.x(),
+                                                self._destPoint.y() - self._sourcePoint.y()))\
+            .normalized().adjusted(-extra, -extra, extra, extra)
 
         return sceneRect
 
@@ -181,8 +182,8 @@ class Arc(Item):
         if line.length() == 0.0:
             return
 
-        brush = QtGui.QBrush(QtCore.Qt.black)
-        if option.state & QtGui.QStyle.State_Selected:  # or self.selected:
+        brush = QtWidgets.QBrush(QtCore.Qt.black)
+        if option.state & QtWidgets.QStyle.State_Selected:  # or self.selected:
             painter.setBrush(QtCore.Qt.darkGray)
             painter.drawRoundedRect(self.boundingRect(), 5, 5)
 #            brush = QtGui.QBrush(QtCore.Qt.red)
@@ -208,7 +209,7 @@ class Arc(Item):
             self._arrow.append(destArrowP2)
             painter.drawPolygon(self._arrow)
 
-        painter.setPen(QtGui.QPen(brush, 1, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
+        painter.setPen(QtWidgets.QPen(brush, 1, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
         # painter.setPen(QtGui.QPen(QtCore.Qt.SolidLine))
         painter.drawLine(line)
 
@@ -217,7 +218,7 @@ class Node(Item):
     """
     This class is a graphical representation of the step on the canvas or in the step box.
     """
-    Type = QtGui.QGraphicsItem.UserType + 1
+    Type = QtWidgets.QGraphicsItem.UserType + 1
     Size = 64
 
     def __init__(self, metastep):
@@ -226,9 +227,11 @@ class Node(Item):
         self._metastep = metastep
         icon = self._metastep._step._icon
         if not icon:
-            icon = QtGui.QImage(':/workflow/images/default_step_icon.png')
+            icon = QtWidgets.QImage(':/workflow/images/default_step_icon.png')
 
-        self._pixmap = QtGui.QPixmap.fromImage(icon).scaled(self.Size, self.Size, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        self._pixmap = QtWidgets.QPixmap.fromImage(icon)\
+            .scaled(self.Size, self.Size, aspectRatioMode=QtCore.Qt.KeepAspectRatio,
+                    transformMode=QtCore.Qt.FastTransformation)
 
         self._step_port_items = []
         self._text = StepText(metastep._step.getName(), self)
@@ -236,18 +239,18 @@ class Node(Item):
 
         self._setToolTip()
 
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
-        self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
+        self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable)
+        self.setFlag(QtWidgets.QGraphicsItem.ItemSendsGeometryChanges)
         self.setCacheMode(self.DeviceCoordinateCache)
         self.setZValue(-1)
 
-        self._contextMenu = QtGui.QMenu()
-        configureAction = QtGui.QAction('Configure', self._contextMenu)
+        self._contextMenu = QtWidgets.QMenu()
+        configureAction = QtWidgets.QAction('Configure', self._contextMenu)
         configureAction.triggered.connect(self.configureMe)
-        annotateAction = QtGui.QAction('Annotate', self._contextMenu)
+        annotateAction = QtWidgets.QAction('Annotate', self._contextMenu)
         annotateAction.setEnabled(False)
         annotateAction.triggered.connect(self.annotateMe)
-        deleteAction = QtGui.QAction('Delete', self._contextMenu)
+        deleteAction = QtWidgets.QAction('Delete', self._contextMenu)
         deleteAction.triggered.connect(self._removeMe)
         self._contextMenu.addAction(configureAction)
         self._contextMenu.addAction(annotateAction)
@@ -350,9 +353,8 @@ class Node(Item):
         else:
             self._modified_item.hide()
 
-
     def setPos(self, pos):
-        QtGui.QGraphicsItem.setPos(self, pos)
+        QtWidgets.QGraphicsItem.setPos(self, pos)
         self.scene().workflowScene().setItemPos(self._metastep, pos)
 
     def type(self):
@@ -398,7 +400,7 @@ class Node(Item):
                              self._pixmap.height() + 2 * adjust)
 
     def paint(self, painter, option, widget):
-        if option.state & QtGui.QStyle.State_Selected:  # or self.selected:
+        if option.state & QtWidgets.QStyle.State_Selected:  # or self.selected:
             painter.setBrush(QtCore.Qt.darkGray)
             painter.drawRoundedRect(self.boundingRect(), 5, 5)
 
@@ -408,13 +410,13 @@ class Node(Item):
 #                painter.drawPixmap(40, 40, self._configure_red)
 
     def itemChange(self, change, value):
-        if change == QtGui.QGraphicsItem.ItemPositionChange and self.scene():
+        if change == QtWidgets.QGraphicsItem.ItemPositionChange and self.scene():
             return self.scene().ensureItemInScene(self, value)
-        elif change == QtGui.QGraphicsItem.ItemPositionHasChanged:
+        elif change == QtWidgets.QGraphicsItem.ItemPositionHasChanged:
             for port_item in self._step_port_items:
                 port_item.itemChange(change, value)
 
-        return QtGui.QGraphicsItem.itemChange(self, change, value)
+        return QtWidgets.QGraphicsItem.itemChange(self, change, value)
 
     def showContextMenu(self, pos):
         has_dir = os.path.exists(self._getStepLocation())
@@ -425,16 +427,17 @@ class Node(Item):
         return os.path.join(self._metastep._step._location, self._metastep._step.getIdentifier())
 
 
-class StepPort(QtGui.QGraphicsEllipseItem):
+class StepPort(QtWidgets.QGraphicsEllipseItem):
 
-    Type = QtGui.QGraphicsItem.UserType + 3
+    Type = QtWidgets.QGraphicsItem.UserType + 3
 
     def __init__(self, port, parent):
         super(StepPort, self).__init__(0, 0, 11, 11, parent=parent)
         self.setBrush(QtCore.Qt.black)
         self._port = port
         self._connections = []
-        self._pixmap = QtGui.QPixmap(':/workflow/images/icon-port.png')  # .scaled(11, 11, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        self._pixmap = QtWidgets.QPixmap(':/workflow/images/icon-port.png')
+        # .scaled(11, 11, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
 
     def paint(self, painter, option, widget):
         painter.drawPixmap(0, 0, self._pixmap)
@@ -491,17 +494,17 @@ class StepPort(QtGui.QGraphicsEllipseItem):
         self._connections = [weakarc for weakarc in self._connections if weakarc() != arc]
 
     def itemChange(self, change, value):
-        if change == QtGui.QGraphicsItem.ItemPositionHasChanged:
+        if change == QtWidgets.QGraphicsItem.ItemPositionHasChanged:
             self._removeDeadwood()
             for arc in self._connections:
                 arc().adjust()
 
-        return QtGui.QGraphicsItem.itemChange(self, change, value)
+        return QtWidgets.QGraphicsItem.itemChange(self, change, value)
 
 
-class StepText(QtGui.QGraphicsSimpleTextItem):
+class StepText(QtWidgets.QGraphicsSimpleTextItem):
 
-    Type = QtGui.QGraphicsItem.UserType + 4
+    Type = QtWidgets.QGraphicsItem.UserType + 4
 
     def boundingRect(self):
         br = super(StepText, self).boundingRect()
@@ -516,11 +519,12 @@ class StepText(QtGui.QGraphicsSimpleTextItem):
         super(StepText, self).paint(painter, option, widget)
 
 
-class MercurialIcon(QtGui.QGraphicsItem):
+class MercurialIcon(QtWidgets.QGraphicsItem):
 
     def __init__(self, *args, **kwargs):
         super(MercurialIcon, self).__init__(*args, **kwargs)
-        self._hg_yellow = QtGui.QPixmap(':/workflow/images/modified_repo.png').scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        self._hg_yellow = QtWidgets.QPixmap(':/workflow/images/modified_repo.png')\
+            .scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
         self.setToolTip('The repository has been modified')
 
     def paint(self, painter, option, widget):
@@ -537,13 +541,13 @@ class MercurialIcon(QtGui.QGraphicsItem):
             self.parentItem().commitMe()
 
 
-class ConfigureIcon(QtGui.QGraphicsItem):
+class ConfigureIcon(QtWidgets.QGraphicsItem):
 
     def __init__(self, *args, **kwargs):
         super(ConfigureIcon, self).__init__(*args, **kwargs)
         self._configured = False
-        self._configure_green = QtGui.QPixmap(':/workflow/images/configure_green.png').scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
-        self._configure_red = QtGui.QPixmap(':/workflow/images/configure_red.png').scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        self._configure_green = QtWidgets.QPixmap(':/workflow/images/configure_green.png').scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        self._configure_red = QtWidgets.QPixmap(':/workflow/images/configure_red.png').scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
         self.setToolTip('Configure the step')
 
     def setConfigured(self, state):
@@ -567,8 +571,7 @@ class ConfigureIcon(QtGui.QGraphicsItem):
             self.parentItem().configureMe()
 
 
-class ArrowLine(QtGui.QGraphicsLineItem):
-
+class ArrowLine(QtWidgets.QGraphicsLineItem):
 
     def __init__(self, *args, **kwargs):
         super(ArrowLine, self).__init__(*args, **kwargs)
@@ -576,7 +579,6 @@ class ArrowLine(QtGui.QGraphicsLineItem):
         self.setZValue(-2.0)
 
     def boundingRect(self):
-
         penWidth = 1
         extra = (penWidth + self._arrowSize) / 2.0
         line = self.line()
@@ -606,4 +608,4 @@ class ArrowLine(QtGui.QGraphicsLineItem):
 
             painter.setBrush(QtCore.Qt.black)
 #        painter.drawPolygon(QtGui.QPolygonF([line.p1(), sourceArrowP1, sourceArrowP2]))
-            painter.drawPolygon(QtGui.QPolygonF([midPoint, destArrowP1, destArrowP2]))
+            painter.drawPolygon(QtWidgets.QPolygonF([midPoint, destArrowP1, destArrowP2]))

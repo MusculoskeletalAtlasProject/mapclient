@@ -21,7 +21,7 @@ import sys
 import math
 import logging
 
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtWidgets, QtGui
 
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflow.workflowscene import MetaStep
@@ -31,10 +31,10 @@ from mapclient.view.workflow.workflowgraphicsitems import Node, Arc, ErrorItem, 
 logger = logging.getLogger()
 
 
-class WorkflowGraphicsView(QtGui.QGraphicsView):
+class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
     def __init__(self, parent=None):
-        QtGui.QGraphicsView.__init__(self, parent)
+        QtWidgets.QGraphicsView.__init__(self, parent)
         self._selectedNodes = []
         self._errorIconTimer = QtCore.QTimer()
         self._errorIconTimer.setInterval(2000)
@@ -53,7 +53,7 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
 
         self._selectionStartPos = None
 
-        self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
+        self.setCacheMode(QtWidgets.QGraphicsView.CacheBackground)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
 
         grid_pic = QtGui.QPixmap(':/workflow/images/grid.png')
@@ -136,7 +136,7 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
                                          self.mapToScene(event.pos())))
             self.scene().addItem(self._connectLine)
         else:
-            QtGui.QGraphicsView.mousePressEvent(self, event)
+            QtWidgets.QGraphicsView.mousePressEvent(self, event)
             self._selectionStartPos = event.pos()
 
     def mouseMoveEvent(self, event):
@@ -144,7 +144,7 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
             newLine = QtCore.QLineF(self._connectLine.line().p1(), self.mapToScene(event.pos()))
             self._connectLine.setLine(newLine)
         else:
-            QtGui.QGraphicsView.mouseMoveEvent(self, event)
+            QtWidgets.QGraphicsView.mouseMoveEvent(self, event)
 
     def mouseReleaseEvent(self, event):
         if self._connectLine:
@@ -155,7 +155,7 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
             self._connectLine = None
             self._connectSourceNode = None
         else:
-            QtGui.QGraphicsView.mouseReleaseEvent(self, event)
+            QtWidgets.QGraphicsView.mouseReleaseEvent(self, event)
             if self._selectionStartPos:
                 diff = event.pos() - self._selectionStartPos
                 if diff.x() != 0 and diff.y() != 0:
@@ -188,32 +188,32 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
 
     def dropEvent(self, event):
         if event.mimeData().hasFormat("image/x-workflow-step"):
-            pieceData = event.mimeData().data("image/x-workflow-step")
-            stream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
-            hotspot = QtCore.QPoint()
+            piece_data = event.mimeData().data("image/x-workflow-step")
+            stream = QtCore.QDataStream(piece_data, QtCore.QIODevice.ReadOnly)
+            hot_spot = QtCore.QPoint()
 
-            nameLen = stream.readUInt32()
+            name_len = stream.readUInt32()
             # name = stream.readRawData(nameLen).decode('utf-8')
             if sys.version_info < (3, 0):
-                name = stream.readRawData(nameLen).decode('utf-8')
+                name = stream.readRawData(name_len).decode('utf-8')
             else:
                 buf = QtCore.QByteArray()
                 stream >> buf
                 name = '{0}'.format(buf)
 
-            stream >> hotspot
+            stream >> hot_spot
 
             scene = self.scene()
-            position = self.mapToScene(event.pos() - hotspot)
+            position = self.mapToScene(event.pos() - hot_spot)
             step = workflowStepFactory(name, self._location)
             step.setMainWindow(self._main_window)
-            metastep = MetaStep(step)
-            node = Node(metastep)
+            meta_step = MetaStep(step)
+            node = Node(meta_step)
             node.showStepName(self._showStepNames)
-            metastep._step.registerConfiguredObserver(scene.stepConfigured)
-            metastep._step.registerDoneExecution(scene.doneExecution)
-            metastep._step.registerOnExecuteEntry(scene.setCurrentWidget)
-            metastep._step.registerIdentifierOccursCount(scene.identifierOccursCount)
+            meta_step._step.registerConfiguredObserver(scene.stepConfigured)
+            meta_step._step.registerDoneExecution(scene.doneExecution)
+            meta_step._step.registerOnExecuteEntry(scene.set_current_widget)
+            meta_step._step.registerIdentifierOccursCount(scene.identifierOccursCount)
 
             self._undoStack.beginMacro('Add node')
             self._undoStack.push(CommandAdd(scene, node))
@@ -247,7 +247,7 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
             event.ignore()
 
     def resizeEvent(self, event):
-        QtGui.QGraphicsView.resizeEvent(self, event)
+        QtWidgets.QGraphicsView.resizeEvent(self, event)
         scene = self.scene()
         event_size = event.size()
         view_rect = QtCore.QRectF(0, 0, event_size.width(), event_size.height())
@@ -267,7 +267,7 @@ class WorkflowGraphicsView(QtGui.QGraphicsView):
             return
 
         transformation_anchor = self.transformationAnchor()
-        self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
+        self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
         self.scale(scaleFactor, scaleFactor)
         self.setTransformationAnchor(transformation_anchor)
 

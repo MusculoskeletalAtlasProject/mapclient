@@ -22,7 +22,7 @@ from dateutil.parser import parse
 from PySide.QtGui import QDialog, QTableWidgetItem, QLabel
 
 from mapclient.view.dialogs.log.ui.ui_loginformation import Ui_LogInformation
-from mapclient.settings.general import getLogLocation
+from mapclient.settings.general import get_log_location
 
 
 class LogInformation(QDialog):
@@ -30,7 +30,7 @@ class LogInformation(QDialog):
     Log record dialog to present the user with the log information recorded by the program.
     """
 
-    current_log_file = getLogLocation()
+    current_log_file = get_log_location()
 
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
@@ -40,7 +40,7 @@ class LogInformation(QDialog):
         self._makeConnections()
 
     def fillTable(self, parent=None):
-        logs = self.loadSession(getLogLocation())
+        logs = self.loadSession(get_log_location())
         self.updateTable(logs)
 
     def _makeConnections(self):

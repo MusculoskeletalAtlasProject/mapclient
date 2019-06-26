@@ -22,7 +22,7 @@ import re
 import sys
 
 from mapclient.settings.definitions import PLUGINS_PACKAGE_NAME
-from mapclient.settings.general import getConfigurationFile
+from mapclient.settings.general import get_configuration_file
 
 
 def is_frozen():
@@ -126,7 +126,7 @@ def which(cmd, mode=os.F_OK | os.X_OK, path=None):
 
 
 def loadConfiguration(location, identifier):
-    filename = getConfigurationFile(location, identifier)
+    filename = get_configuration_file(location, identifier)
     configuration = '{}'
     try:
         with open(filename) as f:

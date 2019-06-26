@@ -18,7 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import os, sys, logging, subprocess, py_compile, string
-from mapclient.settings.general import getLogDirectory
+from mapclient.settings.general import get_log_directory
 
 logger = logging.getLogger(__name__)
 
@@ -147,7 +147,7 @@ class PluginUpdater:
     def updateSyntax(self, plugin, directory):
         # find 2to3 for the system
         dir_2to3 = self.get2to3Dir()
-        with open(os.path.join(getLogDirectory(), 'syntax_update_report_' + plugin + '.log'), 'w') as file_out:
+        with open(os.path.join(get_log_directory(), 'syntax_update_report_' + plugin + '.log'), 'w') as file_out:
             try:
                 subprocess.check_call(['python', dir_2to3, '--output-dir=' + directory, '-W', '-v', '-n', '-w', directory], stdout = file_out, stderr = file_out)
                 logger.info('Syntax update for \'' + plugin + '\' successful.')

@@ -18,17 +18,16 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import logging
-import sys
 
 from functools import wraps
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtGui, QtWidgets
 
 from mapclient.exceptions import ClientRuntimeError
 
 logger = logging.getLogger(__name__)
 
 
-def createDefaultImageIcon(name):
+def create_default_image_icon(name):
     """
     The default image size is 512x512
     """
@@ -40,8 +39,8 @@ def createDefaultImageIcon(name):
         text_height = 0.2 * image.size().height()
         text_padding = 0.05 * image.size().height()
         rect = p.fontMetrics().boundingRect(0, 0, text_width, 0,
-                                             QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter | QtCore.Qt.TextWordWrap,
-                                             name)
+                                            QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter | QtCore.Qt.TextWordWrap,
+                                            name)
         factor = text_height / rect.height()
         f = p.font();
         f.setPointSizeF(f.pointSizeF() * factor)
@@ -49,8 +48,8 @@ def createDefaultImageIcon(name):
 
         # Updated text rect
         rect = p.fontMetrics().boundingRect(0, 0, text_width, 0,
-                                             QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter | QtCore.Qt.TextWordWrap,
-                                             name)
+                                            QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter | QtCore.Qt.TextWordWrap,
+                                            name)
         # Draw the text with a background rectangle
         pen = QtGui.QPen()
         pen.setWidth(11)
@@ -77,13 +76,13 @@ def set_wait_cursor(f):
     @wraps(f)
     def do_wait_cursor(*a, **kw):
         try:
-            QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
             return f(*a, **kw)
         except Exception:
             raise
         finally:
             # Always unset
-            QtGui.QApplication.restoreOverrideCursor()
+            QtWidgets.QApplication.restoreOverrideCursor()
 
     return do_wait_cursor
 

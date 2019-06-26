@@ -18,9 +18,9 @@ The commands for these two methods of generating the documentation are given her
   # Method 2.
   sphinx-build -t html docs build
 
-note:
+Note:
 
- - This assumes your current working directory is the parent of the 'docs' directory
- - If a directory 'build' doesn't exist in the current directory it will be created
+- This assumes your current working directory is the parent of the 'docs' directory
+- If a directory 'build' doesn't exist in the current directory it will be created
 
 That's it!  Now you can use your favourite webbrowser to read the documentation.  The 'index.html' file for method 1. is located in 'build/html' and for method 2. it is available in 'build'.

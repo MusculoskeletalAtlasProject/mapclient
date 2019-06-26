@@ -6,7 +6,7 @@ Contributing Code
 
 This section describes how a developer can contribute code to the MAP Client project.  Before reading this section make sure you have read through :doc:`Setup <MAP-development-setup>` as some of what follows may not make sense without this prior context.
 
-.. contents:
+.. contents::
 
 Overview
 ========
@@ -20,8 +20,6 @@ Make use of Buildbot to test your changes, any changes (i.e. new commits) to an 
 When the changes you have completed resolves the issue a reviewer will give your work a final review before merging into the **prime** codebase. 
 
 Fixing a bug follows a similar path the only difference being that we need to write a test that triggers the bug in question.
-
-Finally check out :doc:`Git Submodules <MAP-development-submodules>` for help on working with git submodules. 
 
 Take Ownership
 ==============

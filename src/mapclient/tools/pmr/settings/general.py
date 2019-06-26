@@ -18,7 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 
-from PySide import QtCore
+from PySide2 import QtCore
 
 # Credentials follows:
 #
@@ -41,7 +41,6 @@ class PMR(object):
     DEFAULT_PMR_IPADDRESS = 'http://teaching.physiomeproject.org'
     DEFAULT_CONSUMER_PUBLIC_TOKEN = 'OP8AKmDIlH7OkHaPWNbnb-zf'
     DEFAULT_CONSUMER_SECRET_TOKEN = 'QQcKMnyCjjb7JNDHA-Lwdu7p'
-    
 
     def __init__(self):
         self._instances = {}

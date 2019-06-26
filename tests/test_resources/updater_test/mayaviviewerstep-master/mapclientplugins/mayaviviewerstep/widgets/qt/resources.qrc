@@ -1,5 +1,0 @@
-<RCC>
-  <qresource prefix="/zincmodelsource/" >
-    <file>images/zinc_model_icon.png</file>
-  </qresource>
-</RCC>

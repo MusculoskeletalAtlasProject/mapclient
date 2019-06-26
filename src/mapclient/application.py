@@ -18,20 +18,15 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from __future__ import absolute_import
 import os
+import sys
 import ctypes
 import argparse
 
-import sys, locale
+import locale
+
 import logging
 from logging import handlers
-
-# import matplotlib
-
-# Set toolbox settings here
-# matplotlib.use('Qt4Agg')
-# matplotlib.rcParams['backend.qt4']='PySide'
 
 os.environ['ETS_TOOLKIT'] = 'qt4'
 # With PEP366 we need to conditionally import the settings module based on
@@ -39,38 +34,40 @@ os.environ['ETS_TOOLKIT'] = 'qt4'
 # workaround.
 if __package__:
     from .settings import info
-    from .settings.general import getLogLocation
+    from .settings.general import get_log_location
 else:
     from mapclient.settings import info
-    from mapclient.settings.general import getLogLocation
+    from mapclient.settings.general import get_log_location
 
 logger = logging.getLogger('mapclient.application')
 
 
-def initialiseLogger(log_path):
+def initialise_logger(log_path):
     """
     Initialise logger settings and information formatting
     """
 
-    logging.basicConfig(format='%(asctime)s.%(msecs).03d - %(name)s - %(levelname)s - %(message)s', level=logging.INFO, datefmt='%d/%m/%Y - %H:%M:%S')
+    logging.basicConfig(format='%(asctime)s.%(msecs).03d - %(name)s - %(levelname)s - %(message)s', level=logging.INFO,
+                        datefmt='%d/%m/%Y - %H:%M:%S')
     logging.addLevelName(29, 'PLUGIN')
 
-    rotatingFH = handlers.RotatingFileHandler(log_path, mode='a', maxBytes=5000000, backupCount=9)
-    rotatingFH.setLevel(logging.DEBUG)
-    file_formatter = logging.Formatter('%(asctime)s.%(msecs).03d - %(name)s - %(levelname)s - %(message)s', datefmt='%d/%m/%Y - %H:%M:%S')
-    rotatingFH.setFormatter(file_formatter)
-    logging.getLogger().addHandler(rotatingFH)
-    rotatingFH.doRollover()
+    rotating_fh = handlers.RotatingFileHandler(log_path, mode='a', maxBytes=5000000, backupCount=9)
+    rotating_fh.setLevel(logging.DEBUG)
+    file_formatter = logging.Formatter('%(asctime)s.%(msecs).03d - %(name)s - %(levelname)s - %(message)s',
+                                       datefmt='%d/%m/%Y - %H:%M:%S')
+    rotating_fh.setFormatter(file_formatter)
+    logging.getLogger().addHandler(rotating_fh)
+    rotating_fh.doRollover()
 
 
-def programme_header():
+def program_header():
     """
     Display program header
     """
-    programHeader = '   {0} (version {1})   '.format(info.APPLICATION_NAME, info.ABOUT['version'])
-    logger.info('-' * len(programHeader))
-    logger.info(programHeader)
-    logger.info('-' * len(programHeader))
+    program_header_string = '   {0} (version {1})   '.format(info.APPLICATION_NAME, info.ABOUT['version'])
+    logger.info('-' * len(program_header_string))
+    logger.info(program_header_string)
+    logger.info('-' * len(program_header_string))
 
 
 # This method starts MAP Client
@@ -79,22 +76,22 @@ def windows_main(app_args):
     Initialise common settings and check the operating environment before starting the application.
     """
     if sys.platform == 'win32':
-        myappid = 'MusculoSkeletal.MAPClient'  # arbitrary string
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+        my_app_id = 'MusculoSkeletal.MAPClient'  # arbitrary string
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(my_app_id)
 
     # import the locale, and set the locale. This is used for
     # locale-aware number to string formatting
     locale.setlocale(locale.LC_ALL, '')
 
-    from PySide import QtGui
-    app = QtGui.QApplication(sys.argv)
+    from PySide2 import QtWidgets
+    app = QtWidgets.QApplication(sys.argv)
 
     # Set the default organisation name and application name used to store application settings
-    info.setApplicationsSettings(app)
+    info.set_applications_settings(app)
 
-    log_path = getLogLocation()
-    initialiseLogger(log_path)
-    programme_header()
+    log_path = get_log_location()
+    initialise_logger(log_path)
+    program_header()
 
     logger.info('Setting toolbox settings for matplotlib and enthought to: qt4')
 
@@ -103,13 +100,13 @@ def windows_main(app_args):
         Context("MAP")
         logger.info('OpenCMISS-Zinc is available.')
     except ImportError:
-        logger.warning('OpenCMISS-Zinc is not available.')
+        logger.warning(' *** OpenCMISS-Zinc is not available.')
 
     try:
         from opencmiss.iron import iron
         logger.info('OpenCMISS-Iron is available.')
     except ImportError:
-        logger.warn('OpenCMISS-Iron is not available.')
+        logger.warning(' *** OpenCMISS-Iron is not available.')
 
     from mapclient.core.mainapplication import MainApplication
     model = MainApplication()
@@ -119,16 +116,16 @@ def windows_main(app_args):
     window.show()
 
     # Run Checks
-    if not window.checkApplicationSetup():
-        window.setupApplication()
+    if not window.check_application_setup():
+        window.setup_application()
 
-        if not window.checkApplicationSetup():
-            window.showOptionsDialog(current_tab=1)
+        if not window.check_application_setup():
+            window._show_options_dialog(current_tab=1)
 
-    window.loadPlugins()
+    window.load_plugins()
 
     if app_args.workflow:
-        window.openWorkflow(app_args.workflow)
+        window.open_workflow(app_args.workflow)
 
     if app_args.execute:
         wm = model.workflowManager()
@@ -151,18 +148,17 @@ class ConsumeOutput(object):
 def non_gui_main(app_args):
     locale.setlocale(locale.LC_ALL, '')
 
-#     from optparse import OptionParser
-    from PySide import QtGui
-#     app = QtCore.QCoreApplication(sys.argv)
+    from PySide2 import QtGui
+
     app = QtGui.QApplication(sys.argv)
     logging.basicConfig(level='DEBUG')
 
-    info.setApplicationsSettings(app)
+    info.set_applications_settings(app)
 
     old_stdout = sys.stdout
     sys.stdout = ConsumeOutput()
-#     sys.stdout = redirectstdout = ConsumeOutput()
-    programme_header()
+    #     sys.stdout = redirectstdout = ConsumeOutput()
+    program_header()
     sys.stdout = old_stdout
 
     from mapclient.core.mainapplication import MainApplication
@@ -175,7 +171,7 @@ def non_gui_main(app_args):
     pm.load()
     try:
         wm.load(app_args.workflow)
-    except:
+    except Exception:
         logger.error('Not a valid workflow location: {0}'.format(app_args.workflow))
         sys.exit(-1)
 
@@ -206,6 +202,7 @@ def main():
         sys.exit(non_gui_main(args))
     else:
         sys.exit(windows_main(args))
+
 
 if __name__ == '__main__':
     main()

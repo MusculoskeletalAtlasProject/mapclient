@@ -17,7 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide import QtCore
+from PySide2 import QtCore
 
 from mapclient.settings import version
 VERSION_STRING = version.__version__
@@ -35,24 +35,25 @@ JT = {'name': 'Justin Treadwell', 'email': 'justintreadwell@gmail.com'}
 JR = {'name': 'Jonathan Ritchie', 'email': 'jrit927@aucklanduni.ac.nz'}
 
 CREDITS = {
-           'programming'  : [HS, TY, JR],
-           'artwork'      : [JT],
+           'programming': [HS, TY, JR],
+           'artwork': [JT],
            'documentation': [HS, JR]
            }
 
 ABOUT = {
-         'name'       : APPLICATION_NAME,
-         'version'    : VERSION_STRING,
-         'license'    : 'GNU GPL v.' + GPL_VERSION,
+         'name': APPLICATION_NAME,
+         'version': VERSION_STRING,
+         'license': 'GNU GPL v.' + GPL_VERSION,
          'description': 'Create and manage detailed musculoskeletal models for OpenSim.'
          }
 
-# APPLICATION
+# Application
 DEFAULT_WORKFLOW_PROJECT_FILENAME = '.workflow.conf'
 DEFAULT_WORKFLOW_ANNOTATION_FILENAME = '.workflow.rdf'
 DEFAULT_WORKFLOW_REQUIREMENTS_FILENAME = '.workflow.req'
 
-def setApplicationsSettings(app):
+
+def set_applications_settings(app):
 
     app.setOrganizationDomain(ORGANISATION_DOMAIN)
     app.setOrganizationName(ORGANISATION_NAME)

@@ -20,7 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import logging
 import webbrowser
 
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtWidgets
 
 from mapclient.tools.pmr.ui_authoriseapplicationdialog import Ui_AuthoriseApplicationDialog
 
@@ -29,13 +29,14 @@ from mapclient.tools.pmr.core import TokenHelper
 
 logger = logging.getLogger(__name__)
 
-class AuthoriseApplicationDialog(QtGui.QDialog):
+
+class AuthoriseApplicationDialog(QtWidgets.QDialog):
     """
     Dialog for authorising the application.
     """
 
     def __init__(self, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
         self._ui = Ui_AuthoriseApplicationDialog()
         self._ui.setupUi(self)
 
@@ -48,12 +49,13 @@ class AuthoriseApplicationDialog(QtGui.QDialog):
         )
 
     def event(self, event):
-        result = QtGui.QDialog.event(self, event)
+        result = QtWidgets.QDialog.event(self, event)
         if event.type() == QtCore.QEvent.ShowToParent:
-            answer = QtGui.QMessageBox.question(self, 'Permission Required',
-                'Can the MAP Client access PMR on your behalf?',
-                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.Yes)
-            if answer == QtGui.QMessageBox.No:
+            answer = QtWidgets.QMessageBox.question(self, 'Permission Required',
+                                                    'Can the MAP Client access PMR on your behalf?',
+                                                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                                    QtWidgets.QMessageBox.Yes)
+            if answer == QtWidgets.QMessageBox.No:
                 self.reject()
             else:
                 self._show_pmr()
@@ -66,8 +68,8 @@ class AuthoriseApplicationDialog(QtGui.QDialog):
             self._helper.get_temporary_credentials()
         except ValueError:
             logger.info('Invalid Client Credentials: Failed to retrieve temporary credentials.')
-            QtGui.QMessageBox.information(self, 'Invalid Client Credentials',
-                'Failed to retrieve temporary credentials.')
+            QtWidgets.QMessageBox.information(self, 'Invalid Client Credentials',
+                                              'Failed to retrieve temporary credentials.')
             return
 
         url = self._helper.get_authorize_url()
@@ -77,7 +79,7 @@ class AuthoriseApplicationDialog(QtGui.QDialog):
         if len(self._ui.tokenLineEdit.text()) > 0:
             self._register()
 
-        QtGui.QDialog.accept(self)
+        QtWidgets.QDialog.accept(self)
 
     def _register(self):
         pmr_info = PMR()
@@ -89,7 +91,7 @@ class AuthoriseApplicationDialog(QtGui.QDialog):
             token_credentials = self._helper.get_token_credentials()
         except ValueError:
             logger.info('Invalid Verifier: Failed to retrieve token access with verification code.')
-            QtGui.QMessageBox.information(self, 'Invalid Verifier',
+            QtWidgets.QMessageBox.information(self, 'Invalid Verifier',
                 'Failed to retrieve token access with verification code.')
             return False
 

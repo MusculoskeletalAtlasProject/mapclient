@@ -3,7 +3,7 @@ Created on Aug 18, 2015
 
 @author: hsorby
 """
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtGui
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 
@@ -34,7 +34,7 @@ def addStep(model, step):
     parentItem.appendRow(item)
 
 
-class WorkflowStepsFilter(QtGui.QSortFilterProxyModel):
+class WorkflowStepsFilter(QtCore.QSortFilterProxyModel):
 
     def __init__(self, parent=None):
         super(WorkflowStepsFilter, self).__init__(parent)

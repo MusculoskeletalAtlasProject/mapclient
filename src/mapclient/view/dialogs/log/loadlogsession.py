@@ -20,7 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 from PySide.QtGui import QDialog, QFileDialog, QMessageBox
 
 from mapclient.view.dialogs.log.ui.ui_loadlogsession import Ui_LoadWindow
-from mapclient.settings.general import getLogDirectory
+from mapclient.settings.general import get_log_directory
 
 
 class LoadLogSession(QDialog):
@@ -39,8 +39,8 @@ class LoadLogSession(QDialog):
         self._ui.loadButton.clicked.connect(self.validateSelection)
 
     def findLogSession(self):
-        previousSession = QFileDialog.getOpenFileName(self, dir=getLogDirectory(), \
-            filter='Log Files (logging_record.log.* logging_record.log)', caption='Select Previous Session', options=QFileDialog.DontResolveSymlinks | QFileDialog.ReadOnly)
+        previousSession = QFileDialog.getOpenFileName(self, dir=get_log_directory(), \
+                                                      filter='Log Files (logging_record.log.* logging_record.log)', caption='Select Previous Session', options=QFileDialog.DontResolveSymlinks | QFileDialog.ReadOnly)
         if len(previousSession) > 0 and len(self._ui.lineEdit.text()) == 0:
             self._ui.lineEdit.insert(previousSession[0])
         else:
