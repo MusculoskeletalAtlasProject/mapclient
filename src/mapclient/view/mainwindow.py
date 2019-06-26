@@ -254,7 +254,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._ui.stackedWidget.set_current_widget(widget)
 
     def current_widget(self):
-        return self._ui.stackedWidget.current_widget()
+        return self._ui.stackedWidget.currentWidget()
 
     def closeEvent(self, event):
         self.quit_application()

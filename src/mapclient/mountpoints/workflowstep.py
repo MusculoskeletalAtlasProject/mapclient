@@ -87,6 +87,7 @@ class WorkflowStepPort(object):
 
         return False
 
+
 """
 Plugins can inherit this mount point to add a workflow step.
 

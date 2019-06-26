@@ -126,14 +126,14 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             item.showContextMenu(event.globalPos())
 
     def mousePressEvent(self, event):
-        item = self.scene().itemAt(self.mapToScene(event.pos()))
+        item = self.scene().itemAt(self.mapToScene(event.pos()), QtGui.QTransform())
         if event.button() == QtCore.Qt.RightButton:
             event.ignore()
         elif item and item.type() == StepPort.Type:
             centre = item.boundingRect().center()
             self._connectSourceNode = item
             self._connectLine = ArrowLine(QtCore.QLineF(item.mapToScene(centre),
-                                         self.mapToScene(event.pos())))
+                                          self.mapToScene(event.pos())))
             self.scene().addItem(self._connectLine)
         else:
             QtWidgets.QGraphicsView.mousePressEvent(self, event)
@@ -194,12 +194,9 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
             name_len = stream.readUInt32()
             # name = stream.readRawData(nameLen).decode('utf-8')
-            if sys.version_info < (3, 0):
-                name = stream.readRawData(name_len).decode('utf-8')
-            else:
-                buf = QtCore.QByteArray()
-                stream >> buf
-                name = '{0}'.format(buf)
+            buf = QtCore.QByteArray()
+            stream >> buf
+            name = buf.data().decode()
 
             stream >> hot_spot
 
@@ -212,7 +209,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             node.showStepName(self._showStepNames)
             meta_step._step.registerConfiguredObserver(scene.stepConfigured)
             meta_step._step.registerDoneExecution(scene.doneExecution)
-            meta_step._step.registerOnExecuteEntry(scene.set_current_widget)
+            meta_step._step.registerOnExecuteEntry(scene.setCurrentWidget)
             meta_step._step.registerIdentifierOccursCount(scene.identifierOccursCount)
 
             self._undoStack.beginMacro('Add node')
