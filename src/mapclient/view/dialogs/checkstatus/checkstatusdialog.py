@@ -3,7 +3,7 @@ Created on Jul 1, 2015
 
 @author: hsorby
 """
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtWidgets
 
 from mapclient.view.dialogs.checkstatus.ui.ui_checkstatusdialog import Ui_CheckStatusDialog
 from mapclient.core.checks import WizardToolChecks, VirtualEnvChecks, VCSChecks
@@ -11,8 +11,8 @@ from mapclient.view.syntaxhighlighter import SyntaxHighlighter
 from mapclient.settings.definitions import WIZARD_TOOL_STRING, \
     VIRTUAL_ENVIRONMENT_STRING, PMR_TOOL_STRING
 
-class CheckStatusDialog(QtGui.QDialog):
 
+class CheckStatusDialog(QtWidgets.QDialog):
 
     def __init__(self, options, parent=None):
         super(CheckStatusDialog, self).__init__(parent)
@@ -29,7 +29,7 @@ class CheckStatusDialog(QtGui.QDialog):
 
     def showEvent(self, *args, **kwargs):
         QtCore.QTimer.singleShot(0, self._runChecks)
-        return QtGui.QDialog.showEvent(self, *args, **kwargs)
+        return QtWidgets.QDialog.showEvent(self, *args, **kwargs)
 
     def checkedOk(self, tool):
         if tool == WIZARD_TOOL_STRING:

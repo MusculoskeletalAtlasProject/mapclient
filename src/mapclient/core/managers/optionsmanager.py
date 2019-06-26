@@ -5,7 +5,7 @@ Created on Jun 10, 2015
 """
 from mapclient.core.utils import which
 from mapclient.settings.general import get_virtualenv_directory
-from mapclient.core.checks import getPySideRccExecutable
+from mapclient.core.checks import get_pyside_rcc_executable
 from mapclient.settings.definitions import SHOW_STEP_NAMES, \
     DONT_CREATE_VIRTUAL_ENV, OPTIONS_SETTINGS_TAG, \
     PYSIDE_RCC_EXE, VIRTUAL_ENV_PATH, GIT_EXE, PREVIOUS_PW_WRITE_STEP_LOCATION, \
@@ -15,17 +15,11 @@ from mapclient.settings.definitions import SHOW_STEP_NAMES, \
 class OptionsManager(object):
 
     def __init__(self):
-        self._options = {}
+        self._options = {SHOW_STEP_NAMES: True, DONT_CREATE_VIRTUAL_ENV: False, CHECK_TOOLS_ON_STARTUP: True,
+                         USE_EXTERNAL_GIT: False, PYSIDE_RCC_EXE: get_pyside_rcc_executable(),
+                         VIRTUAL_ENV_PATH: get_virtualenv_directory(), GIT_EXE: which('git'),
+                         PREVIOUS_PW_WRITE_STEP_LOCATION: '', PREVIOUS_PW_ICON_LOCATION: ''}
         # Set default values
-        self._options[SHOW_STEP_NAMES] = True
-        self._options[DONT_CREATE_VIRTUAL_ENV] = False
-        self._options[CHECK_TOOLS_ON_STARTUP] = True
-        self._options[USE_EXTERNAL_GIT] = False
-        self._options[PYSIDE_RCC_EXE] = getPySideRccExecutable()
-        self._options[VIRTUAL_ENV_PATH] = get_virtualenv_directory()
-        self._options[GIT_EXE] = which('git')
-        self._options[PREVIOUS_PW_WRITE_STEP_LOCATION] = ''
-        self._options[PREVIOUS_PW_ICON_LOCATION] = ''
 
     def _isBoolean(self, option):
         return option in [SHOW_STEP_NAMES, CHECK_TOOLS_ON_STARTUP, DONT_CREATE_VIRTUAL_ENV, USE_EXTERNAL_GIT]

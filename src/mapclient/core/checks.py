@@ -10,7 +10,7 @@ import platform
 
 from PySide2 import QtCore
 
-from mapclient.settings.definitions import GIT_EXE, VIRTUAL_ENV_PATH, \
+from mapclient.settings.definitions import GIT_EXE, \
     PYSIDE_RCC_EXE, USE_EXTERNAL_GIT
 from mapclient.core.utils import which
 
@@ -38,19 +38,20 @@ class WizardToolChecks(ApplicationChecks):
     def doCheck(self):
         rcc_result = False
         self._report = ''  # {0}\n'.format(self.title)
+        pyside_rcc = self._options[PYSIDE_RCC_EXE] if PYSIDE_RCC_EXE in self._options else 'pyside2-rcc'
         try:
-            pyside_rcc = self._options[PYSIDE_RCC_EXE]
             p = subprocess.Popen([pyside_rcc, '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             _, stderr = p.communicate()
             return_code = p.returncode
-            # pyside-rcc returns 1 for all program executions that don't actual compile resources.
-            if return_code == 1 and 'Resource Compiler for Qt version' in stderr.decode('utf-8'):
+            if return_code == 0 and 'Resource Compiler for Qt version' in stderr.decode('utf-8'):
                 rcc_result = True
                 self._report += "'{0}' successfully ran.".format(pyside_rcc)
             else:
-                self._report += "'{0}' did not execute successfully, returned '{1}' on exit.".format(pyside_rcc, return_code)
+                self._report += "'{0}' did not execute successfully, returned '{1}' on exit.".format(pyside_rcc,
+                                                                                                     return_code)
         except Exception as e:
-            self._report += "The test for pyside-rcc [tested executable '{0}'] did not execute successfully, but caused an exception:\n{1}".format(pyside_rcc, e)
+            self._report += "The test for pyside2-rcc [tested executable '{0}']" \
+                            " did not execute successfully, but caused an exception:\n{1}".format(pyside_rcc, e)
 
         return rcc_result
 
@@ -122,21 +123,17 @@ def getActivateScript(venv_path):
     return activate_script
 
 
-def getPySideRccExecutable():
-    if os.name == 'nt':
-        pyside_rcc_directory = os.path.dirname(QtCore.__file__)
-        pyside_rcc_potentials = [os.path.join(pyside_rcc_directory, 'pyside-rcc'), 'pyside-rcc']
-    else:
-        pyside_rcc_potentials = ['pyside-rcc']
+def get_pyside_rcc_executable():
+    pyside_rcc_directory = os.path.dirname(QtCore.__file__)
+    pyside_rcc_potentials = [os.path.join(pyside_rcc_directory, 'pyside2-rcc'), 'pyside2-rcc']
 
     for pyside_rcc_potential in pyside_rcc_potentials:
         pyside_rcc = which(pyside_rcc_potential)
         if pyside_rcc is not None:
             p = subprocess.Popen([pyside_rcc, '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            _, stderr = p.communicate()
+            stdout, stderr = p.communicate()
             return_code = p.returncode
-            # pyside-rcc returns 1 for all program executions that don't actually compile resources.
-            if return_code == 1 and 'Resource Compiler for Qt version' in stderr.decode('utf-8'):
+            if return_code == 0 and 'Resource Compiler for Qt version' in stderr.decode('utf-8'):
                 return pyside_rcc
 
     return None

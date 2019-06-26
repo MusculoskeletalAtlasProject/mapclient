@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 from dateutil.parser import parse
 
-from PySide.QtGui import QDialog, QTableWidgetItem, QLabel
+from PySide2.QtWidgets import QDialog, QTableWidgetItem, QLabel
 
 from mapclient.view.dialogs.log.ui.ui_loginformation import Ui_LogInformation
 from mapclient.settings.general import get_log_location
@@ -37,19 +37,19 @@ class LogInformation(QDialog):
         self._ui = Ui_LogInformation()
         self._ui.setupUi(self)
         self._ui.detailsButton.setEnabled(False)
-        self._makeConnections()
+        self._make_connections()
 
     def fillTable(self, parent=None):
         logs = self.loadSession(get_log_location())
         self.updateTable(logs)
 
-    def _makeConnections(self):
-        self._ui.information_table.itemSelectionChanged.connect(self._selectionChanged)
+    def _make_connections(self):
+        self._ui.information_table.itemSelectionChanged.connect(self._selection_changed)
         self._ui.information_table.cellDoubleClicked.connect(self.showLogDetails)
         self._ui.detailsButton.clicked.connect(self.showLogDetails)
         self._ui.loadButton.clicked.connect(self.loadLogSession)
 
-    def _selectionChanged(self):
+    def _selection_changed(self):
         if self._ui.information_table.selectedItems():
             self._ui.detailsButton.setEnabled(True)
 
