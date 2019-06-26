@@ -28,7 +28,7 @@ class  OptionsDialog(QtWidgets.QDialog):
 
         self._highlighter = SyntaxHighlighter(self._ui.plainTextEditToolTestOutput.document())
 
-        self._makeConnections()
+        self._make_connections()
 
         self._wizard_tool = False
         self._vcs = False
@@ -36,44 +36,47 @@ class  OptionsDialog(QtWidgets.QDialog):
         self._location = ''
         self._original_options = {}
 
-    def _makeConnections(self):
-        self._ui.pushButtonPySideRCC.clicked.connect(self._pySideRCCButtonClicked)
-        self._ui.pushButtonGitExecutable.clicked.connect(self._gitExecutableButtonClicked)
-        self._ui.pushButtonRunChecks.clicked.connect(self._testTools)
-        self._ui.checkBoxUseExternalGit.clicked.connect(self._useExternalGitClicked)
+    def _make_connections(self):
+        self._ui.pushButtonPySideRCC.clicked.connect(self._pyside_rcc_button_clicked)
+        self._ui.pushButtonGitExecutable.clicked.connect(self._git_executable_button_clicked)
+        self._ui.pushButtonRunChecks.clicked.connect(self._test_tools)
+        self._ui.checkBoxUseExternalGit.clicked.connect(self._use_external_git_clicked)
 
-    def _updateUi(self):
+    def _update_ui(self):
         self._ui.lineEditGitExecutable.setEnabled(self._ui.checkBoxUseExternalGit.isChecked())
         self._ui.pushButtonGitExecutable.setEnabled(self._ui.checkBoxUseExternalGit.isChecked())
 
-    def _pySideRCCButtonClicked(self):
-        rcc_program, _ = QtGui.QFileDialog.getOpenFileName(self, caption='Select PySide Resource Compiler', dir=self._location)
+    def _pyside_rcc_button_clicked(self):
+        rcc_program, _ = QtWidgets.QFileDialog.getOpenFileName(self, caption='Select PySide Resource Compiler',
+                                                               dir=self._location)
         if rcc_program:
             self._ui.lineEditPySideRCC.setText(rcc_program)
             self._location = os.path.dirname(rcc_program)
-            self._testTools()
+            self._test_tools()
 
-    def _useExternalGitClicked(self):
-        self._updateUi()
+    def _use_external_git_clicked(self):
+        self._update_ui()
 
-    def _gitExecutableButtonClicked(self):
-        git_program, _ = QtGui.QFileDialog.getOpenFileName(self, caption='Select Git Executable', dir=self._location)
+    def _git_executable_button_clicked(self):
+        git_program, _ = QtWidgets.QFileDialog.getOpenFileName(self, caption='Select Git Executable',
+                                                               dir=self._location)
         if git_program:
             self._ui.lineEditGitExecutable.setText(git_program)
             self._location = os.path.dirname(git_program)
-            self._testTools()
+            self._test_tools()
 
-    def _testTools(self):
+    def _test_tools(self):
         options = self.save()
         self._ui.plainTextEditToolTestOutput.setPlainText('')
         checks_wizard = WizardToolChecks(options)
-        self._wizard_tool, output = self._handleCheck(checks_wizard, WIZARD_TOOL_STRING)
+        self._wizard_tool, output = self._handle_check(checks_wizard, WIZARD_TOOL_STRING)
         self._ui.plainTextEditToolTestOutput.appendPlainText(output)  # labelCheckOutput.setText(output)
         checks_vcs = VCSChecks(options)
-        self._vcs, output = self._handleCheck(checks_vcs, PMR_TOOL_STRING)
+        self._vcs, output = self._handle_check(checks_vcs, PMR_TOOL_STRING)
         self._ui.plainTextEditToolTestOutput.appendPlainText(output)  # labelCheckOutput.setText(output)
 
-    def _handleCheck(self, check, title):
+    @staticmethod
+    def _handle_check(check, title):
         output = ''  # self._ui.plainTextEditScreen.document().toPlainText()
         result = check.doCheck()
         if result:
@@ -88,11 +91,11 @@ class  OptionsDialog(QtWidgets.QDialog):
         self._ui.tabWidget.setCurrentIndex(tab_index)
 
     def reject(self, *args, **kwargs):
-        self._testTools()
+        self._test_tools()
         return QtWidgets.QDialog.reject(self, *args, **kwargs)
 
     def accept(self, *args, **kwargs):
-        self._testTools()
+        self._test_tools()
         return QtWidgets.QDialog.accept(self, *args, **kwargs)
 
     def checkedOk(self, tool):
@@ -123,8 +126,8 @@ class  OptionsDialog(QtWidgets.QDialog):
         if vcs_option in options:
             self._ui.lineEditGitExecutable.setText(options[vcs_option])
 
-        self._updateUi()
-        self._testTools()
+        self._update_ui()
+        self._test_tools()
 
     def save(self):
         options = {self._ui.checkBoxShowStepNames.objectName(): self._ui.checkBoxShowStepNames.isChecked(),
