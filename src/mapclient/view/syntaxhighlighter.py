@@ -5,10 +5,11 @@ Created on Jul 1, 2015
 """
 import re
 
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtGui
 
 rx_success = re.compile('Success: ')
 rx_failure = re.compile('Failure: ')
+
 
 class SyntaxHighlighter(QtGui.QSyntaxHighlighter):
 

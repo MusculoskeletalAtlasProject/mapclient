@@ -19,19 +19,19 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import json
 
-from PySide.QtGui import QDialog, QDialogButtonBox
+from PySide2.QtWidgets import QDialog, QDialogButtonBox
 
 from mapclientplugins.pointcloudserializerstep.widgets.ui_configuredialog import Ui_ConfigureDialog
 
 REQUIRED_STYLE_SHEET = 'border: 1px solid red; border-radius: 3px'
 DEFAULT_STYLE_SHEET = 'border: 1px solid gray; border-radius: 3px'
 
+
 class ConfigureDialogState(object):
     """
     Class to encapsulate the state of the configure dialog so that the 
     dialog state can be persistent.
     """
-
 
     def __init__(self, identifier=''):
         self._identifier = identifier
@@ -77,14 +77,14 @@ class ConfigureDialog(QDialog):
         return state
 
     def validate(self):
-        identifierValid = len(self._ui.identifierLineEdit.text()) > 0
+        identifier_valid = len(self._ui.identifierLineEdit.text()) > 0
 
-        self._ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(identifierValid)
+        self._ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(identifier_valid)
 
-        if identifierValid:
+        if identifier_valid:
             self._ui.identifierLineEdit.setStyleSheet(DEFAULT_STYLE_SHEET)
         else:
             self._ui.identifierLineEdit.setStyleSheet(REQUIRED_STYLE_SHEET)
 
-        return identifierValid
+        return identifier_valid
 

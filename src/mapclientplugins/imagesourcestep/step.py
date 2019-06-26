@@ -21,7 +21,7 @@ import os
 import re
 import imghdr
 
-from PySide import QtGui
+from PySide2 import QtWidgets, QtGui
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclientplugins.imagesourcestep.widgets.configuredialog import ConfigureDialog, ConfigureDialogState
@@ -99,7 +99,7 @@ class ImageSourceStep(WorkflowStepMountPoint):
         self._state = ConfigureDialogState()
 
     def configure(self):
-        d = ConfigureDialog(self._state, QtGui.QApplication.activeWindow().currentWidget())
+        d = ConfigureDialog(self._state, QtWidgets.QApplication.activeWindow().current_widget())
         d.setWorkflowLocation(self._location)
         d.setModal(True)
         if d.exec_():

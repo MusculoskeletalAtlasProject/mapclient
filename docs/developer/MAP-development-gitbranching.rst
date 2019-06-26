@@ -4,18 +4,21 @@
 Git Branching Model
 ===================
 
-:Authors: Hugh Sorby
-
-This section describes the Git branching model in use by MAP Client.  This model is employed by the **prime** repository it is not necessarily one that is employed by a given developer in their own repository.  
+This section describes the Git branching model in use by MAP Client.  This model is employed by the **prime** repository
+ it is not necessarily one that is employed by a given developer in their own repository.
 
 .. contents::
 
 Overview
 ========
 
-The Git branching model employed by MAP Client is closely aligned with **[2]** but with some modifications.  The modifications we have added is due in part to the Git submodules present in the **prime** repository.  Also we want to automate some of the development process to ease the burden and minimise mistakes.  
+The Git branching model employed by MAP Client is closely aligned with **[2]** but with some modifications.  The
+modifications we have arethat releases are tagged commits on the master branch and any hotfixes are branched from a
+release tag and merged back into master afterwards.
 
-The master branch is the stable branch as defined by Github - all branches should be branched from here (directly or indirectly).  For the MAP Client project there's a guiding principle: anything in the master branch is always deployable.  This implies that nobody creates pull requests directly against the master branch, pull requests should be made against the development branch **develop**.  A release (or hotfix) branch is created from the **develop** branch for finalising a release.  The Patch Queue Manager (PQM) has two jobs to perform: 1. create new release (or hotfix) branch for finalising a release; 2. Merge release (or hotfix) branch into master when a new release is finalised.
+The master branch is the actively developed branch as defined by Github - all branches should be branched from here
+(directly or indirectly).  Release branches are branched from the master branch with any change made to the release
+merged back into the master branch.
 
 .. figure:: images/gitflow.png
    :width: 600px
@@ -29,8 +32,8 @@ Patch Queue Manager
 
 As mentioned above the PQM has two jobs:
 
-  #. Create release (or hotfix) branch
-  #. Merge release (or hotfix) branch into master
+#. Create release (or hotfix) branch
+#. Merge release (or hotfix) branch into master
   
 The PQM is the name of the device we use to manage parts of the development process.  It is used to ensure the process is followed and to reduce the workload required for creating a release.  It is accessible to authorised developers through Buildbot.
 
@@ -41,17 +44,21 @@ The other role for the PQM is to merge a finalising branch into master.  The fin
 Centralised Workflow (using distributed VCS)
 ============================================
 
-The repository setup for this workflow makes use of the notion of a central definitive repository.  This concept is just a notion as there is no such thing (at a technical level) as a central repository in a DVCS like Git.  We will refer to this central repository as **prime**.
+The repository setup for this workflow makes use of the notion of a central definitive repository.  This concept is just
+ a notion as there is no such thing (at a technical level) as a central repository in a DVCS like Git.  We will refer to
+  this central repository as the **prime** repostiory.
 
-Official releases are made from the master branch in *prime*.  This process is managed by the PQM which does the work for the release.  No developer should ever have to merge to the master branch.
+Official releases are made from the master branch in *prime*.  This process is managed by the PQM which goes through the
+ process of a release in a systematic way.  Making in release in a systematic way is intended to make the task of
+creating a release easier and consistent.
 
 Main Branches
 =============
 
 The definitive repository **prime** consists of two main branches with an infinite lifetime:
 
-  * master
-  * develop
+* master
+* develop
 
 The master branch is the main branch defined by Git. The develop branch runs parallel to the master branch.
 
@@ -68,9 +75,9 @@ Supporting Branches
 
 We define a variety of supporting branches for this development model:
 
-  * Feature branches
-  * Release branches
-  * Hotfix branches
+* Feature branches
+* Release branches
+* Hotfix branches
 
 Each of these branches has a specific purpose and are bound by rules as to which branches may be their parent branches and which branches can be their merge targets.
 

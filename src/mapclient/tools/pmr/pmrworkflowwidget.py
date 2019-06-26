@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import re
 
-from PySide import QtGui, QtCore
+from PySide2 import QtWidgets, QtCore
 
 from mapclient.tools.pmr.ui_pmrworkflowwidget import Ui_PMRWorkflowWidget
 from mapclient.view.utils import handle_runtime_error, set_wait_cursor
@@ -31,7 +31,7 @@ from mapclient.tools.pmr.settings import general
 from mapclient.tools.pmr.settings.general import PMR
 
 
-class PMRWorkflowWidget(QtGui.QWidget):
+class PMRWorkflowWidget(QtWidgets.QWidget):
     """
     A Widget for importing and exporting to and from PMR.
     """
@@ -81,8 +81,8 @@ class PMRWorkflowWidget(QtGui.QWidget):
         self._ui.comboBoxSearch.currentIndexChanged.connect(self._searchTypeChanged)
 
     def _initialiseCompleter(self):
-        completer = QtGui.QCompleter(self._ui.lineEditSearch)
-        completer.setCompletionMode(QtGui.QCompleter.UnfilteredPopupCompletion)
+        completer = QtWidgets.QCompleter(self._ui.lineEditSearch)
+        completer.setCompletionMode(QtWidgets.QCompleter.UnfilteredPopupCompletion)
         completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
         completer.setModel(self._list_model)
         completer.setCompletionColumn(0)
@@ -103,8 +103,8 @@ class PMRWorkflowWidget(QtGui.QWidget):
     def _searchTextEdited(self, new_text):
         if self._ontological_search and len(new_text) and not self._busy_waiting:
             if self._timer.isActive():
-                QtGui.QApplication.restoreOverrideCursor()
-            QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+                QtWidgets.QApplication.restoreOverrideCursor()
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
             self._timer.start()
 
     def _queryRepository(self):
@@ -206,7 +206,7 @@ class PMRWorkflowWidget(QtGui.QWidget):
         if search_type == workflow_search_string:
             results_list = results['results']
             for r in results_list:
-                item = QtGui.QListWidgetItem(r['obj']['title'], self._ui.listWidgetResults)
+                item = QtWidgets.QListWidgetItem(r['obj']['title'], self._ui.listWidgetResults)
                 item.setData(QtCore.Qt.UserRole, r)
         elif search_type == ontological_search_string:
             if type(results) is dict:
@@ -215,7 +215,7 @@ class PMRWorkflowWidget(QtGui.QWidget):
             for r in results:
                 label = r['label']
                 for sr in r['items']:
-                    item = QtGui.QListWidgetItem(sr['title'] + ' [%s, %s]' % (sr['value'], label), self._ui.listWidgetResults)
+                    item = QtWidgets.QListWidgetItem(sr['title'] + ' [%s, %s]' % (sr['value'], label), self._ui.listWidgetResults)
                     tool_tip = 'Workspace title: %s, Ontological term: %s, Target: %s' % (sr['title'], label, sr['href'])
                     item.setToolTip(tool_tip)
                     item.setData(QtCore.Qt.UserRole, sr)
@@ -223,9 +223,9 @@ class PMRWorkflowWidget(QtGui.QWidget):
         else:
             for r in results:
                 if 'title' in r and r['title']:
-                    item = QtGui.QListWidgetItem(r['title'], self._ui.listWidgetResults)
+                    item = QtWidgets.QListWidgetItem(r['title'], self._ui.listWidgetResults)
                 else:
-                    item = QtGui.QListWidgetItem(r['target'], self._ui.listWidgetResults)
+                    item = QtWidgets.QListWidgetItem(r['target'], self._ui.listWidgetResults)
                 item.setData(QtCore.Qt.UserRole, r)
 
 
@@ -269,6 +269,3 @@ class OWLTermsListModel(QtCore.QAbstractListModel):
 
         self.endRemoveRows()
         return True
-
-
-

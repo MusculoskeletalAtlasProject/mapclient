@@ -1,6 +1,6 @@
 
 
-from PySide import QtGui
+from PySide2 import QtWidgets
 from mapclientplugins.dictserializerstep.ui_configuredialog import Ui_ConfigureDialog
 import os.path
 
@@ -8,13 +8,13 @@ INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
 DEFAULT_STYLE_SHEET = ''
 
 
-class ConfigureDialog(QtGui.QDialog):
+class ConfigureDialog(QtWidgets.QDialog):
     """
     Configure dialog to present the user with the options to configure this step.
     """
 
     def __init__(self, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
         
         self._ui = Ui_ConfigureDialog()
         self._ui.setupUi(self)
@@ -28,16 +28,16 @@ class ConfigureDialog(QtGui.QDialog):
         self.identifierOccursCount = None
         self._previousLocation = ''
 
-        self._makeConnections()
+        self._make_connections()
 
-    def _makeConnections(self):
+    def _make_connections(self):
         self._ui.lineEditIdentifier.textChanged.connect(self.validate)
         self._ui.lineEditOutputLocation.textChanged.connect(self.validate)
         self._ui.checkBoxDefaultLocation.clicked.connect(self.validate)
-        self._ui.pushButtonOutputLocation.clicked.connect(self._outputLocationButtonClicked)
+        self._ui.pushButtonOutputLocation.clicked.connect(self._output_location_button_clicked)
 
-    def _outputLocationButtonClicked(self):
-        location, _ = QtGui.QFileDialog.getSaveFileName(self, caption='Choose Output File', dir=self._previousLocation)
+    def _output_location_button_clicked(self):
+        location, _ = QtWidgets.QFileDialog.getSaveFileName(self, caption='Choose Output File', dir=self._previousLocation)
         if location:
             self._previousLocation = os.path.dirname(location)
             self._ui.lineEditOutputLocation.setText(location)
@@ -47,14 +47,17 @@ class ConfigureDialog(QtGui.QDialog):
         Override the accept method so that we can confirm saving an
         invalid configuration.
         """
-        result = QtGui.QMessageBox.Yes
+        result = QtWidgets.QMessageBox.Yes
         if not self.validate():
-            result = QtGui.QMessageBox.warning(self, 'Invalid Configuration',
-                'This configuration is invalid.  Unpredictable behaviour may result if you choose \'Yes\', are you sure you want to save this configuration?)',
-                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+            result = QtWidgets.QMessageBox.warning(self, 'Invalid Configuration',
+                                                   'This configuration is invalid.  '
+                                                   'Unpredictable behaviour may result if you choose \'Yes\','
+                                                   ' are you sure you want to save this configuration?)',
+                                                   QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                                   QtWidgets.QMessageBox.No)
 
-        if result == QtGui.QMessageBox.Yes:
-            QtGui.QDialog.accept(self)
+        if result == QtWidgets.QMessageBox.Yes:
+            QtWidgets.QDialog.accept(self)
 
     def validate(self):
         """
@@ -98,10 +101,8 @@ class ConfigureDialog(QtGui.QDialog):
         identifier over the whole of the workflow.
         """
         self._previousIdentifier = self._ui.lineEditIdentifier.text()
-        config = {}
-        config['identifier'] = self._ui.lineEditIdentifier.text()
-        config['output'] = self._ui.lineEditOutputLocation.text()
-        config['default'] = self._ui.checkBoxDefaultLocation.isChecked()
+        config = {'identifier': self._ui.lineEditIdentifier.text(), 'output': self._ui.lineEditOutputLocation.text(),
+                  'default': self._ui.checkBoxDefaultLocation.isChecked()}
         return config
 
     def setConfig(self, config):

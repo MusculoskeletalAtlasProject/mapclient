@@ -4,7 +4,7 @@ Created on Jun 10, 2015
 @author: hsorby
 """
 from mapclient.core.utils import which
-from mapclient.settings.general import getVirtEnvDirectory
+from mapclient.settings.general import get_virtualenv_directory
 from mapclient.core.checks import getPySideRccExecutable
 from mapclient.settings.definitions import SHOW_STEP_NAMES, \
     DONT_CREATE_VIRTUAL_ENV, OPTIONS_SETTINGS_TAG, \
@@ -22,7 +22,7 @@ class OptionsManager(object):
         self._options[CHECK_TOOLS_ON_STARTUP] = True
         self._options[USE_EXTERNAL_GIT] = False
         self._options[PYSIDE_RCC_EXE] = getPySideRccExecutable()
-        self._options[VIRTUAL_ENV_PATH] = getVirtEnvDirectory()
+        self._options[VIRTUAL_ENV_PATH] = get_virtualenv_directory()
         self._options[GIT_EXE] = which('git')
         self._options[PREVIOUS_PW_WRITE_STEP_LOCATION] = ''
         self._options[PREVIOUS_PW_ICON_LOCATION] = ''

@@ -5,7 +5,7 @@ MAP Client Plugin Step
 import os
 import json
 
-from PySide import QtGui
+from PySide2 import QtGui
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclientplugins.directorychooserstep.configuredialog import ConfigureDialog
@@ -30,10 +30,7 @@ class DirectoryChooserStep(WorkflowStepMountPoint):
         # Port data:
         self._portData0 = None  # http://physiomeproject.org/workflow/1.0/rdf-schema#directory_location
         # Config:
-        self._config = {}
-        self._config['identifier'] = ''
-        self._config['Directory'] = ''
-
+        self._config = {'identifier': '', 'Directory': ''}
 
     def execute(self):
         """
@@ -60,7 +57,7 @@ class DirectoryChooserStep(WorkflowStepMountPoint):
         then set:
             self._configured = True
         """
-        dlg = ConfigureDialog(QtGui.QApplication.activeWindow().currentWidget())
+        dlg = ConfigureDialog(QtGui.QApplication.activeWindow().current_widget())
         dlg.setWorkflowLocation(self._location)
         dlg.identifierOccursCount = self._identifierOccursCount
         dlg.setConfig(self._config)
@@ -92,7 +89,6 @@ class DirectoryChooserStep(WorkflowStepMountPoint):
         """
         return json.dumps(self._config, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
-
     def deserialize(self, string):
         """
         Add code to deserialize this step from string.  This method should
@@ -105,5 +101,3 @@ class DirectoryChooserStep(WorkflowStepMountPoint):
         d.identifierOccursCount = self._identifierOccursCount
         d.setConfig(self._config)
         self._configured = d.validate()
-
-

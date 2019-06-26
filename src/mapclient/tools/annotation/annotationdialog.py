@@ -19,19 +19,19 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import re
 
-from PySide import QtGui
+from PySide2 import QtWidgets
 
 from mapclient.tools.annotation.ui_annotationdialog import Ui_AnnotationDialog
 from mapclient.tools.annotation.annotationtool import AnnotationTool
 
 
-class AnnotationDialog(QtGui.QDialog):
+class AnnotationDialog(QtWidgets.QDialog):
     """
     Dialog for annotating a directory.
     """
 
     def __init__(self, location, annotation_filename=None, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
         self._ui = Ui_AnnotationDialog()
         self._ui.setupUi(self)
         
@@ -59,7 +59,6 @@ class AnnotationDialog(QtGui.QDialog):
         
     def _addTriple(self, subj, pred, obj):
         self._ui.annotationListWidget.addItem('[' + subj + ', ' + pred + ', ' + obj + ']')
-        
     
     def _addStatement(self):
         subj = self._ui.subjectComboBox.currentText()
@@ -88,6 +87,3 @@ class AnnotationDialog(QtGui.QDialog):
         location = self._ui.locationLineEdit.text()
         self._tool.serialize(location, self._annotation_filename)        
         self.accept()
-    
-        
-#        self._ui

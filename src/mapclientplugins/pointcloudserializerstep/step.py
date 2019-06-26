@@ -19,14 +19,14 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import os
 
-from PySide import QtGui
+from PySide2 import QtGui, QtWidgets
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 
 from mapclientplugins.pointcloudserializerstep.widgets.configuredialog import ConfigureDialog, ConfigureDialogState
 
 
-def getConfigFilename(identifier):
+def get_config_filename(identifier):
     return identifier + '.conf'
 
 
@@ -42,13 +42,15 @@ class PointCloudSerializerStep(WorkflowStepMountPoint):
 #        self._name = 'Point Cloud Store'
 #        self._location = location
         self._icon = QtGui.QImage(':/pointcloudserializer/images/pointcloudserializer.png')
-        self.addPort(('http://physiomeproject.org/workflow/1.0/rdf-schema#port', 'http://physiomeproject.org/workflow/1.0/rdf-schema#uses', 'http://physiomeproject.org/workflow/1.0/rdf-schema#pointcloud'))
+        self.addPort(('http://physiomeproject.org/workflow/1.0/rdf-schema#port',
+                      'http://physiomeproject.org/workflow/1.0/rdf-schema#uses',
+                      'http://physiomeproject.org/workflow/1.0/rdf-schema#pointcloud'))
         self._state = ConfigureDialogState()
         self._category = 'Sink'
         self._dataIn = None
 
     def configure(self):
-        d = ConfigureDialog(self._state, QtGui.QApplication.activeWindow().currentWidget())
+        d = ConfigureDialog(self._state, QtWidgets.QApplication.activeWindow().current_widget())
         d.setModal(True)
         if d.exec_():
             self._state = d.getState()

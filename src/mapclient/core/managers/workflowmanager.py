@@ -21,7 +21,7 @@ import os
 import logging
 from pkg_resources import parse_version
 
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtGui
 
 from mapclient.settings import info
 from mapclient.core.workflow.workflowscene import WorkflowScene
@@ -29,8 +29,8 @@ from mapclient.core.workflow.workflowsteps import WorkflowSteps, \
     WorkflowStepsFilter
 from mapclient.core.workflow.workflowerror import WorkflowError
 from mapclient.core.workflow.workflowrdf import serializeWorkflowAnnotation
-from mapclient.settings.general import getConfigurationFile, \
-    DISPLAY_FULL_PATH, getConfiguration
+from mapclient.settings.general import get_configuration_file, \
+    DISPLAY_FULL_PATH, get_configuration
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ class WorkflowManager(object):
     def title(self):
         self._title = info.APPLICATION_NAME
         if self._location:
-            if getConfiguration(DISPLAY_FULL_PATH):
+            if get_configuration(DISPLAY_FULL_PATH):
                 self._title = self._title + ' - ' + self._location
             else:
                 self._title = self._title + ' - ' + os.path.basename(self._location)
@@ -143,8 +143,8 @@ class WorkflowManager(object):
         return self._saveStateIndex != self._currentStateIndex
 
     def changeIdentifier(self, old_identifier, new_identifier):
-        old_config = getConfigurationFile(self._location, old_identifier)
-        new_config = getConfigurationFile(self._location, new_identifier)
+        old_config = get_configuration_file(self._location, old_identifier)
+        new_config = get_configuration_file(self._location, new_identifier)
         try:
             os.rename(old_config, new_config)
         except OSError:

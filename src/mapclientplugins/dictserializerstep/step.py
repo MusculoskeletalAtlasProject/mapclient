@@ -7,7 +7,7 @@ import os
 import json
 
 
-from PySide import QtGui
+from PySide2 import QtGui
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclientplugins.dictserializerstep.configuredialog import ConfigureDialog
@@ -71,7 +71,7 @@ class DictSerializerStep(WorkflowStepMountPoint):
         then set:
             self._configured = True
         """
-        dlg = ConfigureDialog(QtGui.QApplication.activeWindow().currentWidget())
+        dlg = ConfigureDialog(QtGui.QApplication.activeWindow().current_widget())
         dlg.identifierOccursCount = self._identifierOccursCount
         dlg.setConfig(self._config)
         dlg.validate()

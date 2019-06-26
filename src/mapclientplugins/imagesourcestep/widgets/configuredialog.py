@@ -20,7 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import json
 
-from PySide.QtGui import QDialog, QFileDialog, QDialogButtonBox
+from PySide2.QtWidgets import QDialog, QFileDialog, QDialogButtonBox
 
 from mapclientplugins.imagesourcestep.widgets.ui_configuredialog import Ui_ConfigureDialog
 from mapclient.tools.pmr.pmrworkflowwidget import PMRWorkflowWidget
@@ -30,6 +30,7 @@ from mapclient.tools.pmr.pmrtool import ontological_search_string, \
 
 REQUIRED_STYLE_SHEET = 'border: 1px solid red; border-radius: 3px'
 DEFAULT_STYLE_SHEET = 'border: 1px solid gray; border-radius: 3px'
+
 
 class ConfigureDialogState(object):
 
@@ -92,8 +93,8 @@ class ConfigureDialog(QDialog):
         self._ui.identifierLineEdit.textChanged.connect(self.validate)
         self._ui.localLineEdit.textChanged.connect(self._localLocationEdited)
         self._ui.localButton.clicked.connect(self._localLocationClicked)
-        self._pmr_widget._ui.lineEditWorkspace.textChanged.connect(self._workspaceChanged)
-#         self._ui.pmrRegisterLabel.linkActivated.connect(self._register)
+        # self._pmr_widget._ui.lineEditWorkspace.textChanged.connect(self._workspaceChanged)
+        # self._ui.pmrRegisterLabel.linkActivated.connect(self._register)
 
     def _setupPMRTab(self):
         self._pmr_widget = PMRWorkflowWidget(self)
@@ -105,12 +106,12 @@ class ConfigureDialog(QDialog):
         layout.addWidget(self._pmr_widget)
 
     def setState(self, state):
-        self._ui.identifierLineEdit.setText(state._identifier)
-        self._ui.localLineEdit.setText(state._local_location)
-        self._pmr_widget.setWorkspaceUrl(state._pmr_location)
-        self._ui.imageSourceTypeComboBox.setCurrentIndex(state._image_type)
-        self._ui.tabWidget.setCurrentIndex(state._current_tab)
-        self._ui.previousLocationLabel.setText(state._previous_local_location)
+        self._ui.identifierLineEdit.setText(state.identifier())
+        self._ui.localLineEdit.setText(state.location())
+        self._pmr_widget.setWorkspaceUrl(state.pmrLocation())
+        self._ui.imageSourceTypeComboBox.setCurrentIndex(state.imageType())
+        self._ui.tabWidget.setCurrentIndex(state.currentTab())
+        self._ui.previousLocationLabel.setText(state.previousLocalLocation())
 
     def getState(self):
         state = ConfigureDialogState(

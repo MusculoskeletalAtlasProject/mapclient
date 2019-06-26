@@ -1,40 +1,41 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt/importworkflowdialog.ui'
+# Form implementation generated from reading ui file 'src/mapclient/view/qt/importworkflowdialog.ui',
+# licensing of 'src/mapclient/view/qt/importworkflowdialog.ui' applies.
 #
-# Created: Fri Sep  5 20:24:40 2014
-#      by: pyside-uic 0.2.15 running on PySide 1.2.1
+# Created: Wed Jun 26 11:26:22 2019
+#      by: pyside2-uic  running on PySide2 5.11.2
 #
 # WARNING! All changes made in this file will be lost!
 
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtGui, QtWidgets
 
 class Ui_ImportWorkflowDialog(object):
     def setupUi(self, ImportWorkflowDialog):
         ImportWorkflowDialog.setObjectName("ImportWorkflowDialog")
-        ImportWorkflowDialog.resize(574, 389)
-        self.verticalLayout = QtGui.QVBoxLayout(ImportWorkflowDialog)
+        ImportWorkflowDialog.resize(541, 523)
+        self.verticalLayout = QtWidgets.QVBoxLayout(ImportWorkflowDialog)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.horizontalLayout = QtGui.QHBoxLayout()
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.label = QtGui.QLabel(ImportWorkflowDialog)
+        self.label = QtWidgets.QLabel(ImportWorkflowDialog)
         self.label.setObjectName("label")
         self.horizontalLayout.addWidget(self.label)
-        self.lineEditLocation = QtGui.QLineEdit(ImportWorkflowDialog)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        self.lineEditLocation = QtWidgets.QLineEdit(ImportWorkflowDialog)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(2)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lineEditLocation.sizePolicy().hasHeightForWidth())
         self.lineEditLocation.setSizePolicy(sizePolicy)
         self.lineEditLocation.setObjectName("lineEditLocation")
         self.horizontalLayout.addWidget(self.lineEditLocation)
-        self.pushButtonLocation = QtGui.QPushButton(ImportWorkflowDialog)
+        self.pushButtonLocation = QtWidgets.QPushButton(ImportWorkflowDialog)
         self.pushButtonLocation.setObjectName("pushButtonLocation")
         self.horizontalLayout.addWidget(self.pushButtonLocation)
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.buttonBoxImport = QtGui.QDialogButtonBox(ImportWorkflowDialog)
+        self.buttonBoxImport = QtWidgets.QDialogButtonBox(ImportWorkflowDialog)
         self.buttonBoxImport.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBoxImport.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        self.buttonBoxImport.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBoxImport.setObjectName("buttonBoxImport")
         self.verticalLayout.addWidget(self.buttonBoxImport)
 
@@ -44,7 +45,7 @@ class Ui_ImportWorkflowDialog(object):
         QtCore.QMetaObject.connectSlotsByName(ImportWorkflowDialog)
 
     def retranslateUi(self, ImportWorkflowDialog):
-        ImportWorkflowDialog.setWindowTitle(QtGui.QApplication.translate("ImportWorkflowDialog", "Import Workflow", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("ImportWorkflowDialog", "Destination:", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonLocation.setText(QtGui.QApplication.translate("ImportWorkflowDialog", "...", None, QtGui.QApplication.UnicodeUTF8))
+        ImportWorkflowDialog.setWindowTitle(QtWidgets.QApplication.translate("ImportWorkflowDialog", "Import Workflow", None, -1))
+        self.label.setText(QtWidgets.QApplication.translate("ImportWorkflowDialog", "Destination:", None, -1))
+        self.pushButtonLocation.setText(QtWidgets.QApplication.translate("ImportWorkflowDialog", "...", None, -1))
 

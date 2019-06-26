@@ -5,16 +5,16 @@ Created on Feb 25, 2015
 """
 import os.path
 
-from PySide import QtGui
+from PySide2 import QtWidgets
 
 from mapclient.view.managers.options.ui.ui_optionsdialog import Ui_OptionsDialog
-from mapclient.core.checks import WizardToolChecks, VirtualEnvChecks, VCSChecks
+from mapclient.core.checks import WizardToolChecks, VCSChecks
 from mapclient.view.syntaxhighlighter import SyntaxHighlighter
 from mapclient.settings.definitions import VIRTUAL_ENVIRONMENT_STRING, \
     WIZARD_TOOL_STRING, PMR_TOOL_STRING
 
 
-class  OptionsDialog(QtGui.QDialog):
+class  OptionsDialog(QtWidgets.QDialog):
     """
     Options dialog for setting global options
     """
@@ -89,11 +89,11 @@ class  OptionsDialog(QtGui.QDialog):
 
     def reject(self, *args, **kwargs):
         self._testTools()
-        return QtGui.QDialog.reject(self, *args, **kwargs)
+        return QtWidgets.QDialog.reject(self, *args, **kwargs)
 
     def accept(self, *args, **kwargs):
         self._testTools()
-        return QtGui.QDialog.accept(self, *args, **kwargs)
+        return QtWidgets.QDialog.accept(self, *args, **kwargs)
 
     def checkedOk(self, tool):
         if tool == WIZARD_TOOL_STRING:
@@ -127,12 +127,11 @@ class  OptionsDialog(QtGui.QDialog):
         self._testTools()
 
     def save(self):
-        options = {}
-        options[self._ui.checkBoxShowStepNames.objectName()] = self._ui.checkBoxShowStepNames.isChecked()
-        options[self._ui.checkBoxCheckToolsOnStartup.objectName()] = self._ui.checkBoxCheckToolsOnStartup.isChecked()
-        options[self._ui.checkBoxUseExternalGit.objectName()] = self._ui.checkBoxUseExternalGit.isChecked()
-        options[self._ui.lineEditPySideRCC.objectName()] = self._ui.lineEditPySideRCC.text()
-        options[self._ui.lineEditGitExecutable.objectName()] = self._ui.lineEditGitExecutable.text()
+        options = {self._ui.checkBoxShowStepNames.objectName(): self._ui.checkBoxShowStepNames.isChecked(),
+                   self._ui.checkBoxCheckToolsOnStartup.objectName(): self._ui.checkBoxCheckToolsOnStartup.isChecked(),
+                   self._ui.checkBoxUseExternalGit.objectName(): self._ui.checkBoxUseExternalGit.isChecked(),
+                   self._ui.lineEditPySideRCC.objectName(): self._ui.lineEditPySideRCC.text(),
+                   self._ui.lineEditGitExecutable.objectName(): self._ui.lineEditGitExecutable.text()}
 
         return options
 

@@ -19,11 +19,12 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import os
 
-from PySide import QtCore
+from PySide2 import QtCore
 
 from mapclient.settings.info import VERSION_STRING
 
-def getDataDirectory():
+
+def get_data_directory():
     """
     Return the directory where we can store data for the application.
     Like settings and log files etc.
@@ -35,8 +36,8 @@ def getDataDirectory():
     return app_dir
 
 
-def _getAppDirectory(name):
-    app_dir = getDataDirectory()
+def _get_app_directory(name):
+    app_dir = get_data_directory()
     name_dir = os.path.join(app_dir, name)
 
     if not os.path.exists(name_dir):
@@ -45,46 +46,46 @@ def _getAppDirectory(name):
     return name_dir
 
 
-def getVirtEnvDirectory():
-    return _getAppDirectory('venv_' + VERSION_STRING)
+def get_virtualenv_directory():
+    return _get_app_directory('venv_' + VERSION_STRING)
 
 
-def getVirtualEnvSitePackagesDirectory(virtualenv_dir):
+def get_virtualenv_site_packages_directory(virtualenv_dir):
     print('Confirm path on other OSes, so far only checked on Windows.')
     return os.path.join(virtualenv_dir, 'Lib', 'site-packages')
 
 
-def getLogDirectory():
-    return _getAppDirectory('logs')
+def get_log_directory():
+    return _get_app_directory('logs')
 
 
-def getLogLocation():
+def get_log_location():
     """
     Set up location where log files will be stored (platform dependent).
     """
     log_filename = 'logging_record.log'
-    log_directory = getLogDirectory()
+    log_directory = get_log_directory()
 
     logging_file_location = os.path.join(log_directory, log_filename)
 
     return logging_file_location
 
 
-def getConfigurationSuffix():
+def get_configuration_suffix():
     return '.conf'
 
 
-def getConfigurationFile(location, identifier):
+def get_configuration_file(location, identifier):
     if 'src/mapclient' in location:
         raise Exception('Saving this in the wrong place.')
 
-    return os.path.join(location, identifier + getConfigurationSuffix())
+    return os.path.join(location, identifier + get_configuration_suffix())
 
 
 DISPLAY_FULL_PATH = 'AIJDKUUGCNEGELND'
 
 
-def getConfiguration(option):
+def get_configuration(option):
     if option == DISPLAY_FULL_PATH:
         return False
 

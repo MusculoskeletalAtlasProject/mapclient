@@ -22,17 +22,17 @@ import uuid
 import logging
 import traceback
 
-from PySide import QtCore
+from PySide2 import QtCore
 
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflow.workflowerror import WorkflowError
 from mapclient.core.utils import convertExceptionToMessage, loadConfiguration, FileTypeObject
-from mapclient.settings.general import getConfigurationFile
+from mapclient.settings.general import get_configuration_file
 
 logger = logging.getLogger(__name__)
 
-class Item(object):
 
+class Item(object):
 
     def __init__(self):
         self._selected = True
@@ -324,7 +324,7 @@ class WorkflowScene(object):
             step = metastep.getStep()
             step_config = step.serialize()
             if step_config:
-                with open(getConfigurationFile(location, identifier), 'w') as f:
+                with open(get_configuration_file(location, identifier), 'w') as f:
                     f.write(step_config)
             ws.setArrayIndex(nodeIndex)
             source_uri = step.getSourceURI()

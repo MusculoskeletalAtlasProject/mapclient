@@ -17,14 +17,14 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide import QtGui
+from PySide2 import QtWidgets
 
 from mapclient.core.workflow.workflowscene import MetaStep, Connection
 from mapclient.view.workflow.workflowgraphicsitems import Node, Arc
 from mapclient.view.workflow.workflowcommands import CommandConfigure, CommandRemove
 
 
-class WorkflowGraphicsScene(QtGui.QGraphicsScene):
+class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
     """
     This view side class is a non-authoratative representation
     of the current workflow scene model.  It must be kept in
@@ -35,7 +35,7 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
     sceneHeight = 1.618 * sceneWidth
 
     def __init__(self, parent=None):
-        QtGui.QGraphicsScene.__init__(self, -self.sceneHeight // 2, -self.sceneWidth // 2, self.sceneHeight, self.sceneWidth, parent)
+        QtWidgets.QGraphicsScene.__init__(self, -self.sceneHeight // 2, -self.sceneWidth // 2, self.sceneHeight, self.sceneWidth, parent)
         self._workflow_scene = None
         self._previousSelection = []
         self._undoStack = None
@@ -51,13 +51,13 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
         self._undoStack = stack
 
     def addItem(self, item):
-        QtGui.QGraphicsScene.addItem(self, item)
+        QtWidgets.QGraphicsScene.addItem(self, item)
         if hasattr(item, 'Type'):
             if item.Type == Node.Type or item.Type == Arc.Type:
                 self._workflow_scene.addItem(item.metaItem())
 
     def removeItem(self, item):
-        QtGui.QGraphicsScene.removeItem(self, item)
+        QtWidgets.QGraphicsScene.removeItem(self, item)
         if hasattr(item, 'Type'):
             if item.Type == Node.Type:
                 self._workflow_scene.removeItem(item.metaItem())
@@ -71,7 +71,7 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
         Clears the QGraphicScene and re-populates it with what is currently
         in the WorkflowScene.
         """
-        QtGui.QGraphicsScene.clear(self)
+        QtWidgets.QGraphicsScene.clear(self)
         meta_steps = {}
         connections = []
         for workflowitem in self._workflow_scene.items():
@@ -84,7 +84,7 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
                 workflowitem._step.registerIdentifierOccursCount(self.identifierOccursCount)
                 # Put the node into the scene straight away so that the items scene will
                 # be valid when we set the position.
-                QtGui.QGraphicsScene.addItem(self, node)
+                QtWidgets.QGraphicsScene.addItem(self, node)
                 node.setPos(workflowitem.getPos())
                 self.blockSignals(True)
                 node.setSelected(workflowitem.getSelected())
@@ -101,7 +101,7 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
             # WorkflowScene
             arc._connection = connection
             # Again put the arc into the scene straight away so the scene will be valid
-            QtGui.QGraphicsScene.addItem(self, arc)
+            QtWidgets.QGraphicsScene.addItem(self, arc)
             self.blockSignals(True)
             arc.setSelected(connection.getSelected())
             self.blockSignals(False)
@@ -133,7 +133,7 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
         return newPos
 
     def clear(self):
-        QtGui.QGraphicsScene.clear(self)
+        QtWidgets.QGraphicsScene.clear(self)
         self._workflow_scene.clear()
 
     def previouslySelectedItems(self):
@@ -158,7 +158,7 @@ class WorkflowGraphicsScene(QtGui.QGraphicsScene):
             self._undoStack.push(CommandConfigure(self, self._currentConfigureNode, new_config, self._currentConfigureNodeConfig))
 
     def setCurrentWidget(self, widget):
-        self.parent().setCurrentWidget(widget)
+        self.parent().set_current_widget(widget)
 
     def setWidgetUndoRedoStack(self, stack):
         self.parent().setWidgetUndoRedoStack(stack)

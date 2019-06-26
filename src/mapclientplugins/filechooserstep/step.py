@@ -5,7 +5,7 @@ MAP Client Plugin Step
 import os
 import json
 
-from PySide import QtGui
+from PySide2 import QtWidgets, QtGui
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclientplugins.filechooserstep.configuredialog import ConfigureDialog
@@ -19,10 +19,10 @@ class FileChooserStep(WorkflowStepMountPoint):
 
     def __init__(self, location):
         super(FileChooserStep, self).__init__('File Chooser', location)
-        self._configured = False # A step cannot be executed until it has been configured.
+        self._configured = False  # A step cannot be executed until it has been configured.
         self._category = 'Source'
         # Add any other initialisation code here:
-        self._icon =  QtGui.QImage(':/filechooserstep/images/data-source.png')
+        self._icon = QtGui.QImage(':/filechooserstep/images/data-source.png')
         # Ports:
         self.addPort(('http://physiomeproject.org/workflow/1.0/rdf-schema#port',
                       'http://physiomeproject.org/workflow/1.0/rdf-schema#provides',
@@ -30,9 +30,7 @@ class FileChooserStep(WorkflowStepMountPoint):
         # Port data:
         self._portData0 = None # http://physiomeproject.org/workflow/1.0/rdf-schema#file_location
         # Config:
-        self._config = {}
-        self._config['identifier'] = ''
-        self._config['File'] = ''
+        self._config = {'identifier': '', 'File': ''}
 
     def execute(self):
         """
@@ -59,7 +57,7 @@ class FileChooserStep(WorkflowStepMountPoint):
         then set:
             self._configured = True
         """
-        dlg = ConfigureDialog(QtGui.QApplication.activeWindow().currentWidget())
+        dlg = ConfigureDialog(QtWidgets.QApplication.activeWindow().current_widget())
         dlg.setWorkflowLocation(self._location)
         dlg.identifierOccursCount = self._identifierOccursCount
         dlg.setConfig(self._config)

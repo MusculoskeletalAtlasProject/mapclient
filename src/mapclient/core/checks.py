@@ -8,7 +8,7 @@ import subprocess
 import os.path
 import platform
 
-from PySide import QtCore
+from PySide2 import QtCore
 
 from mapclient.settings.definitions import GIT_EXE, VIRTUAL_ENV_PATH, \
     PYSIDE_RCC_EXE, USE_EXTERNAL_GIT
@@ -86,6 +86,7 @@ class VCSChecks(ApplicationChecks):
                 self._report += "Internal Git did not execute successfully."
 
         return result
+
 
 def runChecks(options):
     check_status = True

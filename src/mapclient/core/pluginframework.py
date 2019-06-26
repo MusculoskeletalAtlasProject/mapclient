@@ -17,20 +17,21 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-"""
-Inspired by Marty Alchin's Simple plugin framework.
-http://martyalchin.com/2008/jan/10/simple-plugin-framework/
-"""
-
 import logging
 import os
 import imp
+
+from PySide2.QtCore import QObject
 
 from mapclient.settings.definitions import MAIN_MODULE
 
 logger = logging.getLogger(__name__)
 
 
+"""
+Inspired by Marty Alchin's Simple plugin framework.
+http://martyalchin.com/2008/jan/10/simple-plugin-framework/
+"""
 def getPlugins(pluginDirectory):
     """
     Get all plugins from the given directory.
@@ -96,12 +97,12 @@ class MetaPluginMountPoint(type):
 # Plugin mount points are defined below.
 # For running in both python 2.x and python 3.x we must follow the example found
 # at http://mikewatkins.ca/2008/11/29/python-2-and-3-metaclasses/
-from PySide.QtCore import QObject
-
 MetaQObject = type(QObject)
 
 # For multiple inheritance in classes we also need to create a metaclass that also
 # inherits from the metaclasses of the inherited classes
+
+
 class MetaQObjectPluginMountPoint(MetaQObject, MetaPluginMountPoint):
 
     def __init__(self, name, bases, attrs):
