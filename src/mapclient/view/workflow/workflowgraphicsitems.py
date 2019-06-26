@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import os, math, weakref
 
-from PySide2 import QtCore, QtWidgets
+from PySide2 import QtCore, QtWidgets, QtGui
 
 from mapclient.core.workflow.workflowscene import Connection
 from mapclient.tools.annotation.annotationdialog import AnnotationDialog
@@ -109,7 +109,7 @@ class Arc(Item):
         Item.__init__(self)
 
         self._arrowSize = 10.0
-        self._arrow = QtWidgets.QPolygonF()
+        self._arrow = QtGui.QPolygonF()
 
         self._connection = Connection(sourceNode.parentItem()._metastep, sourceNode.portIndex(), destNode.parentItem()._metastep, destNode.portIndex())
         self._connection.setSelected(False)
@@ -154,7 +154,7 @@ class Arc(Item):
         self._destPoint = line.p2() - arcOffset
 
     def shape(self):
-        path = QtWidgets.QPainterPath()
+        path = QtGui.QPainterPath()
         path.addPolygon(self._arrow)
         return path
 
@@ -182,7 +182,7 @@ class Arc(Item):
         if line.length() == 0.0:
             return
 
-        brush = QtWidgets.QBrush(QtCore.Qt.black)
+        brush = QtGui.QBrush(QtCore.Qt.black)
         if option.state & QtWidgets.QStyle.State_Selected:  # or self.selected:
             painter.setBrush(QtCore.Qt.darkGray)
             painter.drawRoundedRect(self.boundingRect(), 5, 5)
@@ -209,7 +209,7 @@ class Arc(Item):
             self._arrow.append(destArrowP2)
             painter.drawPolygon(self._arrow)
 
-        painter.setPen(QtWidgets.QPen(brush, 1, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
+        painter.setPen(QtGui.QPen(brush, 1, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
         # painter.setPen(QtGui.QPen(QtCore.Qt.SolidLine))
         painter.drawLine(line)
 
@@ -227,9 +227,9 @@ class Node(Item):
         self._metastep = metastep
         icon = self._metastep._step._icon
         if not icon:
-            icon = QtWidgets.QImage(':/workflow/images/default_step_icon.png')
+            icon = QtGui.QImage(':/workflow/images/default_step_icon.png')
 
-        self._pixmap = QtWidgets.QPixmap.fromImage(icon)\
+        self._pixmap = QtGui.QPixmap.fromImage(icon)\
             .scaled(self.Size, self.Size, aspectRatioMode=QtCore.Qt.KeepAspectRatio,
                     transformMode=QtCore.Qt.FastTransformation)
 
@@ -436,7 +436,7 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
         self.setBrush(QtCore.Qt.black)
         self._port = port
         self._connections = []
-        self._pixmap = QtWidgets.QPixmap(':/workflow/images/icon-port.png')
+        self._pixmap = QtGui.QPixmap(':/workflow/images/icon-port.png')
         # .scaled(11, 11, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
 
     def paint(self, painter, option, widget):
@@ -523,7 +523,7 @@ class MercurialIcon(QtWidgets.QGraphicsItem):
 
     def __init__(self, *args, **kwargs):
         super(MercurialIcon, self).__init__(*args, **kwargs)
-        self._hg_yellow = QtWidgets.QPixmap(':/workflow/images/modified_repo.png')\
+        self._hg_yellow = QtGui.QPixmap(':/workflow/images/modified_repo.png')\
             .scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
         self.setToolTip('The repository has been modified')
 
@@ -546,8 +546,8 @@ class ConfigureIcon(QtWidgets.QGraphicsItem):
     def __init__(self, *args, **kwargs):
         super(ConfigureIcon, self).__init__(*args, **kwargs)
         self._configured = False
-        self._configure_green = QtWidgets.QPixmap(':/workflow/images/configure_green.png').scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
-        self._configure_red = QtWidgets.QPixmap(':/workflow/images/configure_red.png').scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        self._configure_green = QtGui.QPixmap(':/workflow/images/configure_green.png').scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        self._configure_red = QtGui.QPixmap(':/workflow/images/configure_red.png').scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
         self.setToolTip('Configure the step')
 
     def setConfigured(self, state):
@@ -567,7 +567,7 @@ class ConfigureIcon(QtWidgets.QGraphicsItem):
         event.accept()
 
     def mouseReleaseEvent(self, event):
-        if self.scene().itemAt(event.scenePos()) == self:
+        if self.scene().itemAt(event.scenePos(), QtGui.QTransform()) == self:
             self.parentItem().configureMe()
 
 
@@ -608,4 +608,4 @@ class ArrowLine(QtWidgets.QGraphicsLineItem):
 
             painter.setBrush(QtCore.Qt.black)
 #        painter.drawPolygon(QtGui.QPolygonF([line.p1(), sourceArrowP1, sourceArrowP2]))
-            painter.drawPolygon(QtWidgets.QPolygonF([midPoint, destArrowP1, destArrowP2]))
+            painter.drawPolygon(QtGui.QPolygonF([midPoint, destArrowP1, destArrowP2]))

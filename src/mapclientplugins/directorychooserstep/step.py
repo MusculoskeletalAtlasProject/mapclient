@@ -57,7 +57,7 @@ class DirectoryChooserStep(WorkflowStepMountPoint):
         then set:
             self._configured = True
         """
-        dlg = ConfigureDialog(QtGui.QApplication.activeWindow().current_widget())
+        dlg = ConfigureDialog(QtGui.QApplication.activeWindow().currentWidget())
         dlg.setWorkflowLocation(self._location)
         dlg.identifierOccursCount = self._identifierOccursCount
         dlg.setConfig(self._config)

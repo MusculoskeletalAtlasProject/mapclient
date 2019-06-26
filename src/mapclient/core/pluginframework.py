@@ -32,6 +32,8 @@ logger = logging.getLogger(__name__)
 Inspired by Marty Alchin's Simple plugin framework.
 http://martyalchin.com/2008/jan/10/simple-plugin-framework/
 """
+
+
 def getPlugins(pluginDirectory):
     """
     Get all plugins from the given directory.
@@ -50,10 +52,6 @@ def getPlugins(pluginDirectory):
         plugins.append({'name': i, 'info': info})
 
     return plugins
-
-
-def loadPlugin(plugin):
-    return imp.load_module(MAIN_MODULE, *plugin['info'])
 
 
 class MetaPluginMountPoint(type):
