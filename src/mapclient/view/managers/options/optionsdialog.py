@@ -8,7 +8,7 @@ import os.path
 from PySide import QtGui
 
 from mapclient.view.managers.options.ui.ui_optionsdialog import Ui_OptionsDialog
-from mapclient.core.checks import WizardToolChecks, VirtualEnvChecks, VCSChecks
+from mapclient.core.checks import WizardToolChecks, VCSChecks
 from mapclient.view.syntaxhighlighter import SyntaxHighlighter
 from mapclient.settings.definitions import VIRTUAL_ENVIRONMENT_STRING, \
     WIZARD_TOOL_STRING, PMR_TOOL_STRING
