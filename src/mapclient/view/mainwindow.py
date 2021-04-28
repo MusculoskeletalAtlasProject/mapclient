@@ -242,8 +242,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_Undo.setEnabled(canUndo)
 
     def execute(self):
-        if self._ui.stackedWidget.current_widget() != self._workflowWidget:
-            self._ui.stackedWidget.set_current_widget(self._workflowWidget)
+        if self.current_widget() != self._workflowWidget:
+            self.set_current_widget(self._workflowWidget)
             self.set_current_undo_redo_stack(self._workflowWidget.undoRedoStack())
         self.model().workflowManager().execute()
 
@@ -251,7 +251,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_current_widget(self, widget):
         if self._ui.stackedWidget.indexOf(widget) <= 0:
             self._ui.stackedWidget.addWidget(widget)
-        self._ui.stackedWidget.set_current_widget(widget)
+        self._ui.stackedWidget.setCurrentWidget(widget)
 
     def current_widget(self):
         return self._ui.stackedWidget.currentWidget()
