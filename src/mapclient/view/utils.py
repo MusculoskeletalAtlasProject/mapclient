@@ -99,5 +99,5 @@ def handle_runtime_error(f):
             return f(self, *a, **kw)
         except ClientRuntimeError as e:
             logger.error('{0}: {1}'.format(e.title, e.description))
-            QtGui.QMessageBox.critical(self, e.title, e.description)
+            QtWidgets.QMessageBox.critical(self, e.title, e.description)
     return do_runtime_error

@@ -158,7 +158,7 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
             self._undoStack.push(CommandConfigure(self, self._currentConfigureNode, new_config, self._currentConfigureNodeConfig))
 
     def setCurrentWidget(self, widget):
-        self.parent().set_current_widget(widget)
+        self.parent().setCurrentWidget(widget)
 
     def setWidgetUndoRedoStack(self, stack):
         self.parent().setWidgetUndoRedoStack(stack)
