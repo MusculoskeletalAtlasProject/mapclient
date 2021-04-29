@@ -18,15 +18,17 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 
-from PySide import QtGui, QtCore
-from PySide.QtCore import QThread, QObject, Signal
+import time
+import subprocess
+import random
+import logging
 
-import time, subprocess, random, logging
+from PySide2 import QtWidgets
+from PySide2.QtCore import QObject, Signal
 
 from mapclient.view.managers.plugins.pluginprogress import PluginProgress
-from mapclient.view.ui_progressdialog import Ui_ProgressDialog
+from mapclient.view.ui.ui_progressdialog import Ui_ProgressDialog
 from mapclient.core.utils import convertExceptionToMessage
-from mapclient.view.managers.plugins.manager import PluginManager
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +40,7 @@ class MySignal(QObject):
 class InstallDependencies(PluginProgress):
 
     def __init__(self, packages_to_install, virt_env_dir, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
         self._ui = Ui_ProgressDialog()
         self._ui.setupUi(self)
         self.count = 0

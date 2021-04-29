@@ -17,12 +17,12 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide import QtGui
+from PySide2 import QtWidgets
 
 from mapclient.tools.pmr.dialogs.ui_addhostdialog import Ui_AddHostDialog
 
 
-class AddHostDialog(QtGui.QDialog):
+class AddHostDialog(QtWidgets.QDialog):
     
     def __init__(self, parent=None):
         super(AddHostDialog, self).__init__(parent)
@@ -31,5 +31,3 @@ class AddHostDialog(QtGui.QDialog):
         
     def getHost(self):
         return self._ui.urlLineEdit.text()
-        
-        

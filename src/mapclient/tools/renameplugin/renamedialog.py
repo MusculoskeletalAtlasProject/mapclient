@@ -4,7 +4,7 @@ import os
 import shutil
 import subprocess
 
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtWidgets
 
 from mapclient.core.managers.pluginmanager import isMapClientPluginsDir
 from mapclient.core.utils import grep, determinePackageName, determineStepClassName, determineStepName, \
@@ -13,10 +13,10 @@ from mapclient.settings.definitions import PLUGINS_PACKAGE_NAME
 from mapclient.tools.renameplugin.ui.ui_renamedialog import Ui_RenameDialog
 
 
-class RenameDialog(QtGui.QDialog):
+class RenameDialog(QtWidgets.QDialog):
 
     def __init__(self, pyside_rcc, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
 
         self._ui = Ui_RenameDialog()
         self._ui.setupUi(self)
@@ -44,7 +44,7 @@ class RenameDialog(QtGui.QDialog):
     def _runRenameSearch(self):
         self._ui.treeWidgetRename.clear()
         self._ui.treeWidgetRename.setColumnCount(1)
-        root = QtGui.QTreeWidgetItem(self._ui.treeWidgetRename, ['Found Occurrences'])
+        root = QtWidgets.QTreeWidgetItem(self._ui.treeWidgetRename, ['Found Occurrences'])
 
         package_name = self._ui.lineEditRenamePackageFrom.text()
         new_package_name = self._ui.lineEditRenamePackageTo.text()
@@ -72,7 +72,7 @@ class RenameDialog(QtGui.QDialog):
                 file_branch = items[0]
                 new_item = False
             else:
-                file_branch = QtGui.QTreeWidgetItem(root_item, [result_file])
+                file_branch = QtWidgets.QTreeWidgetItem(root_item, [result_file])
                 new_item = True
             for results in result_files[result_file]:
                 line_no = results[0]
@@ -81,7 +81,7 @@ class RenameDialog(QtGui.QDialog):
                     line_leaf = self._find_matching_leaf_item(file_branch, line_no)
 
                 if line_leaf is None:
-                    line_leaf = QtGui.QTreeWidgetItem(file_branch)
+                    line_leaf = QtWidgets.QTreeWidgetItem(file_branch)
                     line_leaf.setCheckState(0, QtCore.Qt.Checked)
                     preview_string = results[1]
                 else:
@@ -116,7 +116,7 @@ class RenameDialog(QtGui.QDialog):
         self._setRenameButtonEnabled()
 
     def _chooseStepClicked(self):
-        location = QtGui.QFileDialog.getExistingDirectory(self, 'Select Directory', self._previousLocation)
+        location = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select Directory', self._previousLocation)
 
         if location:
             self._previousLocation = location
@@ -143,7 +143,7 @@ class RenameDialog(QtGui.QDialog):
 
     def _renameClicked(self):
         tree = self._ui.treeWidgetRename
-        tree_it = QtGui.QTreeWidgetItemIterator(tree)
+        tree_it = QtWidgets.QTreeWidgetItemIterator(tree)
         for tree_item in tree_it:
             item = tree_item.value()
             if item.childCount() == 0:  # Leaf node
@@ -154,15 +154,15 @@ class RenameDialog(QtGui.QDialog):
                     self._doRename(filename, line_no, new_string)
 
         if self._updateResourceFile():
-            QtGui.QMessageBox.critical(self, 'Rename', 'Errors when running pyside-rcc.')
+            QtWidgets.QMessageBox.critical(self, 'Rename', 'Errors when running pyside-rcc.')
             return
 
         try:
             self._doDirectoryRename()
-            QtGui.QMessageBox.information(self, 'Rename', 'Renaming the step was successful')
+            QtWidgets.QMessageBox.information(self, 'Rename', 'Renaming the step was successful')
             self.accept()
         except OSError:
-            QtGui.QMessageBox.critical(self, 'Rename directory', 'Could not rename the directory.')
+            QtWidgets.QMessageBox.critical(self, 'Rename directory', 'Could not rename the directory.')
 
     def _updateResourceFile(self):
         target = self._ui.lineEditStepLocation.text()

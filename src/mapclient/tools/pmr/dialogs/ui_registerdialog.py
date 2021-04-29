@@ -1,106 +1,147 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt/registerdialog.ui'
-#
-# Created: Tue Oct 20 10:16:45 2015
-#      by: pyside-uic 0.2.15 running on PySide 1.2.2
-#
-# WARNING! All changes made in this file will be lost!
+################################################################################
+## Form generated from reading UI file 'registerdialog.ui'
+##
+## Created by: Qt User Interface Compiler version 5.15.2
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
 
-from PySide import QtCore, QtGui
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+
+from mapclient.tools.pmr.widgets.settingswidget import SettingsWidget
+
 
 class Ui_RegisterDialog(object):
     def setupUi(self, RegisterDialog):
-        RegisterDialog.setObjectName("RegisterDialog")
+        if not RegisterDialog.objectName():
+            RegisterDialog.setObjectName(u"RegisterDialog")
         RegisterDialog.resize(433, 489)
-        self.verticalLayout = QtGui.QVBoxLayout(RegisterDialog)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.horizontalLayout = QtGui.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.label = QtGui.QLabel(RegisterDialog)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        self.verticalLayout = QVBoxLayout(RegisterDialog)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.label = QLabel(RegisterDialog)
+        self.label.setObjectName(u"label")
+        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(10)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
         self.label.setSizePolicy(sizePolicy)
-        self.label.setObjectName("label")
+
         self.horizontalLayout.addWidget(self.label)
+
+
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.tabWidget = QtGui.QTabWidget(RegisterDialog)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
-        self.tabWidget.setSizePolicy(sizePolicy)
-        self.tabWidget.setObjectName("tabWidget")
-        self.registerTab = QtGui.QWidget()
-        self.registerTab.setObjectName("registerTab")
-        self.verticalLayout_2 = QtGui.QVBoxLayout(self.registerTab)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.stackedWidgetRegister = QtGui.QStackedWidget(self.registerTab)
-        self.stackedWidgetRegister.setObjectName("stackedWidgetRegister")
-        self.page = QtGui.QWidget()
-        self.page.setObjectName("page")
-        self.verticalLayout_3 = QtGui.QVBoxLayout(self.page)
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.horizontalLayout_2 = QtGui.QHBoxLayout()
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.pushButtonRegister = QtGui.QPushButton(self.page)
-        self.pushButtonRegister.setObjectName("pushButtonRegister")
+
+        self.tabWidget = QTabWidget(RegisterDialog)
+        self.tabWidget.setObjectName(u"tabWidget")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(1)
+        sizePolicy1.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
+        self.tabWidget.setSizePolicy(sizePolicy1)
+        self.registerTab = QWidget()
+        self.registerTab.setObjectName(u"registerTab")
+        self.verticalLayout_2 = QVBoxLayout(self.registerTab)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.stackedWidgetRegister = QStackedWidget(self.registerTab)
+        self.stackedWidgetRegister.setObjectName(u"stackedWidgetRegister")
+        self.page = QWidget()
+        self.page.setObjectName(u"page")
+        self.verticalLayout_3 = QVBoxLayout(self.page)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.pushButtonRegister = QPushButton(self.page)
+        self.pushButtonRegister.setObjectName(u"pushButtonRegister")
+
         self.horizontalLayout_2.addWidget(self.pushButtonRegister)
-        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem)
+
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_2.addItem(self.horizontalSpacer)
+
+
         self.verticalLayout_3.addLayout(self.horizontalLayout_2)
-        spacerItem1 = QtGui.QSpacerItem(20, 142, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.verticalLayout_3.addItem(spacerItem1)
+
+        self.verticalSpacer_2 = QSpacerItem(20, 142, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_3.addItem(self.verticalSpacer_2)
+
         self.stackedWidgetRegister.addWidget(self.page)
-        self.page_2 = QtGui.QWidget()
-        self.page_2.setObjectName("page_2")
-        self.verticalLayout_4 = QtGui.QVBoxLayout(self.page_2)
-        self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.horizontalLayout_3 = QtGui.QHBoxLayout()
-        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.pushButtonDeregister = QtGui.QPushButton(self.page_2)
-        self.pushButtonDeregister.setObjectName("pushButtonDeregister")
+        self.page_2 = QWidget()
+        self.page_2.setObjectName(u"page_2")
+        self.verticalLayout_4 = QVBoxLayout(self.page_2)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.horizontalLayout_3 = QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.pushButtonDeregister = QPushButton(self.page_2)
+        self.pushButtonDeregister.setObjectName(u"pushButtonDeregister")
+
         self.horizontalLayout_3.addWidget(self.pushButtonDeregister)
-        spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem2)
+
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_3.addItem(self.horizontalSpacer_2)
+
+
         self.verticalLayout_4.addLayout(self.horizontalLayout_3)
-        spacerItem3 = QtGui.QSpacerItem(20, 142, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.verticalLayout_4.addItem(spacerItem3)
+
+        self.verticalSpacer_3 = QSpacerItem(20, 142, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_4.addItem(self.verticalSpacer_3)
+
         self.stackedWidgetRegister.addWidget(self.page_2)
+
         self.verticalLayout_2.addWidget(self.stackedWidgetRegister)
-        spacerItem4 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.verticalLayout_2.addItem(spacerItem4)
+
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_2.addItem(self.verticalSpacer)
+
         self.tabWidget.addTab(self.registerTab, "")
-        self.settingsTab = QtGui.QWidget()
-        self.settingsTab.setObjectName("settingsTab")
-        self.horizontalLayout_5 = QtGui.QHBoxLayout(self.settingsTab)
-        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        self.settingsTab = QWidget()
+        self.settingsTab.setObjectName(u"settingsTab")
+        self.horizontalLayout_5 = QHBoxLayout(self.settingsTab)
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.settingsWidget = SettingsWidget(self.settingsTab)
-        self.settingsWidget.setObjectName("settingsWidget")
+        self.settingsWidget.setObjectName(u"settingsWidget")
+
         self.horizontalLayout_5.addWidget(self.settingsWidget)
+
         self.tabWidget.addTab(self.settingsTab, "")
+
         self.verticalLayout.addWidget(self.tabWidget)
-        self.buttonBox = QtGui.QDialogButtonBox(RegisterDialog)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
-        self.buttonBox.setObjectName("buttonBox")
+
+        self.buttonBox = QDialogButtonBox(RegisterDialog)
+        self.buttonBox.setObjectName(u"buttonBox")
+        self.buttonBox.setOrientation(Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+
         self.verticalLayout.addWidget(self.buttonBox)
 
+
         self.retranslateUi(RegisterDialog)
+        self.buttonBox.accepted.connect(RegisterDialog.accept)
+        self.buttonBox.rejected.connect(RegisterDialog.reject)
+
         self.tabWidget.setCurrentIndex(0)
         self.stackedWidgetRegister.setCurrentIndex(0)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), RegisterDialog.accept)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("rejected()"), RegisterDialog.reject)
-        QtCore.QMetaObject.connectSlotsByName(RegisterDialog)
+
+
+        QMetaObject.connectSlotsByName(RegisterDialog)
+    # setupUi
 
     def retranslateUi(self, RegisterDialog):
-        RegisterDialog.setWindowTitle(QtGui.QApplication.translate("RegisterDialog", "PMR Register", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("RegisterDialog", "Physiome Model Repository", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonRegister.setText(QtGui.QApplication.translate("RegisterDialog", "&Register", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonDeregister.setText(QtGui.QApplication.translate("RegisterDialog", "&Deregister", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.registerTab), QtGui.QApplication.translate("RegisterDialog", "Register", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.settingsTab), QtGui.QApplication.translate("RegisterDialog", "Settings", None, QtGui.QApplication.UnicodeUTF8))
+        RegisterDialog.setWindowTitle(QCoreApplication.translate("RegisterDialog", u"PMR Register", None))
+        self.label.setText(QCoreApplication.translate("RegisterDialog", u"Physiome Model Repository", None))
+        self.pushButtonRegister.setText(QCoreApplication.translate("RegisterDialog", u"&Register", None))
+        self.pushButtonDeregister.setText(QCoreApplication.translate("RegisterDialog", u"&Deregister", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.registerTab), QCoreApplication.translate("RegisterDialog", u"Register", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.settingsTab), QCoreApplication.translate("RegisterDialog", u"Settings", None))
+    # retranslateUi
 
-from mapclient.tools.pmr.widgets.settingswidget import SettingsWidget

@@ -1,39 +1,51 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt/ports.ui'
-#
-# Created: Fri Oct 11 15:59:32 2013
-#      by: pyside-uic 0.2.14 running on PySide 1.1.2
-#
-# WARNING! All changes made in this file will be lost!
+################################################################################
+## Form generated from reading UI file 'ports.ui'
+##
+## Created by: Qt User Interface Compiler version 5.15.2
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
 
-from PySide import QtCore, QtGui
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+
 
 class Ui_Ports(object):
     def setupUi(self, Ports):
-        Ports.setObjectName("Ports")
+        if not Ports.objectName():
+            Ports.setObjectName(u"Ports")
         Ports.resize(400, 300)
-        self.gridLayout = QtGui.QGridLayout(Ports)
-        self.gridLayout.setObjectName("gridLayout")
-        self.addButton = QtGui.QPushButton(Ports)
-        self.addButton.setObjectName("addButton")
+        self.gridLayout = QGridLayout(Ports)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.addButton = QPushButton(Ports)
+        self.addButton.setObjectName(u"addButton")
+
         self.gridLayout.addWidget(self.addButton, 0, 1, 1, 1)
-        self.portTableWidget = QtGui.QTableWidget(Ports)
-        self.portTableWidget.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
-        self.portTableWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        self.portTableWidget.setObjectName("portTableWidget")
-        self.portTableWidget.setColumnCount(0)
-        self.portTableWidget.setRowCount(0)
+
+        self.portTableWidget = QTableWidget(Ports)
+        self.portTableWidget.setObjectName(u"portTableWidget")
+        self.portTableWidget.setSelectionMode(QAbstractItemView.MultiSelection)
+        self.portTableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
+
         self.gridLayout.addWidget(self.portTableWidget, 0, 0, 3, 1)
-        self.removeButton = QtGui.QPushButton(Ports)
-        self.removeButton.setObjectName("removeButton")
+
+        self.removeButton = QPushButton(Ports)
+        self.removeButton.setObjectName(u"removeButton")
+
         self.gridLayout.addWidget(self.removeButton, 1, 1, 1, 1)
 
+
         self.retranslateUi(Ports)
-        QtCore.QMetaObject.connectSlotsByName(Ports)
+
+        QMetaObject.connectSlotsByName(Ports)
+    # setupUi
 
     def retranslateUi(self, Ports):
-        Ports.setWindowTitle(QtGui.QApplication.translate("Ports", "Form", None, QtGui.QApplication.UnicodeUTF8))
-        self.addButton.setText(QtGui.QApplication.translate("Ports", "Add", None, QtGui.QApplication.UnicodeUTF8))
-        self.removeButton.setText(QtGui.QApplication.translate("Ports", "Remove", None, QtGui.QApplication.UnicodeUTF8))
+        Ports.setWindowTitle(QCoreApplication.translate("Ports", u"Form", None))
+        self.addButton.setText(QCoreApplication.translate("Ports", u"Add", None))
+        self.removeButton.setText(QCoreApplication.translate("Ports", u"Remove", None))
+    # retranslateUi
 

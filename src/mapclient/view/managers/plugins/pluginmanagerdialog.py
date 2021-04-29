@@ -18,17 +18,17 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import os
-from PySide import QtGui
+from PySide2 import QtWidgets
 from mapclient.view.managers.plugins.ui.ui_pluginmanagerdialog import Ui_PluginManagerDialog
 
 
-class PluginManagerDialog(QtGui.QDialog):
+class PluginManagerDialog(QtWidgets.QDialog):
     """
     Dialog for managing the list of plugin directories.
     """
 
     def __init__(self, ignored_plugins_list, do_not_show_plugin_errors, resource_filenames, updater_settings, unsuccessful_package_installations, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
         self._ui = Ui_PluginManagerDialog()
         self._ui.setupUi(self)
         self._ui.removeButton.setEnabled(False)
@@ -71,7 +71,7 @@ class PluginManagerDialog(QtGui.QDialog):
         if last:
             last = last.text()
 
-        directory = QtGui.QFileDialog.getExistingDirectory(self, caption='Select External Plugin Directory', directory=last, options=QtGui.QFileDialog.ShowDirsOnly | QtGui.QFileDialog.DontResolveSymlinks | QtGui.QFileDialog.ReadOnly)
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, caption='Select External Plugin Directory', directory=last, options=QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks | QtWidgets.QFileDialog.ReadOnly)
         if len(directory) > 0:
             self._ui.directoryListing.addItem(directory)
 

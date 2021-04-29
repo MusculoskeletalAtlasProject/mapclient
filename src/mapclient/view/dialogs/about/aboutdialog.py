@@ -17,18 +17,19 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide.QtGui import QDialog
+from PySide2 import QtWidgets
 
 from mapclient.settings import info
 from mapclient.view.dialogs.about.ui.ui_aboutdialog import Ui_AboutDialog
 
-class AboutDialog(QDialog):
+
+class AboutDialog(QtWidgets.QDialog):
     """
     About dialog to display program about information.
     """
 
     def __init__(self, parent=None):
-        QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
         self._ui = Ui_AboutDialog()
         self._ui.setupUi(self)
         text = self._ui.aboutTextLabel.text()
@@ -50,4 +51,3 @@ class AboutDialog(QDialog):
         dlg = LicenseDialog(self)
         dlg.setModal(True)
         dlg.exec_()
-

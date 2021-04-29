@@ -1,44 +1,60 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt/addhostdialog.ui'
-#
-# Created: Mon Mar  2 14:17:30 2015
-#      by: pyside-uic 0.2.15 running on PySide 1.2.2
-#
-# WARNING! All changes made in this file will be lost!
+################################################################################
+## Form generated from reading UI file 'addhostdialog.ui'
+##
+## Created by: Qt User Interface Compiler version 5.15.2
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
 
-from PySide import QtCore, QtGui
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+
 
 class Ui_AddHostDialog(object):
     def setupUi(self, AddHostDialog):
-        AddHostDialog.setObjectName("AddHostDialog")
+        if not AddHostDialog.objectName():
+            AddHostDialog.setObjectName(u"AddHostDialog")
         AddHostDialog.resize(360, 104)
-        self.verticalLayout = QtGui.QVBoxLayout(AddHostDialog)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.groupBox = QtGui.QGroupBox(AddHostDialog)
-        self.groupBox.setObjectName("groupBox")
-        self.horizontalLayout = QtGui.QHBoxLayout(self.groupBox)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.label = QtGui.QLabel(self.groupBox)
-        self.label.setObjectName("label")
+        self.verticalLayout = QVBoxLayout(AddHostDialog)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.groupBox = QGroupBox(AddHostDialog)
+        self.groupBox.setObjectName(u"groupBox")
+        self.horizontalLayout = QHBoxLayout(self.groupBox)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.label = QLabel(self.groupBox)
+        self.label.setObjectName(u"label")
+
         self.horizontalLayout.addWidget(self.label)
-        self.urlLineEdit = QtGui.QLineEdit(self.groupBox)
-        self.urlLineEdit.setObjectName("urlLineEdit")
+
+        self.urlLineEdit = QLineEdit(self.groupBox)
+        self.urlLineEdit.setObjectName(u"urlLineEdit")
+
         self.horizontalLayout.addWidget(self.urlLineEdit)
+
+
         self.verticalLayout.addWidget(self.groupBox)
-        self.buttonBox = QtGui.QDialogButtonBox(AddHostDialog)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
-        self.buttonBox.setObjectName("buttonBox")
+
+        self.buttonBox = QDialogButtonBox(AddHostDialog)
+        self.buttonBox.setObjectName(u"buttonBox")
+        self.buttonBox.setOrientation(Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+
         self.verticalLayout.addWidget(self.buttonBox)
 
+
         self.retranslateUi(AddHostDialog)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), AddHostDialog.accept)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("rejected()"), AddHostDialog.reject)
-        QtCore.QMetaObject.connectSlotsByName(AddHostDialog)
+        self.buttonBox.accepted.connect(AddHostDialog.accept)
+        self.buttonBox.rejected.connect(AddHostDialog.reject)
+
+        QMetaObject.connectSlotsByName(AddHostDialog)
+    # setupUi
 
     def retranslateUi(self, AddHostDialog):
-        AddHostDialog.setWindowTitle(QtGui.QApplication.translate("AddHostDialog", "Add Host", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox.setTitle(QtGui.QApplication.translate("AddHostDialog", "PMR Web Address", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("AddHostDialog", "url: ", None, QtGui.QApplication.UnicodeUTF8))
+        AddHostDialog.setWindowTitle(QCoreApplication.translate("AddHostDialog", u"Add Host", None))
+        self.groupBox.setTitle(QCoreApplication.translate("AddHostDialog", u"PMR Web Address", None))
+        self.label.setText(QCoreApplication.translate("AddHostDialog", u"url: ", None))
+    # retranslateUi
 

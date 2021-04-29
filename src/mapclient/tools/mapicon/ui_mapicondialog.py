@@ -1,100 +1,142 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt/mapicondialog.ui'
-#
-# Created: Wed Jun 24 14:52:27 2015
-#      by: pyside-uic 0.2.15 running on PySide 1.2.2
-#
-# WARNING! All changes made in this file will be lost!
+################################################################################
+## Form generated from reading UI file 'mapicondialog.ui'
+##
+## Created by: Qt User Interface Compiler version 5.15.2
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
 
-from PySide import QtCore, QtGui
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+
 
 class Ui_MAPIconDialog(object):
     def setupUi(self, MAPIconDialog):
-        MAPIconDialog.setObjectName("MAPIconDialog")
+        if not MAPIconDialog.objectName():
+            MAPIconDialog.setObjectName(u"MAPIconDialog")
         MAPIconDialog.resize(546, 311)
-        self.gridLayout = QtGui.QGridLayout(MAPIconDialog)
-        self.gridLayout.setObjectName("gridLayout")
-        self.labelStepIcon = QtGui.QLabel(MAPIconDialog)
-        self.labelStepIcon.setObjectName("labelStepIcon")
+        self.gridLayout = QGridLayout(MAPIconDialog)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.labelStepIcon = QLabel(MAPIconDialog)
+        self.labelStepIcon.setObjectName(u"labelStepIcon")
+
         self.gridLayout.addWidget(self.labelStepIcon, 0, 0, 1, 1)
-        self.lineEditStepIcon = QtGui.QLineEdit(MAPIconDialog)
+
+        self.lineEditStepIcon = QLineEdit(MAPIconDialog)
+        self.lineEditStepIcon.setObjectName(u"lineEditStepIcon")
         self.lineEditStepIcon.setEnabled(True)
-        self.lineEditStepIcon.setToolTip("")
-        self.lineEditStepIcon.setObjectName("lineEditStepIcon")
+
         self.gridLayout.addWidget(self.lineEditStepIcon, 0, 1, 1, 1)
-        self.pushButtonStepIcon = QtGui.QPushButton(MAPIconDialog)
-        self.pushButtonStepIcon.setObjectName("pushButtonStepIcon")
+
+        self.pushButtonStepIcon = QPushButton(MAPIconDialog)
+        self.pushButtonStepIcon.setObjectName(u"pushButtonStepIcon")
+
         self.gridLayout.addWidget(self.pushButtonStepIcon, 0, 2, 1, 1)
-        self.labelBackgroundIcon = QtGui.QLabel(MAPIconDialog)
-        self.labelBackgroundIcon.setObjectName("labelBackgroundIcon")
+
+        self.labelBackgroundIcon = QLabel(MAPIconDialog)
+        self.labelBackgroundIcon.setObjectName(u"labelBackgroundIcon")
+
         self.gridLayout.addWidget(self.labelBackgroundIcon, 1, 0, 1, 1)
-        self.lineEditBackgroundIcon = QtGui.QLineEdit(MAPIconDialog)
-        self.lineEditBackgroundIcon.setObjectName("lineEditBackgroundIcon")
+
+        self.lineEditBackgroundIcon = QLineEdit(MAPIconDialog)
+        self.lineEditBackgroundIcon.setObjectName(u"lineEditBackgroundIcon")
+
         self.gridLayout.addWidget(self.lineEditBackgroundIcon, 1, 1, 1, 1)
-        self.pushButtonBackgroundIcon = QtGui.QPushButton(MAPIconDialog)
-        self.pushButtonBackgroundIcon.setObjectName("pushButtonBackgroundIcon")
+
+        self.pushButtonBackgroundIcon = QPushButton(MAPIconDialog)
+        self.pushButtonBackgroundIcon.setObjectName(u"pushButtonBackgroundIcon")
+
         self.gridLayout.addWidget(self.pushButtonBackgroundIcon, 1, 2, 1, 1)
-        self.labelCombinedIcon = QtGui.QLabel(MAPIconDialog)
-        self.labelCombinedIcon.setObjectName("labelCombinedIcon")
+
+        self.labelCombinedIcon = QLabel(MAPIconDialog)
+        self.labelCombinedIcon.setObjectName(u"labelCombinedIcon")
+
         self.gridLayout.addWidget(self.labelCombinedIcon, 2, 0, 1, 1)
-        self.lineEditCombinedIcon = QtGui.QLineEdit(MAPIconDialog)
-        self.lineEditCombinedIcon.setObjectName("lineEditCombinedIcon")
+
+        self.lineEditCombinedIcon = QLineEdit(MAPIconDialog)
+        self.lineEditCombinedIcon.setObjectName(u"lineEditCombinedIcon")
+
         self.gridLayout.addWidget(self.lineEditCombinedIcon, 2, 1, 1, 1)
-        self.pushButtonCombinedIcon = QtGui.QPushButton(MAPIconDialog)
-        self.pushButtonCombinedIcon.setObjectName("pushButtonCombinedIcon")
+
+        self.pushButtonCombinedIcon = QPushButton(MAPIconDialog)
+        self.pushButtonCombinedIcon.setObjectName(u"pushButtonCombinedIcon")
+
         self.gridLayout.addWidget(self.pushButtonCombinedIcon, 2, 2, 1, 1)
-        self.frame = QtGui.QFrame(MAPIconDialog)
-        self.frame.setMinimumSize(QtCore.QSize(0, 72))
-        font = QtGui.QFont()
-        font.setWeight(50)
+
+        self.frame = QFrame(MAPIconDialog)
+        self.frame.setObjectName(u"frame")
+        self.frame.setMinimumSize(QSize(0, 72))
+        font = QFont()
         font.setBold(False)
+        font.setWeight(50)
         self.frame.setFont(font)
         self.frame.setAutoFillBackground(False)
-        self.frame.setStyleSheet("QFrame {background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 aliceblue, stop:1 lightskyblue);}\n"
+        self.frame.setStyleSheet(u"QFrame {background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 aliceblue, stop:1 lightskyblue);}\n"
 "QLabel {background-color: transparent}")
-        self.frame.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.frame.setFrameShadow(QtGui.QFrame.Raised)
-        self.frame.setObjectName("frame")
-        self.gridLayout_2 = QtGui.QGridLayout(self.frame)
-        self.gridLayout_2.setObjectName("gridLayout_2")
-        self.labelIconPicture = QtGui.QLabel(self.frame)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        self.frame.setFrameShape(QFrame.StyledPanel)
+        self.frame.setFrameShadow(QFrame.Raised)
+        self.gridLayout_2 = QGridLayout(self.frame)
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.labelIconPicture = QLabel(self.frame)
+        self.labelIconPicture.setObjectName(u"labelIconPicture")
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.labelIconPicture.sizePolicy().hasHeightForWidth())
         self.labelIconPicture.setSizePolicy(sizePolicy)
-        self.labelIconPicture.setMinimumSize(QtCore.QSize(64, 64))
-        self.labelIconPicture.setMaximumSize(QtCore.QSize(64, 64))
-        self.labelIconPicture.setAlignment(QtCore.Qt.AlignCenter)
-        self.labelIconPicture.setObjectName("labelIconPicture")
+        self.labelIconPicture.setMinimumSize(QSize(64, 64))
+        self.labelIconPicture.setMaximumSize(QSize(64, 64))
+        self.labelIconPicture.setAlignment(Qt.AlignCenter)
+
         self.gridLayout_2.addWidget(self.labelIconPicture, 1, 0, 1, 1)
-        spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(spacerItem, 2, 0, 1, 1)
-        spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(spacerItem1, 0, 0, 1, 1)
+
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_2, 2, 0, 1, 1)
+
+        self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_3, 0, 0, 1, 1)
+
+
         self.gridLayout.addWidget(self.frame, 3, 1, 1, 1)
-        spacerItem2 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.gridLayout.addItem(spacerItem2, 4, 1, 1, 1)
-        self.buttonBox = QtGui.QDialogButtonBox(MAPIconDialog)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
-        self.buttonBox.setObjectName("buttonBox")
+
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer, 4, 1, 1, 1)
+
+        self.buttonBox = QDialogButtonBox(MAPIconDialog)
+        self.buttonBox.setObjectName(u"buttonBox")
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+
         self.gridLayout.addWidget(self.buttonBox, 5, 0, 1, 3)
+
+#if QT_CONFIG(shortcut)
         self.labelStepIcon.setBuddy(self.lineEditCombinedIcon)
         self.labelCombinedIcon.setBuddy(self.lineEditStepIcon)
+#endif // QT_CONFIG(shortcut)
 
         self.retranslateUi(MAPIconDialog)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), MAPIconDialog.accept)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("rejected()"), MAPIconDialog.reject)
-        QtCore.QMetaObject.connectSlotsByName(MAPIconDialog)
+        self.buttonBox.accepted.connect(MAPIconDialog.accept)
+        self.buttonBox.rejected.connect(MAPIconDialog.reject)
+
+        QMetaObject.connectSlotsByName(MAPIconDialog)
+    # setupUi
 
     def retranslateUi(self, MAPIconDialog):
-        MAPIconDialog.setWindowTitle(QtGui.QApplication.translate("MAPIconDialog", "MAP Icon Dialog", None, QtGui.QApplication.UnicodeUTF8))
-        self.labelStepIcon.setText(QtGui.QApplication.translate("MAPIconDialog", "S&tep Icon:", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonStepIcon.setText(QtGui.QApplication.translate("MAPIconDialog", "...", None, QtGui.QApplication.UnicodeUTF8))
-        self.labelBackgroundIcon.setText(QtGui.QApplication.translate("MAPIconDialog", "Background Icon:", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonBackgroundIcon.setText(QtGui.QApplication.translate("MAPIconDialog", "...", None, QtGui.QApplication.UnicodeUTF8))
-        self.labelCombinedIcon.setText(QtGui.QApplication.translate("MAPIconDialog", "Combi&ned Icon:", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonCombinedIcon.setText(QtGui.QApplication.translate("MAPIconDialog", "...", None, QtGui.QApplication.UnicodeUTF8))
-        self.labelIconPicture.setText(QtGui.QApplication.translate("MAPIconDialog", "Icon", None, QtGui.QApplication.UnicodeUTF8))
+        MAPIconDialog.setWindowTitle(QCoreApplication.translate("MAPIconDialog", u"MAP Icon Dialog", None))
+        self.labelStepIcon.setText(QCoreApplication.translate("MAPIconDialog", u"S&tep Icon:", None))
+#if QT_CONFIG(tooltip)
+        self.lineEditStepIcon.setToolTip("")
+#endif // QT_CONFIG(tooltip)
+        self.pushButtonStepIcon.setText(QCoreApplication.translate("MAPIconDialog", u"...", None))
+        self.labelBackgroundIcon.setText(QCoreApplication.translate("MAPIconDialog", u"Background Icon:", None))
+        self.pushButtonBackgroundIcon.setText(QCoreApplication.translate("MAPIconDialog", u"...", None))
+        self.labelCombinedIcon.setText(QCoreApplication.translate("MAPIconDialog", u"Combi&ned Icon:", None))
+        self.pushButtonCombinedIcon.setText(QCoreApplication.translate("MAPIconDialog", u"...", None))
+        self.labelIconPicture.setText(QCoreApplication.translate("MAPIconDialog", u"Icon", None))
+    # retranslateUi
 

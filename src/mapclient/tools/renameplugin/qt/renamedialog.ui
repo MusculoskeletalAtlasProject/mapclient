@@ -172,16 +172,13 @@
  <tabstops>
   <tabstop>lineEditStepLocation</tabstop>
   <tabstop>pushButtonStepChooser</tabstop>
+  <tabstop>lineEditRenameStepFrom</tabstop>
   <tabstop>lineEditRenameStepTo</tabstop>
+  <tabstop>lineEditRenamePackageFrom</tabstop>
   <tabstop>lineEditRenamePackageTo</tabstop>
   <tabstop>treeWidgetRename</tabstop>
   <tabstop>pushButtonRename</tabstop>
   <tabstop>pushButtonCancel</tabstop>
-  <tabstop>lineEditRenameStepFrom</tabstop>
-  <tabstop>lineEditRenamePackageFrom</tabstop>
-  <tabstop>lineEditRename_2</tabstop>
-  <tabstop>lineEditStepLocation_2</tabstop>
-  <tabstop>pushButtonStepChooser_2</tabstop>
  </tabstops>
  <resources/>
  <connections>

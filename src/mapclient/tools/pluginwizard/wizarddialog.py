@@ -21,7 +21,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import os, sys, platform
 import ast
 
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtWidgets, QtGui
 
 from mapclient.core.utils import convertNameToPythonPackage, is_frozen
 from mapclient.tools.pluginwizard.skeleton import SkeletonOptions
@@ -61,8 +61,7 @@ imageNameMap['Registration'] = 'registration.png'
 imageNameMap['Utility'] = 'utility.png'
 
 
-class WizardDialog(QtGui.QWizard):
-
+class WizardDialog(QtWidgets.QWizard):
 
     def __init__(self, parent=None):
         super(WizardDialog, self).__init__(parent)
@@ -73,9 +72,9 @@ class WizardDialog(QtGui.QWizard):
         self.setDefaultProperty('QLabel', 'pixmap', '')
 
         if platform.system() == 'Darwin':
-            self.setWizardStyle(QtGui.QWizard.MacStyle)
+            self.setWizardStyle(QtWidgets.QWizard.MacStyle)
         else:
-            self.setWizardStyle(QtGui.QWizard.ModernStyle)
+            self.setWizardStyle(QtWidgets.QWizard.ModernStyle)
         # set pages
         self.addPage(createIntroPage())
         self.addPage(NameWizardPage())
@@ -85,10 +84,10 @@ class WizardDialog(QtGui.QWizard):
         self.addPage(OutputWizardPage())
 
         # set images banner, logo, watermark and background
-        self.setPixmap(QtGui.QWizard.LogoPixmap, QtGui.QPixmap(':/wizard/images/logo.png'))
-        self.setPixmap(QtGui.QWizard.BannerPixmap, QtGui.QPixmap(':/wizard/images/banner.png'))
-#         self.setPixmap(QtGui.QWizard.WatermarkPixmap, QtGui.QPixmap(':/wizard/images/watermark.png'))
-#         self.setPixmap(QtGui.QWizard.BackgroundPixmap, QtGui.QPixmap(':/wizard/images/background.png'))
+        self.setPixmap(QtWidgets.QWizard.LogoPixmap, QtGui.QPixmap(':/wizard/images/logo.png'))
+        self.setPixmap(QtWidgets.QWizard.BannerPixmap, QtGui.QPixmap(':/wizard/images/banner.png'))
+#         self.setPixmap(QtWidgets.QWizard.WatermarkPixmap, QtGui.QPixmap(':/wizard/images/watermark.png'))
+#         self.setPixmap(QtWidgets.QWizard.BackgroundPixmap, QtGui.QPixmap(':/wizard/images/background.png'))
         self._options = SkeletonOptions()
 
     def setPreviousWriteStepLocation(self, location):
@@ -155,24 +154,24 @@ class WizardDialog(QtGui.QWizard):
 
 
 def createIntroPage():
-    page = QtGui.QWizardPage()
+    page = QtWidgets.QWizardPage()
     page.setTitle('Introduction')
     page.setSubTitle('Create skeleton Python code to get started creating a workflow step.')
-    label = QtGui.QLabel('This wizard will help get you started creating your own plugin for the MAP Client.')
+    label = QtWidgets.QLabel('This wizard will help get you started creating your own plugin for the MAP Client.')
     label.setWordWrap(True)
 
-    layout = QtGui.QVBoxLayout()
+    layout = QtWidgets.QVBoxLayout()
     layout.addWidget(label)
     page.setLayout(layout)
 
-    page.setPixmap(QtGui.QWizard.WatermarkPixmap, QtGui.QPixmap(':/wizard/images/watermark.png'))
-    page.setPixmap(QtGui.QWizard.BackgroundPixmap, QtGui.QPixmap(':/wizard/images/background.png'))
-    page.setPixmap(QtGui.QWizard.BannerPixmap, QtGui.QPixmap(':/wizard/images/banner.png'))
+    page.setPixmap(QtWidgets.QWizard.WatermarkPixmap, QtGui.QPixmap(':/wizard/images/watermark.png'))
+    page.setPixmap(QtWidgets.QWizard.BackgroundPixmap, QtGui.QPixmap(':/wizard/images/background.png'))
+    page.setPixmap(QtWidgets.QWizard.BannerPixmap, QtGui.QPixmap(':/wizard/images/banner.png'))
 
     return page
 
 
-class NameWizardPage(QtGui.QWizardPage):
+class NameWizardPage(QtWidgets.QWizardPage):
 
     def __init__(self, parent=None):
         super(NameWizardPage, self).__init__(parent)
@@ -186,11 +185,11 @@ class NameWizardPage(QtGui.QWizardPage):
         self._previous_location = ''
 
         self._invalidPixmap = QtGui.QPixmap(':wizard/images/cross.png')
-        self._invalidNameLabel = QtGui.QLabel(self)
+        self._invalidNameLabel = QtWidgets.QLabel(self)
         self._invalidNameLabel.setStyleSheet('border: none; padding: 0px;')
-        self._invalidPackageLabel = QtGui.QLabel(self)
+        self._invalidPackageLabel = QtWidgets.QLabel(self)
         self._invalidPackageLabel.setStyleSheet('border: none; padding: 0px;')
-        self._invalidIconLabel = QtGui.QLabel(self)
+        self._invalidIconLabel = QtWidgets.QLabel(self)
         self._invalidIconLabel.setStyleSheet('border: none; padding: 0px;')
 
         self._updateImage()
@@ -229,7 +228,7 @@ class NameWizardPage(QtGui.QWizardPage):
         self._ui.iconLineEdit.setText(image_file)
 
     def _chooseImage(self):
-        image, _ = QtGui.QFileDialog.getOpenFileName(self, caption='Choose Image File', dir=self._previous_location, options=QtGui.QFileDialog.ReadOnly)
+        image, _ = QtWidgets.QFileDialog.getOpenFileName(self, caption='Choose Image File', dir=self._previous_location, options=QtWidgets.QFileDialog.ReadOnly)
         if len(image) > 0:
             self._previous_location = os.path.dirname(image)
             self._ui.iconLineEdit.setText(image)
@@ -299,7 +298,7 @@ class NameWizardPage(QtGui.QWizardPage):
         return name_status and package_status and image_status
 
 
-class PortsWizardPage(QtGui.QWizardPage):
+class PortsWizardPage(QtWidgets.QWizardPage):
 
     def __init__(self, parent=None):
         super(PortsWizardPage, self).__init__(parent)
@@ -335,7 +334,7 @@ class PortsWizardPage(QtGui.QWizardPage):
     def _addPort(self):
 
         def createPortTypeComboBox():
-            cb = QtGui.QComboBox()
+            cb = QtWidgets.QComboBox()
             cb.addItems(['provides', 'uses'])
 
             return cb
@@ -351,7 +350,8 @@ class PortsWizardPage(QtGui.QWizardPage):
         for row in reversed_rows:
             self._ui.portTableWidget.removeRow(row.row())
 
-class ConfigWizardPage(QtGui.QWizardPage):
+
+class ConfigWizardPage(QtWidgets.QWizardPage):
 
     def __init__(self, parent=None):
         super(ConfigWizardPage, self).__init__(parent)
@@ -367,8 +367,8 @@ class ConfigWizardPage(QtGui.QWizardPage):
         horizontal_header = self._ui.configTableWidget.horizontalHeader()
         horizontal_header.setStretchLastSection(True)
 #         self._addConfigurationRow()
-#         self._ui.configTableWidget.setItem(0, 0, QtGui.QTableWidgetItem('Identifier'))
-#         self._ui.configTableWidget.setItem(0, 1, QtGui.QTableWidgetItem(''))
+#         self._ui.configTableWidget.setItem(0, 0, QtWidgets.QTableWidgetItem('Identifier'))
+#         self._ui.configTableWidget.setItem(0, 1, QtWidgets.QTableWidgetItem(''))
 
         self._updateUi()
         self._makeConnections()
@@ -397,7 +397,7 @@ class ConfigWizardPage(QtGui.QWizardPage):
             self._ui.configTableWidget.removeRow(row.row())
 
 
-class MiscWizardPage(QtGui.QWizardPage):
+class MiscWizardPage(QtWidgets.QWizardPage):
 
     def __init__(self, parent=None):
         super(MiscWizardPage, self).__init__(parent)
@@ -419,7 +419,8 @@ class MiscWizardPage(QtGui.QWizardPage):
         if filename == icon_filename and predefinedName != 'Default':
             self._ui.categoryLineEdit.setText(predefinedName)
 
-class OutputWizardPage(QtGui.QWizardPage):
+
+class OutputWizardPage(QtWidgets.QWizardPage):
 
     def __init__(self, parent=None):
         super(OutputWizardPage, self).__init__(parent)
@@ -431,7 +432,7 @@ class OutputWizardPage(QtGui.QWizardPage):
         self._ui.setupUi(self)
 
         self._invalidPixmap = QtGui.QPixmap(':wizard/images/cross.png')
-        self._invalidDirectoryLabel = QtGui.QLabel(self)
+        self._invalidDirectoryLabel = QtWidgets.QLabel(self)
         self._invalidDirectoryLabel.setStyleSheet('border: none; padding: 0px;')
 
         self.registerField(OUTPUT_DIRECTORY_FIELD + '*', self._ui.directoryLineEdit)
@@ -443,7 +444,7 @@ class OutputWizardPage(QtGui.QWizardPage):
         self._ui.directoryButton.clicked.connect(self._chooseDirectory)
 
     def _chooseDirectory(self):
-        directory = QtGui.QFileDialog.getExistingDirectory(self, caption='Select Output Directory', directory=self._ui.directoryLineEdit.text(), options=QtGui.QFileDialog.ShowDirsOnly | QtGui.QFileDialog.DontResolveSymlinks | QtGui.QFileDialog.ReadOnly)
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, caption='Select Output Directory', directory=self._ui.directoryLineEdit.text(), options=QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks | QtWidgets.QFileDialog.ReadOnly)
         if len(directory) > 0:
             self._ui.directoryLineEdit.setText(directory)
 
@@ -466,6 +467,7 @@ class OutputWizardPage(QtGui.QWizardPage):
         self._invalidDirectoryLabel.setVisible(not status)
 
         return status
+
 
 def isIdentifier(ident):
     """Determines, if string is valid Python identifier."""
@@ -504,8 +506,3 @@ def getPredefinedImageLocation(predefinedName):
     else:
         image_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'qt', 'images')
     return os.path.join(image_file_dir, filename)
-
-
-
-
-

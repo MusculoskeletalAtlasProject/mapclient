@@ -3,13 +3,13 @@ Created on Jun 24, 2015
 
 @author: hsorby
 """
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtWidgets, QtGui
 
 from mapclient.tools.mapicon.ui_mapicondialog import Ui_MAPIconDialog
 import os.path
 
 
-class MAPIconDialog(QtGui.QDialog):
+class MAPIconDialog(QtWidgets.QDialog):
 
     def __init__(self, location, parent=None):
         super(MAPIconDialog, self).__init__(parent)
@@ -40,7 +40,6 @@ class MAPIconDialog(QtGui.QDialog):
             image = self._constructImage(icon_files[0], icon_files[1])
             self._ui.labelIconPicture.setPixmap(QtGui.QPixmap.fromImage(image).scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation))
 
-
     def _getIconFiles(self):
         return [self._ui.lineEditStepIcon.text(),
                 self._ui.lineEditBackgroundIcon.text()]
@@ -56,9 +55,9 @@ class MAPIconDialog(QtGui.QDialog):
     def _fileChooser(self):
         sender = self.sender()
         if sender == self._ui.pushButtonCombinedIcon:
-            icon, _ = QtGui.QFileDialog.getSaveFileName(self, caption='Choose Icon File', dir=self._location)
+            icon, _ = QtWidgets.QFileDialog.getSaveFileName(self, caption='Choose Icon File', dir=self._location)
         else:
-            icon, _ = QtGui.QFileDialog.getOpenFileName(self, caption='Choose Icon File', dir=self._location, options=QtGui.QFileDialog.ReadOnly)
+            icon, _ = QtWidgets.QFileDialog.getOpenFileName(self, caption='Choose Icon File', dir=self._location, options=QtGui.QFileDialog.ReadOnly)
 
         if len(icon) > 0:
             self._location = os.path.dirname(icon)
@@ -68,5 +67,3 @@ class MAPIconDialog(QtGui.QDialog):
                 self._ui.lineEditBackgroundIcon.setText(icon)
             elif sender == self._ui.pushButtonCombinedIcon:
                 self._ui.lineEditCombinedIcon.setText(icon)
-
-

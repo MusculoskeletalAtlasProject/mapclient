@@ -1,51 +1,73 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt/misc.ui'
-#
-# Created: Fri Dec 12 11:45:10 2014
-#      by: pyside-uic 0.2.15 running on PySide 1.2.2
-#
-# WARNING! All changes made in this file will be lost!
+################################################################################
+## Form generated from reading UI file 'misc.ui'
+##
+## Created by: Qt User Interface Compiler version 5.15.2
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
 
-from PySide import QtCore, QtGui
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+
 
 class Ui_Misc(object):
     def setupUi(self, Misc):
-        Misc.setObjectName("Misc")
+        if not Misc.objectName():
+            Misc.setObjectName(u"Misc")
         Misc.resize(400, 300)
-        self.formLayout = QtGui.QFormLayout(Misc)
-        self.formLayout.setObjectName("formLayout")
-        self.label = QtGui.QLabel(Misc)
-        self.label.setObjectName("label")
-        self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.label)
-        self.authorNameLineEdit = QtGui.QLineEdit(Misc)
-        self.authorNameLineEdit.setObjectName("authorNameLineEdit")
-        self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.authorNameLineEdit)
-        self.label_2 = QtGui.QLabel(Misc)
-        self.label_2.setObjectName("label_2")
-        self.formLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.label_2)
-        self.categoryLineEdit = QtGui.QLineEdit(Misc)
-        self.categoryLineEdit.setObjectName("categoryLineEdit")
-        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.categoryLineEdit)
-        self.label_3 = QtGui.QLabel(Misc)
-        self.label_3.setObjectName("label_3")
-        self.formLayout.setWidget(2, QtGui.QFormLayout.LabelRole, self.label_3)
-        self.pluginLocationEdit = QtGui.QLineEdit(Misc)
-        self.pluginLocationEdit.setObjectName("pluginLocationEdit")
-        self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.pluginLocationEdit)
+        self.formLayout = QFormLayout(Misc)
+        self.formLayout.setObjectName(u"formLayout")
+        self.label = QLabel(Misc)
+        self.label.setObjectName(u"label")
+
+        self.formLayout.setWidget(0, QFormLayout.LabelRole, self.label)
+
+        self.authorNameLineEdit = QLineEdit(Misc)
+        self.authorNameLineEdit.setObjectName(u"authorNameLineEdit")
+
+        self.formLayout.setWidget(0, QFormLayout.FieldRole, self.authorNameLineEdit)
+
+        self.label_2 = QLabel(Misc)
+        self.label_2.setObjectName(u"label_2")
+
+        self.formLayout.setWidget(1, QFormLayout.LabelRole, self.label_2)
+
+        self.categoryLineEdit = QLineEdit(Misc)
+        self.categoryLineEdit.setObjectName(u"categoryLineEdit")
+
+        self.formLayout.setWidget(1, QFormLayout.FieldRole, self.categoryLineEdit)
+
+        self.label_3 = QLabel(Misc)
+        self.label_3.setObjectName(u"label_3")
+
+        self.formLayout.setWidget(2, QFormLayout.LabelRole, self.label_3)
+
+        self.pluginLocationEdit = QLineEdit(Misc)
+        self.pluginLocationEdit.setObjectName(u"pluginLocationEdit")
+
+        self.formLayout.setWidget(2, QFormLayout.FieldRole, self.pluginLocationEdit)
+
+#if QT_CONFIG(shortcut)
         self.label.setBuddy(self.authorNameLineEdit)
         self.label_2.setBuddy(self.categoryLineEdit)
         self.label_3.setBuddy(self.pluginLocationEdit)
+#endif // QT_CONFIG(shortcut)
 
         self.retranslateUi(Misc)
-        QtCore.QMetaObject.connectSlotsByName(Misc)
+
+        QMetaObject.connectSlotsByName(Misc)
+    # setupUi
 
     def retranslateUi(self, Misc):
-        Misc.setWindowTitle(QtGui.QApplication.translate("Misc", "Form", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("Misc", "Author name(s):  ", None, QtGui.QApplication.UnicodeUTF8))
-        self.authorNameLineEdit.setPlaceholderText(QtGui.QApplication.translate("Misc", "Xxxx Yyyyy", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("Misc", "Category:  ", None, QtGui.QApplication.UnicodeUTF8))
-        self.categoryLineEdit.setPlaceholderText(QtGui.QApplication.translate("Misc", "General", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("Misc", "Plugin Location:", None, QtGui.QApplication.UnicodeUTF8))
-        self.pluginLocationEdit.setPlaceholderText(QtGui.QApplication.translate("Misc", "eg. https://github.com.../archive/master.zip", None, QtGui.QApplication.UnicodeUTF8))
+        Misc.setWindowTitle(QCoreApplication.translate("Misc", u"Form", None))
+        self.label.setText(QCoreApplication.translate("Misc", u"Author name(s):  ", None))
+        self.authorNameLineEdit.setPlaceholderText(QCoreApplication.translate("Misc", u"Xxxx Yyyyy", None))
+        self.label_2.setText(QCoreApplication.translate("Misc", u"Category:  ", None))
+        self.categoryLineEdit.setPlaceholderText(QCoreApplication.translate("Misc", u"General", None))
+        self.label_3.setText(QCoreApplication.translate("Misc", u"Plugin Location:", None))
+        self.pluginLocationEdit.setPlaceholderText(QCoreApplication.translate("Misc", u"eg. https://github.com.../archive/master.zip", None))
+    # retranslateUi
 

@@ -22,7 +22,7 @@ IMPORT_STRING = """
 \"\"\"
 MAP Client Plugin Step
 \"\"\"
-{json_import}{qtgui_import}from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
+{json_import}{qtwidgets_import}from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 """
 
 CLASS_STRING = """
@@ -105,20 +105,20 @@ DESERIALIZE_IDENTIFIER_CONTENT_STRING = """self._config.update(json.loads(string
 
 CONFIGURE_DIALOG_STRING = """
 
-from PySide import QtGui
+from PySide2 import QtWidgets
 from {package_name}.ui_configuredialog import Ui_ConfigureDialog
 
 INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
 DEFAULT_STYLE_SHEET = ''
 
 
-class ConfigureDialog(QtGui.QDialog):
+class ConfigureDialog(QtWidgets.QDialog):
     \"\"\"
     Configure dialog to present the user with the options to configure this step.
     \"\"\"
 
     def __init__(self, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
 
         self._ui = Ui_ConfigureDialog()
         self._ui.setupUi(self)
@@ -147,14 +147,14 @@ CONFIGURE_DIALOG_ACCEPT_METHOD = """
         Override the accept method so that we can confirm saving an
         invalid configuration.
         \"\"\"
-        result = QtGui.QMessageBox.Yes
+        result = QtWidgets.QMessageBox.Yes
         if not self.validate():
-            result = QtGui.QMessageBox.warning(self, 'Invalid Configuration',
+            result = QtWidgets.QMessageBox.warning(self, 'Invalid Configuration',
                 'This configuration is invalid.  Unpredictable behaviour may result if you choose \\\'Yes\\\', are you sure you want to save this configuration?)',
-                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
 
-        if result == QtGui.QMessageBox.Yes:
-            QtGui.QDialog.accept(self)
+        if result == QtWidgets.QMessageBox.Yes:
+            QtWidgets.QDialog.accept(self)
 """
 
 CONFIGURE_DIALOG_DEFAULT_VALIDATE_METHOD = """

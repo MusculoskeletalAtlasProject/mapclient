@@ -1,49 +1,65 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt/creditsdialog.ui'
-#
-# Created: Fri Jun 14 11:25:25 2013
-#      by: pyside-uic 0.2.14 running on PySide 1.1.2
-#
-# WARNING! All changes made in this file will be lost!
+################################################################################
+## Form generated from reading UI file 'creditsdialog.ui'
+##
+## Created by: Qt User Interface Compiler version 5.15.2
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
 
-from PySide import QtCore, QtGui
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+
 
 class Ui_CreditsDialog(object):
     def setupUi(self, CreditsDialog):
-        CreditsDialog.setObjectName("CreditsDialog")
+        if not CreditsDialog.objectName():
+            CreditsDialog.setObjectName(u"CreditsDialog")
         CreditsDialog.resize(475, 356)
-        self.verticalLayout = QtGui.QVBoxLayout(CreditsDialog)
+        self.verticalLayout = QVBoxLayout(CreditsDialog)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.frame_CreditsTab = QtGui.QFrame(CreditsDialog)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.frame_CreditsTab = QFrame(CreditsDialog)
+        self.frame_CreditsTab.setObjectName(u"frame_CreditsTab")
+        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(self.frame_CreditsTab.sizePolicy().hasHeightForWidth())
         self.frame_CreditsTab.setSizePolicy(sizePolicy)
-        self.frame_CreditsTab.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.frame_CreditsTab.setFrameShadow(QtGui.QFrame.Plain)
-        self.frame_CreditsTab.setObjectName("frame_CreditsTab")
+        self.frame_CreditsTab.setFrameShape(QFrame.StyledPanel)
+        self.frame_CreditsTab.setFrameShadow(QFrame.Plain)
+
         self.verticalLayout.addWidget(self.frame_CreditsTab)
-        self.frame = QtGui.QFrame(CreditsDialog)
-        self.frame.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.frame.setFrameShadow(QtGui.QFrame.Raised)
-        self.frame.setObjectName("frame")
-        self.horizontalLayout = QtGui.QHBoxLayout(self.frame)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem)
-        self.btn_Close = QtGui.QPushButton(self.frame)
-        self.btn_Close.setObjectName("btn_Close")
+
+        self.frame = QFrame(CreditsDialog)
+        self.frame.setObjectName(u"frame")
+        self.frame.setFrameShape(QFrame.StyledPanel)
+        self.frame.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout = QHBoxLayout(self.frame)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer)
+
+        self.btn_Close = QPushButton(self.frame)
+        self.btn_Close.setObjectName(u"btn_Close")
+
         self.horizontalLayout.addWidget(self.btn_Close)
+
+
         self.verticalLayout.addWidget(self.frame)
 
+
         self.retranslateUi(CreditsDialog)
-        QtCore.QObject.connect(self.btn_Close, QtCore.SIGNAL("clicked()"), CreditsDialog.close)
-        QtCore.QMetaObject.connectSlotsByName(CreditsDialog)
+        self.btn_Close.clicked.connect(CreditsDialog.close)
+
+        QMetaObject.connectSlotsByName(CreditsDialog)
+    # setupUi
 
     def retranslateUi(self, CreditsDialog):
-        CreditsDialog.setWindowTitle(QtGui.QApplication.translate("CreditsDialog", "MAP Client Credits", None, QtGui.QApplication.UnicodeUTF8))
-        self.btn_Close.setText(QtGui.QApplication.translate("CreditsDialog", "&Close", None, QtGui.QApplication.UnicodeUTF8))
+        CreditsDialog.setWindowTitle(QCoreApplication.translate("CreditsDialog", u"MAP Client Credits", None))
+        self.btn_Close.setText(QCoreApplication.translate("CreditsDialog", u"&Close", None))
+    # retranslateUi
 

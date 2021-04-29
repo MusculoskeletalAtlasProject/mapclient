@@ -17,7 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide import QtGui
+from PySide2 import QtWidgets
 
 from mapclient.tools.pmr.settings.general import PMR
 from mapclient.tools.pmr.pmrtool import PMRTool
@@ -25,7 +25,7 @@ from mapclient.tools.pmr.authoriseapplicationdialog import AuthoriseApplicationD
 from mapclient.tools.pmr.dialogs.ui_registerdialog import Ui_RegisterDialog
 
 
-class PMRRegisterDialog(QtGui.QDialog):
+class PMRRegisterDialog(QtWidgets.QDialog):
 
     def __init__(self, external_git, parent=None):
         super(PMRRegisterDialog, self).__init__(parent)
@@ -75,5 +75,4 @@ class PMRRegisterDialog(QtGui.QDialog):
 
     def accept(self, *args, **kwargs):
         self._ui.settingsWidget.transferModel()
-        return QtGui.QDialog.accept(self, *args, **kwargs)
-
+        return QtWidgets.QDialog.accept(self, *args, **kwargs)

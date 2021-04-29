@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import logging
 
-from PySide import QtGui, QtCore
+from PySide2 import QtCore, QtWidgets
 
 from mapclient.tools.pmr.widgets.ui_searchwidget import Ui_SearchWidget
 from mapclient.view.utils import handle_runtime_error, set_wait_cursor
@@ -31,7 +31,7 @@ from mapclient.tools.pmr.settings.general import PMR
 logger = logging.getLogger(__name__)
 
 
-class SearchWidget(QtGui.QWidget):
+class SearchWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
         super(SearchWidget, self).__init__(parent)
@@ -78,9 +78,9 @@ class SearchWidget(QtGui.QWidget):
 
             for r in results:
                 if 'title' in r and r['title']:
-                    item = QtGui.QListWidgetItem(r['title'], self._ui.searchResultsListWidget)
+                    item = QtWidgets.QListWidgetItem(r['title'], self._ui.searchResultsListWidget)
                 else:
-                    item = QtGui.QListWidgetItem(r['target'], self._ui.searchResultsListWidget)
+                    item = QtWidgets.QListWidgetItem(r['target'], self._ui.searchResultsListWidget)
                 item.setData(QtCore.Qt.UserRole, r)
         except PMRToolError as e:
             message = convertExceptionToMessage(e)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'pluginprogress.ui'
+## Form generated from reading UI file 'progressdialog.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -14,24 +14,24 @@ from PySide2.QtWidgets import *
 
 from  . import resources_rc
 
-class Ui_DownloadProgress(object):
-    def setupUi(self, DownloadProgress):
-        if not DownloadProgress.objectName():
-            DownloadProgress.setObjectName(u"DownloadProgress")
-        DownloadProgress.resize(300, 108)
-        DownloadProgress.setMinimumSize(QSize(300, 90))
-        DownloadProgress.setMaximumSize(QSize(300, 108))
+class Ui_ProgressDialog(object):
+    def setupUi(self, ProgressDialog):
+        if not ProgressDialog.objectName():
+            ProgressDialog.setObjectName(u"ProgressDialog")
+        ProgressDialog.resize(300, 108)
+        ProgressDialog.setMinimumSize(QSize(0, 0))
+        ProgressDialog.setMaximumSize(QSize(16777215, 16777215))
         icon = QIcon()
         icon.addFile(u":/mapclient/images/icon-app.png", QSize(), QIcon.Normal, QIcon.Off)
-        DownloadProgress.setWindowIcon(icon)
-        self.verticalLayout = QVBoxLayout(DownloadProgress)
+        ProgressDialog.setWindowIcon(icon)
+        self.verticalLayout = QVBoxLayout(ProgressDialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.label = QLabel(DownloadProgress)
+        self.label = QLabel(ProgressDialog)
         self.label.setObjectName(u"label")
 
         self.verticalLayout.addWidget(self.label)
 
-        self.progressBar = QProgressBar(DownloadProgress)
+        self.progressBar = QProgressBar(ProgressDialog)
         self.progressBar.setObjectName(u"progressBar")
         self.progressBar.setValue(0)
         self.progressBar.setTextVisible(False)
@@ -44,7 +44,7 @@ class Ui_DownloadProgress(object):
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
 
-        self.cancelDownload = QPushButton(DownloadProgress)
+        self.cancelDownload = QPushButton(ProgressDialog)
         self.cancelDownload.setObjectName(u"cancelDownload")
 
         self.horizontalLayout.addWidget(self.cancelDownload)
@@ -53,14 +53,14 @@ class Ui_DownloadProgress(object):
         self.verticalLayout.addLayout(self.horizontalLayout)
 
 
-        self.retranslateUi(DownloadProgress)
+        self.retranslateUi(ProgressDialog)
 
-        QMetaObject.connectSlotsByName(DownloadProgress)
+        QMetaObject.connectSlotsByName(ProgressDialog)
     # setupUi
 
-    def retranslateUi(self, DownloadProgress):
-        DownloadProgress.setWindowTitle(QCoreApplication.translate("DownloadProgress", u"Loading Plugins", None))
+    def retranslateUi(self, ProgressDialog):
+        ProgressDialog.setWindowTitle(QCoreApplication.translate("ProgressDialog", u"Progress", None))
         self.label.setText("")
-        self.cancelDownload.setText(QCoreApplication.translate("DownloadProgress", u"Cancel", None))
+        self.cancelDownload.setText(QCoreApplication.translate("ProgressDialog", u"Cancel", None))
     # retranslateUi
 

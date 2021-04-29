@@ -18,7 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 
-from PySide import QtGui, QtCore
+from PySide2 import QtCore, QtGui, QtWidgets
 
 from mapclient.view.utils import handle_runtime_error, set_wait_cursor
 from mapclient.exceptions import ClientRuntimeError
@@ -29,7 +29,7 @@ from mapclient.tools.pmr.pmrtool import PMRTool
 from mapclient.tools.pmr.settings.general import PMR
 
 
-class SettingsWidget(QtGui.QWidget):
+class SettingsWidget(QtWidgets.QWidget):
 
     hostChanged = QtCore.Signal(int)
 

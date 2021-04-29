@@ -1,56 +1,79 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt/pluginerrors.ui'
-#
-# Created: Thu Jan 22 14:45:54 2015
-#      by: pyside-uic 0.2.15 running on PySide 1.2.2
-#
-# WARNING! All changes made in this file will be lost!
+################################################################################
+## Form generated from reading UI file 'pluginerrors.ui'
+##
+## Created by: Qt User Interface Compiler version 5.15.2
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
 
-from PySide import QtCore, QtGui
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+
+from  . import resources_rc
 
 class Ui_PluginErrors(object):
     def setupUi(self, PluginErrors):
-        PluginErrors.setObjectName("PluginErrors")
+        if not PluginErrors.objectName():
+            PluginErrors.setObjectName(u"PluginErrors")
         PluginErrors.resize(351, 319)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/mapclient/images/icon-app.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon = QIcon()
+        icon.addFile(u":/mapclient/images/icon-app.png", QSize(), QIcon.Normal, QIcon.Off)
         PluginErrors.setWindowIcon(icon)
-        self.verticalLayout = QtGui.QVBoxLayout(PluginErrors)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.label = QtGui.QLabel(PluginErrors)
-        self.label.setText("")
+        self.verticalLayout = QVBoxLayout(PluginErrors)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.label = QLabel(PluginErrors)
+        self.label.setObjectName(u"label")
         self.label.setWordWrap(True)
-        self.label.setObjectName("label")
+
         self.verticalLayout.addWidget(self.label)
-        self.listWidget = QtGui.QListWidget(PluginErrors)
-        self.listWidget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.listWidget.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
-        self.listWidget.setTextElideMode(QtCore.Qt.ElideMiddle)
-        self.listWidget.setObjectName("listWidget")
+
+        self.listWidget = QListWidget(PluginErrors)
+        self.listWidget.setObjectName(u"listWidget")
+        self.listWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.listWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.listWidget.setTextElideMode(Qt.ElideMiddle)
+
         self.verticalLayout.addWidget(self.listWidget)
-        self.horizontalLayout = QtGui.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.hideCheckBox = QtGui.QCheckBox(PluginErrors)
-        self.hideCheckBox.setObjectName("hideCheckBox")
+
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.hideCheckBox = QCheckBox(PluginErrors)
+        self.hideCheckBox.setObjectName(u"hideCheckBox")
+
         self.horizontalLayout.addWidget(self.hideCheckBox)
-        spacerItem = QtGui.QSpacerItem(288, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem)
-        self.ignoreButton = QtGui.QPushButton(PluginErrors)
-        self.ignoreButton.setObjectName("ignoreButton")
+
+        self.horizontalSpacer = QSpacerItem(288, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer)
+
+        self.ignoreButton = QPushButton(PluginErrors)
+        self.ignoreButton.setObjectName(u"ignoreButton")
+
         self.horizontalLayout.addWidget(self.ignoreButton)
-        self.pushButton = QtGui.QPushButton(PluginErrors)
-        self.pushButton.setObjectName("pushButton")
+
+        self.pushButton = QPushButton(PluginErrors)
+        self.pushButton.setObjectName(u"pushButton")
+
         self.horizontalLayout.addWidget(self.pushButton)
+
+
         self.verticalLayout.addLayout(self.horizontalLayout)
 
+
         self.retranslateUi(PluginErrors)
-        QtCore.QObject.connect(self.pushButton, QtCore.SIGNAL("clicked()"), PluginErrors.close)
-        QtCore.QMetaObject.connectSlotsByName(PluginErrors)
+        self.pushButton.clicked.connect(PluginErrors.close)
+
+        QMetaObject.connectSlotsByName(PluginErrors)
+    # setupUi
 
     def retranslateUi(self, PluginErrors):
-        PluginErrors.setWindowTitle(QtGui.QApplication.translate("PluginErrors", "Plugin Errors", None, QtGui.QApplication.UnicodeUTF8))
-        self.hideCheckBox.setText(QtGui.QApplication.translate("PluginErrors", "Don\'t show me this again", None, QtGui.QApplication.UnicodeUTF8))
-        self.ignoreButton.setText(QtGui.QApplication.translate("PluginErrors", "Ignore", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton.setText(QtGui.QApplication.translate("PluginErrors", "OK", None, QtGui.QApplication.UnicodeUTF8))
+        PluginErrors.setWindowTitle(QCoreApplication.translate("PluginErrors", u"Plugin Errors", None))
+        self.label.setText("")
+        self.hideCheckBox.setText(QCoreApplication.translate("PluginErrors", u"Don't show me this again", None))
+        self.ignoreButton.setText(QCoreApplication.translate("PluginErrors", u"Ignore", None))
+        self.pushButton.setText(QCoreApplication.translate("PluginErrors", u"OK", None))
+    # retranslateUi
 
