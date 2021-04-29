@@ -148,7 +148,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
     def mouseReleaseEvent(self, event):
         if self._connectLine:
-            item = self.scene().itemAt(self.mapToScene(event.pos()))
+            item = self.scene().itemAt(self.mapToScene(event.pos()), QtGui.QTransform())
             if item and item.type() == StepPort.Type:
                 self.connectNodes(self._connectSourceNode, item)
             self.scene().removeItem(self._connectLine)
