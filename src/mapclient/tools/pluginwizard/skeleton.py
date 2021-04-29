@@ -245,15 +245,15 @@ class Skeleton(object):
         return method_string
 
     def _generateImportStatements(self):
-        qtgui_import = ''
+        qtwidgets_import = ''
         json_import = ''
         icon = self._options.getIcon()
         if icon:
-            qtgui_import = 'from PySide import QtGui\n\n'
+            qtwidgets_import = 'from PySide2 import QtWidgets\n\n'
         if self._options.configCount() > 0:
             json_import = 'import json\n\n'
 
-        import_string = IMPORT_STRING.format(json_import=json_import, qtgui_import=qtgui_import)
+        import_string = IMPORT_STRING.format(json_import=json_import, qtwidgets_import=qtwidgets_import)
         import_string += 'from mapclientplugins.{package_name}.configuredialog import ConfigureDialog\n'.format(package_name=self._options.getPackageName())
 
         return import_string
@@ -267,7 +267,7 @@ class Skeleton(object):
         icon = self._options.getIcon()
         if icon:
             image_filename = self._options.getImageFile()
-            icon_string = '        self._icon =  QtGui.QImage(\':/{step_package_name}/' + IMAGES_DIRECTORY + '/{image_filename}\')\n'
+            icon_string = '        self._icon =  QtWidgets.QImage(\':/{step_package_name}/' + IMAGES_DIRECTORY + '/{image_filename}\')\n'
             init_string += icon_string.format(step_package_name=self._options.getPackageName(), image_filename=image_filename)
         port_index = 0
         ports = []

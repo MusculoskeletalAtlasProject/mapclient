@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 
 import logging
-from PySide2 import QtWidgets, QtGui
+from PySide2 import QtCore, QtWidgets, QtGui
 
 from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
 from mapclient.view.workflow.workflowwidget import WorkflowWidget
@@ -274,7 +274,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._model.setSize(self.size())
         self._model.setPos(self.pos())
         self._model.writeSettings()
-        QtWidgets.qApp.quit()
+        QtGui.QGuiApplication.quit()
 
     def about(self):
         from mapclient.view.dialogs.about.aboutdialog import AboutDialog

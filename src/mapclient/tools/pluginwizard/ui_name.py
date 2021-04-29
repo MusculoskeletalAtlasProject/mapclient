@@ -1,80 +1,112 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt/name.ui'
-#
-# Created: Wed Jun 10 16:34:27 2015
-#      by: pyside-uic 0.2.15 running on PySide 1.2.2
-#
-# WARNING! All changes made in this file will be lost!
+################################################################################
+## Form generated from reading UI file 'name.ui'
+##
+## Created by: Qt User Interface Compiler version 5.15.2
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
 
-from PySide import QtCore, QtGui
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+
+from  . import resources_rc
 
 class Ui_Name(object):
     def setupUi(self, Name):
-        Name.setObjectName("Name")
+        if not Name.objectName():
+            Name.setObjectName(u"Name")
         Name.resize(498, 296)
-        self.gridLayout = QtGui.QGridLayout(Name)
-        self.gridLayout.setObjectName("gridLayout")
-        self.nameLineEdit = QtGui.QLineEdit(Name)
+        self.gridLayout = QGridLayout(Name)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.nameLineEdit = QLineEdit(Name)
+        self.nameLineEdit.setObjectName(u"nameLineEdit")
         self.nameLineEdit.setEnabled(True)
-        self.nameLineEdit.setToolTip("")
-        self.nameLineEdit.setObjectName("nameLineEdit")
+
         self.gridLayout.addWidget(self.nameLineEdit, 0, 1, 1, 1)
-        self.packageNameLineEdit = QtGui.QLineEdit(Name)
-        self.packageNameLineEdit.setObjectName("packageNameLineEdit")
+
+        self.packageNameLineEdit = QLineEdit(Name)
+        self.packageNameLineEdit.setObjectName(u"packageNameLineEdit")
+
         self.gridLayout.addWidget(self.packageNameLineEdit, 1, 1, 1, 1)
-        self.iconButton = QtGui.QPushButton(Name)
-        self.iconButton.setObjectName("iconButton")
+
+        self.iconButton = QPushButton(Name)
+        self.iconButton.setObjectName(u"iconButton")
+
         self.gridLayout.addWidget(self.iconButton, 2, 2, 1, 1)
-        self.iconLabel = QtGui.QLabel(Name)
-        self.iconLabel.setObjectName("iconLabel")
+
+        self.iconLabel = QLabel(Name)
+        self.iconLabel.setObjectName(u"iconLabel")
+
         self.gridLayout.addWidget(self.iconLabel, 2, 0, 1, 1)
-        spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.gridLayout.addItem(spacerItem, 7, 1, 1, 1)
-        self.nameLabel = QtGui.QLabel(Name)
-        self.nameLabel.setObjectName("nameLabel")
+
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer, 7, 1, 1, 1)
+
+        self.nameLabel = QLabel(Name)
+        self.nameLabel.setObjectName(u"nameLabel")
+
         self.gridLayout.addWidget(self.nameLabel, 0, 0, 1, 1)
-        self.iconLineEdit = QtGui.QLineEdit(Name)
-        self.iconLineEdit.setObjectName("iconLineEdit")
+
+        self.iconLineEdit = QLineEdit(Name)
+        self.iconLineEdit.setObjectName(u"iconLineEdit")
+
         self.gridLayout.addWidget(self.iconLineEdit, 2, 1, 1, 1)
-        self.packageNameLabel = QtGui.QLabel(Name)
-        self.packageNameLabel.setObjectName("packageNameLabel")
+
+        self.packageNameLabel = QLabel(Name)
+        self.packageNameLabel.setObjectName(u"packageNameLabel")
+
         self.gridLayout.addWidget(self.packageNameLabel, 1, 0, 1, 1)
-        self.frame = QtGui.QFrame(Name)
-        self.frame.setMinimumSize(QtCore.QSize(0, 72))
+
+        self.frame = QFrame(Name)
+        self.frame.setObjectName(u"frame")
+        self.frame.setMinimumSize(QSize(0, 72))
         self.frame.setAutoFillBackground(False)
-        self.frame.setStyleSheet("QFrame {background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 aliceblue, stop:1 lightskyblue);}\n"
+        self.frame.setStyleSheet(u"QFrame {background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 aliceblue, stop:1 lightskyblue);}\n"
 "QLabel {background-color: transparent}")
-        self.frame.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.frame.setFrameShadow(QtGui.QFrame.Raised)
-        self.frame.setObjectName("frame")
-        self.gridLayout_2 = QtGui.QGridLayout(self.frame)
-        self.gridLayout_2.setObjectName("gridLayout_2")
-        self.iconPictureLabel = QtGui.QLabel(self.frame)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        self.frame.setFrameShape(QFrame.StyledPanel)
+        self.frame.setFrameShadow(QFrame.Raised)
+        self.gridLayout_2 = QGridLayout(self.frame)
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.iconPictureLabel = QLabel(self.frame)
+        self.iconPictureLabel.setObjectName(u"iconPictureLabel")
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.iconPictureLabel.sizePolicy().hasHeightForWidth())
         self.iconPictureLabel.setSizePolicy(sizePolicy)
-        self.iconPictureLabel.setMinimumSize(QtCore.QSize(64, 64))
-        self.iconPictureLabel.setMaximumSize(QtCore.QSize(64, 64))
-        self.iconPictureLabel.setAlignment(QtCore.Qt.AlignCenter)
-        self.iconPictureLabel.setObjectName("iconPictureLabel")
+        self.iconPictureLabel.setMinimumSize(QSize(64, 64))
+        self.iconPictureLabel.setMaximumSize(QSize(64, 64))
+        self.iconPictureLabel.setAlignment(Qt.AlignCenter)
+
         self.gridLayout_2.addWidget(self.iconPictureLabel, 1, 0, 1, 1)
-        spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(spacerItem1, 2, 0, 1, 1)
-        spacerItem2 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 1)
+
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_2, 2, 0, 1, 1)
+
+        self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_3, 0, 0, 1, 1)
+
+
         self.gridLayout.addWidget(self.frame, 5, 1, 1, 1)
-        self.label = QtGui.QLabel(Name)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label.setObjectName("label")
+
+        self.label = QLabel(Name)
+        self.label.setObjectName(u"label")
+        self.label.setAlignment(Qt.AlignCenter)
+
         self.gridLayout.addWidget(self.label, 3, 0, 1, 1)
-        self.label_2 = QtGui.QLabel(Name)
-        self.label_2.setObjectName("label_2")
+
+        self.label_2 = QLabel(Name)
+        self.label_2.setObjectName(u"label_2")
+
         self.gridLayout.addWidget(self.label_2, 4, 0, 1, 1)
-        self.comboBoxPresetIcons = QtGui.QComboBox(Name)
-        self.comboBoxPresetIcons.setObjectName("comboBoxPresetIcons")
+
+        self.comboBoxPresetIcons = QComboBox(Name)
         self.comboBoxPresetIcons.addItem("")
         self.comboBoxPresetIcons.addItem("")
         self.comboBoxPresetIcons.addItem("")
@@ -85,32 +117,45 @@ class Ui_Name(object):
         self.comboBoxPresetIcons.addItem("")
         self.comboBoxPresetIcons.addItem("")
         self.comboBoxPresetIcons.addItem("")
+        self.comboBoxPresetIcons.setObjectName(u"comboBoxPresetIcons")
+
         self.gridLayout.addWidget(self.comboBoxPresetIcons, 4, 1, 1, 1)
+
+#if QT_CONFIG(shortcut)
         self.iconLabel.setBuddy(self.nameLineEdit)
         self.nameLabel.setBuddy(self.iconLineEdit)
+#endif // QT_CONFIG(shortcut)
 
         self.retranslateUi(Name)
-        QtCore.QMetaObject.connectSlotsByName(Name)
+
+        QMetaObject.connectSlotsByName(Name)
+    # setupUi
 
     def retranslateUi(self, Name):
-        Name.setWindowTitle(QtGui.QApplication.translate("Name", "Form", None, QtGui.QApplication.UnicodeUTF8))
-        self.iconButton.setText(QtGui.QApplication.translate("Name", "...", None, QtGui.QApplication.UnicodeUTF8))
-        self.iconLabel.setText(QtGui.QApplication.translate("Name", "Icon from fi&le:", None, QtGui.QApplication.UnicodeUTF8))
-        self.nameLabel.setText(QtGui.QApplication.translate("Name", "Step &Name:", None, QtGui.QApplication.UnicodeUTF8))
-        self.packageNameLabel.setText(QtGui.QApplication.translate("Name", "Package Name:  ", None, QtGui.QApplication.UnicodeUTF8))
-        self.iconPictureLabel.setText(QtGui.QApplication.translate("Name", "Icon", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("Name", "or", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("Name", "Preset Icon:", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBoxPresetIcons.setToolTip(QtGui.QApplication.translate("Name", "Icon from file is used if a valid icon file is defined", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBoxPresetIcons.setItemText(0, QtGui.QApplication.translate("Name", "Default", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBoxPresetIcons.setItemText(1, QtGui.QApplication.translate("Name", "Source", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBoxPresetIcons.setItemText(2, QtGui.QApplication.translate("Name", "Sink", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBoxPresetIcons.setItemText(3, QtGui.QApplication.translate("Name", "Fitting", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBoxPresetIcons.setItemText(4, QtGui.QApplication.translate("Name", "Model Viewer", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBoxPresetIcons.setItemText(5, QtGui.QApplication.translate("Name", "Image Processing", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBoxPresetIcons.setItemText(6, QtGui.QApplication.translate("Name", "Segmentation", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBoxPresetIcons.setItemText(7, QtGui.QApplication.translate("Name", "Morphometric", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBoxPresetIcons.setItemText(8, QtGui.QApplication.translate("Name", "Registration", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBoxPresetIcons.setItemText(9, QtGui.QApplication.translate("Name", "Utility", None, QtGui.QApplication.UnicodeUTF8))
+        Name.setWindowTitle(QCoreApplication.translate("Name", u"Form", None))
+#if QT_CONFIG(tooltip)
+        self.nameLineEdit.setToolTip("")
+#endif // QT_CONFIG(tooltip)
+        self.iconButton.setText(QCoreApplication.translate("Name", u"...", None))
+        self.iconLabel.setText(QCoreApplication.translate("Name", u"Icon from fi&le:", None))
+        self.nameLabel.setText(QCoreApplication.translate("Name", u"Step &Name:", None))
+        self.packageNameLabel.setText(QCoreApplication.translate("Name", u"Package Name:  ", None))
+        self.iconPictureLabel.setText(QCoreApplication.translate("Name", u"Icon", None))
+        self.label.setText(QCoreApplication.translate("Name", u"or", None))
+        self.label_2.setText(QCoreApplication.translate("Name", u"Preset Icon:", None))
+        self.comboBoxPresetIcons.setItemText(0, QCoreApplication.translate("Name", u"Default", None))
+        self.comboBoxPresetIcons.setItemText(1, QCoreApplication.translate("Name", u"Source", None))
+        self.comboBoxPresetIcons.setItemText(2, QCoreApplication.translate("Name", u"Sink", None))
+        self.comboBoxPresetIcons.setItemText(3, QCoreApplication.translate("Name", u"Fitting", None))
+        self.comboBoxPresetIcons.setItemText(4, QCoreApplication.translate("Name", u"Model Viewer", None))
+        self.comboBoxPresetIcons.setItemText(5, QCoreApplication.translate("Name", u"Image Processing", None))
+        self.comboBoxPresetIcons.setItemText(6, QCoreApplication.translate("Name", u"Segmentation", None))
+        self.comboBoxPresetIcons.setItemText(7, QCoreApplication.translate("Name", u"Morphometric", None))
+        self.comboBoxPresetIcons.setItemText(8, QCoreApplication.translate("Name", u"Registration", None))
+        self.comboBoxPresetIcons.setItemText(9, QCoreApplication.translate("Name", u"Utility", None))
 
-from . import resources_rc
+#if QT_CONFIG(tooltip)
+        self.comboBoxPresetIcons.setToolTip(QCoreApplication.translate("Name", u"Icon from file is used if a valid icon file is defined", None))
+#endif // QT_CONFIG(tooltip)
+    # retranslateUi
+

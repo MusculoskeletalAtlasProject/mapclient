@@ -40,7 +40,7 @@ import opencmiss
 import pmr2
 import pmr2.wfctrl
 
-from PySide import QtCore
+from PySide2 import QtCore
 
 from mapclient.settings import version as app_version
 

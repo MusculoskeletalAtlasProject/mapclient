@@ -18,21 +18,21 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import logging
-from PySide import QtGui
+from PySide2 import QtWidgets
 
 from mapclient.tools.pmr.ui_oauthcheckdialog import Ui_OAuthCheckDialog
 
 logger = logging.getLogger(__name__)
 
 
-class OAuthCheckDialog(QtGui.QDialog):
+class OAuthCheckDialog(QtWidgets.QDialog):
     """
     Dialog that other UI elements can spawn to check for existence of
     token credentials and acquire one from user if it is unavailable.
     """
 
     def __init__(self, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
         self._ui = Ui_OAuthCheckDialog()
         self._ui.setupUi(self)
         self._makeConnections()

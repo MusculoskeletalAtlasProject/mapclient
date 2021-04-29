@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import logging
 
-from PySide import QtGui, QtCore
+from PySide2 import QtCore, QtWidgets
 
 from mapclient.tools.annotation.annotationtool import AnnotationTool
 from mapclient.tools.pmr.pmrtool import PMRTool, PMRToolError
@@ -34,13 +34,13 @@ from mapclient.tools.pmr.settings.general import PMR
 logger = logging.getLogger(__name__)
 
 
-class PMRSearchDialog(QtGui.QDialog):
+class PMRSearchDialog(QtWidgets.QDialog):
     """
     Dialog for managing interaction with PMR.
     """
 
     def __init__(self, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
         self._ui = Ui_PMRSearchDialog()
         self._ui.setupUi(self)
 
@@ -82,9 +82,9 @@ class PMRSearchDialog(QtGui.QDialog):
 
             for r in results:
                 if 'title' in r and r['title']:
-                    item = QtGui.QListWidgetItem(r['title'], self._ui.searchResultsListWidget)
+                    item = QtWidgets.QListWidgetItem(r['title'], self._ui.searchResultsListWidget)
                 else:
-                    item = QtGui.QListWidgetItem(r['target'], self._ui.searchResultsListWidget)
+                    item = QtWidgets.QListWidgetItem(r['target'], self._ui.searchResultsListWidget)
                 item.setData(QtCore.Qt.UserRole, r)
         except PMRToolError as e:
             message = convertExceptionToMessage(e)

@@ -20,7 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 from PySide2 import QtWidgets, QtCore
 
 from mapclient.settings.definitions import USE_EXTERNAL_GIT
-from mapclient.view.ui_importworkflowdialog import Ui_ImportWorkflowDialog
+from mapclient.view.ui.ui_importworkflowdialog import Ui_ImportWorkflowDialog
 from mapclient.tools.pmr.pmrworkflowwidget import PMRWorkflowWidget
 from mapclient.tools.pmr.pmrtool import workflow_search_string
 import os.path

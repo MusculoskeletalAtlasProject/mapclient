@@ -17,10 +17,10 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtGui, QtWidgets
 
 
-class HeaderDelegate(QtGui.QStyledItemDelegate):
+class HeaderDelegate(QtWidgets.QStyledItemDelegate):
 
     def __init__(self, parent=None):
         super(HeaderDelegate, self).__init__(parent)
@@ -39,7 +39,7 @@ class HeaderDelegate(QtGui.QStyledItemDelegate):
             painter.setBrush(QtGui.QBrush(QtCore.Qt.lightGray))
             painter.drawRoundedRect(rx + 1, ry + 1, wd - 2, ht - 2, 7, 7, QtCore.Qt.RelativeSize)
 
-            if option.state & QtGui.QStyle.State_Open:
+            if option.state & QtWidgets.QStyle.State_Open:
                 required_arrow = self._arrow_down
             else:
                 required_arrow = self._arrow_right
@@ -49,7 +49,8 @@ class HeaderDelegate(QtGui.QStyledItemDelegate):
         else:
             super(HeaderDelegate, self).paint(painter, option, index)
 
-class StepTree(QtGui.QTreeWidget):
+
+class StepTree(QtWidgets.QTreeWidget):
 
     def __init__(self, parent=None):
         super(StepTree, self).__init__(parent)
@@ -72,7 +73,7 @@ class StepTree(QtGui.QTreeWidget):
         return event.accept()
 
     def handleMousePress(self, event):
-        self._leftMouseButton = int(QtGui.QApplication.mouseButtons()) == QtCore.Qt.LeftButton
+        self._leftMouseButton = int(QtGui.QGuiApplication.mouseButtons()) == QtCore.Qt.LeftButton
 
     def handleMouseClicked(self, item):
 
@@ -101,7 +102,7 @@ class StepTree(QtGui.QTreeWidget):
         column = 0
         parentItem = self.findParentItem(step._category)
         if not parentItem:
-            parentItem = QtGui.QTreeWidgetItem(self)
+            parentItem = QtWidgets.QTreeWidgetItem(self)
             parentItem.setText(column, step._category)
             parentItem.setTextAlignment(column, QtCore.Qt.AlignCenter)
             font = parentItem.font(column)
@@ -112,7 +113,7 @@ class StepTree(QtGui.QTreeWidget):
         if not parentItem.isExpanded():
             parentItem.setExpanded(True)
 
-        stepItem = QtGui.QTreeWidgetItem(parentItem)
+        stepItem = QtWidgets.QTreeWidgetItem(parentItem)
         stepItem.setText(column, step.getName())
         if step._icon:
             stepItem.setIcon(column, QtGui.QIcon(QtGui.QPixmap.fromImage(step._icon)))
@@ -129,7 +130,7 @@ class StepTree(QtGui.QTreeWidget):
 
         if self.indexOfTopLevelItem(item) >= 0:
             # Item is a top level item and it doesn't have drag and drop abilities
-            return QtGui.QTreeWidget.mousePressEvent(self, event)
+            return QtWidgets.QTreeWidget.mousePressEvent(self, event)
 
         itemData = QtCore.QByteArray()
         dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
@@ -160,4 +161,4 @@ class StepTree(QtGui.QTreeWidget):
 
         drag.exec_(QtCore.Qt.MoveAction)
 
-        return QtGui.QTreeWidget.mousePressEvent(self, event)
+        return QtWidgets.QTreeWidget.mousePressEvent(self, event)

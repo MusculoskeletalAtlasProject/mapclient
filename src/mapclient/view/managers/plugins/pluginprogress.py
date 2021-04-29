@@ -18,18 +18,18 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import os, zipfile, requests
-from PySide import QtGui
+from PySide2 import QtWidgets
 
 from mapclient.view.managers.plugins.ui.ui_pluginprogress import Ui_DownloadProgress
 
 
-class PluginProgress(QtGui.QDialog):
+class PluginProgress(QtWidgets.QDialog):
     """
     Displays download and extraction progress of plugins from GitHub repository.
     """
 
     def __init__(self, plugins, directory, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
         self._ui = Ui_DownloadProgress()
         self._ui.setupUi(self)
         self._makeConnections()
@@ -64,7 +64,7 @@ class PluginProgress(QtGui.QDialog):
 
             rq = requests.get(self._plugins[plugin]['location'])
             if not rq.ok:
-                ret = QtGui.QMessageBox.critical(self, 'Error', '\n There was a problem downloading the following plugin:  ' + plugin + '\n\n Please check your internet connection.\t', QtGui.QMessageBox.Ok)
+                ret = QtWidgets.QMessageBox.critical(self, 'Error', '\n There was a problem downloading the following plugin:  ' + plugin + '\n\n Please check your internet connection.\t', QtGui.QMessageBox.Ok)
             self._totalBytes += int(rq.headers['Content-length'])
             with open(os.path.join(self._directory, self._filenames[plugin] + '.zip'), "wb") as zFile:
                 for chunk in rq.iter_content(1):

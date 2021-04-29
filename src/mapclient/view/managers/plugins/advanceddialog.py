@@ -17,9 +17,14 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-import pkgutil, os, sys, imp, importlib, collections
-from PySide.QtGui import QDialog, QMessageBox, QApplication, QCursor, QFileDialog
-from PySide.QtCore import Qt
+import pkgutil
+import os
+import sys
+import collections
+
+from PySide2.QtGui import QCursor
+from PySide2.QtWidgets import QDialog, QMessageBox, QApplication, QFileDialog
+from PySide2.QtCore import Qt
 
 from mapclient.view.managers.plugins.ui.ui_advanceddialog import Ui_AdvancedDialog
 from mapclient.view.managers.plugins.pluginupdater import PluginUpdater
