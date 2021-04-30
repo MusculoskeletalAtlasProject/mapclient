@@ -8,6 +8,7 @@ import os.path
 from PySide2 import QtWidgets
 
 from mapclient.view.managers.options.ui.ui_optionsdialog import Ui_OptionsDialog
+
 from mapclient.core.checks import WizardToolChecks, VCSChecks
 from mapclient.view.syntaxhighlighter import SyntaxHighlighter
 from mapclient.settings.definitions import VIRTUAL_ENVIRONMENT_STRING, \
@@ -39,12 +40,20 @@ class  OptionsDialog(QtWidgets.QDialog):
     def _make_connections(self):
         self._ui.pushButtonPySideRCC.clicked.connect(self._pyside_rcc_button_clicked)
         self._ui.pushButtonGitExecutable.clicked.connect(self._git_executable_button_clicked)
+        self._ui.pushButtonPySideRCC.clicked.connect(self._pyside_rcc_button_clicked)
+        self._ui.pushButtonPySideUIC.clicked.connect(self._pyside_uic_button_clicked)
         self._ui.pushButtonRunChecks.clicked.connect(self._test_tools)
-        self._ui.checkBoxUseExternalGit.clicked.connect(self._use_external_git_clicked)
+        self._ui.checkBoxUseExternalGit.clicked.connect(self._use_external_star_clicked)
+        self._ui.checkBoxUseExternalPySideRCC.clicked.connect(self._use_external_star_clicked)
+        self._ui.checkBoxUseExternalPySideUIC.clicked.connect(self._use_external_star_clicked)
 
     def _update_ui(self):
         self._ui.lineEditGitExecutable.setEnabled(self._ui.checkBoxUseExternalGit.isChecked())
         self._ui.pushButtonGitExecutable.setEnabled(self._ui.checkBoxUseExternalGit.isChecked())
+        self._ui.lineEditPySideRCC.setEnabled(self._ui.checkBoxUseExternalPySideRCC.isChecked())
+        self._ui.pushButtonPySideRCC.setEnabled(self._ui.checkBoxUseExternalPySideRCC.isChecked())
+        self._ui.lineEditPySideUIC.setEnabled(self._ui.checkBoxUseExternalPySideUIC.isChecked())
+        self._ui.pushButtonPySideUIC.setEnabled(self._ui.checkBoxUseExternalPySideUIC.isChecked())
 
     def _pyside_rcc_button_clicked(self):
         rcc_program, _ = QtWidgets.QFileDialog.getOpenFileName(self, caption='Select PySide Resource Compiler',
@@ -54,8 +63,13 @@ class  OptionsDialog(QtWidgets.QDialog):
             self._location = os.path.dirname(rcc_program)
             self._test_tools()
 
-    def _use_external_git_clicked(self):
-        self._update_ui()
+    def _pyside_uic_button_clicked(self):
+        uic_program, _ = QtWidgets.QFileDialog.getOpenFileName(self, caption='Select PySide User Interface Compiler',
+                                                               dir=self._location)
+        if uic_program:
+            self._ui.lineEditPySideUIC.setText(uic_program)
+            self._location = os.path.dirname(uic_program)
+            self._test_tools()
 
     def _git_executable_button_clicked(self):
         git_program, _ = QtWidgets.QFileDialog.getOpenFileName(self, caption='Select Git Executable',
@@ -64,6 +78,9 @@ class  OptionsDialog(QtWidgets.QDialog):
             self._ui.lineEditGitExecutable.setText(git_program)
             self._location = os.path.dirname(git_program)
             self._test_tools()
+
+    def _use_external_star_clicked(self):
+        self._update_ui()
 
     def _test_tools(self):
         options = self.save()
@@ -113,7 +130,10 @@ class  OptionsDialog(QtWidgets.QDialog):
         step_name_option = self._ui.checkBoxShowStepNames.objectName()
         check_tools_option = self._ui.checkBoxCheckToolsOnStartup.objectName()
         use_external_git_option = self._ui.checkBoxUseExternalGit.objectName()
+        use_external_rcc_option = self._ui.checkBoxUseExternalPySideRCC.objectName()
+        use_external_uic_option = self._ui.checkBoxUseExternalPySideUIC.objectName()
         pysidercc_option = self._ui.lineEditPySideRCC.objectName()
+        pysideuic_option = self._ui.lineEditPySideUIC.objectName()
         vcs_option = self._ui.lineEditGitExecutable.objectName()
         if step_name_option in options:
             self._ui.checkBoxShowStepNames.setChecked(options[step_name_option])
@@ -121,8 +141,14 @@ class  OptionsDialog(QtWidgets.QDialog):
             self._ui.checkBoxCheckToolsOnStartup.setChecked(options[check_tools_option])
         if use_external_git_option:
             self._ui.checkBoxUseExternalGit.setChecked(options[use_external_git_option])
+        if use_external_rcc_option in options:
+            self._ui.checkBoxUseExternalPySideRCC.setChecked(options[use_external_rcc_option])
+        if use_external_uic_option in options:
+            self._ui.checkBoxUseExternalPySideUIC.setChecked(options[use_external_uic_option])
         if pysidercc_option in options:
             self._ui.lineEditPySideRCC.setText(options[pysidercc_option])
+        if pysideuic_option in options:
+            self._ui.lineEditPySideUIC.setText(options[pysideuic_option])
         if vcs_option in options:
             self._ui.lineEditGitExecutable.setText(options[vcs_option])
 
@@ -133,7 +159,10 @@ class  OptionsDialog(QtWidgets.QDialog):
         options = {self._ui.checkBoxShowStepNames.objectName(): self._ui.checkBoxShowStepNames.isChecked(),
                    self._ui.checkBoxCheckToolsOnStartup.objectName(): self._ui.checkBoxCheckToolsOnStartup.isChecked(),
                    self._ui.checkBoxUseExternalGit.objectName(): self._ui.checkBoxUseExternalGit.isChecked(),
+                   self._ui.checkBoxUseExternalPySideRCC.objectName(): self._ui.checkBoxUseExternalPySideRCC.isChecked(),
+                   self._ui.checkBoxUseExternalPySideUIC.objectName(): self._ui.checkBoxUseExternalPySideUIC.isChecked(),
                    self._ui.lineEditPySideRCC.objectName(): self._ui.lineEditPySideRCC.text(),
+                   self._ui.lineEditPySideUIC.objectName(): self._ui.lineEditPySideUIC.text(),
                    self._ui.lineEditGitExecutable.objectName(): self._ui.lineEditGitExecutable.text()}
 
         return options

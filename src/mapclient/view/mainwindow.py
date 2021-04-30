@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 
 import logging
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2 import QtWidgets, QtGui
 
 from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
 from mapclient.view.workflow.workflowwidget import WorkflowWidget
@@ -262,9 +262,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def confirm_close(self):
         # Check to see if the Workflow is in a saved state.
         if self._model.workflowManager().isModified():
-            ret = QtWidgets.QMessageBox.warning(self, 'Unsaved Changes',
-                                            'You have unsaved changes, would you like to save these changes now?',
-                                            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+            ret = QtWidgets.QMessageBox.warning(self,
+                                                'Unsaved Changes',
+                                                'You have unsaved changes, would you like to save these changes now?',
+                                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
             if ret == QtWidgets.QMessageBox.Yes:
                 self._model.workflowManager().save()
 
@@ -367,7 +368,7 @@ class MainWindow(QtWidgets.QMainWindow):
             om.setOption(PREVIOUS_PW_WRITE_STEP_LOCATION, dlg.getPreviousWriteStepLocation())
             om.setOption(PREVIOUS_PW_ICON_LOCATION, dlg.getPreviousIconLocation())
 
-            s = Skeleton(dlg.getOptions(), om.getOption(PYSIDE_RCC_EXE))
+            s = Skeleton(dlg.getOptions())
             try:
                 s.write()
                 pm = self._model.pluginManager()
@@ -418,16 +419,16 @@ class MainWindow(QtWidgets.QMainWindow):
         pm = self._model.pluginManager()
         if pm.haveErrors():
             return
-            dlg = PluginErrors(pm.getPluginErrors(), pm.getIgnoredPlugins(), pm.getResourceFiles(), pm.getUpdaterSettings())
-            if not self._doNotShowPluginErrors:
-                dlg.setModal(True)
-                dlg.fillList()
-                dlg.exec_()
-            ignored_plugins = dlg.getIgnoredPlugins()
-            for plugin in ignored_plugins:
-                if plugin not in self._ignoredPlugins:
-                    self._ignoredPlugins += [plugin]
-            if dlg._doNotShow:
-                self._doNotShowPluginErrors = True
-            if dlg._hotfixExecuted:
-                self.load()
+            # dlg = PluginErrors(pm.getPluginErrors(), pm.getIgnoredPlugins(), pm.getResourceFiles(), pm.getUpdaterSettings())
+            # if not self._doNotShowPluginErrors:
+            #     dlg.setModal(True)
+            #     dlg.fillList()
+            #     dlg.exec_()
+            # ignored_plugins = dlg.getIgnoredPlugins()
+            # for plugin in ignored_plugins:
+            #     if plugin not in self._ignoredPlugins:
+            #         self._ignoredPlugins += [plugin]
+            # if dlg._doNotShow:
+            #     self._doNotShowPluginErrors = True
+            # if dlg._hotfixExecuted:
+            #     self.load()

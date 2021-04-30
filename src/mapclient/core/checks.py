@@ -11,8 +11,9 @@ import platform
 from PySide2 import QtCore
 
 from mapclient.settings.definitions import GIT_EXE, \
-    PYSIDE_RCC_EXE, USE_EXTERNAL_GIT
-from mapclient.core.utils import which
+    PYSIDE_RCC_EXE, PYSIDE_UIC_EXE, USE_EXTERNAL_GIT, INTERNAL_EXE, \
+    USE_EXTERNAL_RCC, USE_EXTERNAL_UIC
+from mapclient.core.utils import which, qt_tool_wrapper
 
 
 logger = logging.getLogger(__name__)
@@ -35,25 +36,50 @@ class WizardToolChecks(ApplicationChecks):
 
     title = 'Wizard Tool'
 
-    def doCheck(self):
-        rcc_result = False
-        self._report = ''  # {0}\n'.format(self.title)
-        pyside_rcc = self._options[PYSIDE_RCC_EXE] if PYSIDE_RCC_EXE in self._options else 'pyside2-rcc'
-        try:
-            p = subprocess.Popen([pyside_rcc, '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            _, stderr = p.communicate()
-            return_code = p.returncode
-            if return_code == 0 and 'Resource Compiler for Qt version' in stderr.decode('utf-8'):
-                rcc_result = True
-                self._report += "'{0}' successfully ran.".format(pyside_rcc)
-            else:
-                self._report += "'{0}' did not execute successfully, returned '{1}' on exit.".format(pyside_rcc,
-                                                                                                     return_code)
-        except Exception as e:
-            self._report += "The test for pyside2-rcc [tested executable '{0}']" \
-                            " did not execute successfully, but caused an exception:\n{1}".format(pyside_rcc, e)
+    def _check_internal(self, tool):
+        return qt_tool_wrapper(tool, ['-g', 'python', '-version'])
 
-        return rcc_result
+    def _check_external(self, tool):
+        cmd = [tool, '-g', 'python', '-version']
+        proc = Popen(cmd, stderr=PIPE)
+        out, err = proc.communicate()
+
+        msg = ''
+        if err:
+            msg = err.decode("utf-8")
+
+        return proc.returncode, msg
+
+    def _check_rcc(self):
+        if self._options[USE_EXTERNAL_RCC]:
+            return_code, msg = self._check_external(self._options[PYSIDE_RCC_EXE])
+        else:
+            return_code, msg = self._check_internal("rcc")
+
+        return return_code == 0, msg
+
+    def _check_uic(self):
+        if self._options[USE_EXTERNAL_UIC]:
+            return_code, msg = self._check_external(self._options[PYSIDE_UIC_EXE])
+        else:
+            return_code, msg = self._check_internal("uic")
+
+        return return_code == 0, msg
+
+    def doCheck(self):
+        self._report = ''  # {0}\n'.format(self.title)
+        rcc_result, msg= self._check_rcc()
+        if rcc_result:
+            self._report += "Resource compiler successfully ran."
+        else:
+            self._report += "Resource compiler reported error: {0}".format(msg)
+        uic_result, msg = self._check_uic()
+        if uic_result:
+            self._report += "User interface compiler successfully ran."
+        else:
+            self._report += "User interface compiler reported error: {0}".format(msg)
+
+        return rcc_result and uic_result
 
 
 class VCSChecks(ApplicationChecks):

@@ -75,37 +75,80 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QGroupBox" name="groupBox_4">
+        <widget class="QGroupBox" name="groupBoxStepWizard">
          <property name="title">
           <string>Step Wizard</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_2">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QCheckBox" name="checkBoxUseExternalPySideRCC">
             <property name="text">
-             <string>pyside-rcc</string>
+             <string>Use external PySide resource compiler (rcc)</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="lineEditPySideRCC">
-            <property name="toolTip">
-             <string>The PySide Resource Compiler executable.</string>
+          <item>
+           <widget class="QCheckBox" name="checkBoxUseExternalPySideUIC">
+            <property name="text">
+             <string>Use external PySide user interface compiler (uic)</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QPushButton" name="pushButtonPySideRCC">
-            <property name="text">
-             <string>...</string>
-            </property>
-           </widget>
+          <item>
+           <layout class="QFormLayout" name="formLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelPySideRCC">
+              <property name="text">
+               <string>PySide rcc:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayoutPySideRCC">
+              <item>
+               <widget class="QLineEdit" name="lineEditPySideRCC">
+                <property name="toolTip">
+                 <string>The PySide Resource Compiler executable.</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButtonPySideRCC">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="labelPySideUIC">
+              <property name="text">
+               <string>PySide uic:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayoutPySideUIC">
+              <item>
+               <widget class="QLineEdit" name="lineEditPySideUIC"/>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButtonPySideUIC">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_5">
+        <widget class="QGroupBox" name="groupBoxPMR">
          <property name="title">
           <string>PMR</string>
          </property>
@@ -152,7 +195,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox">
+        <widget class="QGroupBox" name="groupBoxOutput">
          <property name="title">
           <string>Tool test output</string>
          </property>

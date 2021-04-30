@@ -20,8 +20,8 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import os
 import logging
 import datetime
-import subprocess
-import pysideuic
+
+from mapclient.core.utils import qt_tool_wrapper
 
 from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_DIALOG_STRING, CONFIGURE_DIALOG_LINE, \
     CONFIGURE_DIALOG_UI, CLASS_STRING, INIT_METHOD_STRING, APACHE_LICENSE, README_TEMPLATE
@@ -64,9 +64,8 @@ class Skeleton(object):
     skeleton code to disk.
     """
 
-    def __init__(self, options, pyside_rcc=None):
+    def __init__(self, options):
         self._options = options
-        self._pyside_rcc = pyside_rcc
 
     def _writeSetup(self, target_dir):
         """
@@ -368,16 +367,17 @@ class Skeleton(object):
             f.close()
 
             try:
-                result = subprocess.call([self._pyside_rcc, '-py3', '-o',
-                                          os.path.join(step_dir, PYTHON_QT_RESOURCE_FILENAME),
-                                          os.path.join(qt_dir, QT_RESOURCE_FILENAME)])
+                result, msg = qt_tool_wrapper("rcc", ['-g', 'python', '-o', os.path.join(step_dir, PYTHON_QT_RESOURCE_FILENAME), os.path.join(qt_dir, QT_RESOURCE_FILENAME)])
+                print("Error: {}\nwhile executing '{}'".format(msg, ' '.join()))
             except SyntaxError:
+                msg = "Syntax error in resource file."
                 result = -1
-            except Exception:
+            except Exception as e:
+                msg = "Unknown exception: " + str(e)
                 result = -1
 
             if result < 0:
-                raise Exception('Failed to generate Python rcc file using the PySide resource compiler "{0}".'.format(self._pyside_rcc))
+                raise Exception('Error: {}\nFailed to generate Python rcc file using the PySide resource compiler.'.format(msg))
 
     def _createConfigDialog(self, step_dir):
         """
