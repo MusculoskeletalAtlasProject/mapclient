@@ -22,7 +22,7 @@ IMPORT_STRING = """
 \"\"\"
 MAP Client Plugin Step
 \"\"\"
-{json_import}{qtwidgets_import}from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
+{json_import}{qtgui_import}from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 """
 
 CLASS_STRING = """

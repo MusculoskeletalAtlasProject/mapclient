@@ -36,13 +36,9 @@ class OptionsManager(object):
         return None
 
     def setOptions(self, options):
-        print("setting options")
-        print(options)
         self._options = options
 
     def setOption(self, option, value):
-        print("setting individual option")
-        print(option, value)
         self._options[option] = value
 
     def writeSettings(self, settings):

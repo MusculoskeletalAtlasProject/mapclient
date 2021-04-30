@@ -254,9 +254,12 @@ def find_file(filename, search_path):
     return None
 
 
-def qt_tool_wrapper(qt_tool, args):
-    pyside_dir = os.path.dirname(RefMod.__file__)
-    exe = os.path.join(pyside_dir, qt_tool)
+def qt_tool_wrapper(qt_tool, args, external=False):
+    if external:
+        exe = qt_tool
+    else:
+        pyside_dir = os.path.dirname(RefMod.__file__)
+        exe = os.path.join(pyside_dir, qt_tool)
 
     cmd = [exe] + args
     proc = Popen(cmd, stdout=DEVNULL, stderr=PIPE)
