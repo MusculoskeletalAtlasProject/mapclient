@@ -80,7 +80,6 @@ class Skeleton(object):
                 author=self._options.getAuthorName(),
                 author_email='',
                 url='',
-                license='APACHE',
                 namespace_packages=[PLUGIN_NAMESPACE],
             ))
 
