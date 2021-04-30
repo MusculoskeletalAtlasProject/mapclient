@@ -23,6 +23,8 @@ import datetime
 
 from mapclient.core.utils import qt_tool_wrapper
 
+from mapclient.settings.definitions import PYSIDE_UIC_EXE, PYSIDE_RCC_EXE, USE_EXTERNAL_UIC, USE_EXTERNAL_RCC
+
 from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_DIALOG_STRING, CONFIGURE_DIALOG_LINE, \
     CONFIGURE_DIALOG_UI, CLASS_STRING, INIT_METHOD_STRING, APACHE_LICENSE, README_TEMPLATE
 from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_METHOD_STRING, IDENTIFIER_METHOD_STRING, \
@@ -64,8 +66,9 @@ class Skeleton(object):
     skeleton code to disk.
     """
 
-    def __init__(self, options):
+    def __init__(self, options, qt_tool_options):
         self._options = options
+        self._qt_tool_options = qt_tool_options
 
     def _writeSetup(self, target_dir):
         """
@@ -89,9 +92,6 @@ class Skeleton(object):
         license_file = os.path.join(target_dir, 'LICENSE')
         with open(readme_file, 'w') as f:
             step_name = self._options.getName()#.decode('utf-8')
-            # print("'{0}'".format(step_name))
-            # myline = '=' * len(step_name)
-            # print(myline)
             f.write(README_TEMPLATE.format(
                 name=step_name,
                 underline='=' * len(step_name)
@@ -243,15 +243,15 @@ class Skeleton(object):
         return method_string
 
     def _generateImportStatements(self):
-        qtwidgets_import = ''
+        qtgui_import = ''
         json_import = ''
         icon = self._options.getIcon()
         if icon:
-            qtwidgets_import = 'from PySide2 import QtWidgets\n\n'
+            qtgui_import = 'from PySide2 import QtGui\n\n'
         if self._options.configCount() > 0:
             json_import = 'import json\n\n'
 
-        import_string = IMPORT_STRING.format(json_import=json_import, qtwidgets_import=qtwidgets_import)
+        import_string = IMPORT_STRING.format(json_import=json_import, qtgui_import=qtgui_import)
         import_string += 'from mapclientplugins.{package_name}.configuredialog import ConfigureDialog\n'.format(package_name=self._options.getPackageName())
 
         return import_string
@@ -265,7 +265,7 @@ class Skeleton(object):
         icon = self._options.getIcon()
         if icon:
             image_filename = self._options.getImageFile()
-            icon_string = '        self._icon =  QtWidgets.QImage(\':/{step_package_name}/' + IMAGES_DIRECTORY + '/{image_filename}\')\n'
+            icon_string = '        self._icon =  QtGui.QImage(\':/{step_package_name}/' + IMAGES_DIRECTORY + '/{image_filename}\')\n'
             init_string += icon_string.format(step_package_name=self._options.getPackageName(), image_filename=image_filename)
         port_index = 0
         ports = []
@@ -360,23 +360,18 @@ class Skeleton(object):
             icon.save(os.path.join(images_dir, image_filename))
 
             resource_file = os.path.join(qt_dir, QT_RESOURCE_FILENAME)
-            f = open(resource_file, 'w')
-            f.write(RESOURCE_FILE_STRING.format(step_package_name=self._options.getPackageName(),
-                                                image_filename=image_filename))
-            f.close()
+            with open(resource_file, 'w') as f:
+                f.write(RESOURCE_FILE_STRING.format(step_package_name=self._options.getPackageName(),
+                                                    image_filename=image_filename))
 
-            try:
-                result, msg = qt_tool_wrapper("rcc", ['-g', 'python', '-o', os.path.join(step_dir, PYTHON_QT_RESOURCE_FILENAME), os.path.join(qt_dir, QT_RESOURCE_FILENAME)])
-                print("Error: {}\nwhile executing '{}'".format(msg, ' '.join()))
-            except SyntaxError:
-                msg = "Syntax error in resource file."
-                result = -1
-            except Exception as e:
-                msg = "Unknown exception: " + str(e)
-                result = -1
+            py_file = os.path.join(step_dir, PYTHON_QT_RESOURCE_FILENAME)
+            if self._qt_tool_options[USE_EXTERNAL_RCC]:
+                return_code, msg = qt_tool_wrapper(self._qt_tool_options[PYSIDE_RCC_EXE], ['-g', 'python', '-o', py_file, resource_file], True)
+            else:
+                return_code, msg = qt_tool_wrapper("rcc", ['-g', 'python', '-o', py_file, resource_file])
 
-            if result < 0:
-                raise Exception('Error: {}\nFailed to generate Python rcc file using the PySide resource compiler.'.format(msg))
+            if return_code != 0:
+                raise Exception('Error: {}\nFailed to generate Python resource file using the PySide resource compiler.'.format(msg))
 
     def _createConfigDialog(self, step_dir):
         """
@@ -429,8 +424,13 @@ class Skeleton(object):
                 fui.write(CONFIGURE_DIALOG_UI.format(widgets_string))
 
             py_file = os.path.join(step_dir, PYTHON_QT_CONFDIALOG_UI_FILENAME)
-            with open(py_file, 'w') as f:
-                pysideuic.compileUi(ui_file, f, from_imports=True)
+            if self._qt_tool_options[USE_EXTERNAL_UIC]:
+                return_code, msg = qt_tool_wrapper(self._qt_tool_options[PYSIDE_UIC_EXE], ['-g', 'python', '--from-imports', '-o', py_file, ui_file], True)
+            else:
+                return_code, msg = qt_tool_wrapper("uic", ['-g', 'python', '--from-imports', '-o', py_file, ui_file])
+
+            if return_code != 0:
+                raise Exception('Error: {}\nFailed to generate Python resource file using the PySide resource compiler.'.format(msg))
 
             dialog_file = os.path.join(step_dir, CONFIG_DIALOG_FILE)
             with open(dialog_file, 'w') as f:

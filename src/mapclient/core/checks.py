@@ -36,33 +36,19 @@ class WizardToolChecks(ApplicationChecks):
 
     title = 'Wizard Tool'
 
-    def _check_internal(self, tool):
-        return qt_tool_wrapper(tool, ['-g', 'python', '-version'])
-
-    def _check_external(self, tool):
-        cmd = [tool, '-g', 'python', '-version']
-        proc = Popen(cmd, stderr=PIPE)
-        out, err = proc.communicate()
-
-        msg = ''
-        if err:
-            msg = err.decode("utf-8")
-
-        return proc.returncode, msg
-
     def _check_rcc(self):
         if self._options[USE_EXTERNAL_RCC]:
-            return_code, msg = self._check_external(self._options[PYSIDE_RCC_EXE])
+            return_code, msg = qt_tool_wrapper(self._options[PYSIDE_RCC_EXE], ['-version'], True)
         else:
-            return_code, msg = self._check_internal("rcc")
+            return_code, msg = qt_tool_wrapper("rcc", ['-version'])
 
         return return_code == 0, msg
 
     def _check_uic(self):
         if self._options[USE_EXTERNAL_UIC]:
-            return_code, msg = self._check_external(self._options[PYSIDE_UIC_EXE])
+            return_code, msg = qt_tool_wrapper(self._options[PYSIDE_UIC_EXE], ['-version'], True)
         else:
-            return_code, msg = self._check_internal("uic")
+            return_code, msg = qt_tool_wrapper("uic", ['-version'])
 
         return return_code == 0, msg
 
@@ -147,22 +133,3 @@ def getActivateScript(venv_path):
         suffix = ''
     activate_script = which(os.path.join(venv_path, int_directory, 'activate' + suffix))
     return activate_script
-
-
-def get_pyside_rcc_executable():
-    pyside_rcc_directory = os.path.dirname(QtCore.__file__)
-    pyside_rcc_potentials = [os.path.join(pyside_rcc_directory, 'pyside2-rcc'), 'pyside2-rcc']
-
-    for pyside_rcc_potential in pyside_rcc_potentials:
-        pyside_rcc = which(pyside_rcc_potential)
-        if pyside_rcc is not None:
-            p = subprocess.Popen([pyside_rcc, '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            stdout, stderr = p.communicate()
-            return_code = p.returncode
-            if return_code == 0 and 'Resource Compiler for Qt version' in stderr.decode('utf-8'):
-                return pyside_rcc
-
-    return None
-
-
-

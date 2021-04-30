@@ -25,7 +25,7 @@ from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
 from mapclient.view.workflow.workflowwidget import WorkflowWidget
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
 from mapclient.settings.definitions import WIZARD_TOOL_STRING, \
-    PMR_TOOL_STRING, PYSIDE_RCC_EXE, \
+    PMR_TOOL_STRING, PYSIDE_RCC_EXE, USE_EXTERNAL_RCC, PYSIDE_UIC_EXE, USE_EXTERNAL_UIC, \
     PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION, USE_EXTERNAL_GIT
 from mapclient.view.utils import set_wait_cursor
 
@@ -311,8 +311,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def _show_plugin_manager_dialog(self):
         from mapclient.view.managers.plugins.pluginmanagerdialog import PluginManagerDialog
         pm = self._model.pluginManager()
-#         pluginErrors = pm.getPluginErrors()
-#         print(pluginErrors)
+        #         pluginErrors = pm.getPluginErrors()
+        #         print(pluginErrors)
         dlg = PluginManagerDialog(self._model.pluginManager()._ignoredPlugins,
                                   self._model.pluginManager()._doNotShowPluginErrors,
                                   self._model.pluginManager()._resourceFiles,
@@ -351,7 +351,14 @@ class MainWindow(QtWidgets.QMainWindow):
             wm.updateAvailableSteps()
             self._workflowWidget.updateStepTree()
 
-#             self.showPluginErrors()
+    #             self.showPluginErrors()
+
+    def _create_qt_tools_options(self):
+        om = self._model.optionsManager()
+        return {USE_EXTERNAL_RCC: om.getOption(USE_EXTERNAL_RCC),
+                PYSIDE_RCC_EXE: om.getOption(PYSIDE_RCC_EXE),
+                PYSIDE_UIC_EXE: om.getOption(PYSIDE_UIC_EXE),
+                USE_EXTERNAL_UIC: om.getOption(USE_EXTERNAL_UIC)}
 
     def _show_plugin_wizard_dialog(self):
         from mapclient.tools.pluginwizard.wizarddialog import WizardDialog
@@ -368,7 +375,7 @@ class MainWindow(QtWidgets.QMainWindow):
             om.setOption(PREVIOUS_PW_WRITE_STEP_LOCATION, dlg.getPreviousWriteStepLocation())
             om.setOption(PREVIOUS_PW_ICON_LOCATION, dlg.getPreviousIconLocation())
 
-            s = Skeleton(dlg.getOptions())
+            s = Skeleton(dlg.getOptions(), self._create_qt_tools_options())
             try:
                 s.write()
                 pm = self._model.pluginManager()
