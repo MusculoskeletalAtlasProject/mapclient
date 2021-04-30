@@ -18,7 +18,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 
-import os, sys, platform
+import os
+import sys
+import platform
 import ast
 
 from PySide2 import QtCore, QtWidgets, QtGui
@@ -48,17 +50,9 @@ ICON_PICTURE_LABEL_FIELD = 'icon_picture_label'
 REQUIRED_STYLE_SHEET = 'background-color: rgba(239, 16, 16, 20%)'
 DEFAULT_STYLE_SHEET = ''
 
-imageNameMap = {}
-imageNameMap['Default'] = 'default.png'
-imageNameMap['Source'] = 'data-source.png'
-imageNameMap['Sink'] = 'data-sink.png'
-imageNameMap['Fitting'] = 'fitting.png'
-imageNameMap['Model Viewer'] = 'model-viewer.png'
-imageNameMap['Image Processing'] = 'image-processing.png'
-imageNameMap['Segmentation'] = 'segmentation.png'
-imageNameMap['Morphometric'] = 'morphometric.png'
-imageNameMap['Registration'] = 'registration.png'
-imageNameMap['Utility'] = 'utility.png'
+imageNameMap = {'Default': 'default.png', 'Source': 'data-source.png', 'Sink': 'data-sink.png', 'Fitting': 'fitting.png', 'Model Viewer': 'model-viewer.png',
+                'Image Processing': 'image-processing.png', 'Segmentation': 'segmentation.png', 'Morphometric': 'morphometric.png', 'Registration': 'registration.png',
+                'Utility': 'utility.png'}
 
 
 class WizardDialog(QtWidgets.QWizard):
@@ -444,7 +438,7 @@ class OutputWizardPage(QtWidgets.QWizardPage):
         self._ui.directoryButton.clicked.connect(self._chooseDirectory)
 
     def _chooseDirectory(self):
-        directory = QtWidgets.QFileDialog.getExistingDirectory(self, caption='Select Output Directory', directory=self._ui.directoryLineEdit.text(), options=QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks | QtWidgets.QFileDialog.ReadOnly)
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, caption='Select Output Directory', dir=self._ui.directoryLineEdit.text(), options=QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks | QtWidgets.QFileDialog.ReadOnly)
         if len(directory) > 0:
             self._ui.directoryLineEdit.setText(directory)
 

@@ -220,12 +220,12 @@ class PluginManager(object):
                 return []
 
     def load(self):
-        print('load plugins ...')
+        # print('load plugins ...')
         self._reload_plugins = False
-        print('load plugins:  %s' % PLUGINS_PACKAGE_NAME in sys.modules)
-        if PLUGINS_PACKAGE_NAME in sys.modules:
-            print('mapclientplugins already loaded???')
-            print(sys.modules[PLUGINS_PACKAGE_NAME].__path__)
+        # print('load plugins:  %s' % PLUGINS_PACKAGE_NAME in sys.modules)
+        # if PLUGINS_PACKAGE_NAME in sys.modules:
+        #     print('mapclientplugins already loaded???')
+        #     print(sys.modules[PLUGINS_PACKAGE_NAME].__path__)
         len_package_modules_prior = len(sys.modules[PLUGINS_PACKAGE_NAME].__path__) if PLUGINS_PACKAGE_NAME in sys.modules else 0
         for directory in self.allDirectories():
             if not self._addPluginDir(directory):
@@ -237,8 +237,8 @@ class PluginManager(object):
                 for name in sorted(names):
                     self._addPluginDir(os.path.join(directory, name))
 
-        print(sys.path)
-        print(len_package_modules_prior)
+        # print(sys.path)
+        # print(len_package_modules_prior)
         if len_package_modules_prior == 0:
             package = import_module(PLUGINS_PACKAGE_NAME)
         else:

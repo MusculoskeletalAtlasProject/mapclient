@@ -28,6 +28,7 @@ class CheckStatusDialog(QtWidgets.QDialog):
         self._vcs = False
 
     def showEvent(self, *args, **kwargs):
+        print("running checks again.")
         QtCore.QTimer.singleShot(0, self._runChecks)
         return QtWidgets.QDialog.showEvent(self, *args, **kwargs)
 
@@ -43,6 +44,8 @@ class CheckStatusDialog(QtWidgets.QDialog):
 
     def _runChecks(self):
         options = self._options
+        print("runnings checks now")
+        print(options)
         checks_venv = VirtualEnvChecks(options)
         self._venv = self._handleCheck(checks_venv, VIRTUAL_ENVIRONMENT_STRING)
         checks_wizard = WizardToolChecks(options)

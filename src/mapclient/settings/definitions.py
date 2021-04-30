@@ -37,6 +37,8 @@ GIT_EXE = 'lineEditGitExecutable'
 VIRTUAL_ENV_SETUP_ATTEMPTED = 'venvSetupAttempted'
 CHECK_TOOLS_ON_STARTUP = 'checkBoxCheckToolsOnStartup'
 USE_EXTERNAL_GIT = 'checkBoxUseExternalGit'
+USE_EXTERNAL_RCC = 'checkBoxUseExternalPySideRCC'
+USE_EXTERNAL_UIC = 'checkBoxUseExternalPySideUIC'
 
 WIZARD_TOOL_STRING = 'Wizard Tool'
 VIRTUAL_ENVIRONMENT_STRING = 'Virtual Environment'
@@ -50,3 +52,4 @@ MAIN_MODULE = '__init__'
 PREVIOUS_PW_WRITE_STEP_LOCATION = 'previous_write_step_location'
 PREVIOUS_PW_ICON_LOCATION = 'previous_icon_location'
 
+INTERNAL_EXE = '<internal>'

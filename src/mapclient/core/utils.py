@@ -21,6 +21,9 @@ import os
 import re
 import sys
 
+from subprocess import Popen, PIPE, DEVNULL
+import PySide2 as RefMod
+
 from mapclient.settings.definitions import PLUGINS_PACKAGE_NAME
 from mapclient.settings.general import get_configuration_file
 
@@ -249,3 +252,18 @@ def find_file(filename, search_path):
             return os.path.join(root, filename)
 
     return None
+
+
+def qt_tool_wrapper(qt_tool, args):
+    pyside_dir = os.path.dirname(RefMod.__file__)
+    exe = os.path.join(pyside_dir, qt_tool)
+
+    cmd = [exe] + args
+    proc = Popen(cmd, stdout=DEVNULL, stderr=PIPE)
+    out, err = proc.communicate()
+
+    msg = ''
+    if err:
+        msg = err.decode("utf-8")
+
+    return proc.returncode, msg
