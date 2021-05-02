@@ -17,8 +17,8 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-
 import logging
+
 from PySide2 import QtWidgets, QtGui
 
 from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
@@ -259,6 +259,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         self.quit_application()
 
+    def _maybe_restart_application(self):
+        QtWidgets.QMessageBox.warning(self,
+                                      'Change detected',
+                                      'A change in the plugins has been detected, you may have to restart the appplication to see the effect.',
+                                      QtWidgets.QMessageBox.Ok)
     def confirm_close(self):
         # Check to see if the Workflow is in a saved state.
         if self._model.workflowManager().isModified():
@@ -329,7 +334,8 @@ class MainWindow(QtWidgets.QMainWindow):
             pm._doNotShowPluginErrors = dlg._do_not_show_plugin_errors
             pm._resourceFiles = dlg._resource_filenames
             pm._updaterSettings = dlg._updaterSettings
-            self._plugin_manager_load_plugins()
+            if self._plugin_manager_load_plugins():
+                self._maybe_restart_application()
 
         self._pluginManagerDlg = None
 
@@ -337,6 +343,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def _plugin_manager_load_plugins(self):
         """
         Get the plugin manager to load the current plugins.
+
+        Returns True if the plugin manager reloaded plugins, False otherwise.
         """
         pm = self._model.pluginManager()
         # Are we currently using the plugin manager dialog?
@@ -351,7 +359,9 @@ class MainWindow(QtWidgets.QMainWindow):
             wm.updateAvailableSteps()
             self._workflowWidget.updateStepTree()
 
-    #             self.showPluginErrors()
+            return True
+
+        return False
 
     def _create_qt_tools_options(self):
         om = self._model.optionsManager()

@@ -15,6 +15,9 @@ import shutil
 import types
 import importlib
 
+from pkgutil import extend_path
+import pkg_resources
+
 from mapclient.core.utils import which, FileTypeObject, grep
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     PLUGINS_PACKAGE_NAME, PLUGINS_PTH
@@ -53,7 +56,7 @@ class PluginManager(object):
         self._ignoredPlugins = []
         self._unsuccessful_package_installations = {}
         self._resourceFiles = ['resources_rc']
-        self._updaterSettings = {'syntax':True, 'indentation':True, 'location':True, 'resources':True}
+        self._updaterSettings = {'syntax': True, 'indentation': True, 'location': True, 'resources': True}
 
     def setVirtualEnvEnabled(self, state=True):
         self._virtualenv_enabled = state
@@ -181,8 +184,9 @@ class PluginManager(object):
     def _addPluginDir(self, directory):
         added = False
         if isMapClientPluginsDir(directory):
-            sys.path.append(directory)
-            added = True
+            if directory not in sys.path:
+                sys.path.append(directory)
+                added = True
 
         return added
 
@@ -220,46 +224,30 @@ class PluginManager(object):
                 return []
 
     def load(self):
-        # print('load plugins ...')
         self._reload_plugins = False
-        # print('load plugins:  %s' % PLUGINS_PACKAGE_NAME in sys.modules)
-        # if PLUGINS_PACKAGE_NAME in sys.modules:
-        #     print('mapclientplugins already loaded???')
-        #     print(sys.modules[PLUGINS_PACKAGE_NAME].__path__)
+
         len_package_modules_prior = len(sys.modules[PLUGINS_PACKAGE_NAME].__path__) if PLUGINS_PACKAGE_NAME in sys.modules else 0
+        new_plugin_directories = []
         for directory in self.allDirectories():
-            if not self._addPluginDir(directory):
+            if self._addPluginDir(directory):
+                new_plugin_directories.append(directory)
+            else:
                 try:
                     names = os.listdir(directory)
                 except os.error:
                     continue
 
                 for name in sorted(names):
-                    self._addPluginDir(os.path.join(directory, name))
+                    if self._addPluginDir(os.path.join(directory, name)):
+                        new_plugin_directories.append(os.path.join(directory, name))
 
-        # print(sys.path)
-        # print(len_package_modules_prior)
         if len_package_modules_prior == 0:
             package = import_module(PLUGINS_PACKAGE_NAME)
         else:
-            if sys.version_info < (3, 0):
-                package = reload(sys.modules[PLUGINS_PACKAGE_NAME])
-            else:
-                import importlib
-                if sys.version_info > (3, 4):
-                    print(sys.modules[PLUGINS_PACKAGE_NAME])
-                    print(sys.modules[PLUGINS_PACKAGE_NAME].__path__)
-                    try:
-                        for pkg_path in sys.modules[PLUGINS_PACKAGE_NAME]:
-                            importlib.reload(sys.modules[pkg_path])
-                    except TypeError as e:
-                        print(e)
-                        # print('importing module')
-                        # print(sys.modules[PLUGINS_PACKAGE_NAME].__path__)
+            for d in new_plugin_directories:
+                sys.modules[PLUGINS_PACKAGE_NAME].__path__.append(os.path.join(d, PLUGINS_PACKAGE_NAME))
 
-                package = importlib.reload(sys.modules[PLUGINS_PACKAGE_NAME])
-                # reload_package(sys.modules[PLUGINS_PACKAGE_NAME])
-                print(sys.modules[PLUGINS_PACKAGE_NAME].__path__)
+            package = sys.modules[PLUGINS_PACKAGE_NAME]
 
         self._import_errors = []
         self._type_errors = []
@@ -269,6 +257,7 @@ class PluginManager(object):
 
         for _, modname, ispkg in pkgutil.iter_modules(package.__path__):
             if ispkg:
+                # print('tyring to import: ', PLUGINS_PACKAGE_NAME + '.' + modname)
                 try:
                     module = import_module(PLUGINS_PACKAGE_NAME + '.' + modname)
                     plugin_dependencies = self.extractPluginDependencies(package.__path__)
