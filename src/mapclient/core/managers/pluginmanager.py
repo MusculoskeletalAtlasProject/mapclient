@@ -257,7 +257,6 @@ class PluginManager(object):
 
         for _, modname, ispkg in pkgutil.iter_modules(package.__path__):
             if ispkg:
-                # print('tyring to import: ', PLUGINS_PACKAGE_NAME + '.' + modname)
                 try:
                     module = import_module(PLUGINS_PACKAGE_NAME + '.' + modname)
                     plugin_dependencies = self.extractPluginDependencies(package.__path__)
