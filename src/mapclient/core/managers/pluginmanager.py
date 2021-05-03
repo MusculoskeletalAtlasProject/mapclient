@@ -18,7 +18,7 @@ import importlib
 from pkgutil import extend_path
 import pkg_resources
 
-from mapclient.core.utils import which, FileTypeObject, grep
+from mapclient.core.utils import which, FileTypeObject, grep, is_frozen
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     PLUGINS_PACKAGE_NAME, PLUGINS_PTH
 from mapclient.core.checks import getPipExecutable, getActivateScript
@@ -175,8 +175,11 @@ class PluginManager(object):
     def allDirectories(self):
         plugin_dirs = self._directories[:]
         if self._load_default_plugins:
-            file_dir = os.path.dirname(os.path.abspath(__file__))
-            inbuilt_plugin_dir = os.path.realpath(os.path.join(file_dir, '..', '..', 'plugins'))
+            if is_frozen():
+                inbuilt_plugin_dir = os.path.join(sys._MEIPASS, PLUGINS_PACKAGE_NAME)
+            else:
+                file_dir = os.path.dirname(os.path.abspath(__file__))
+                inbuilt_plugin_dir = os.path.realpath(os.path.join(file_dir, '..', '..', PLUGINS_PACKAGE_NAME))
             plugin_dirs.insert(0, inbuilt_plugin_dir)
 
         return plugin_dirs
