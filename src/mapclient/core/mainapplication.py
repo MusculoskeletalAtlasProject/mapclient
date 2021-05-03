@@ -23,6 +23,7 @@ from PySide2 import QtCore
 
 from mapclient.core.managers.workflowmanager import WorkflowManager
 from mapclient.core.managers.undomanager import UndoManager
+from mapclient.core.managers.packagemanager import PackageManager
 from mapclient.core.managers.pluginmanager import PluginManager
 from mapclient.core.managers.optionsmanager import OptionsManager
 from mapclient.core.checks import runChecks
@@ -40,6 +41,7 @@ class MainApplication(object):
         self._size = QtCore.QSize(600, 400)
         self._pos = QtCore.QPoint(100, 150)
         self._pluginManager = PluginManager()
+        self._package_manager = PackageManager()
         self._workflowManager = WorkflowManager(self)
         self._undoManager = UndoManager()
         self._optionsManager = OptionsManager()
@@ -68,6 +70,9 @@ class MainApplication(object):
     def pluginManager(self):
         return self._pluginManager
 
+    def package_manager(self):
+        return self._package_manager
+
     def optionsManager(self):
         return self._optionsManager
 
@@ -84,6 +89,7 @@ class MainApplication(object):
         self._pluginManager.writeSettings(settings)
         self._workflowManager.writeSettings(settings)
         self._optionsManager.writeSettings(settings)
+        self._package_manager.write_settings(settings)
 
     def readSettings(self):
         settings = QtCore.QSettings()
@@ -94,3 +100,4 @@ class MainApplication(object):
         self._pluginManager.readSettings(settings)
         self._workflowManager.readSettings(settings)
         self._optionsManager.readSettings(settings)
+        self._package_manager.read_settings(settings)

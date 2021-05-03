@@ -94,6 +94,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_Quit.setObjectName("action_Quit")
         self._action_PluginManager = QtWidgets.QAction(self)
         self._action_PluginManager.setObjectName("action_PluginManager")
+        self._action_PackageManager = QtWidgets.QAction(self)
+        self._action_PackageManager.setObjectName("action_PackageManager")
         self._action_PMR = QtWidgets.QAction(self)
         self._action_PMR.setObjectName("action_PMR")
         self._action_RenamePlugin = QtWidgets.QAction(self)
@@ -113,6 +115,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_File.addSeparator()
         self._menu_File.addAction(self._action_Quit)
         self._menu_Tools.addAction(self._action_PluginManager)
+        self._menu_Tools.addAction(self._action_PackageManager)
         self._menu_Tools.addAction(self._action_PluginWizard)
         self._menu_Tools.addAction(self._action_PMR)
         self._menu_Tools.addAction(self._action_RenamePlugin)
@@ -149,6 +152,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                                                            "Change global application options",
                                                                            None, -1))
         self._action_PluginManager.setText(QtWidgets.QApplication.translate("MainWindow", "Plugin &Manager", None, -1))
+        self._action_PackageManager.setText(QtWidgets.QApplication.translate("MainWindow", "Package Ma&nager", None, -1))
         self._action_PMR.setText(QtWidgets.QApplication.translate("MainWindow", "&PMR", None, -1))
         self._action_Annotation.setText(QtWidgets.QApplication.translate("MainWindow", "&Annotation", None, -1))
         self._action_PluginWizard.setText(QtWidgets.QApplication.translate("MainWindow", "Plugin Wi&zard", None, -1))
@@ -189,6 +193,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_LogInformation.triggered.connect(self._show_log_information_dialog)
         self._action_Options.triggered.connect(self._show_options_dialog)
         self._action_PluginManager.triggered.connect(self._show_plugin_manager_dialog)
+        self._action_PackageManager.triggered.connect(self._show_package_manager_dialog)
         self._action_PluginWizard.triggered.connect(self._show_plugin_wizard_dialog)
         self._action_PMR.triggered.connect(self._show_pmr_tool)
         self._action_Annotation.triggered.connect(self._show_annotation_tool)
@@ -210,6 +215,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def get_menu_bar(self):
         return self._menu_bar
+
+    def load_packages(self):
+        pm = self._model.package_manager()
+        pm.load()
 
     def load_plugins(self):
         pm = self._model.pluginManager()
@@ -259,11 +268,12 @@ class MainWindow(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         self.quit_application()
 
-    def _maybe_restart_application(self):
+    def _maybe_restart_application(self, asker='plugins'):
         QtWidgets.QMessageBox.warning(self,
                                       'Change detected',
-                                      'A change in the plugins has been detected, you may have to restart the appplication to see the effect.',
+                                      f'A change in the {asker} has been detected, you may have to restart the appplication to see the effect.',
                                       QtWidgets.QMessageBox.Ok)
+
     def confirm_close(self):
         # Check to see if the Workflow is in a saved state.
         if self._model.workflowManager().isModified():
@@ -312,6 +322,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
         self._action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
         self._workflowWidget.applyOptions()
+
+    def _show_package_manager_dialog(self):
+        from mapclient.view.managers.package.packagemanagerdialog import PackageManagerDialog
+        pm = self._model.package_manager()
+
+        dlg = PackageManagerDialog(self)
+        dlg.set_directories(pm.directories())
+        dlg.setModal(True)
+        if dlg.exec_():
+            pm.set_directories(dlg.directories())
+            if pm.is_modified():
+                pm.load()
+                self._maybe_restart_application(asker='packages')
+
 
     def _show_plugin_manager_dialog(self):
         from mapclient.view.managers.plugins.pluginmanagerdialog import PluginManagerDialog
