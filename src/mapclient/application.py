@@ -122,6 +122,7 @@ def windows_main(app_args):
         if not window.check_application_setup():
             window._show_options_dialog(current_tab=1)
 
+    window.load_packages()
     window.load_plugins()
 
     if app_args.workflow:
@@ -167,7 +168,9 @@ def non_gui_main(app_args):
 
     wm = model.workflowManager()
     pm = model.pluginManager()
+    pam = model.package_manager()
 
+    pam.load()
     pm.load()
     try:
         wm.load(app_args.workflow)

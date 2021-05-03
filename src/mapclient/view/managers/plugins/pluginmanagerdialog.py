@@ -67,11 +67,18 @@ class PluginManagerDialog(QtWidgets.QDialog):
             self._ui.directoryListing.takeItem(self._ui.directoryListing.row(item))
 
     def _addDirectoryClicked(self):
-        last = self._ui.directoryListing.item(self._ui.directoryListing.count() - 1)
+        selected_items = self._ui.directoryListing.selectedItems()
+        last = ''
+        if selected_items:
+            last_selected_item = selected_items[-1]
+            last = last_selected_item
+        else:
+            last = self._ui.directoryListing.item(self._ui.directoryListing.count() - 1)
+
         if last:
             last = last.text()
 
-        directory = QtWidgets.QFileDialog.getExistingDirectory(self, caption='Select External Plugin Directory', directory=last, options=QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks | QtWidgets.QFileDialog.ReadOnly)
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, caption='Select External Plugin Directory', dir=last, options=QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks | QtWidgets.QFileDialog.ReadOnly)
         if len(directory) > 0:
             self._ui.directoryListing.addItem(directory)
 

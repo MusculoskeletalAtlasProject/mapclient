@@ -19,7 +19,7 @@ lib64/
 parts/
 sdist/
 var/
-package/
+#package/ # We are using this name in the source hopefully doesn't come back to bite us.
 *.egg-info/
 .installed.cfg
 *.egg

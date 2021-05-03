@@ -13,6 +13,9 @@ run_command = [
     '-n', 'MAPClient',
     '--windowed',
     '--noconfirm',
+    '--hidden-import', 'scipy',
+    '--hidden-import', 'scipy.interpolate',
+    '--hidden-import', 'numpy',
     '--hidden-import', 'mapclientplugins',
     '--hidden-import', 'opencmiss.utils',
     '--hidden-import', 'opencmiss.zincwidgets',
@@ -20,20 +23,11 @@ run_command = [
 ]
 
 
-print('[[[[[[[[[[[[[[[[')
-print(collect_data_files('mapclient', includes=['*.png']))
 images_dir = os.path.join('..', '..', 'src', 'mapclient', 'tools', 'pluginwizard', 'qt', 'images')
 names = os.listdir(images_dir)
 for name in names:
     data = os.pathsep.join([os.path.join(os.path.abspath(images_dir), name), os.path.join('res', 'images')])
     run_command.append(f'--add-data={data}')
-print(names)
-print(os.pathsep)
-# for d in opencmiss.__path__:
-#     run_command.append(f'--path={d}')
-#
-# for d in mapclientplugins.__path__:
-#     run_command.append(f'--path={d}')
 
 if platform.system() == 'Darwin':
     pyside_dir = os.path.dirname(RefMod.__file__)
@@ -47,4 +41,3 @@ if platform.system() == 'Darwin':
 
 print('Running command: ', run_command)
 PyInstaller.__main__.run(run_command)
-# mapclient/application.py -n MAPClient --hidden-import opencmiss.zinc --windowed -i ../res/win/MAP-Client.ico --hidden-import opencmiss
