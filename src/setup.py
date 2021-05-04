@@ -26,13 +26,15 @@ def find_version(*file_paths):
 
 
 # Define the list of requirements
-install_requires = ['PySide2',
-                    'rdflib',
-                    'virtualenv',
-                    'requests',
-                    'python-dateutil',
-                    'dulwich',
-                    'pmr2.client']
+install_requires = [
+    'PySide2',
+    'rdflib',
+    'virtualenv',
+    'requests',
+    'python-dateutil',
+    'dulwich',
+    'pmr2.wfctrl @ https://github.com/PMR2/pmr2.wfctrl/archive/v0.3.0.zip',
+    'pmr2.client']
 
 
 setup(
