@@ -75,7 +75,7 @@ class ErrorItem(QtWidgets.QGraphicsItem):
         if line.length() == 0.0:
             return
 
-        painter.setPen(QtWidgets.QPen(QtCore.Qt.black, 1, QtCore.Qt.DashLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
+        painter.setPen(QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.DashLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
         painter.drawLine(line)
 
         painter.drawPixmap(midPoint.x() - 8, midPoint.y() - 8, self._pixmap)
