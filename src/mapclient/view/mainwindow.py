@@ -191,7 +191,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_Quit.triggered.connect(self.quit_application)
         self._action_About.triggered.connect(self.about)
         self._action_LogInformation.triggered.connect(self._show_log_information_dialog)
-        self._action_Options.triggered.connect(self._show_options_dialog)
+        self._action_Options.triggered.connect(self.show_options_dialog)
         self._action_PluginManager.triggered.connect(self._show_plugin_manager_dialog)
         self._action_PackageManager.triggered.connect(self._show_package_manager_dialog)
         self._action_PluginWizard.triggered.connect(self._show_plugin_wizard_dialog)
@@ -305,7 +305,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg.setModal(True)
         dlg.exec_()
 
-    def _show_options_dialog(self, current_tab=0):
+    def show_options_dialog(self, current_tab=0):
         from mapclient.view.managers.options.optionsdialog import OptionsDialog
 
         om = self._model.optionsManager()
