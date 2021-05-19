@@ -120,10 +120,12 @@ def windows_main(app_args):
         window.setup_application()
 
         if not window.check_application_setup():
-            window._show_options_dialog(current_tab=1)
+            window.show_options_dialog(current_tab=1)
 
     window.load_packages()
     window.load_plugins()
+
+    # Determine if we are in internal workflow mode.
 
     if app_args.workflow:
         window.open_workflow(app_args.workflow)
