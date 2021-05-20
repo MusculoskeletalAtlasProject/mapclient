@@ -68,4 +68,5 @@ target/
 # Intellij projects
 .idea/
 
-
+# Internal workflow zip
+internal_workflow.zip
