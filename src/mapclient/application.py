@@ -129,7 +129,8 @@ def windows_main(app_args):
     window.load_packages()
     window.load_plugins()
 
-    prepare_internal_workflow(app_args, model)
+    om = model.optionsManager()
+    prepare_internal_workflow(app_args, om)
 
     if app_args.workflow:
         window.open_workflow(app_args.workflow)
@@ -144,7 +145,7 @@ def windows_main(app_args):
     return app.exec_()
 
 
-def prepare_internal_workflow(app_args, model):
+def prepare_internal_workflow(app_args, om):
     # Determine if we have an internal workflow.
     if is_frozen():
         internal_workflow_zip = os.path.join(sys._MEIPASS, INTERNAL_WORKFLOW_ZIP)
@@ -152,7 +153,6 @@ def prepare_internal_workflow(app_args, model):
         file_dir = os.path.dirname(os.path.abspath(__file__))
         internal_workflow_zip = os.path.realpath(os.path.join(file_dir, '..', INTERNAL_WORKFLOW_ZIP))
 
-    om = model.optionsManager()
     if os.path.isfile(internal_workflow_zip):
         # We have an internal workflow set the option as active.
         om.setOption(INTERNAL_WORKFLOW_AVAILABLE, True)
@@ -219,11 +219,12 @@ def non_gui_main(app_args):
     wm = model.workflowManager()
     pm = model.pluginManager()
     pam = model.package_manager()
+    om = model.optionsManager()
 
     pam.load()
     pm.load()
 
-    prepare_internal_workflow(app_args, model)
+    prepare_internal_workflow(app_args, om)
 
     try:
         wm.load(app_args.workflow)
