@@ -12,7 +12,7 @@ from mapclient.view.managers.options.ui.ui_optionsdialog import Ui_OptionsDialog
 from mapclient.core.checks import WizardToolChecks, VCSChecks
 from mapclient.view.syntaxhighlighter import SyntaxHighlighter
 from mapclient.settings.definitions import VIRTUAL_ENVIRONMENT_STRING, \
-    WIZARD_TOOL_STRING, PMR_TOOL_STRING
+    WIZARD_TOOL_STRING, PMR_TOOL_STRING, INTERNAL_WORKFLOW_AVAILABLE
 
 
 class  OptionsDialog(QtWidgets.QDialog):
@@ -46,6 +46,7 @@ class  OptionsDialog(QtWidgets.QDialog):
         self._ui.checkBoxUseExternalGit.clicked.connect(self._use_external_star_clicked)
         self._ui.checkBoxUseExternalPySideRCC.clicked.connect(self._use_external_star_clicked)
         self._ui.checkBoxUseExternalPySideUIC.clicked.connect(self._use_external_star_clicked)
+        self._ui.pushButtonInternalWorkflowDirectory.clicked.connect(self._internal_workflow_directory_button_clicked)
 
     def _update_ui(self):
         self._ui.lineEditGitExecutable.setEnabled(self._ui.checkBoxUseExternalGit.isChecked())
@@ -54,6 +55,15 @@ class  OptionsDialog(QtWidgets.QDialog):
         self._ui.pushButtonPySideRCC.setEnabled(self._ui.checkBoxUseExternalPySideRCC.isChecked())
         self._ui.lineEditPySideUIC.setEnabled(self._ui.checkBoxUseExternalPySideUIC.isChecked())
         self._ui.pushButtonPySideUIC.setEnabled(self._ui.checkBoxUseExternalPySideUIC.isChecked())
+        if INTERNAL_WORKFLOW_AVAILABLE in self._original_options:
+            self._ui.groupBoxInternalWorkflowDirectory.setVisible(self._original_options[INTERNAL_WORKFLOW_AVAILABLE])
+
+    def _internal_workflow_directory_button_clicked(self):
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, caption='Select internal workflow directory',
+                                                                    dir=self._location)
+        if directory:
+            self._ui.lineEditInternalWorkflowDirectory.setText(directory)
+            self._location = directory
 
     def _pyside_rcc_button_clicked(self):
         rcc_program, _ = QtWidgets.QFileDialog.getOpenFileName(self, caption='Select PySide Resource Compiler',
@@ -135,6 +145,7 @@ class  OptionsDialog(QtWidgets.QDialog):
         pysidercc_option = self._ui.lineEditPySideRCC.objectName()
         pysideuic_option = self._ui.lineEditPySideUIC.objectName()
         vcs_option = self._ui.lineEditGitExecutable.objectName()
+        internal_directory_option = self._ui.lineEditInternalWorkflowDirectory.objectName()
         if step_name_option in options:
             self._ui.checkBoxShowStepNames.setChecked(options[step_name_option])
         if check_tools_option in options:
@@ -151,6 +162,8 @@ class  OptionsDialog(QtWidgets.QDialog):
             self._ui.lineEditPySideUIC.setText(options[pysideuic_option])
         if vcs_option in options:
             self._ui.lineEditGitExecutable.setText(options[vcs_option])
+        if internal_directory_option in options:
+            self._ui.lineEditInternalWorkflowDirectory.setText(options[internal_directory_option])
 
         self._update_ui()
         self._test_tools()
@@ -163,7 +176,8 @@ class  OptionsDialog(QtWidgets.QDialog):
                    self._ui.checkBoxUseExternalPySideUIC.objectName(): self._ui.checkBoxUseExternalPySideUIC.isChecked(),
                    self._ui.lineEditPySideRCC.objectName(): self._ui.lineEditPySideRCC.text(),
                    self._ui.lineEditPySideUIC.objectName(): self._ui.lineEditPySideUIC.text(),
-                   self._ui.lineEditGitExecutable.objectName(): self._ui.lineEditGitExecutable.text()}
+                   self._ui.lineEditGitExecutable.objectName(): self._ui.lineEditGitExecutable.text(),
+                   self._ui.lineEditInternalWorkflowDirectory.objectName(): self._ui.lineEditInternalWorkflowDirectory.text()}
 
         return options
 
