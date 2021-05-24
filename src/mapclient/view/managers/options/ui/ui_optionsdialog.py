@@ -17,7 +17,7 @@ class Ui_OptionsDialog(object):
     def setupUi(self, OptionsDialog):
         if not OptionsDialog.objectName():
             OptionsDialog.setObjectName(u"OptionsDialog")
-        OptionsDialog.resize(525, 579)
+        OptionsDialog.resize(581, 637)
         self.gridLayout = QGridLayout(OptionsDialog)
         self.gridLayout.setObjectName(u"gridLayout")
         self.buttonBox = QDialogButtonBox(OptionsDialog)
@@ -31,23 +31,47 @@ class Ui_OptionsDialog(object):
         self.tabWidget.setObjectName(u"tabWidget")
         self.tabGeneral = QWidget()
         self.tabGeneral.setObjectName(u"tabGeneral")
-        self.gridLayout_3 = QGridLayout(self.tabGeneral)
-        self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_3.addItem(self.verticalSpacer, 2, 1, 1, 1)
-
-        self.checkBoxShowStepNames = QCheckBox(self.tabGeneral)
-        self.checkBoxShowStepNames.setObjectName(u"checkBoxShowStepNames")
-        self.checkBoxShowStepNames.setChecked(True)
-
-        self.gridLayout_3.addWidget(self.checkBoxShowStepNames, 0, 0, 1, 1)
-
-        self.checkBoxCheckToolsOnStartup = QCheckBox(self.tabGeneral)
+        self.verticalLayout_4 = QVBoxLayout(self.tabGeneral)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.groupBox = QGroupBox(self.tabGeneral)
+        self.groupBox.setObjectName(u"groupBox")
+        self.verticalLayout_6 = QVBoxLayout(self.groupBox)
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.checkBoxCheckToolsOnStartup = QCheckBox(self.groupBox)
         self.checkBoxCheckToolsOnStartup.setObjectName(u"checkBoxCheckToolsOnStartup")
         self.checkBoxCheckToolsOnStartup.setChecked(True)
 
-        self.gridLayout_3.addWidget(self.checkBoxCheckToolsOnStartup, 1, 0, 1, 1)
+        self.verticalLayout_6.addWidget(self.checkBoxCheckToolsOnStartup)
+
+        self.checkBoxShowStepNames = QCheckBox(self.groupBox)
+        self.checkBoxShowStepNames.setObjectName(u"checkBoxShowStepNames")
+        self.checkBoxShowStepNames.setChecked(True)
+
+        self.verticalLayout_6.addWidget(self.checkBoxShowStepNames)
+
+
+        self.verticalLayout_4.addWidget(self.groupBox)
+
+        self.groupBoxInternalWorkflowDirectory = QGroupBox(self.tabGeneral)
+        self.groupBoxInternalWorkflowDirectory.setObjectName(u"groupBoxInternalWorkflowDirectory")
+        self.horizontalLayout_4 = QHBoxLayout(self.groupBoxInternalWorkflowDirectory)
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.lineEditInternalWorkflowDirectory = QLineEdit(self.groupBoxInternalWorkflowDirectory)
+        self.lineEditInternalWorkflowDirectory.setObjectName(u"lineEditInternalWorkflowDirectory")
+
+        self.horizontalLayout_4.addWidget(self.lineEditInternalWorkflowDirectory)
+
+        self.pushButtonInternalWorkflowDirectory = QPushButton(self.groupBoxInternalWorkflowDirectory)
+        self.pushButtonInternalWorkflowDirectory.setObjectName(u"pushButtonInternalWorkflowDirectory")
+
+        self.horizontalLayout_4.addWidget(self.pushButtonInternalWorkflowDirectory)
+
+
+        self.verticalLayout_4.addWidget(self.groupBoxInternalWorkflowDirectory)
+
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_4.addItem(self.verticalSpacer)
 
         self.tabWidget.addTab(self.tabGeneral, "")
         self.tabToolSettings = QWidget()
@@ -192,7 +216,7 @@ class Ui_OptionsDialog(object):
         self.buttonBox.accepted.connect(OptionsDialog.accept)
         self.buttonBox.rejected.connect(OptionsDialog.reject)
 
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(OptionsDialog)
@@ -200,8 +224,14 @@ class Ui_OptionsDialog(object):
 
     def retranslateUi(self, OptionsDialog):
         OptionsDialog.setWindowTitle(QCoreApplication.translate("OptionsDialog", u"Options", None))
-        self.checkBoxShowStepNames.setText(QCoreApplication.translate("OptionsDialog", u"Show step names", None))
+        self.groupBox.setTitle("")
         self.checkBoxCheckToolsOnStartup.setText(QCoreApplication.translate("OptionsDialog", u"Check tools on application start", None))
+        self.checkBoxShowStepNames.setText(QCoreApplication.translate("OptionsDialog", u"Show step names", None))
+        self.groupBoxInternalWorkflowDirectory.setTitle(QCoreApplication.translate("OptionsDialog", u"Internal workflow directory", None))
+#if QT_CONFIG(tooltip)
+        self.pushButtonInternalWorkflowDirectory.setToolTip(QCoreApplication.translate("OptionsDialog", u"Select the internal workflow directory.", None))
+#endif // QT_CONFIG(tooltip)
+        self.pushButtonInternalWorkflowDirectory.setText(QCoreApplication.translate("OptionsDialog", u"...", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGeneral), QCoreApplication.translate("OptionsDialog", u"&General", None))
         self.groupBoxStepWizard.setTitle(QCoreApplication.translate("OptionsDialog", u"Step Wizard", None))
         self.checkBoxUseExternalPySideRCC.setText(QCoreApplication.translate("OptionsDialog", u"Use external PySide resource compiler (rcc)", None))

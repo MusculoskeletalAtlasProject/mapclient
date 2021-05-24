@@ -129,6 +129,22 @@ def windows_main(app_args):
     window.load_packages()
     window.load_plugins()
 
+    prepare_internal_workflow(app_args, model)
+
+    if app_args.workflow:
+        window.open_workflow(app_args.workflow)
+
+    if app_args.execute:
+        wm = model.workflowManager()
+        if wm.canExecute():
+            window.execute()
+        else:
+            logger.error('Could not execute workflow.')
+
+    return app.exec_()
+
+
+def prepare_internal_workflow(app_args, model):
     # Determine if we have an internal workflow.
     if is_frozen():
         internal_workflow_zip = os.path.join(sys._MEIPASS, INTERNAL_WORKFLOW_ZIP)
@@ -136,9 +152,9 @@ def windows_main(app_args):
         file_dir = os.path.dirname(os.path.abspath(__file__))
         internal_workflow_zip = os.path.realpath(os.path.join(file_dir, '..', INTERNAL_WORKFLOW_ZIP))
 
+    om = model.optionsManager()
     if os.path.isfile(internal_workflow_zip):
         # We have an internal workflow set the option as active.
-        om = model.optionsManager()
         om.setOption(INTERNAL_WORKFLOW_AVAILABLE, True)
 
         # Work out internal workflow directory and create if it doesn't exist.
@@ -168,18 +184,8 @@ def windows_main(app_args):
         if app_args.workflow is None:
             app_args.workflow = default_workflow_directory
             logger.info("Loading internal default workflow.")
-
-    if app_args.workflow:
-        window.open_workflow(app_args.workflow)
-
-    if app_args.execute:
-        wm = model.workflowManager()
-        if wm.canExecute():
-            window.execute()
-        else:
-            logger.error('Could not execute workflow.')
-
-    return app.exec_()
+    else:
+        om.setOption(INTERNAL_WORKFLOW_AVAILABLE, False)
 
 
 class ConsumeOutput(object):
@@ -216,6 +222,9 @@ def non_gui_main(app_args):
 
     pam.load()
     pm.load()
+
+    prepare_internal_workflow(app_args, model)
+
     try:
         wm.load(app_args.workflow)
     except Exception:
