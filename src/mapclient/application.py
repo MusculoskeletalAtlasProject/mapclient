@@ -196,7 +196,7 @@ class ConsumeOutput(object):
         self.messages.append(message)
 
 
-def non_gui_main(app_args):
+def sans_gui_main(app_args):
     locale.setlocale(locale.LC_ALL, '')
 
     from PySide2 import QtGui
@@ -256,7 +256,7 @@ def main():
         sys.exit(-2)
 
     if args.headless and args.workflow:
-        sys.exit(non_gui_main(args))
+        sys.exit(sans_gui_main(args))
     else:
         sys.exit(windows_main(args))
 
