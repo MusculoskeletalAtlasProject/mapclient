@@ -338,15 +338,16 @@ import io
 
 SETUP_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
 # List all of your Python package dependencies in the
 # requirements.txt file
-
 
 def readfile(filename, split=False):
     with io.open(filename, encoding="utf-8") as stream:
         if split:
             return stream.read().split("\\n")
         return stream.read()
+
 
 readme = readfile("README.rst", split=True)[3:]  # skip title
 # For requirements not hosted on PyPi place listings
@@ -365,24 +366,25 @@ class InstallCommand(install):
 
 
 setup(name=%(name)r,
-    version=%(version)r,
-    description=%(description)r,
-    long_description='\\n'.join(readme) + source_license,
-    classifiers=[
-      "Development Status :: 3 - Alpha",
-      "License :: OSI Approved :: Apache Software License",
-      "Programming Language :: Python",
-    ],
-    cmdclass={'install': InstallCommand,},
-    author=%(author)r,
-    author_email=%(author_email)r,
-    url=%(url)r,
-    packages=find_packages(exclude=['ez_setup',]),
-    namespace_packages=%(namespace_packages)r,
-    include_package_data=True,
-    zip_safe=False,
-    install_requires=requires,
-    )
+     version=%(version)r,
+     description=%(description)r,
+     long_description='\\n'.join(readme) + source_license,
+     long_description_content_type='text/x-rst',
+     classifiers=[
+       "Development Status :: 3 - Alpha",
+       "License :: OSI Approved :: Apache Software License",
+       "Programming Language :: Python",
+     ],
+     cmdclass={'install': InstallCommand,},
+     author=%(author)r,
+     author_email=%(author_email)r,
+     url=%(url)r,
+     packages=find_packages(exclude=['ez_setup',]),
+     namespace_packages=%(namespace_packages)r,
+     include_package_data=True,
+     zip_safe=False,
+     install_requires=requires,
+)
 """
 
 
