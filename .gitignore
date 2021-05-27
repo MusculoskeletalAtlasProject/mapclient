@@ -20,6 +20,7 @@ parts/
 sdist/
 var/
 #package/ # We are using this name in the source hopefully doesn't come back to bite us.
+package/*.exe
 *.egg-info/
 .installed.cfg
 *.egg
