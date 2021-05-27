@@ -18,8 +18,10 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import os
+import tempfile
 
 from PySide2 import QtCore
+from mapclient.settings.definitions import INTERNAL_WORKFLOWS_DIR
 
 from mapclient.settings.info import VERSION_STRING
 
@@ -48,6 +50,10 @@ def _get_app_directory(name):
 
 def get_virtualenv_directory():
     return _get_app_directory('venv_' + VERSION_STRING)
+
+
+def get_default_internal_workflow_dir():
+    return os.path.join(tempfile.gettempdir(), INTERNAL_WORKFLOWS_DIR)
 
 
 def get_virtualenv_site_packages_directory(virtualenv_dir):

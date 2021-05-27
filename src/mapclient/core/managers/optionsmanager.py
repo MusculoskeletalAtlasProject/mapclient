@@ -5,26 +5,29 @@ Created on Jun 10, 2015
 """
 from mapclient.core.utils import which
 from mapclient.settings.general import get_virtualenv_directory
-from mapclient.settings.definitions import SHOW_STEP_NAMES, INTERNAL_EXE, \
-    DONT_CREATE_VIRTUAL_ENV, OPTIONS_SETTINGS_TAG, \
+from mapclient.settings.definitions import SHOW_STEP_NAMES, INTERNAL_EXE, UNSET_FLAG, \
+    DONT_CREATE_VIRTUAL_ENV, OPTIONS_SETTINGS_TAG, INTERNAL_WORKFLOW_AVAILABLE, INTERNAL_WORKFLOW_DIR, \
     VIRTUAL_ENV_PATH, GIT_EXE, PYSIDE_UIC_EXE, PYSIDE_RCC_EXE, PREVIOUS_PW_WRITE_STEP_LOCATION, \
     PREVIOUS_PW_ICON_LOCATION, CHECK_TOOLS_ON_STARTUP, USE_EXTERNAL_GIT, USE_EXTERNAL_RCC, USE_EXTERNAL_UIC
 
 
 def _is_boolean(option):
-    return option in [SHOW_STEP_NAMES, CHECK_TOOLS_ON_STARTUP, DONT_CREATE_VIRTUAL_ENV, USE_EXTERNAL_GIT, USE_EXTERNAL_RCC, USE_EXTERNAL_UIC]
+    return option in [SHOW_STEP_NAMES, CHECK_TOOLS_ON_STARTUP, DONT_CREATE_VIRTUAL_ENV,
+                      USE_EXTERNAL_GIT, USE_EXTERNAL_RCC, USE_EXTERNAL_UIC, INTERNAL_WORKFLOW_AVAILABLE]
 
 
 class OptionsManager(object):
 
     def __init__(self):
-        self._options = {SHOW_STEP_NAMES: True, DONT_CREATE_VIRTUAL_ENV: False, CHECK_TOOLS_ON_STARTUP: True,
-                         USE_EXTERNAL_GIT: False, USE_EXTERNAL_RCC: False, USE_EXTERNAL_UIC: False,
-                         VIRTUAL_ENV_PATH: get_virtualenv_directory(), GIT_EXE: which('git'),
-                         PYSIDE_RCC_EXE: INTERNAL_EXE, PYSIDE_UIC_EXE: INTERNAL_EXE,
-
-                         PREVIOUS_PW_WRITE_STEP_LOCATION: '', PREVIOUS_PW_ICON_LOCATION: ''}
         # Set default values
+        self._options = {
+            SHOW_STEP_NAMES: True, DONT_CREATE_VIRTUAL_ENV: False, CHECK_TOOLS_ON_STARTUP: True,
+            USE_EXTERNAL_GIT: False, USE_EXTERNAL_RCC: False, USE_EXTERNAL_UIC: False,
+            VIRTUAL_ENV_PATH: get_virtualenv_directory(), GIT_EXE: which('git'),
+            PYSIDE_RCC_EXE: INTERNAL_EXE, PYSIDE_UIC_EXE: INTERNAL_EXE,
+            PREVIOUS_PW_WRITE_STEP_LOCATION: '', PREVIOUS_PW_ICON_LOCATION: '',
+            INTERNAL_WORKFLOW_AVAILABLE: False, INTERNAL_WORKFLOW_DIR: UNSET_FLAG,
+        }
 
     def getOptions(self):
         return self._options
@@ -56,5 +59,3 @@ class OptionsManager(object):
             else:
                 self._options[option] = settings.value(option)
         settings.endGroup()
-
-

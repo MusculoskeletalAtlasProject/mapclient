@@ -21,6 +21,7 @@ sdist/
 var/
 #package/ # We are using this name in the source hopefully doesn't come back to bite us.
 package/*.exe
+res/macos/*.dmg
 *.egg-info/
 .installed.cfg
 *.egg
@@ -67,4 +68,5 @@ target/
 # Intellij projects
 .idea/
 
-
+# Internal workflow zip
+internal_workflow.zip

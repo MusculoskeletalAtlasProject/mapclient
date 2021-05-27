@@ -2,16 +2,16 @@ import os
 import platform
 import PySide2 as RefMod
 import PyInstaller.__main__
-from PyInstaller.utils.hooks import collect_data_files
 
+variant = '-mapping-tools'
 
 here = os.path.dirname(__file__)
 
 run_command = [
     '../../src/mapclient/application.py',
-    '-n', 'MAP-Client',
-    #'--debug', 'noarchive',
-    #'--windowed',
+    '-n', f'MAP-Client{variant}',
+    '--debug', 'noarchive',
+    '--windowed',
     '--noconfirm',
     '--hidden-import', 'scipy',
     '--hidden-import', 'scipy.interpolate',
@@ -36,11 +36,19 @@ if platform.system() == 'Darwin':
     rel_rcc_exe = os.path.relpath(rcc_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
     rel_uic_exe = os.path.relpath(uic_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
 
+    macos_icon = os.path.join('..', 'macos', 'MAP-Client.icns')
+    run_command.append(f'--icon={macos_icon}')
+
     run_command.append(f'--add-binary={rel_rcc_exe}:PySide2/')
     run_command.append(f'--add-binary={rel_uic_exe}:PySide2/')
 elif platform.system() == "Windows":
     win_icon = os.path.join('..', 'win', 'MAP-Client.ico')
     run_command.append(f'--icon={win_icon}')
+
+internal_workflow_zip = os.path.abspath(os.path.join('..', '..', 'src', 'internal_workflow.zip'))
+if os.path.isfile(internal_workflow_zip):
+    data = os.pathsep.join([internal_workflow_zip, '.'])
+    run_command.append(f'--add-data={data}')
 
 print('Running command: ', run_command)
 PyInstaller.__main__.run(run_command)
