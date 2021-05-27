@@ -1,17 +1,9 @@
-import os
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules, get_package_paths
+from pkgutil import walk_packages
 
 import mapclientplugins
 
-print("==================================")
-print(mapclientplugins.__path__)
-# hidden = []
-# for p in mapclientplugins.__path__:
-#     d = os.path.dirname(p)
-# print(collect_submodules('mapclientplugins'))
-# print(get_package_paths('mapclientplugins'))
-# print(collect_data_files('mapclientplugins', include_py_files=True, excludes=['__pycache__']))
-print("==================================")
-datas = collect_data_files('mapclientplugins', include_py_files=True, excludes=['__pycache__'])
-# hiddenimports = ['imghdr', 'mapclientplugins', 'mapclientplugins.datatrimmerstep']
-# hiddenimports = (['mapclientplugins'])
+
+# I don't think this will work if the plugin is zipped in an archive.
+hiddenimports = ['mapclientplugins']
+for module_loader, name, ispkg in walk_packages(mapclientplugins.__path__, 'mapclientplugins.'):
+    hiddenimports.append(name)
