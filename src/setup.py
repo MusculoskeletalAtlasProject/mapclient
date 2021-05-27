@@ -31,6 +31,7 @@ install_requires = [
     'rdflib',
     'virtualenv',
     'requests',
+    'PyInstaller',
     'python-dateutil',
     'dulwich',
     'pmr2.wfctrl @ https://github.com/PMR2/pmr2.wfctrl/archive/v0.3.0.zip',
