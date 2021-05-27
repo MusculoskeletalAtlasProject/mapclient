@@ -6,12 +6,12 @@ from PyInstaller.utils.hooks import collect_data_files
 
 
 here = os.path.dirname(__file__)
-hooks_dir = os.path.join('..', 'res', 'pyinstaller', 'hooks')
 
 run_command = [
     '../../src/mapclient/application.py',
-    '-n', 'MAPClient',
-    '--windowed',
+    '-n', 'MAP-Client',
+    #'--debug', 'noarchive',
+    #'--windowed',
     '--noconfirm',
     '--hidden-import', 'scipy',
     '--hidden-import', 'scipy.interpolate',
@@ -19,7 +19,7 @@ run_command = [
     '--hidden-import', 'mapclientplugins',
     '--hidden-import', 'opencmiss.utils',
     '--hidden-import', 'opencmiss.zincwidgets',
-    f'--additional-hooks-dir=hooks',
+    '--additional-hooks-dir=hooks',
 ]
 
 
@@ -38,6 +38,9 @@ if platform.system() == 'Darwin':
 
     run_command.append(f'--add-binary={rel_rcc_exe}:PySide2/')
     run_command.append(f'--add-binary={rel_uic_exe}:PySide2/')
+elif platform.system() == "Windows":
+    win_icon = os.path.join('..', 'win', 'MAP-Client.ico')
+    run_command.append(f'--icon={win_icon}')
 
 print('Running command: ', run_command)
 PyInstaller.__main__.run(run_command)
