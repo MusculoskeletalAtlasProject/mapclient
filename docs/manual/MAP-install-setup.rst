@@ -4,17 +4,31 @@
 MAP Client Installation and Setup Guide
 =======================================
 
-This document describes how to install and setup the MAP Client software for use on your machine.  The MAP Client software is a Python application that uses the PySide Qt library bindings.  
+This document describes how to install and setup the MAP Client software for use on your machine.
+The MAP Client software is a Python application that uses the PySide Qt library bindings.
 
-The `Installation`_ section details getting the MAP Client and it's dependencies installed on your system.  There are two main ways of getting the MAP Client installed on your operating system.  This document will cover both of those methods.  For users and plugin developers the suggested method is to `Install Using Pip`_, for developers of the MAP Client framework the suggested method is to `Install Using Bazaar`_.
+The `Installation`_ section details getting the MAP Client and it's dependencies installed on your system.
+There are two main ways of getting the MAP Client installed on your operating system.  This document will cover both of those methods.
+For users and plugin developers the suggested method is to `Install Using Pip`_, for developers of the MAP Client framework the suggested method is to `Install Using Bazaar`_.
 
-The `Install Using Pip`_ method is covered first followed by the instructions on how to `Install Using Bazaar`_.  For most operating systems Python is already installed but for some, most notably Windows based operating systems, it is not.  For instructions on installing Python for Windows based operating systems see the `Installing Python on Windows`_ section.
+The `Install Using Pip`_ method is covered first followed by the instructions on how to `Install Using Pre-Built Binary`_.
+For most operating systems Python is already installed but for some, most notably Windows based operating systems, it is not.  For instructions on installing Python for Windows based operating systems see the `Installing Python on Windows`_ section.
 
 The `Setup`_ section details getting the MAP Client setup with external plugins.
 
 ------------
 Installation
 ------------
+
+Install Using Pre-Built Binary
+------------------------------
+
+For both Windows and macOS there are installer applications available from:
+
+  https://github.com/MusculoskeletalAtlasProject/mapclient/releases/download/v0.15.0.rc.2/MAP-Client-0.15.0.exe
+
+Download and install the package.
+
 
 Install Using Pip
 =================

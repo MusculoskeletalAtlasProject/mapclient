@@ -52,4 +52,10 @@ MAIN_MODULE = '__init__'
 PREVIOUS_PW_WRITE_STEP_LOCATION = 'previous_write_step_location'
 PREVIOUS_PW_ICON_LOCATION = 'previous_icon_location'
 
+UNSET_FLAG = '<unset>'
 INTERNAL_EXE = '<internal>'
+
+INTERNAL_WORKFLOWS_DIR = 'MAPClient-Workflows'
+INTERNAL_WORKFLOW_ZIP = 'internal_workflow.zip'
+INTERNAL_WORKFLOW_AVAILABLE = 'internal_workflow_available'
+INTERNAL_WORKFLOW_DIR = 'lineEditInternalWorkflowDirectory'
