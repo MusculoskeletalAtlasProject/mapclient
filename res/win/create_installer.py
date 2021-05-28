@@ -24,7 +24,7 @@ def run_command(cmd):
     yield 'command returned with value: %s' % return_code
 
 
-def run_makensis(repo_root_dir, app_version):
+def run_makensis(repo_root_dir, app_version, app_variant):
     if not os.path.exists(os.path.join(repo_root_dir, 'package')):
         os.mkdir(os.path.join(repo_root_dir, 'package'))
 
@@ -36,7 +36,8 @@ def run_makensis(repo_root_dir, app_version):
                 contents = f.read()
 
             match_keys = ReplaceOnlyDict(map_client_version=app_version.__version__,
-                                         dist_dir=os.path.join(repo_root_dir, 'res', 'pyinstaller', 'dist', 'MAP-Client'),
+                                         app_variant=app_variant,
+                                         dist_dir=os.path.join(repo_root_dir, 'res', 'pyinstaller', 'dist', 'MAP-Client' + app_variant),
                                          win_res_dir=os.path.join(repo_root_dir, 'res', 'win'),
                                          package_dir=os.path.join(repo_root_dir, 'package'))
             formatted_contents = contents.format_map(match_keys)
@@ -63,4 +64,5 @@ if __name__ == '__main__':
     
     from mapclient.settings import version as app_version
 
-    run_makensis(root_dir, app_version)
+    app_variant = '-mapping-tools'
+    run_makensis(root_dir, app_version, app_variant)
