@@ -387,7 +387,10 @@ class PMRTool(object):
         cmd.write_remote(workspace)
 
     def hasDVCS(self, local_workspace_dir):
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
+        bob = get_cmd_by_name(self._git_implementation)
+        workspace = CmdWorkspace(local_workspace_dir, bob)
+        print(workspace.cmd)
+        print(workspace.cmd is not None)
         return workspace.cmd is not None
 
     def commitFiles(self, local_workspace_dir, message, files):
