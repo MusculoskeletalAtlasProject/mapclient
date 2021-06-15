@@ -32,7 +32,7 @@ from logging import handlers
 from mapclient.core.utils import is_frozen, find_file
 from mapclient.settings.definitions import INTERNAL_WORKFLOW_ZIP, INTERNAL_WORKFLOW_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG
 
-os.environ['ETS_TOOLKIT'] = 'qt4'
+os.environ['ETS_TOOLKIT'] = 'qt'
 # With PEP366 we need to conditionally import the settings module based on
 # whether we are executing the file directly of indirectly.  This is my
 # workaround.
@@ -108,6 +108,7 @@ def windows_main(app_args):
 
     try:
         from opencmiss.iron import iron
+        # import opencmiss.utils.iron
         logger.info('OpenCMISS-Iron is available.')
     except ImportError:
         logger.warning(' *** OpenCMISS-Iron is not available ***')
