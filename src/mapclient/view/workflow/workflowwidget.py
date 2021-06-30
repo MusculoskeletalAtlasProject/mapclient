@@ -267,14 +267,21 @@ class WorkflowWidget(QtWidgets.QWidget):
         # Warning: when switching between PySide and PyQt4 the keyword argument for the directory to initialise the dialog to is different.
         # In PySide the keyword argument is 'dir'
         # In PyQt4 the keyword argument is 'directory'
-        workflowDir = QtWidgets.QFileDialog.getExistingDirectory(
+
+        workflow_conf = QtWidgets.QFileDialog.getOpenFileName(
             self._mainWindow,
             caption='Open Workflow',
             dir=m.previousLocation(),
+            filter="Workflow configuration file (workflow.conf);;Any files (*)",
+            selectedFilter="Workflow configuration file (workflow.conf)",
             options=(
                 QtWidgets.QFileDialog.ShowDirsOnly |
                 QtWidgets.QFileDialog.DontResolveSymlinks |
-                QtWidgets.QFileDialog.ReadOnly))
+                QtWidgets.QFileDialog.ReadOnly
+            )
+        )[0]
+        # Remove the filename to get the directory.
+        workflowDir = workflow_conf.removesuffix("workflow.conf")
 
         err = self.openWorkflow(workflowDir)
         if err:
@@ -334,7 +341,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self.installer.show()
         unsuccessful_installs = self.installer.run()
         self.installer.close()
-        if unsuccessful_installs.keys():
+        if list(unsuccessful_installs.keys()):
             QtWidgets.QMessageBox.critical(self, 'Failed Installation',
                                            'One or more of the required dependencies could not be installed.'
                                            '\nPlease refer to the program logs for more information.',

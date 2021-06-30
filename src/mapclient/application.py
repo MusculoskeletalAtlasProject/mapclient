@@ -169,7 +169,7 @@ def prepare_internal_workflow(app_args, om):
         om.setOption(INTERNAL_WORKFLOW_DIR, internal_workflow_dir)
 
         # Test if a workflow is present.
-        workflow_file = find_file('.workflow.conf', internal_workflow_dir)
+        workflow_file = find_file('workflow.conf', internal_workflow_dir)
         if workflow_file is None:
             # No workflow exists in the workflow directory so we will
             # unzip the stored workflow(s) into this location.
@@ -178,7 +178,7 @@ def prepare_internal_workflow(app_args, om):
             archive.extractall(f"{internal_workflow_dir}")
 
         # Should definitely have a workflow now.
-        workflow_file = find_file('.workflow.conf', internal_workflow_dir)
+        workflow_file = find_file('workflow.conf', internal_workflow_dir)
         default_workflow_directory = os.path.dirname(workflow_file)
 
         # Set workflow to internal workflow if None is currently present.

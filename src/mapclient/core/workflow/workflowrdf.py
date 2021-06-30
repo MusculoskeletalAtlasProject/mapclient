@@ -24,7 +24,7 @@ from rdflib.namespace import RDFS
 def serializeWorkflowAnnotation():
     g = Graph()
 
-    workflow = URIRef(".workflow.conf")
+    workflow = URIRef("workflow.conf")
 
 #     g.add((workflow, RDF.type, URIRef("http://physiomeproject.org/workflow/1.0/rdf-schema#workflowproject")))
     g.add((workflow, RDFS.subClassOf, URIRef("http://physiomeproject.org/workflow/1.0/rdf-schema#workflowproject")))
