@@ -257,6 +257,7 @@ class PluginManager(object):
         self._syntax_errors = []
         self._tab_errors = []
         self._plugin_error_directories = {}
+        self._plugin_error_names = []
 
         for _, modname, ispkg in pkgutil.iter_modules(package.__path__):
             if ispkg:
@@ -278,7 +279,7 @@ class PluginManager(object):
                                                                      plugin_dependencies)
                 except Exception as e:
                     from mapclient.mountpoints.workflowstep import removeWorkflowStep
-                    # call remove partially loaded plugin manually method
+                    # Call remove partially loaded plugin manually method
                     removeWorkflowStep(modname)
 
                     if type(e) == ImportError:
@@ -291,12 +292,28 @@ class PluginManager(object):
                         self._tab_errors += [modname]
                     self._plugin_error_directories[modname] = _.path
 
+                    file_dir = os.path.join(_.path, modname, '__init__.py')
+                    init_file = open(file_dir, "r")
+                    line = init_file.readline()
+                    while line != '':
+                        if line.startswith('__stepname__'):
+                            i = line.find('\'')
+                            j = line.rfind('\'')
+                            step_name = line[i + 1: j]
+                            self._plugin_error_names.append(step_name)
+                            break
+                        else:
+                            line = init_file.readline()
+
                     logger.warn('Plugin \'' + modname + '\' not loaded')
                     logger.warn('Reason: {0}'.format(e))
                     exc_type, exc_value, exc_traceback = sys.exc_info()
                     redirect_output = FileTypeObject()
                     traceback.print_exception(exc_type, exc_value, exc_traceback, file=redirect_output)
                     logger.warn(''.join(redirect_output.messages))
+
+    def get_plugin_error_names(self):
+        return self._plugin_error_names
 
     def haveErrors(self):
         return len(self._import_errors) or len(self._type_errors) or \
@@ -433,7 +450,7 @@ def reload_package(package):
     def reload_recursive_ex(module):
         importlib.reload(module)
         print('reloading module: %s' % module)
-        for module_child in vars(module).values():
+        for module_child in list(vars(module).values()):
             if isinstance(module_child, types.ModuleType):
                 fn_child = getattr(module_child, "__file__", None)
                 if (fn_child is not None) and fn_child.startswith(fn_dir):
