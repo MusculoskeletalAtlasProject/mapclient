@@ -281,7 +281,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             )
         )[0]
         # Remove the filename to get the directory.
-        workflowDir = workflow_conf.removesuffix("workflow.conf")
+        workflowDir = os.path.normpath(workflow_conf.removesuffix("workflow.conf"))
 
         err = self.openWorkflow(workflowDir)
         if err:
