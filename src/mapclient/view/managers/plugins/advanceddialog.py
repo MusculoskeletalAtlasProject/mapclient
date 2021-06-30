@@ -30,6 +30,7 @@ from mapclient.view.managers.plugins.ui.ui_advanceddialog import Ui_AdvancedDial
 from mapclient.view.managers.plugins.pluginupdater import PluginUpdater
 from mapclient.view.utils import set_wait_cursor
 from mapclient.settings.definitions import PLUGINS_PACKAGE_NAME
+import importlib
 
 
 class AdvancedDialog(QDialog):
@@ -376,7 +377,7 @@ class AdvancedDialog(QDialog):
         else:
             self._pluginUpdater._pluginUpdateDict = {}
             QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-            package = reload(sys.modules[PLUGINS_PACKAGE_NAME])
+            package = importlib.reload(sys.modules[PLUGINS_PACKAGE_NAME])
 #             try:
 #                 package = imp.reload(sys.modules['mapclientplugins'])
 #             except Exception:
@@ -438,7 +439,7 @@ def applyPluginUpdates(plugins_to_update, updater_settings):
     plugin_updater._pluginUpdateDict = plugins_to_update
     unsuccessful_updates = []
     plugins_to_delete = []
-    for plugin in plugin_updater._pluginUpdateDict.keys():
+    for plugin in list(plugin_updater._pluginUpdateDict.keys()):
         if plugin_updater._pluginUpdateDict[plugin][4] and updater_settings['indentation']:
             plugin_updater.fixTabbedIndentation(plugin, plugin_updater._pluginUpdateDict[plugin][7], False)
         if (plugin_updater._pluginUpdateDict[plugin][3] and sys.version_info >= (3, 0)) and updater_settings['syntax']:
@@ -454,9 +455,9 @@ def applyPluginUpdates(plugins_to_update, updater_settings):
         update_status += [plugin_updater._pluginUpdateDict[plugin][2] and updater_settings['resources']]
         update_status += [plugin_updater._pluginUpdateDict[plugin][3] and updater_settings['syntax']]
         update_status += [plugin_updater._pluginUpdateDict[plugin][4] and updater_settings['indentation']]
-        if compare(plugin_updater._pluginUpdateDict[plugin][1:5], [item for item in plugin_updater._successful_plugin_update.values()]):
+        if compare(plugin_updater._pluginUpdateDict[plugin][1:5], [item for item in list(plugin_updater._successful_plugin_update.values())]):
             plugins_to_delete += [plugin]
-        elif compare(update_status, [item for item in plugin_updater._successful_plugin_update.values()]):
+        elif compare(update_status, [item for item in list(plugin_updater._successful_plugin_update.values())]):
             for index in range(len(update_status)):
                 if update_status[index]:
                     plugin_updater._pluginUpdateDict[plugin][index + 1] = False
