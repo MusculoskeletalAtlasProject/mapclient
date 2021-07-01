@@ -179,7 +179,7 @@ class PluginManager(object):
                 inbuilt_plugin_dir = os.path.join(sys._MEIPASS, PLUGINS_PACKAGE_NAME)
             else:
                 file_dir = os.path.dirname(os.path.abspath(__file__))
-                inbuilt_plugin_dir = os.path.realpath(os.path.join(file_dir, '..', '..', PLUGINS_PACKAGE_NAME))
+                inbuilt_plugin_dir = os.path.realpath(os.path.join(file_dir, '..', '..', '..',))
             plugin_dirs.insert(0, inbuilt_plugin_dir)
 
         return plugin_dirs
