@@ -100,6 +100,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_PMR.setObjectName("action_PMR")
         self._action_RenamePlugin = QtWidgets.QAction(self)
         self._action_RenamePlugin.setObjectName("action_RenamePlugin")
+        self._action_UpdateWorkflow = QtWidgets.QAction(self)
+        self._action_UpdateWorkflow.setObjectName("action_UpdateWorkflow")
         self._action_Annotation = QtWidgets.QAction(self)
         self._action_Annotation.setObjectName("action_Annotation")
         self._action_PluginWizard = QtWidgets.QAction(self)
@@ -119,6 +121,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_Tools.addAction(self._action_PluginWizard)
         self._menu_Tools.addAction(self._action_PMR)
         self._menu_Tools.addAction(self._action_RenamePlugin)
+        self._menu_Tools.addAction(self._action_UpdateWorkflow)
         self._menu_Tools.addAction(self._action_Annotation)
         if ADMIN_MODE:
             self._menu_Tools.addAction(self._action_MAPIcon)
@@ -157,6 +160,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_Annotation.setText(QtWidgets.QApplication.translate("MainWindow", "&Annotation", None, -1))
         self._action_PluginWizard.setText(QtWidgets.QApplication.translate("MainWindow", "Plugin Wi&zard", None, -1))
         self._action_RenamePlugin.setText(QtWidgets.QApplication.translate("MainWindow", "&Rename Plugin", None, -1))
+        self._action_UpdateWorkflow.setText(QtWidgets.QApplication.translate("MainWindow", "&Update Workflow", None, -1))
         if ADMIN_MODE:
             self._action_MAPIcon.setText(QtWidgets.QApplication.translate("MainWindow", "MAP &Icon", None, -1))
 
@@ -198,6 +202,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_PMR.triggered.connect(self._show_pmr_tool)
         self._action_Annotation.triggered.connect(self._show_annotation_tool)
         self._action_RenamePlugin.triggered.connect(self._show_rename_plugin_dialog)
+        self._action_UpdateWorkflow.triggered.connect(self._show_update_workflow_dialog)
         if ADMIN_MODE:
             self._action_MAPIcon.triggered.connect(self._show_map_icon_dialog)
 
@@ -431,6 +436,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
         om = self._model.optionsManager()
         dlg = RenameDialog(om.getOption(PYSIDE_RCC_EXE), self)
+        dlg.setModal(True)
+        dlg.exec_()
+
+    def _show_update_workflow_dialog(self):
+        from mapclient.tools.updateworkflow.updateworkflowdialog import UpdateWorkflowDialog
+
+        om = self._model.optionsManager()
+        dlg = UpdateWorkflowDialog(self)
         dlg.setModal(True)
         dlg.exec_()
 
