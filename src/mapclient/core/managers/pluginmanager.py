@@ -5,7 +5,7 @@ Created on May 19, 2015
 """
 import os
 import sys
-import pip
+import imp
 import logging
 import subprocess
 import json
@@ -195,14 +195,24 @@ class PluginManager(object):
 
     def installPackage(self, uri):
         logger.info('Installing package : %s.' % uri)
-        pip.main(['install', uri])
+        my_env = os.environ.copy()
+
+        if is_frozen():
+            python_executable = os.path.join(sys._MEIPASS, "python.exe")
+            my_env["PYTHONPATH"] = sys._MEIPASS
+        else:
+            python_executable = sys.executable
+
+        subprocess.Popen([python_executable, "-m", "pip", "install", str(uri)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
+
+        imp.reload(pkg_resources)
 
     def extractPluginDependencies(self, path):
-        return []
-        setupFileDir = path[:-16] + 'setup.py'
+        setup_dir, step_dir = os.path.split(path)
+        setup_file_dir = os.path.join(setup_dir, 'setup.py')
         dependencies = ''
-        if os.path.exists(setupFileDir):
-            with open(setupFileDir, 'r') as setup_file:
+        if os.path.exists(setup_file_dir):
+            with open(setup_file_dir, 'r') as setup_file:
                 contents = setup_file.readlines()
                 for line in contents:
                     if dependencies and ']' not in dependencies:
@@ -262,8 +272,12 @@ class PluginManager(object):
         for _, modname, ispkg in pkgutil.iter_modules(package.__path__):
             if ispkg:
                 try:
+                    plugin_dependencies = self.extractPluginDependencies(_.path)
+                    missing_dependencies = self._plugin_database.check_for_missing_dependencies(plugin_dependencies)
+                    for dependency in missing_dependencies:
+                        self.installPackage(dependency)
+
                     module = import_module(PLUGINS_PACKAGE_NAME + '.' + modname)
-                    plugin_dependencies = self.extractPluginDependencies(package.__path__)
                     if hasattr(module, '__version__') and hasattr(module, '__author__'):
                         logger.info('Loaded plugin \'' + modname + '\' version [' + module.__version__ + '] by ' + module.__author__)
                     if hasattr(module, '__location__') and module.__location__:
@@ -551,21 +565,26 @@ class PluginDatabase:
 
         return missing_plugins
 
-    def checkForMissingDependencies(self, to_check, available_dependencies):
+    # Would it be worth using a dictionary instead of a list?
+    def check_for_missing_dependencies(self, dependencies):
         """
-        Check the given plugin dependencies against the list of currently available
-        dependencies
+        Takes a list of dependencies as input. Returns a list of all the dependencies that aren't already installed.
+        If a dependency has a url supplied AND it isn't installed, add just the url to the missing_dependencies list.
         """
-        print('CHECK ME: INCOMPLETE')
-        required_dependencies = {}
-        for plugin in to_check:
-            pass
-#         for name in dependencies:
-#             if name not in install_list:
-#                 required_dependencies += [name]
+        installed = [pkg.key for pkg in pkg_resources.working_set]
+        missing_dependencies = []
+        for dependency in dependencies:
+            if '@' in dependency:
+                index = dependency.find('@')
+                dependeny_name = dependency[:index - 1]
+                dependency = dependency[index + 2:]
+            else:
+                dependency_name = dependency
 
-#         print sys.modules[PLUGINS_PACKAGE_NAME]
-        return required_dependencies
+            if dependency_name.lower() not in installed:
+                missing_dependencies.append(dependency)
+
+        return missing_dependencies
 
     def getDatabase(self):
         return self._database
