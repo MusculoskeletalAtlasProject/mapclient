@@ -26,7 +26,7 @@ def find_version(*file_paths):
 
 
 # Define the list of requirements
-install_requires = [
+package_dependencies = [
     'PySide2',
     'rdflib',
     'virtualenv',
@@ -35,7 +35,8 @@ install_requires = [
     'python-dateutil',
     'dulwich',
     'pmr2.wfctrl @ https://github.com/PMR2/pmr2.wfctrl/archive/v0.3.0.zip',
-    'pmr2.client']
+    'pmr2.client'
+]
 
 
 setup(
@@ -50,5 +51,5 @@ setup(
     package_data={'mapclient.tools.annotation': ['annotation.voc'], 'mapclient.tools.osxapp': ['mapclient.icns']},
     # py_modules=['mapclient.mapclient'],
     entry_points={'console_scripts': ['mapclient=mapclient.application:main']},
-    install_requires=install_requires,
+    install_requires=package_dependencies,
 )

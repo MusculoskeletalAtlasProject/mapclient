@@ -97,7 +97,7 @@ def windows_main(app_args):
     initialise_logger(log_path)
     program_header()
 
-    logger.info('Setting toolbox settings for matplotlib and enthought to: qt4')
+    logger.info('Setting toolbox settings for matplotlib and enthought to: qt')
 
     try:
         from opencmiss.zinc.context import Context
