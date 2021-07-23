@@ -271,7 +271,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         workflow_conf = QtWidgets.QFileDialog.getOpenFileName(
             self._mainWindow,
             caption='Open Workflow',
-            dir=m.previousLocation(),
+            dir=os.path.join(m.previousLocation(), "workflow.conf"),
             filter="Workflow configuration file (workflow.conf);;Any files (*)",
             selectedFilter="Workflow configuration file (workflow.conf)",
             options=(
