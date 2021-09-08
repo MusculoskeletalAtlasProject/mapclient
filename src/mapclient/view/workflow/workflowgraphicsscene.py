@@ -74,7 +74,7 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
         QtWidgets.QGraphicsScene.clear(self)
         meta_steps = {}
         connections = []
-        for workflowitem in self._workflow_scene.items():
+        for workflowitem in list(self._workflow_scene.items()):
             if workflowitem.Type == MetaStep.Type:
                 node = Node(workflowitem)
                 node.showStepName(self._showStepNames)
@@ -165,7 +165,7 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
 
     def showStepNames(self, show):
         self._showStepNames = show
-        for workflow_item in self.items():
+        for workflow_item in list(self.items()):
             if hasattr(workflow_item, 'Type') and workflow_item.Type == Node.Type:
                 workflow_item.showStepName(show)
 

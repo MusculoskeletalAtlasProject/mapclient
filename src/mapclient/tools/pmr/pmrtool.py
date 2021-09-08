@@ -20,6 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
 import json
 import logging
+import os.path
 
 from requests import HTTPError
 from requests import Session
@@ -387,8 +388,14 @@ class PMRTool(object):
         cmd.write_remote(workspace)
 
     def hasDVCS(self, local_workspace_dir):
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
-        return workspace.cmd is not None
+        git_dir = os.path.join(local_workspace_dir, '.git')
+        if os.path.isdir(git_dir):
+            bob = get_cmd_by_name(self._git_implementation)
+            workspace = CmdWorkspace(local_workspace_dir, bob)
+            return workspace.cmd is not None
+        else:
+            return False
+
 
     def commitFiles(self, local_workspace_dir, message, files):
         workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
@@ -412,7 +419,7 @@ class PMRTool(object):
 
         if remote_workspace_url is None:
             remote_workspace_url = cmd.read_remote(workspace)
-        # acquire temporary creds
+        # Acquire temporary creds
         creds = self.requestTemporaryPassword(remote_workspace_url)
 
         stdout, stderr = cmd.push(workspace,

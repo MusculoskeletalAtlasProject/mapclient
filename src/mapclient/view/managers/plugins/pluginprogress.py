@@ -54,7 +54,7 @@ class PluginProgress(QtWidgets.QDialog):
     def run(self):
         downloaded = 0
         url_no = 1
-        for plugin in self._plugins.keys():
+        for plugin in list(self._plugins.keys()):
             self._ui.label.setText(self._download_strings[0] % (url_no, len(self._plugins)))
             self._filenames[plugin] = plugin.lower().split(' ')
             filename = ''
