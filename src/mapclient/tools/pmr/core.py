@@ -1,9 +1,6 @@
 import logging
 
-try:
-    from urllib import quote_plus
-except:
-    from urllib.parse import quote_plus
+from urllib.parse import quote_plus
 
 from requests_oauthlib.oauth1_session import OAuth1Session
 

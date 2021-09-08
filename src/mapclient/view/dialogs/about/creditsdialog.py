@@ -35,7 +35,7 @@ class CreditsDialog(QDialog):
         self._ui.setupUi(self)
 
         creditsTab = QTabWidget()
-        creditSections = info.CREDITS.keys()
+        creditSections = list(info.CREDITS.keys())
         for creditSection in creditSections:
             creditTab = QWidget()
             creditsTab.addTab(creditTab, creditSection)

@@ -5,7 +5,7 @@ Created on May 19, 2015
 """
 import os
 import sys
-import pip
+import imp
 import logging
 import subprocess
 import json
@@ -18,7 +18,7 @@ import importlib
 from pkgutil import extend_path
 import pkg_resources
 
-from mapclient.core.utils import which, FileTypeObject, grep, is_frozen
+from mapclient.core.utils import which, FileTypeObject, grep, is_frozen, determineStepName, determineStepClassName
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     PLUGINS_PACKAGE_NAME, PLUGINS_PTH
 from mapclient.core.checks import getPipExecutable, getActivateScript
@@ -179,7 +179,7 @@ class PluginManager(object):
                 inbuilt_plugin_dir = os.path.join(sys._MEIPASS, PLUGINS_PACKAGE_NAME)
             else:
                 file_dir = os.path.dirname(os.path.abspath(__file__))
-                inbuilt_plugin_dir = os.path.realpath(os.path.join(file_dir, '..', '..', PLUGINS_PACKAGE_NAME))
+                inbuilt_plugin_dir = os.path.realpath(os.path.join(file_dir, '..', '..', '..',))
             plugin_dirs.insert(0, inbuilt_plugin_dir)
 
         return plugin_dirs
@@ -195,14 +195,24 @@ class PluginManager(object):
 
     def installPackage(self, uri):
         logger.info('Installing package : %s.' % uri)
-        pip.main(['install', uri])
+        my_env = os.environ.copy()
+
+        if is_frozen():
+            python_executable = os.path.join(sys._MEIPASS, "python.exe")
+            my_env["PYTHONPATH"] = sys._MEIPASS
+        else:
+            python_executable = sys.executable
+
+        subprocess.Popen([python_executable, "-m", "pip", "install", str(uri)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
+
+        imp.reload(pkg_resources)
 
     def extractPluginDependencies(self, path):
-        return []
-        setupFileDir = path[:-16] + 'setup.py'
+        setup_dir, step_dir = os.path.split(path)
+        setup_file_dir = os.path.join(setup_dir, 'setup.py')
         dependencies = ''
-        if os.path.exists(setupFileDir):
-            with open(setupFileDir, 'r') as setup_file:
+        if os.path.exists(setup_file_dir):
+            with open(setup_file_dir, 'r') as setup_file:
                 contents = setup_file.readlines()
                 for line in contents:
                     if dependencies and ']' not in dependencies:
@@ -257,12 +267,17 @@ class PluginManager(object):
         self._syntax_errors = []
         self._tab_errors = []
         self._plugin_error_directories = {}
+        self._plugin_error_names = []
 
         for _, modname, ispkg in pkgutil.iter_modules(package.__path__):
             if ispkg:
                 try:
+                    plugin_dependencies = self.extractPluginDependencies(_.path)
+                    missing_dependencies = self._plugin_database.check_for_missing_dependencies(plugin_dependencies)
+                    for dependency in missing_dependencies:
+                        self.installPackage(dependency)
+
                     module = import_module(PLUGINS_PACKAGE_NAME + '.' + modname)
-                    plugin_dependencies = self.extractPluginDependencies(package.__path__)
                     if hasattr(module, '__version__') and hasattr(module, '__author__'):
                         logger.info('Loaded plugin \'' + modname + '\' version [' + module.__version__ + '] by ' + module.__author__)
                     if hasattr(module, '__location__') and module.__location__:
@@ -278,7 +293,7 @@ class PluginManager(object):
                                                                      plugin_dependencies)
                 except Exception as e:
                     from mapclient.mountpoints.workflowstep import removeWorkflowStep
-                    # call remove partially loaded plugin manually method
+                    # Call remove partially loaded plugin manually method
                     removeWorkflowStep(modname)
 
                     if type(e) == ImportError:
@@ -291,12 +306,20 @@ class PluginManager(object):
                         self._tab_errors += [modname]
                     self._plugin_error_directories[modname] = _.path
 
+                    step_file_dir = os.path.join(_.path, modname, 'step.py')
+                    class_name = determineStepClassName(step_file_dir)
+                    step_name = determineStepName(step_file_dir, class_name)
+                    self._plugin_error_names.append(step_name)
+
                     logger.warn('Plugin \'' + modname + '\' not loaded')
                     logger.warn('Reason: {0}'.format(e))
                     exc_type, exc_value, exc_traceback = sys.exc_info()
                     redirect_output = FileTypeObject()
                     traceback.print_exception(exc_type, exc_value, exc_traceback, file=redirect_output)
                     logger.warn(''.join(redirect_output.messages))
+
+    def get_plugin_error_names(self):
+        return self._plugin_error_names
 
     def haveErrors(self):
         return len(self._import_errors) or len(self._type_errors) or \
@@ -433,7 +456,7 @@ def reload_package(package):
     def reload_recursive_ex(module):
         importlib.reload(module)
         print('reloading module: %s' % module)
-        for module_child in vars(module).values():
+        for module_child in list(vars(module).values()):
             if isinstance(module_child, types.ModuleType):
                 fn_child = getattr(module_child, "__file__", None)
                 if (fn_child is not None) and fn_child.startswith(fn_dir):
@@ -542,21 +565,26 @@ class PluginDatabase:
 
         return missing_plugins
 
-    def checkForMissingDependencies(self, to_check, available_dependencies):
+    # Would it be worth using a dictionary instead of a list?
+    def check_for_missing_dependencies(self, dependencies):
         """
-        Check the given plugin dependencies against the list of currently available
-        dependencies
+        Takes a list of dependencies as input. Returns a list of all the dependencies that aren't already installed.
+        If a dependency has a url supplied AND it isn't installed, add just the url to the missing_dependencies list.
         """
-        print('CHECK ME: INCOMPLETE')
-        required_dependencies = {}
-        for plugin in to_check:
-            pass
-#         for name in dependencies:
-#             if name not in install_list:
-#                 required_dependencies += [name]
+        installed = [pkg.key for pkg in pkg_resources.working_set]
+        missing_dependencies = []
+        for dependency in dependencies:
+            if '@' in dependency:
+                index = dependency.find('@')
+                dependeny_name = dependency[:index - 1]
+                dependency = dependency[index + 2:]
+            else:
+                dependency_name = dependency
 
-#         print sys.modules[PLUGINS_PACKAGE_NAME]
-        return required_dependencies
+            if dependency_name.lower() not in installed:
+                missing_dependencies.append(dependency)
+
+        return missing_dependencies
 
     def getDatabase(self):
         return self._database

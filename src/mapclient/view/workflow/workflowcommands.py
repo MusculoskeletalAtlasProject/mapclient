@@ -69,13 +69,13 @@ class CommandSelection(QtWidgets.QUndoCommand):
 
     def redo(self):
         self._scene.blockSignals(True)
-        for item in self._scene.items():
+        for item in list(self._scene.items()):
             item.setSelected(item in self._selection)
         self._scene.blockSignals(False)
 
     def undo(self):
         self._scene.blockSignals(True)
-        for item in self._scene.items():
+        for item in list(self._scene.items()):
             item.setSelected(item in self._previousSelection)
         self._scene.blockSignals(False)
 
