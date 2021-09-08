@@ -2,11 +2,7 @@ import sys
 import json
 import requests
 
-if sys.version < '3':
-    from urllib.parse import parse_qs
-    from urllib.parse import quote_plus
-else:
-    from urllib.parse import parse_qs, quote_plus
+from urllib.parse import parse_qs, quote_plus
       
 from tools.pmr.jsonclient.credential import OAuthCredential
 
