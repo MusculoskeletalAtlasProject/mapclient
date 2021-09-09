@@ -203,7 +203,8 @@ class PluginManager(object):
         else:
             python_executable = sys.executable
 
-        subprocess.Popen([python_executable, "-m", "pip", "install", str(uri)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
+        # subprocess.Popen([python_executable, "-m", "pip", "install", str(uri)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
+        subprocess.run([python_executable, "-m", "pip", "install", str(uri)])
 
         imp.reload(pkg_resources)
 
@@ -574,14 +575,41 @@ class PluginDatabase:
         installed = [pkg.key for pkg in pkg_resources.working_set]
         missing_dependencies = []
         for dependency in dependencies:
+            dependency_version = None
+
             if '@' in dependency:
                 index = dependency.find('@')
                 dependeny_name = dependency[:index - 1]
                 dependency = dependency[index + 2:]
+
+            elif '==' in dependency:
+                index = dependency.find('=')
+                dependency_name = dependency[:index - 1]
+                dependency_version = dependency[index + 3:]
+
+                valid_version = pkg_resources.get_distribution(dependency). \
+                                    version == dependency_version
+                if (dependency_name.lower() not in installed) or \
+                        not valid_version:
+                    missing_dependencies.append(dependency)
+
+            elif '>=' in dependency:
+                index = dependency.find('>')
+                dependency_name = dependency[:index - 1]
+                dependency_version = dependency[index + 3:]
+
+                valid_version = pkg_resources.get_distribution(dependency).\
+                                    version >= dependency_version
+
+                if (dependency_name.lower() not in installed) or \
+                        not valid_version:
+                    missing_dependencies.append(dependency)
+
             else:
                 dependency_name = dependency
 
-            if dependency_name.lower() not in installed:
+            if (dependency_version is None) and \
+                    (dependency_name.lower() not in installed):
                 missing_dependencies.append(dependency)
 
         return missing_dependencies
