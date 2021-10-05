@@ -21,6 +21,7 @@ import sys
 import math
 import logging
 
+from itertools import count, filterfalse
 from PySide2 import QtCore, QtWidgets, QtGui
 
 from mapclient.mountpoints.workflowstep import workflowStepFactory
@@ -203,6 +204,24 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             scene = self.scene()
             position = self.mapToScene(event.pos() - hot_spot)
             step = workflowStepFactory(name, self._location)
+
+            # Before we can assign the step an identifier we need to check the workflow for any steps of the same type.
+            step_name = step.getName().replace(" ", "").lower()
+            suffix_list = []
+            for item in scene.items():
+                if isinstance(item, Node):
+                    node_step = item.metaItem()._step
+                    node_name = node_step.getName().replace(" ", "").lower()
+
+                    if node_name == step_name:
+                        identifier = node_step.getIdentifier()
+                        suffix = identifier[identifier.rindex('_') + 1:]
+                        suffix_list.append(int(suffix))
+
+            # Assign the new step the suffix that is the lowest integer not already used by a step of this type.
+            new_suffix = next(filterfalse(set(suffix_list).__contains__, count(1)))
+            step.setIdentifier(step_name + "_" + str(new_suffix))
+
             step.setMainWindow(self._main_window)
             meta_step = MetaStep(step)
             node = Node(meta_step)
