@@ -288,7 +288,11 @@ class Node(Item):
 
     def _setToolTip(self):
         self.setToolTip(self._metastep._step.getName() + ": " + self._metastep._step.getIdentifier())
-        self._text.setText(self._metastep.getStepIdentifier() if self._metastep.getStepIdentifier() != self._metastep.getUniqueIdentifier() else self._metastep.getName())
+
+        identifier = self._metastep.getStepIdentifier()
+        suffix = identifier[identifier.rindex('_') + 1:]
+        self._text.setText(self._metastep.getName() + ' ' + str(suffix))
+
         self._updateTextIcon()
 
     def _updatePorts(self):
