@@ -34,8 +34,7 @@ DEFAULT_STYLE_SHEET = 'border: 1px solid gray; border-radius: 3px'
 
 class ConfigureDialogState(object):
 
-    def __init__(self, identifier='', local_location='', pmr_location='', image_type=0, current_tab=0, previous_local_location=''):
-        self._identifier = identifier
+    def __init__(self, local_location='', pmr_location='', image_type=0, current_tab=0, previous_local_location=''):
         self._local_location = local_location
         self._pmr_location = pmr_location
         self._image_type = image_type
@@ -50,12 +49,6 @@ class ConfigureDialogState(object):
 
     def pmrLocation(self):
         return self._pmr_location
-
-    def identifier(self):
-        return self._identifier
-
-    def setIdentifier(self, identifier):
-        self._identifier = identifier
 
     def imageType(self):
         return self._image_type
@@ -90,7 +83,6 @@ class ConfigureDialog(QDialog):
         self._makeConnections()
 
     def _makeConnections(self):
-        self._ui.identifierLineEdit.textChanged.connect(self.validate)
         self._ui.localLineEdit.textChanged.connect(self._localLocationEdited)
         self._ui.localButton.clicked.connect(self._localLocationClicked)
         # self._pmr_widget._ui.lineEditWorkspace.textChanged.connect(self._workspaceChanged)
@@ -106,7 +98,6 @@ class ConfigureDialog(QDialog):
         layout.addWidget(self._pmr_widget)
 
     def setState(self, state):
-        self._ui.identifierLineEdit.setText(state.identifier())
         self._ui.localLineEdit.setText(state.location())
         self._pmr_widget.setWorkspaceUrl(state.pmrLocation())
         self._ui.imageSourceTypeComboBox.setCurrentIndex(state.imageType())
@@ -115,7 +106,6 @@ class ConfigureDialog(QDialog):
 
     def getState(self):
         state = ConfigureDialogState(
-            self._ui.identifierLineEdit.text(),
             self._ui.localLineEdit.text(),
             self._pmr_widget.workspaceUrl(),
             self._ui.imageSourceTypeComboBox.currentIndex(),
@@ -144,17 +134,11 @@ class ConfigureDialog(QDialog):
         return self._ui.localLineEdit.text()
 
     def validate(self):
-        identifierValid = len(self._ui.identifierLineEdit.text()) > 0
         localValid = self._ui.localLineEdit.text() and os.path.exists(os.path.join(self._workflow_location, self._ui.localLineEdit.text()))
-        valid = identifierValid
 
-        self._ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(valid)
+        self._ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(localValid)
+        self._ui.localLineEdit.setStyleSheet(DEFAULT_STYLE_SHEET if localValid else REQUIRED_STYLE_SHEET)
 
-        if identifierValid:
-            self._ui.identifierLineEdit.setStyleSheet(DEFAULT_STYLE_SHEET)
-        else:
-            self._ui.identifierLineEdit.setStyleSheet(REQUIRED_STYLE_SHEET)
-
-        return valid and localValid
+        return localValid
 
 

@@ -97,6 +97,7 @@ class ImageSourceStep(WorkflowStepMountPoint):
         self._configured = False
         self._category = 'Source'
         self._state = ConfigureDialogState()
+        self._identifier = ""
 
     def configure(self):
         d = ConfigureDialog(self._state, QtWidgets.QApplication.activeWindow().current_widget())
@@ -127,10 +128,10 @@ class ImageSourceStep(WorkflowStepMountPoint):
                 self._configuredObserver()
 
     def getIdentifier(self):
-        return self._state.identifier()
+        return self._identifier
 
     def setIdentifier(self, identifier):
-        self._state.setIdentifier(identifier)
+        self._identifier = identifier
 
     def serialize(self):
         return self._state.serialize()
