@@ -134,7 +134,8 @@ class ConfigureDialog(QDialog):
         return self._ui.localLineEdit.text()
 
     def validate(self):
-        localValid = self._ui.localLineEdit.text() and os.path.exists(os.path.join(self._workflow_location, self._ui.localLineEdit.text()))
+        non_empty = len(self._ui.localLineEdit.text())
+        localValid = non_empty and os.path.exists(os.path.join(self._workflow_location, self._ui.localLineEdit.text()))
 
         self._ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(localValid)
         self._ui.localLineEdit.setStyleSheet(DEFAULT_STYLE_SHEET if localValid else REQUIRED_STYLE_SHEET)
