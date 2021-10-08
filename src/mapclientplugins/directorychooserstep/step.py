@@ -29,8 +29,10 @@ class DirectoryChooserStep(WorkflowStepMountPoint):
                       'http://physiomeproject.org/workflow/1.0/rdf-schema#directory_location'))
         # Port data:
         self._portData0 = None  # http://physiomeproject.org/workflow/1.0/rdf-schema#directory_location
+
         # Config:
-        self._config = {'identifier': '', 'Directory': ''}
+        self._config = {'Directory': ''}
+        self._identifier = ''
 
     def execute(self):
         """
@@ -59,7 +61,8 @@ class DirectoryChooserStep(WorkflowStepMountPoint):
         """
         dlg = ConfigureDialog(QtWidgets.QApplication.activeWindow().current_widget())
         dlg.setWorkflowLocation(self._location)
-        dlg.identifierOccursCount = self._identifierOccursCount
+        dlg.validate()
+
         dlg.setConfig(self._config)
         dlg.validate()
         dlg.setModal(True)
@@ -74,13 +77,13 @@ class DirectoryChooserStep(WorkflowStepMountPoint):
         """
         The identifier is a string that must be unique within a workflow.
         """
-        return self._config['identifier']
+        return self._identifier
 
     def setIdentifier(self, identifier):
         """
         The framework will set the identifier for this step when it is loaded.
         """
-        self._config['identifier'] = identifier
+        self._identifier = identifier
 
     def serialize(self):
         """
@@ -98,6 +101,7 @@ class DirectoryChooserStep(WorkflowStepMountPoint):
 
         d = ConfigureDialog()
         d.setWorkflowLocation(self._location)
-        d.identifierOccursCount = self._identifierOccursCount
+        d.validate()
+
         d.setConfig(self._config)
         self._configured = d.validate()
