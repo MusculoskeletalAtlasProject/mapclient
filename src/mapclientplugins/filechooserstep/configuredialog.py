@@ -22,20 +22,11 @@ class ConfigureDialog(QtWidgets.QDialog):
 
         self._workflow_location = None
 
-        # Keep track of the previous identifier so that we can track changes
-        # and know how many occurrences of the current identifier there should
-        # be.
-        self._previousIdentifier = ''
-        # Set a place holder for a callable that will get set from the step.
-        # We will use this method to decide whether the identifier is unique.
-        self.identifierOccursCount = None
-        
         self._previousLocation = ''
 
         self._makeConnections()
 
     def _makeConnections(self):
-        self._ui.lineEdit0.textChanged.connect(self.validate)
         self._ui.lineEditFileLocation.textChanged.connect(self.validate)
         self._ui.pushButtonFileChooser.clicked.connect(self._fileChooserClicked)
         
@@ -73,16 +64,12 @@ class ConfigureDialog(QtWidgets.QDialog):
         set the style sheet to the INVALID_STYLE_SHEET.  Return the outcome of the
         overall validity of the configuration.
         """
-        # Determine if the current identifier is unique throughout the workflow
-        # The identifierOccursCount method is part of the interface to the workflow framework.
-        value = self.identifierOccursCount(self._ui.lineEdit0.text())
-        valid = (value == 0) or (value == 1 and self._previousIdentifier == self._ui.lineEdit0.text())
-        self._ui.lineEdit0.setStyleSheet(DEFAULT_STYLE_SHEET if valid else INVALID_STYLE_SHEET)
-
         location_valid = self._ui.lineEditFileLocation.text() and \
             os.path.isfile(os.path.join(self._workflow_location, self._ui.lineEditFileLocation.text()))
 
-        return valid and location_valid
+        self._ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(location_valid)
+
+        return location_valid
 
     def getConfig(self):
         """
@@ -90,9 +77,7 @@ class ConfigureDialog(QtWidgets.QDialog):
         set the _previousIdentifier value so that we can check uniqueness of the
         identifier over the whole of the workflow.
         """
-        self._previousIdentifier = self._ui.lineEdit0.text()
         config = {}
-        config['identifier'] = self._ui.lineEdit0.text()
         config['File'] = self._ui.lineEditFileLocation.text()
         if self._previousLocation:
             config['previous_location'] = os.path.relpath(self._previousLocation, self._workflow_location)
@@ -107,8 +92,6 @@ class ConfigureDialog(QtWidgets.QDialog):
         set the _previousIdentifier value so that we can check uniqueness of the
         identifier over the whole of the workflow.
         """
-        self._previousIdentifier = config['identifier']
-        self._ui.lineEdit0.setText(config['identifier'])
         self._ui.lineEditFileLocation.setText(config['File'])
         if 'previous_location' in config:
             self._previousLocation = os.path.join(self._workflow_location, config['previous_location'])
