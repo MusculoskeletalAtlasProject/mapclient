@@ -64,10 +64,10 @@ class ConfigureDialog(QtWidgets.QDialog):
         set the style sheet to the INVALID_STYLE_SHEET.  Return the outcome of the
         overall validity of the configuration.
         """
-        location_valid = self._ui.lineEditFileLocation.text() and \
+        location_valid = len(self._ui.lineEditFileLocation.text()) and \
             os.path.isfile(os.path.join(self._workflow_location, self._ui.lineEditFileLocation.text()))
 
-        self._ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(location_valid)
+        self._ui.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(location_valid)
 
         return location_valid
 
