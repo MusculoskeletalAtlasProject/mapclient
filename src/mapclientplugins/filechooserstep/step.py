@@ -61,7 +61,7 @@ class FileChooserStep(WorkflowStepMountPoint):
         """
         dlg = ConfigureDialog(QtWidgets.QApplication.activeWindow().current_widget())
         dlg.setWorkflowLocation(self._location)
-        dlg.validate()
+        # dlg.validate()
 
         dlg.setConfig(self._config)
         dlg.validate()
@@ -102,7 +102,7 @@ class FileChooserStep(WorkflowStepMountPoint):
 
         d = ConfigureDialog()
         d.setWorkflowLocation(self._location)
-        d.validate()
+        # d.validate()
 
         d.setConfig(self._config)
         self._configured = d.validate()
