@@ -23,7 +23,7 @@ class DictSerializerStep(WorkflowStepMountPoint):
 
     def __init__(self, location):
         super(DictSerializerStep, self).__init__('Dict Serializer', location)
-        self._configured = False  # A step cannot be executed until it has been configured.
+        self._configured = True
         self._category = 'Sink'
         # Add any other initialisation code here:
         self._icon = QtGui.QImage(':/dictserializerstep/images/data-sink.png')
@@ -31,7 +31,8 @@ class DictSerializerStep(WorkflowStepMountPoint):
         self.addPort(('http://physiomeproject.org/workflow/1.0/rdf-schema#port',
                       'http://physiomeproject.org/workflow/1.0/rdf-schema#uses',
                       'http://physiomeproject.org/workflow/1.0/rdf-schema#dict'))
-        self._config = {'identifier': '', 'default': True, 'output': ''}
+        self._identifier = ''
+        self._config = {'default': True, 'output': ''}
         self._data_in = None
 
     def execute(self):
@@ -43,7 +44,7 @@ class DictSerializerStep(WorkflowStepMountPoint):
         # Put your execute step code here before calling the '_doneExecution' method.
         json_string = json.dumps(self._data_in, default=lambda o: o.__dict__, sort_keys=True, indent=4)
         if self._config['default']:
-            output_dir = os.path.join(self._location, self._config['identifier'])
+            output_dir = os.path.join(self._location, self._identifier)
             filename = os.path.join(output_dir, DICT_OUTPUT_FILENAME)
             if not os.path.exists(output_dir):
                 os.mkdir(output_dir)
@@ -72,7 +73,6 @@ class DictSerializerStep(WorkflowStepMountPoint):
             self._configured = True
         """
         dlg = ConfigureDialog(QtWidgets.QApplication.activeWindow().current_widget())
-        dlg.identifierOccursCount = self._identifierOccursCount
         dlg.setConfig(self._config)
         dlg.validate()
         dlg.setModal(True)
@@ -87,13 +87,13 @@ class DictSerializerStep(WorkflowStepMountPoint):
         """
         The identifier is a string that must be unique within a workflow.
         """
-        return self._config['identifier']
+        return self._identifier
 
     def setIdentifier(self, identifier):
         """
         The framework will set the identifier for this step when it is loaded.
         """
-        self._config['identifier'] = identifier
+        self._identifier = identifier
 
     def serialize(self):
         """
@@ -111,7 +111,6 @@ class DictSerializerStep(WorkflowStepMountPoint):
         self._config.update(json.loads(string))
 
         d = ConfigureDialog()
-        d.identifierOccursCount = self._identifierOccursCount
         d.setConfig(self._config)
         self._configured = d.validate()
 

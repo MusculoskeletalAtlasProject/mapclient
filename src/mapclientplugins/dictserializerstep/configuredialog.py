@@ -19,19 +19,11 @@ class ConfigureDialog(QtWidgets.QDialog):
         self._ui = Ui_ConfigureDialog()
         self._ui.setupUi(self)
 
-        # Keep track of the previous identifier so that we can track changes
-        # and know how many occurrences of the current identifier there should
-        # be.
-        self._previousIdentifier = ''
-        # Set a place holder for a callable that will get set from the step.
-        # We will use this method to decide whether the identifier is unique.
-        self.identifierOccursCount = None
         self._previousLocation = ''
 
         self._make_connections()
 
     def _make_connections(self):
-        self._ui.lineEditIdentifier.textChanged.connect(self.validate)
         self._ui.lineEditOutputLocation.textChanged.connect(self.validate)
         self._ui.checkBoxDefaultLocation.clicked.connect(self.validate)
         self._ui.pushButtonOutputLocation.clicked.connect(self._output_location_button_clicked)
@@ -65,9 +57,6 @@ class ConfigureDialog(QtWidgets.QDialog):
         set the style sheet to the INVALID_STYLE_SHEET.  Return the outcome of the 
         overall validity of the configuration.
         """
-        # Determine if the current identifier is unique throughout the workflow
-        # The identifierOccursCount method is part of the interface to the workflow framework.
-        
         sender = self.sender()
         output_directory_valid = False
         output_location_valid = False
@@ -84,15 +73,10 @@ class ConfigureDialog(QtWidgets.QDialog):
         default_location = self._ui.checkBoxDefaultLocation.isChecked()
         if output_location and output_file and output_directory_valid:
             output_location_valid = True
-        
-        value = self.identifierOccursCount(self._ui.lineEditIdentifier.text())
-        valid = (value == 0) or (value == 1 and self._previousIdentifier == self._ui.lineEditIdentifier.text())
-        if valid:
-            self._ui.lineEditIdentifier.setStyleSheet(DEFAULT_STYLE_SHEET)
-        else:
-            self._ui.lineEditIdentifier.setStyleSheet(INVALID_STYLE_SHEET)
 
-        return valid and (default_location or output_location_valid)
+        self._ui.lineEditOutputLocation.setStyleSheet(DEFAULT_STYLE_SHEET if output_location_valid else INVALID_STYLE_SHEET)
+
+        return (default_location or output_location_valid)
 
     def getConfig(self):
         """
@@ -100,9 +84,7 @@ class ConfigureDialog(QtWidgets.QDialog):
         set the _previousIdentifier value so that we can check uniqueness of the
         identifier over the whole of the workflow.
         """
-        self._previousIdentifier = self._ui.lineEditIdentifier.text()
-        config = {'identifier': self._ui.lineEditIdentifier.text(), 'output': self._ui.lineEditOutputLocation.text(),
-                  'default': self._ui.checkBoxDefaultLocation.isChecked()}
+        config = {'output': self._ui.lineEditOutputLocation.text(), 'default': self._ui.checkBoxDefaultLocation.isChecked()}
         return config
 
     def setConfig(self, config):
@@ -111,8 +93,6 @@ class ConfigureDialog(QtWidgets.QDialog):
         set the _previousIdentifier value so that we can check uniqueness of the
         identifier over the whole of the workflow.
         """
-        self._previousIdentifier = config['identifier']
-        self._ui.lineEditIdentifier.setText(config['identifier'])
         self._ui.lineEditOutputLocation.setText(config['output'])
         self._ui.checkBoxDefaultLocation.setChecked(config['default'])
 
