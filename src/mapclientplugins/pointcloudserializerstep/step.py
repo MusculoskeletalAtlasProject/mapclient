@@ -90,7 +90,7 @@ class PointCloudSerializerStep(WorkflowStepMountPoint):
             else:
                 file_name = self._state._ui.lineEditOutputLocation.text()
 
-                if not os.path.isabs(file_path):
+                if not os.path.isabs(file_name):
                     file_name = os.path.join(self._workflow_location, file_name)
 
             with open(file_name, 'w') as f:
