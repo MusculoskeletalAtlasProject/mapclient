@@ -21,21 +21,35 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>Identifier:</string>
-          </property>
-          <property name="buddy">
-           <cstring>identifierLineEdit</cstring>
+           <string>Output:</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="identifierLineEdit"/>
+         <widget class="QLineEdit" name="lineEditOutputLocation"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonOutputLocation">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxDefaultLocation">
+        <property name="text">
+         <string>Use output default location</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <spacer name="verticalSpacer">

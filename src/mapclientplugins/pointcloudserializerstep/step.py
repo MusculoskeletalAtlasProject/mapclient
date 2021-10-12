@@ -39,8 +39,7 @@ class PointCloudSerializerStep(WorkflowStepMountPoint):
     """
     def __init__(self, location):
         super(PointCloudSerializerStep, self).__init__('Point Cloud Serializer', location)
-#        self._name = 'Point Cloud Store'
-#        self._location = location
+        self._configured = True
         self._icon = QtGui.QImage(':/pointcloudserializer/images/pointcloudserializer.png')
         self.addPort(('http://physiomeproject.org/workflow/1.0/rdf-schema#port',
                       'http://physiomeproject.org/workflow/1.0/rdf-schema#uses',
@@ -51,6 +50,9 @@ class PointCloudSerializerStep(WorkflowStepMountPoint):
 
     def configure(self):
         d = ConfigureDialog(self._state, QtWidgets.QApplication.activeWindow().current_widget())
+        d.set_workflow_location(self._location)
+        d.validate()
+
         d.setModal(True)
         if d.exec_():
             self._state = d.getState()
@@ -60,10 +62,10 @@ class PointCloudSerializerStep(WorkflowStepMountPoint):
             self._configuredObserver()
 
     def getIdentifier(self):
-        return self._state.identifier()
+        return self._identifier
 
     def setIdentifier(self, identifier):
-        self._state.setIdentifier(identifier)
+        self._identifier = identifier
 
     def serialize(self):
         return self._state.serialize()
@@ -71,21 +73,29 @@ class PointCloudSerializerStep(WorkflowStepMountPoint):
     def deserialize(self, string):
         self._state.deserialize(string)
         d = ConfigureDialog(self._state)
+        d.set_workflow_location(self._location)
         self._configured = d.validate()
-
-    def getOutputDirectory(self):
-        return os.path.join(self._location, self._state.identifier())
 
     def setPortData(self, portId, dataIn):
         self._dataIn = dataIn
 
     def execute(self):
         if self._dataIn:
-            if not os.path.exists(self.getOutputDirectory()):
-                os.makedirs(self.getOutputDirectory())
-                
-            with open(os.path.join(self.getOutputDirectory(), 'pointcloud.txt'), 'w') as f:
+            if self._state._ui.checkBoxDefaultLocation.isChecked():
+                output_directory = os.path.join(self._location, self._identifier)
+                file_name = os.path.join(output_directory, 'pointcloud.txt')
+                if not os.path.exists(output_directory):
+                    os.makedirs(output_directory)
+
+            else:
+                file_name = self._state._ui.lineEditOutputLocation.text()
+
+                if not os.path.isabs(file_path):
+                    file_name = os.path.join(self._workflow_location, file_name)
+
+            with open(file_name, 'w') as f:
                 for i, pt in enumerate(self._dataIn):
                     f.write(str(i + 1) + '\t' + str(pt[0]) + '\t' + str(pt[1]) + '\t' + str(pt[2]) + '\n')
+
         self._doneExecution()
 
