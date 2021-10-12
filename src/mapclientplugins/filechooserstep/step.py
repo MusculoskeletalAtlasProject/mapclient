@@ -48,7 +48,10 @@ class FileChooserStep(WorkflowStepMountPoint):
         The index is the index of the port in the port list.  If there is only one
         provides port for this step then the index can be ignored.
         """
-        return os.path.join(self._location, self._config['File']) # http://physiomeproject.org/workflow/1.0/rdf-schema#file_location
+        if os.path.isabs(self._config['File']):
+            return self._config['File']
+        else:
+            return os.path.join(self._location, self._config['File'])
 
     def configure(self):
         """
