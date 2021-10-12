@@ -17,7 +17,7 @@ class Ui_ConfigureDialog(object):
     def setupUi(self, ConfigureDialog):
         if not ConfigureDialog.objectName():
             ConfigureDialog.setObjectName(u"ConfigureDialog")
-        ConfigureDialog.resize(418, 303)
+        ConfigureDialog.resize(529, 215)
         self.gridLayout = QGridLayout(ConfigureDialog)
         self.gridLayout.setObjectName(u"gridLayout")
         self.buttonBox = QDialogButtonBox(ConfigureDialog)
@@ -35,15 +35,19 @@ class Ui_ConfigureDialog(object):
         self.checkBoxDefaultLocation.setObjectName(u"checkBoxDefaultLocation")
         self.checkBoxDefaultLocation.setChecked(True)
 
-        self.formLayout.setWidget(0, QFormLayout.FieldRole, self.checkBoxDefaultLocation)
+        self.formLayout.setWidget(2, QFormLayout.FieldRole, self.checkBoxDefaultLocation)
 
-        self.label0_2 = QLabel(self.configGroupBox)
-        self.label0_2.setObjectName(u"label0_2")
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.formLayout.setWidget(1, QFormLayout.LabelRole, self.label0_2)
+        self.formLayout.setItem(3, QFormLayout.FieldRole, self.verticalSpacer)
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.label0_2 = QLabel(self.configGroupBox)
+        self.label0_2.setObjectName(u"label0_2")
+
+        self.horizontalLayout.addWidget(self.label0_2)
+
         self.lineEditOutputLocation = QLineEdit(self.configGroupBox)
         self.lineEditOutputLocation.setObjectName(u"lineEditOutputLocation")
 

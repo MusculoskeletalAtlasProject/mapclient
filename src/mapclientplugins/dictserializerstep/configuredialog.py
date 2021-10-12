@@ -19,20 +19,26 @@ class ConfigureDialog(QtWidgets.QDialog):
         self._ui = Ui_ConfigureDialog()
         self._ui.setupUi(self)
 
-        self._previousLocation = ''
+        self._workflow_location = None
+        
+        self._previous_location = ''
 
         self._make_connections()
 
     def _make_connections(self):
-        self._ui.lineEditOutputLocation.textChanged.connect(self.validate)
+        self._ui.lineEditOutputLocation.textChanged.connect(self.extended_validate)
         self._ui.checkBoxDefaultLocation.clicked.connect(self.validate)
         self._ui.pushButtonOutputLocation.clicked.connect(self._output_location_button_clicked)
 
     def _output_location_button_clicked(self):
-        location, _ = QtWidgets.QFileDialog.getSaveFileName(self, caption='Choose Output File', dir=self._previousLocation)
+        location, _ = QtWidgets.QFileDialog.getSaveFileName(self, caption='Choose Output File', dir=self._previous_location)
         if location:
-            self._previousLocation = os.path.dirname(location)
-            self._ui.lineEditOutputLocation.setText(location)
+            self._previousLocation = location
+
+            if self._workflow_location:
+                self._ui.lineEditOutputLocation.setText(os.path.relpath(location, self._workflow_location))
+            else:
+                self._ui.lineEditOutputLocation.setText(location)
     
     def accept(self):
         """
@@ -51,32 +57,44 @@ class ConfigureDialog(QtWidgets.QDialog):
         if result == QtWidgets.QMessageBox.Yes:
             QtWidgets.QDialog.accept(self)
 
+    def set_workflow_location(self, location):
+        self._workflow_location = location
+
     def validate(self):
         """
         Validate the configuration dialog fields.  For any field that is not valid
         set the style sheet to the INVALID_STYLE_SHEET.  Return the outcome of the 
         overall validity of the configuration.
         """
-        sender = self.sender()
-        output_directory_valid = False
-        output_location_valid = False
-        output_location = self._ui.lineEditOutputLocation.text()
-        
-        output_directory = os.path.dirname(output_location)
-        output_file = os.path.basename(output_location)
-        if os.path.isdir(output_directory):
-            output_directory_valid = True
-            
-        if sender == self._ui.lineEditOutputLocation and output_directory_valid:
+        output_path = self._ui.lineEditOutputLocation.text()
+        output_directory = os.path.dirname(output_path)
+        non_empty = len(output_path)
+
+        if not os.path.isabs(output_path):
+            output_path = os.path.join(self._workflow_location, output_path)
+            output_directory = os.path.join(self._workflow_location, output_directory)
+
+        output_directory_valid = os.path.exists(output_directory) and non_empty
+        default_directory_checked = self._ui.checkBoxDefaultLocation.isChecked()
+
+        if output_directory_valid:
+            self._ui.lineEditOutputLocation.setStyleSheet(DEFAULT_STYLE_SHEET)
+        else:
+            self._ui.lineEditOutputLocation.setStyleSheet(INVALID_STYLE_SHEET)
+            self._ui.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(self._ui.checkBoxDefaultLocation.isChecked())
+
+        return output_directory_valid or default_directory_checked
+
+    def extended_validate(self):
+        valid = self.validate()
+
+        output_path = self._ui.lineEditOutputLocation.text()
+        output_directory_valid = os.path.exists(os.path.dirname(output_path)) and len(output_path)
+
+        if output_directory_valid:
             self._ui.checkBoxDefaultLocation.setChecked(False)
-            
-        default_location = self._ui.checkBoxDefaultLocation.isChecked()
-        if output_location and output_file and output_directory_valid:
-            output_location_valid = True
 
-        self._ui.lineEditOutputLocation.setStyleSheet(DEFAULT_STYLE_SHEET if output_location_valid else INVALID_STYLE_SHEET)
-
-        return (default_location or output_location_valid)
+        return valid
 
     def getConfig(self):
         """

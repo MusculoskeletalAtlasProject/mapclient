@@ -41,17 +41,22 @@ class DictSerializerStep(WorkflowStepMountPoint):
         Make sure you call the _doneExecution() method when finished.  This method
         may be connected up to a button in a widget for example.
         """
-        # Put your execute step code here before calling the '_doneExecution' method.
         json_string = json.dumps(self._data_in, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-        if self._config['default']:
-            output_dir = os.path.join(self._location, self._identifier)
-            filename = os.path.join(output_dir, DICT_OUTPUT_FILENAME)
-            if not os.path.exists(output_dir):
-                os.mkdir(output_dir)
-        else:
-            filename = self._config['output']
 
-        with open(filename, 'w') as f:
+        if self._data_in:
+            if self._config['default']:
+                output_dir = os.path.join(self._location, self._identifier)
+                file_name = os.path.join(output_dir, DICT_OUTPUT_FILENAME)
+                if not os.path.exists(output_dir):
+                    os.mkdir(output_dir)
+
+            else:
+                file_name = self._config['output']
+
+                if not os.path.isabs(file_name):
+                    file_name = os.path.join(self._workflow_location, file_name)
+
+        with open(file_name, 'w') as f:
             f.write(json_string)
 
         self._doneExecution()
@@ -73,6 +78,7 @@ class DictSerializerStep(WorkflowStepMountPoint):
             self._configured = True
         """
         dlg = ConfigureDialog(QtWidgets.QApplication.activeWindow().current_widget())
+        dlg.set_workflow_location(self._location)
         dlg.setConfig(self._config)
         dlg.validate()
         dlg.setModal(True)
@@ -111,6 +117,7 @@ class DictSerializerStep(WorkflowStepMountPoint):
         self._config.update(json.loads(string))
 
         d = ConfigureDialog()
+        d.set_workflow_location(self._location)
         d.setConfig(self._config)
         self._configured = d.validate()
 
