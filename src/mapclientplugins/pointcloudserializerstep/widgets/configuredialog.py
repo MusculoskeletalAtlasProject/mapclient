@@ -70,7 +70,7 @@ class ConfigureDialog(QDialog):
     def _output_location_button_clicked(self):
         location, _ = QFileDialog.getSaveFileName(self, caption='Choose Output File', dir=self._previous_location)
         if location:
-            self._previousLocation = location
+            self._previous_location = location
 
             if self._workflow_location:
                 self._ui.lineEditOutputLocation.setText(os.path.relpath(location, self._workflow_location))
