@@ -145,6 +145,8 @@ class ImageSourceStep(WorkflowStepMountPoint):
         self._configured = d.validate()
 
     def getPortData(self, index):
-        return ImageSourceData(self._state.identifier(),
-                               os.path.join(self._location, self._state.location()),
-                               self._state.imageType())
+        image_directory = self._state.location()
+        if not os.path.isabs(image_directory):
+            image_directory = os.path.join(self._location, image_directory)
+
+        return ImageSourceData(self._identifier, image_directory, self._state.imageType())

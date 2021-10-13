@@ -40,7 +40,6 @@ class DirectoryChooserStep(WorkflowStepMountPoint):
         Make sure you call the _doneExecution() method when finished.  This method
         may be connected up to a button in a widget for example.
         """
-        # Put your execute step code here before calling the '_doneExecution' method.
         self._doneExecution()
 
     def getPortData(self, index):
@@ -49,7 +48,11 @@ class DirectoryChooserStep(WorkflowStepMountPoint):
         The index is the index of the port in the port list.  If there is only one
         provides port for this step then the index can be ignored.
         """
-        return os.path.realpath(os.path.join(self._location, self._config['Directory']))  # http://physiomeproject.org/workflow/1.0/rdf-schema#directory_location
+        directory = self._config['Directory']
+        if os.path.isabs(directory):
+            return os.path.realpath(self._config['Directory'], self._location)
+        else:
+            return self._config['Directory']
 
     def configure(self):
         """

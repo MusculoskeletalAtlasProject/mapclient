@@ -36,7 +36,11 @@ class ConfigureDialog(QtWidgets.QDialog):
 
         if location:
             self._previousLocation = location
-            self._ui.lineEditDirectoryLocation.setText(os.path.relpath(location, self._workflow_location))
+
+            if self._workflow_location:
+                self._ui.lineEditDirectoryLocation.setText(os.path.relpath(location, self._workflow_location))
+            else:
+                self._ui.lineEditDirectoryLocation.setText(location)
 
     def setWorkflowLocation(self, location):
         self._workflow_location = location
@@ -61,7 +65,13 @@ class ConfigureDialog(QtWidgets.QDialog):
         set the style sheet to the INVALID_STYLE_SHEET.  Return the outcome of the
         overall validity of the configuration.
         """
-        directory_valid = os.path.isdir(os.path.join(self._workflow_location, self._ui.lineEditDirectoryLocation.text()))
+        directory = self._ui.lineEditDirectoryLocation.text()
+        non_empty = len(directory)
+
+        if not os.path.isabs(directory):
+            directory = os.path.join(self._workflow_location, directory)
+
+        directory_valid = os.path.isdir(directory)
 
         self._ui.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(directory_valid)
         self._ui.lineEditDirectoryLocation.setStyleSheet(DEFAULT_STYLE_SHEET if directory_valid else INVALID_STYLE_SHEET)
