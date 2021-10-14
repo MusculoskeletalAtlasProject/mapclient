@@ -215,15 +215,9 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
                     if node_name == step_name:
                         identifier = node_step.getIdentifier()
-                        if '_' in identifier:
-                            suffix = identifier[identifier.rindex('_') + 1:]
-                            suffix_list.append(int(suffix))
 
-                        # We also need to handle user-defined identifiers and convert them.
-                        else:
-                            suffix = next(filterfalse(set(suffix_list).__contains__, count(1)))
-                            node_step.setIdentifier(node_name+ "_" + str(suffix))
-                            suffix_list.append(suffix)
+                        suffix = identifier[identifier.rindex('_') + 1:]
+                        suffix_list.append(int(suffix))
 
             # Assign the new step the suffix that is the lowest integer not already used by a step of this type.
             new_suffix = next(filterfalse(set(suffix_list).__contains__, count(1)))

@@ -18,12 +18,14 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import os
+import re
 import sys
 import uuid
 import logging
 import traceback
 
 from PySide2 import QtCore
+from itertools import count, filterfalse
 
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflow.workflowerror import WorkflowError
@@ -419,11 +421,29 @@ class WorkflowScene(object):
             identifier = ws.value('identifier')
             uniqueIdentifier = ws.value('unique_identifier', uuid.uuid1())
 
+            # This block converts workflow identifiers that were saved in old versions of the MAP Client.
+            step_identifier = identifier
+            regex = r"^" + re.escape(name.replace(" ", "")) + r"_+\d"
+            if not re.search(regex, identifier, re.IGNORECASE):
+                suffix_list = []
+                for item in self.items():
+                    if name == item.getName():
+                        item_identifier = item.getIdentifier()
+                        suffix = item_identifier[item_identifier.rindex('_') + 1:]
+                        suffix_list.append(int(suffix))
+
+                step_name = name.replace(" ", "").lower()
+                suffix = next(filterfalse(set(suffix_list).__contains__, count(1)))
+                step_identifier = step_name + "_" + str(suffix)
+
+                # TODO: We should delete any redundant configuration files here. Then save.
+                # self._manager.save()
+
             step = workflowStepFactory(name, location)
             step.setMainWindow(self._main_window)
             step.registerIdentifierOccursCount(self.identifierOccursCount)
             metastep = MetaStep(step)
-            metastep.setIdentifier(identifier)
+            metastep.setIdentifier(step_identifier)
             metastep.setUniqueIdentifier(uniqueIdentifier)
             metastep.setPos(position)
             metastep.setSelected(selected)
