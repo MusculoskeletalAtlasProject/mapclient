@@ -199,7 +199,11 @@ def _workflow_step_isConfigured(self):
 
 def _workflow_step_addPort(self, triple):
     port = WorkflowStepPort()
-    port.addProperty(triple)
+    if isinstance(triple, list):
+        for t in triple:
+            port.addProperty(t)
+    else:
+        port.addProperty(triple)
     port.addProperty(('http://physiomeproject.org/workflow/1.0/rdf-schema#port', 'http://physiomeproject.org/workflow/1.0/rdf-schema#index', len(self._ports)))
     self._ports.append(port)
 
