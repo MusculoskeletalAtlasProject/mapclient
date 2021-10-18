@@ -1,9 +1,8 @@
-
+import os
 
 from PySide2 import QtWidgets
 
 from mapclientplugins.filechooserstep.ui_configuredialog import Ui_ConfigureDialog
-import os
 
 INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
 DEFAULT_STYLE_SHEET = ''
