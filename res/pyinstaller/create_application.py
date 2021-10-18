@@ -6,7 +6,6 @@ import PyInstaller.__main__
 variant = '-mapping-tools'
 
 here = os.path.dirname(__file__)
-hooks_dir = os.path.join('..', 'res', 'pyinstaller', 'hooks')
 
 run_command = [
     '../../src/mapclient/application.py',

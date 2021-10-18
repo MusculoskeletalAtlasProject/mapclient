@@ -48,7 +48,7 @@ ABOUT = {
          }
 
 # Application
-DEFAULT_WORKFLOW_PROJECT_FILENAME = '.workflow.conf'
+DEFAULT_WORKFLOW_PROJECT_FILENAME = 'workflow.conf'
 DEFAULT_WORKFLOW_ANNOTATION_FILENAME = '.workflow.rdf'
 DEFAULT_WORKFLOW_REQUIREMENTS_FILENAME = '.workflow.req'
 

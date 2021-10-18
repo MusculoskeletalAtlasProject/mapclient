@@ -17,6 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
+import os
 import sys
 import uuid
 import logging
@@ -140,7 +141,7 @@ class WorkflowDependencyGraph(object):
         Return a list of all the nodes that have a connection.
         """
         nodes = []
-        for item in self._scene.items():
+        for item in list(self._scene.items()):
             if item.Type == Connection.Type:
                 if item.source() not in nodes:
                     nodes.append(item.source())
@@ -202,7 +203,7 @@ class WorkflowDependencyGraph(object):
 
     def _calculateDependencyGraph(self):
         graph = {}
-        for item in self._scene.items():
+        for item in list(self._scene.items()):
             if item.Type == Connection.Type:
                 graph[item.source()] = graph.get(item.source(), [])
                 graph[item.source()].append(item.destination())
@@ -211,7 +212,7 @@ class WorkflowDependencyGraph(object):
 
     def _connectionsForNodes(self, source, destination):
         connections = []
-        for item in self._scene.items():
+        for item in list(self._scene.items()):
             if item.Type == Connection.Type:
                 if item.source() == source and item.destination() == destination:
                     connections.append(item)
@@ -376,10 +377,22 @@ class WorkflowScene(object):
         for i in range(node_count):
             ws.setArrayIndex(i)
             name = ws.value('name')
+
             try:
                 step = workflowStepFactory(name, location)
                 report[name] = 'Found'
+
             except ValueError as e:
+                plugin_manager = self._main_window.model().pluginManager()
+                broken_plugins = plugin_manager.get_plugin_error_names()
+                plugin_found = False
+                for plugin in broken_plugins:
+                    if plugin == name:
+                        report[name] = 'Broken'
+                        plugin_found = True
+                if plugin_found == True:
+                    continue
+
                 source_uri = ws.value('source_uri', None)
                 if source_uri is not None:
                     report[name] = source_uri
@@ -460,7 +473,7 @@ class WorkflowScene(object):
         self._items.clear()
 
     def items(self):
-        return self._items.keys()
+        return list(self._items.keys())
 
     def addItem(self, item):
         self._items[item] = item
@@ -500,7 +513,7 @@ class WorkflowScene(object):
 
 def reverseDictWithLists(inDict):
     reverseDictOut = {}  # defaultdict(list)
-    for k, v in inDict.items():
+    for k, v in list(inDict.items()):
         for rk in v:
             reverseDictOut[rk] = reverseDictOut.get(rk, [])
             reverseDictOut[rk].append(k)

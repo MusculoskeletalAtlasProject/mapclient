@@ -2,11 +2,7 @@ import sys
 import json
 import requests
 
-if sys.version < '3':
-    from urlparse import parse_qs
-    from urllib import quote_plus
-else:
-    from urllib.parse import parse_qs, quote_plus
+from urllib.parse import parse_qs, quote_plus
       
 from tools.pmr.jsonclient.credential import OAuthCredential
 
@@ -157,7 +153,7 @@ class Method(object):
     def errors(self):
         fields = self.fields()
         errors = []
-        for name, field in fields.iteritems():
+        for name, field in fields.items():
             error = field.get('error', '')
             if error:
                 errors.append((name, error))

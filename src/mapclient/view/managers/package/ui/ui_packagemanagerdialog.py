@@ -95,7 +95,7 @@ class Ui_PackageManagerDialog(object):
     # setupUi
 
     def retranslateUi(self, PackageManagerDialog):
-        PackageManagerDialog.setWindowTitle(QCoreApplication.translate("PackageManagerDialog", u"Plugin Manager", None))
+        PackageManagerDialog.setWindowTitle(QCoreApplication.translate("PackageManagerDialog", u"Package Manager", None))
         self.groupBox.setTitle(QCoreApplication.translate("PackageManagerDialog", u"Package Manager", None))
         self.label.setText(QCoreApplication.translate("PackageManagerDialog", u"Package directories:", None))
         self.addButton.setText(QCoreApplication.translate("PackageManagerDialog", u"Add Directory", None))
