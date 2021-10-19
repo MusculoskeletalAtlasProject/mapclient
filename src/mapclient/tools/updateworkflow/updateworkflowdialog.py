@@ -8,6 +8,7 @@ from PySide2.QtCore import QSettings
 from PySide2.QtWidgets import QDialog, QFileDialog, QMessageBox
 
 from mapclient.settings import info
+from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME
 from mapclient.tools.updateworkflow.ui.ui_updateworkflowdialog import Ui_UpdateWorkflowDialog
 
 
@@ -15,6 +16,7 @@ class UpdateWorkflowDialog(QDialog):
     """
     Manages version information for MAP Client workflows.
     """
+
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
 
@@ -27,11 +29,9 @@ class UpdateWorkflowDialog(QDialog):
 
         self._make_connections()
 
-
     def _make_connections(self):
         self._ui.pushButtonUpdate.clicked.connect(self._update_clicked)
         self._ui.pushButtonStepChooser.clicked.connect(self._choose_workflow_clicked)
-
 
     def _update_clicked(self):
         """
@@ -43,7 +43,7 @@ class UpdateWorkflowDialog(QDialog):
         # Is there a better approach than nested if blocks (if less than version 16, check if less than version 15, etc)?
         elif self._selected_workflow_version[1] < 16:
             current_workflow_conf_location = os.path.join(self._previous_location, ".workflow.conf")
-            new_workflow_conf_location = os.path.join(self._previous_location, "workflow.conf")
+            new_workflow_conf_location = os.path.join(self._previous_location, DEFAULT_WORKFLOW_PROJECT_FILENAME)
             os.rename(current_workflow_conf_location, new_workflow_conf_location)
 
             workflow_conf = QSettings(new_workflow_conf_location, QSettings.IniFormat)
@@ -54,7 +54,6 @@ class UpdateWorkflowDialog(QDialog):
         else:
             QMessageBox.information(self, 'Update', 'The selected workflow is already up to date\t')
 
-
     def _choose_workflow_clicked(self):
         """
         Select the workflow directory given by the user.
@@ -64,30 +63,30 @@ class UpdateWorkflowDialog(QDialog):
         if location:
             self._previous_location = location
 
-            self._selected_workflow_version = self._get_workflow_version(location)
+            self._selected_workflow_version = _get_workflow_version(location)
             if self._selected_workflow_version is not None:
                 self._ui.lineEditStepLocation.setText(location)
             else:
                 QMessageBox.warning(self, 'Update',
-                                          'Target directory is not recognized as a MAP Client workflow directory')
+                                    'Target directory is not recognized as a MAP Client workflow directory')
 
 
-    def _get_workflow_version(self, location):
-        """
-        Attempt to read a workflow version from the given directory. If a version identifier is found return the
-        version, otherwise return None.
-        """
-        if (os.path.isfile(os.path.join(location, ".workflow.conf"))):
-            target_file = os.path.join(location, ".workflow.conf")
-        elif (os.path.isfile(os.path.join(location, "workflow.conf"))):
-            target_file = os.path.join(location, "workflow.conf")
-        else:
-            return None
+def _get_workflow_version(location):
+    """
+    Attempt to read a workflow version from the given directory. If a version identifier is found return the
+    version, otherwise return None.
+    """
+    if os.path.isfile(os.path.join(location, ".workflow.conf")):
+        target_file = os.path.join(location, ".workflow.conf")
+    elif os.path.isfile(os.path.join(location, DEFAULT_WORKFLOW_PROJECT_FILENAME)):
+        target_file = os.path.join(location, DEFAULT_WORKFLOW_PROJECT_FILENAME)
+    else:
+        return None
 
-        workflow_conf = QSettings(target_file, QSettings.IniFormat)
-        workflow_version = version_tuple(workflow_conf.value('version'))
+    workflow_conf = QSettings(target_file, QSettings.IniFormat)
+    workflow_version = version_tuple(workflow_conf.value('version'))
 
-        return workflow_version
+    return workflow_version
 
 
 def version_tuple(version):

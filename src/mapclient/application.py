@@ -31,6 +31,7 @@ from logging import handlers
 
 from mapclient.core.utils import is_frozen, find_file
 from mapclient.settings.definitions import INTERNAL_WORKFLOW_ZIP, INTERNAL_WORKFLOW_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG
+from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME
 
 os.environ['ETS_TOOLKIT'] = 'qt'
 # With PEP366 we need to conditionally import the settings module based on
@@ -153,6 +154,7 @@ def prepare_internal_workflow(app_args, om):
     else:
         file_dir = os.path.dirname(os.path.abspath(__file__))
         internal_workflow_zip = os.path.realpath(os.path.join(file_dir, '..', INTERNAL_WORKFLOW_ZIP))
+        internal_workflow_zip = ''
 
     if os.path.isfile(internal_workflow_zip):
         # We have an internal workflow set the option as active.
@@ -169,7 +171,7 @@ def prepare_internal_workflow(app_args, om):
         om.setOption(INTERNAL_WORKFLOW_DIR, internal_workflow_dir)
 
         # Test if a workflow is present.
-        workflow_file = find_file('workflow.conf', internal_workflow_dir)
+        workflow_file = find_file(DEFAULT_WORKFLOW_PROJECT_FILENAME, internal_workflow_dir)
         if workflow_file is None:
             # No workflow exists in the workflow directory so we will
             # unzip the stored workflow(s) into this location.
@@ -178,7 +180,7 @@ def prepare_internal_workflow(app_args, om):
             archive.extractall(f"{internal_workflow_dir}")
 
         # Should definitely have a workflow now.
-        workflow_file = find_file('workflow.conf', internal_workflow_dir)
+        workflow_file = find_file(DEFAULT_WORKFLOW_PROJECT_FILENAME, internal_workflow_dir)
         default_workflow_directory = os.path.dirname(workflow_file)
 
         # Set workflow to internal workflow if None is currently present.
