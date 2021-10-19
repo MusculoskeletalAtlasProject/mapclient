@@ -17,7 +17,7 @@ class Ui_UpdateWorkflowDialog(object):
     def setupUi(self, UpdateWorkflowDialog):
         if not UpdateWorkflowDialog.objectName():
             UpdateWorkflowDialog.setObjectName(u"UpdateWorkflowDialog")
-        UpdateWorkflowDialog.resize(491, 136)
+        UpdateWorkflowDialog.resize(491, 153)
         self.verticalLayout = QVBoxLayout(UpdateWorkflowDialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.groupBox = QGroupBox(UpdateWorkflowDialog)
@@ -63,6 +63,11 @@ class Ui_UpdateWorkflowDialog(object):
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer)
 
+        self.pushButtonClose = QPushButton(UpdateWorkflowDialog)
+        self.pushButtonClose.setObjectName(u"pushButtonClose")
+
+        self.horizontalLayout_2.addWidget(self.pushButtonClose)
+
         self.pushButtonCancel = QPushButton(UpdateWorkflowDialog)
         self.pushButtonCancel.setObjectName(u"pushButtonCancel")
 
@@ -77,6 +82,7 @@ class Ui_UpdateWorkflowDialog(object):
 
         self.retranslateUi(UpdateWorkflowDialog)
         self.pushButtonCancel.clicked.connect(UpdateWorkflowDialog.reject)
+        self.pushButtonClose.clicked.connect(UpdateWorkflowDialog.reject)
 
         QMetaObject.connectSlotsByName(UpdateWorkflowDialog)
     # setupUi
@@ -85,8 +91,12 @@ class Ui_UpdateWorkflowDialog(object):
         UpdateWorkflowDialog.setWindowTitle(QCoreApplication.translate("UpdateWorkflowDialog", u"Update Workflow Tool", None))
         self.groupBox.setTitle("")
         self.label_4.setText(QCoreApplication.translate("UpdateWorkflowDialog", u"Workflow to update (location on disk):", None))
+#if QT_CONFIG(tooltip)
+        self.pushButtonStepChooser.setToolTip(QCoreApplication.translate("UpdateWorkflowDialog", u"Choose workflow directory to update", None))
+#endif // QT_CONFIG(tooltip)
         self.pushButtonStepChooser.setText(QCoreApplication.translate("UpdateWorkflowDialog", u"...", None))
         self.pushButtonUpdate.setText(QCoreApplication.translate("UpdateWorkflowDialog", u"Update", None))
+        self.pushButtonClose.setText(QCoreApplication.translate("UpdateWorkflowDialog", u"Close", None))
         self.pushButtonCancel.setText(QCoreApplication.translate("UpdateWorkflowDialog", u"Cancel", None))
     # retranslateUi
 
