@@ -24,10 +24,12 @@ import ctypes
 import argparse
 
 import locale
+import psutil
 
 import logging
 import zipfile
 from logging import handlers
+from itertools import count, filterfalse
 
 from mapclient.core.utils import is_frozen, find_file
 from mapclient.settings.definitions import INTERNAL_WORKFLOW_ZIP, INTERNAL_WORKFLOW_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG
@@ -94,6 +96,29 @@ def windows_main(app_args):
     info.set_applications_settings(app)
 
     log_path = get_log_location()
+
+    for proc in psutil.process_iter():
+        try:
+            if proc.name() == 'python.exe':
+                file_list = proc.open_files()
+
+                for file in file_list:
+                    norm_path = os.path.normpath(log_path)
+                    if file.path == norm_path:
+                        log_directory = norm_path[: norm_path.rindex('\\') + 1]
+
+                        suffix_list = []
+                        for file_name in os.listdir(log_directory):
+                            if file_name.startswith("alt_logging_record"):
+                                suffix_list.append(file_name[file_name.rindex('_')])
+
+                        suffix = next(filterfalse(set(suffix_list).__contains__, count(1)))
+                        log_path = os.path.join(log_directory, "alt_logging_record" + str(suffix))
+                        break
+
+        except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
+            pass
+
     initialise_logger(log_path)
     program_header()
 
