@@ -53,7 +53,7 @@ def get_virtualenv_directory():
 
 
 def get_default_internal_workflow_dir():
-    return os.path.join(tempfile.gettempdir(), INTERNAL_WORKFLOWS_DIR)
+    return _get_app_directory(INTERNAL_WORKFLOWS_DIR)
 
 
 def get_virtualenv_site_packages_directory(virtualenv_dir):

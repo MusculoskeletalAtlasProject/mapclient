@@ -55,8 +55,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._create_redo_action(self._menu_Edit)
 
         self._model.readSettings()
-        self.resize(self._model.size())
-        self.move(self._model.pos())
 
         self._workflowWidget = WorkflowWidget(self)
         self._ui.stackedWidget.addWidget(self._workflowWidget)
@@ -64,6 +62,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._model.workflowManager().scene().setMainWindow(self)
         self._pluginManagerDlg = None
+
+    def showEvent(self, event):
+        self.resize(self._model.size())
+        self.move(self._model.pos())
 
     def _setup_menus(self):
         """
@@ -340,7 +342,6 @@ class MainWindow(QtWidgets.QMainWindow):
             if pm.is_modified():
                 pm.load()
                 self._maybe_restart_application(asker='packages')
-
 
     def _show_plugin_manager_dialog(self):
         from mapclient.view.managers.plugins.pluginmanagerdialog import PluginManagerDialog

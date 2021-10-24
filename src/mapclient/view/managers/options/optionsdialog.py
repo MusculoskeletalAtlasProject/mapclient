@@ -12,10 +12,10 @@ from mapclient.view.managers.options.ui.ui_optionsdialog import Ui_OptionsDialog
 from mapclient.core.checks import WizardToolChecks, VCSChecks
 from mapclient.view.syntaxhighlighter import SyntaxHighlighter
 from mapclient.settings.definitions import VIRTUAL_ENVIRONMENT_STRING, \
-    WIZARD_TOOL_STRING, PMR_TOOL_STRING, INTERNAL_WORKFLOW_AVAILABLE
+    WIZARD_TOOL_STRING, PMR_TOOL_STRING, INTERNAL_WORKFLOWS_AVAILABLE
 
 
-class  OptionsDialog(QtWidgets.QDialog):
+class OptionsDialog(QtWidgets.QDialog):
     """
     Options dialog for setting global options
     """
@@ -55,12 +55,12 @@ class  OptionsDialog(QtWidgets.QDialog):
         self._ui.pushButtonPySideRCC.setEnabled(self._ui.checkBoxUseExternalPySideRCC.isChecked())
         self._ui.lineEditPySideUIC.setEnabled(self._ui.checkBoxUseExternalPySideUIC.isChecked())
         self._ui.pushButtonPySideUIC.setEnabled(self._ui.checkBoxUseExternalPySideUIC.isChecked())
-        if INTERNAL_WORKFLOW_AVAILABLE in self._original_options:
-            self._ui.groupBoxInternalWorkflowDirectory.setVisible(self._original_options[INTERNAL_WORKFLOW_AVAILABLE])
+        if INTERNAL_WORKFLOWS_AVAILABLE in self._original_options:
+            self._ui.groupBoxInternalWorkflowDirectory.setVisible(self._original_options[INTERNAL_WORKFLOWS_AVAILABLE])
 
     def _internal_workflow_directory_button_clicked(self):
         directory = QtWidgets.QFileDialog.getExistingDirectory(self, caption='Select internal workflow directory',
-                                                                    dir=self._location)
+                                                               dir=self._location)
         if directory:
             self._ui.lineEditInternalWorkflowDirectory.setText(directory)
             self._location = directory
@@ -183,5 +183,3 @@ class  OptionsDialog(QtWidgets.QDialog):
 
     def isModified(self):
         return not self._original_options == self.save()
-
-

@@ -99,7 +99,6 @@ class WorkflowManager(object):
         self._scene.updateWorkflowLocation(location)
 
     def setLocation(self, location):
-        print('setLocation', location)
         self._location = location
 
     def location(self):
@@ -198,6 +197,9 @@ class WorkflowManager(object):
 
         if not os.path.exists(location):
             raise WorkflowError('Location %s does not exist' % location)
+
+        if os.path.isfile(location):
+            location = os.path.dirname(location)
 
         wf = _getWorkflowConfiguration(location)
         if not wf.contains('version'):

@@ -30,7 +30,7 @@ import zipfile
 from logging import handlers
 
 from mapclient.core.utils import is_frozen, find_file
-from mapclient.settings.definitions import INTERNAL_WORKFLOW_ZIP, INTERNAL_WORKFLOW_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG
+from mapclient.settings.definitions import INTERNAL_WORKFLOWS_ZIP, INTERNAL_WORKFLOWS_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG
 from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME
 
 os.environ['ETS_TOOLKIT'] = 'qt'
@@ -89,9 +89,13 @@ def windows_main(app_args):
     locale.setlocale(locale.LC_ALL, '')
 
     from PySide2 import QtWidgets
+    from mapclient.splashscreen import SplashScreen
+
     app = QtWidgets.QApplication(sys.argv)
 
-    # Set the default organisation name and application name used to store application settings
+    splash = SplashScreen()
+    splash.show()
+    splash.showMessage("Loading settings ...", 5)
     info.set_applications_settings(app)
 
     log_path = get_log_location()
@@ -100,6 +104,7 @@ def windows_main(app_args):
 
     logger.info('Setting toolbox settings for matplotlib and enthought to: qt')
 
+    splash.showMessage('Loading opencmiss.zinc ...', 10)
     try:
         from opencmiss.zinc.context import Context
         Context("MAP")
@@ -107,6 +112,7 @@ def windows_main(app_args):
     except ImportError:
         logger.warning(' *** OpenCMISS-Zinc is not available ***')
 
+    splash.showMessage('Loading opencmiss.iron ...', 15)
     try:
         from opencmiss.iron import iron
         # import opencmiss.utils.iron
@@ -114,51 +120,61 @@ def windows_main(app_args):
     except ImportError:
         logger.warning(' *** OpenCMISS-Iron is not available ***')
 
+    splash.showMessage('Creating application ...', 20)
     from mapclient.core.mainapplication import MainApplication
     model = MainApplication()
 
+    splash.showMessage('Creating main window ...', 30)
     from mapclient.view.mainwindow import MainWindow
     window = MainWindow(model)
-    window.show()
 
     # Run Checks
     if not window.check_application_setup():
         window.setup_application()
 
+        splash.showMessage('Check application setup ...', 40)
         if not window.check_application_setup():
             window.show_options_dialog(current_tab=1)
 
+    splash.showMessage('Loading packages ...', 50)
     window.load_packages()
+    splash.showMessage('Loading plugins ...', 60)
     window.load_plugins()
 
+    splash.showMessage('Loading internal workflow ...', 70)
     om = model.optionsManager()
     prepare_internal_workflow(app_args, om)
 
     if app_args.workflow:
+        splash.showMessage('Opening workflow ...', 80)
         window.open_workflow(app_args.workflow)
 
     if app_args.execute:
+        splash.showMessage('Executing workflow ...', 90)
         wm = model.workflowManager()
         if wm.canExecute():
             window.execute()
         else:
             logger.error('Could not execute workflow.')
 
+    window.show()
+    splash.showMessage('Ready ...', 100)
+    splash.finish(window)
     return app.exec_()
 
 
 def prepare_internal_workflow(app_args, om):
     # Determine if we have an internal workflow.
     if is_frozen():
-        internal_workflow_zip = os.path.join(sys._MEIPASS, INTERNAL_WORKFLOW_ZIP)
+        internal_workflow_zip = os.path.join(sys._MEIPASS, INTERNAL_WORKFLOWS_ZIP)
     else:
         file_dir = os.path.dirname(os.path.abspath(__file__))
-        internal_workflow_zip = os.path.realpath(os.path.join(file_dir, '..', INTERNAL_WORKFLOW_ZIP))
-        internal_workflow_zip = ''
+        internal_workflow_zip = os.path.realpath(os.path.join(file_dir, '..', INTERNAL_WORKFLOWS_ZIP))
+        # internal_workflow_zip = ''
 
     if os.path.isfile(internal_workflow_zip):
         # We have an internal workflow set the option as active.
-        om.setOption(INTERNAL_WORKFLOW_AVAILABLE, True)
+        om.setOption(INTERNAL_WORKFLOWS_AVAILABLE, True)
 
         # Work out internal workflow directory and create if it doesn't exist.
         internal_workflow_dir = om.getOption(INTERNAL_WORKFLOW_DIR)
@@ -188,7 +204,7 @@ def prepare_internal_workflow(app_args, om):
             app_args.workflow = default_workflow_directory
             logger.info("Loading internal default workflow.")
     else:
-        om.setOption(INTERNAL_WORKFLOW_AVAILABLE, False)
+        om.setOption(INTERNAL_WORKFLOWS_AVAILABLE, False)
 
 
 class ConsumeOutput(object):
