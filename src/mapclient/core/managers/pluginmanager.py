@@ -7,17 +7,17 @@ import io
 import json
 import os
 import sys
-import imp
 import logging
 import subprocess
+import pkg_resources
 import pkgutil
 import traceback
 import shutil
 import types
 import importlib
+
 from contextlib import redirect_stdout
 
-import pkg_resources
 
 from mapclient.core.utils import which, FileTypeObject, grep, is_frozen, determineStepName, determineStepClassName
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
@@ -25,8 +25,6 @@ from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
 from mapclient.core.checks import getPipExecutable, getActivateScript
 
 from setuptools import sandbox
-from setuptools import monkey, dist
-import distutils.dist
 
 from importlib import import_module
 
@@ -34,25 +32,6 @@ from mapclient.settings.general import get_virtualenv_site_packages_directory
 
 logger = logging.getLogger(__name__)
 
-
-# Monkey patch distutils
-def get_install_requires(self):
-    return self.install_requires or []
-
-
-def set_install_requires(self, value):
-    self.install_requires = list(value)
-
-
-_DistMeta = monkey.get_unpatched(distutils.dist.DistributionMetadata)
-_DistMeta.get_install_requires = get_install_requires
-_DistMeta.set_install_requires = set_install_requires
-
-dist.Distribution.display_options.append(
-    ('install-requires', None,
-     "print the list of packages/modules required when installing"),
-)
-# End of monkey patching
 
 def getVirtualEnvCandidates():
     """Return a list of strings which contains possible names
@@ -81,6 +60,12 @@ class PluginManager(object):
         self._unsuccessful_package_installations = {}
         self._resourceFiles = ['resources_rc']
         self._updaterSettings = {'syntax': True, 'indentation': True, 'location': True, 'resources': True}
+        self._import_errors = []
+        self._type_errors = []
+        self._syntax_errors = []
+        self._tab_errors = []
+        self._plugin_error_directories = {}
+        self._plugin_error_names = []
 
     def setVirtualEnvEnabled(self, state=True):
         self._virtualenv_enabled = state
@@ -229,7 +214,7 @@ class PluginManager(object):
 
         subprocess.Popen([python_executable, "-m", "pip", "install", str(uri)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
 
-        imp.reload(pkg_resources)
+        importlib.reload(pkg_resources)
 
     def extractPluginDependencies(self, path):
         setup_dir, step_dir = os.path.split(path)
@@ -238,12 +223,14 @@ class PluginManager(object):
             current_dir = os.getcwd()
             os.chdir(setup_dir)
             try:
-                f = io.StringIO()
-                with redirect_stdout(f):
-                    sandbox.run_setup('setup.py', ['--install-requires'])
-                dependencies_str = f.getvalue().rstrip()
-                if "'" in dependencies_str:
-                    dependencies_str = dependencies_str.replace("'", '"')
+                # Skip this for now and move to using packagemeta package instead.
+                dependencies_str = '[]'
+                # f = io.StringIO()
+                # with redirect_stdout(f):
+                #     sandbox.run_setup('setup.py', ['--install-requires'])
+                # dependencies_str = f.getvalue().rstrip()
+                # if "'" in dependencies_str:
+                #     dependencies_str = dependencies_str.replace("'", '"')
 
                 dependencies = json.loads(dependencies_str)
             finally:
@@ -285,6 +272,10 @@ class PluginManager(object):
         self._tab_errors = []
         self._plugin_error_directories = {}
         self._plugin_error_names = []
+
+        # a(pkg_resources.working_set)
+        # installed = [pkg.key for pkg in pkg_resources.working_set]
+        # print(installed)
 
         for module_finder, modname, ispkg in pkgutil.iter_modules(package.__path__):
             if ispkg:
@@ -334,6 +325,10 @@ class PluginManager(object):
                     redirect_output = FileTypeObject()
                     traceback.print_exception(exc_type, exc_value, exc_traceback, file=redirect_output)
                     logger.warning(''.join(redirect_output.messages))
+
+        # installed = [pkg.key for pkg in pkg_resources.working_set]
+        # print(installed)
+
 
     def get_plugin_error_names(self):
         return self._plugin_error_names

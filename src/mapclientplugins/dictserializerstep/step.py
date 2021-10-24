@@ -71,7 +71,7 @@ class DictSerializerStep(WorkflowStepMountPoint):
         then set:
             self._configured = True
         """
-        dlg = ConfigureDialog(QtWidgets.QApplication.activeWindow().current_widget())
+        dlg = ConfigureDialog(self._main_window)
         dlg.identifierOccursCount = self._identifierOccursCount
         dlg.setConfig(self._config)
         dlg.validate()
