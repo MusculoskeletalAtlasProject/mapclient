@@ -84,8 +84,8 @@ class SearchWidget(QtWidgets.QWidget):
                 item.setData(QtCore.Qt.UserRole, r)
         except PMRToolError as e:
             message = convertExceptionToMessage(e)
-            logger.warn('PMR Tool exception raised')
-            logger.warn('Reason: {0}'.format(message))
+            logger.warning('PMR Tool exception raised')
+            logger.warning('Reason: {0}'.format(message))
 
     def getSelectedWorkspace(self):
         items = self._ui.searchResultsListWidget.selectedItems()
