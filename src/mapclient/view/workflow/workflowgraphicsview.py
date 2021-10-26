@@ -204,6 +204,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             position = self.mapToScene(event.pos() - hot_spot)
             step = workflowStepFactory(name, self._location)
             step.setMainWindow(self._main_window)
+            step.setLocation(self._location)
             meta_step = MetaStep(step)
             node = Node(meta_step)
             node.showStepName(self._showStepNames)

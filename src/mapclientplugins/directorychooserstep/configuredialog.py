@@ -44,7 +44,18 @@ class ConfigureDialog(QtWidgets.QDialog):
 
         if location:
             self._previousLocation = location
-            self._ui.lineEditDirectoryLocation.setText(os.path.relpath(location, self._workflow_location))
+            display_location = self._output_location(location)
+            self._ui.lineEditDirectoryLocation.setText(display_location)
+
+    def _output_location(self, location=None):
+        if location is None:
+            display_path = self._ui.lineEditDirectoryLocation.text()
+        else:
+            display_path = location
+        if self._workflow_location and os.path.isabs(display_path):
+            display_path = os.path.relpath(display_path, self._workflow_location)
+
+        return display_path
 
     def setWorkflowLocation(self, location):
         self._workflow_location = location
@@ -78,7 +89,10 @@ class ConfigureDialog(QtWidgets.QDialog):
         else:
             self._ui.lineEdit0.setStyleSheet(INVALID_STYLE_SHEET)
 
-        directory_valid = os.path.isdir(os.path.join(self._workflow_location, self._ui.lineEditDirectoryLocation.text()))
+        dir_path = self._output_location()
+        if self._workflow_location:
+            dir_path = os.path.join(self._workflow_location, dir_path)
+        directory_valid = os.path.isdir(dir_path)
 
         return valid and directory_valid
 
@@ -89,10 +103,7 @@ class ConfigureDialog(QtWidgets.QDialog):
         identifier over the whole of the workflow.
         """
         self._previousIdentifier = self._ui.lineEdit0.text()
-        config = {}
-        config['identifier'] = self._ui.lineEdit0.text()
-        config['Directory'] = self._ui.lineEditDirectoryLocation.text()
-        return config
+        return {'identifier': self._ui.lineEdit0.text(), 'Directory': self._output_location()}
 
     def setConfig(self, config):
         """

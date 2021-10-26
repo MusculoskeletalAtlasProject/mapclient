@@ -38,7 +38,6 @@ class FileChooserStep(WorkflowStepMountPoint):
         Make sure you call the _doneExecution() method when finished.  This method
         may be connected up to a button in a widget for example.
         """
-        # Put your execute step code here before calling the '_doneExecution' method.
         self._doneExecution()
 
     def getPortData(self, index):

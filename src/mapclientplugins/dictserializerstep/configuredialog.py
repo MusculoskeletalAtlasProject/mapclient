@@ -26,7 +26,8 @@ class ConfigureDialog(QtWidgets.QDialog):
         # Set a place holder for a callable that will get set from the step.
         # We will use this method to decide whether the identifier is unique.
         self.identifierOccursCount = None
-        self._previousLocation = ''
+        self._previous_location = ''
+        self._workflow_location = None
 
         self._make_connections()
 
@@ -37,11 +38,23 @@ class ConfigureDialog(QtWidgets.QDialog):
         self._ui.pushButtonOutputLocation.clicked.connect(self._output_location_button_clicked)
 
     def _output_location_button_clicked(self):
-        location, _ = QtWidgets.QFileDialog.getSaveFileName(self, caption='Choose Output File', dir=self._previousLocation)
+        location, _ = QtWidgets.QFileDialog.getSaveFileName(self, caption='Choose Output File', dir=self._previous_location)
         if location:
-            self._previousLocation = os.path.dirname(location)
-            self._ui.lineEditOutputLocation.setText(location)
-    
+            self._previous_location = os.path.dirname(location)
+
+            display_location = self._output_location(location)
+            self._ui.lineEditOutputLocation.setText(display_location)
+
+    def _output_location(self, location=None):
+        if location is None:
+            display_path = self._ui.lineEditOutputLocation.text()
+        else:
+            display_path = location
+        if self._workflow_location and os.path.isabs(display_path):
+            display_path = os.path.relpath(display_path, self._workflow_location)
+
+        return display_path
+
     def accept(self):
         """
         Override the accept method so that we can confirm saving an
@@ -59,6 +72,9 @@ class ConfigureDialog(QtWidgets.QDialog):
         if result == QtWidgets.QMessageBox.Yes:
             QtWidgets.QDialog.accept(self)
 
+    def set_workflow_location(self, location):
+        self._workflow_location = location
+
     def validate(self):
         """
         Validate the configuration dialog fields.  For any field that is not valid
@@ -71,7 +87,9 @@ class ConfigureDialog(QtWidgets.QDialog):
         sender = self.sender()
         output_directory_valid = False
         output_location_valid = False
-        output_location = self._ui.lineEditOutputLocation.text()
+        output_location = self._output_location()
+        if self._workflow_location:
+            output_location = os.path.join(self._workflow_location, output_location)
         
         output_directory = os.path.dirname(output_location)
         output_file = os.path.basename(output_location)
@@ -101,7 +119,7 @@ class ConfigureDialog(QtWidgets.QDialog):
         identifier over the whole of the workflow.
         """
         self._previousIdentifier = self._ui.lineEditIdentifier.text()
-        config = {'identifier': self._ui.lineEditIdentifier.text(), 'output': self._ui.lineEditOutputLocation.text(),
+        config = {'identifier': self._ui.lineEditIdentifier.text(), 'output': self._output_location(),
                   'default': self._ui.checkBoxDefaultLocation.isChecked()}
         return config
 

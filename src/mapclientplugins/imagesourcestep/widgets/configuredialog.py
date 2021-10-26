@@ -129,10 +129,22 @@ class ConfigureDialog(QDialog):
 
         if location:
             self._ui.previousLocationLabel.setText(location)
-            self._ui.localLineEdit.setText(os.path.relpath(location, self._workflow_location))
+
+            display_location = self._output_location(location)
+            self._ui.localLineEdit.setText(display_location)
 
     def _workspaceChanged(self, text):
         pass
+
+    def _output_location(self, location=None):
+        if location is None:
+            display_path = self._ui.localLineEdit.text()
+        else:
+            display_path = location
+        if self._workflow_location and os.path.isabs(display_path):
+            display_path = os.path.relpath(display_path, self._workflow_location)
+
+        return display_path
 
     def setWorkflowLocation(self, location):
         self._workflow_location = location
@@ -145,8 +157,12 @@ class ConfigureDialog(QDialog):
 
     def validate(self):
         identifierValid = len(self._ui.identifierLineEdit.text()) > 0
-        localValid = self._ui.localLineEdit.text() and \
-            os.path.exists(os.path.join(self._workflow_location, self._ui.localLineEdit.text()))
+        non_empty = self._ui.localLineEdit.text()
+        output_path = self._output_location()
+        if self._workflow_location:
+            output_path = os.path.join(self._workflow_location, output_path)
+
+        localValid = non_empty and os.path.exists(output_path)
         valid = identifierValid
 
         self._ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(valid)
@@ -157,5 +173,3 @@ class ConfigureDialog(QDialog):
             self._ui.identifierLineEdit.setStyleSheet(REQUIRED_STYLE_SHEET)
 
         return valid and localValid
-
-

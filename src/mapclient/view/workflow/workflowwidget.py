@@ -274,7 +274,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         workflow_conf = QtWidgets.QFileDialog.getOpenFileName(
             self._mainWindow,
             caption='Open Workflow',
-            dir=m.previousLocation(),
+            dir=os.path.join(m.previousLocation(), DEFAULT_WORKFLOW_PROJECT_FILENAME),
             filter=f"{primary_filter};;Any file (*.*)",
             selectedFilter=primary_filter,
             options=(
@@ -460,7 +460,9 @@ class WorkflowWidget(QtWidgets.QWidget):
     def save(self):
         m = self._mainWindow.model().workflowManager()
         location_set = os.path.exists(m.location())
-        if not location_set:
+        if location_set:
+            self._updateLocation()
+        else:
             location_set = self._setLocation()
         if location_set:
             m.save()
@@ -475,6 +477,12 @@ class WorkflowWidget(QtWidgets.QWidget):
         location_set = self._setLocation()
         if location_set:
             self.save()
+
+    def _updateLocation(self):
+        m = self._mainWindow.model().workflowManager()
+        workflow_dir = m.location()
+        if m.updateLocation(workflow_dir):
+            self._graphicsScene.updateModel()
 
     def _setLocation(self):
         location_set = False
