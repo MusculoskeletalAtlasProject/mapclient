@@ -153,8 +153,8 @@ class PluginUpdater:
                 logger.info('Syntax update for \'' + plugin + '\' successful.')
                 self._successful_plugin_update['syntax_update_success'] = True
             except Exception as e:                            
-                logger.warn('Syntax update for \'' + plugin + '\' unsuccessful.')
-                logger.warn('Reason: ' + e)
+                logger.warning('Syntax update for \'' + plugin + '\' unsuccessful.')
+                logger.warning('Reason: ' + e)
     
     def fixTabbedIndentation(self, plugin, directories, temp_file):
         for moduleDir in directories:
