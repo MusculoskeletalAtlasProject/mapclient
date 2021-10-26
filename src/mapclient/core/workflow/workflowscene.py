@@ -292,11 +292,17 @@ class WorkflowScene(object):
         pass
 
     def updateWorkflowLocation(self, location):
+        update_made = False
         for meta_item in self._items:
             if meta_item.Type == MetaStep.Type:
                 step = meta_item.getStep()
-                step.setLocation(location)
-                step.deserialize(step.serialize())
+                step_location = step.getLocation()
+                if step_location != location:
+                    update_made = True
+                    step.setLocation(location)
+                    step.deserialize(step.serialize())
+
+        return update_made
 
     def saveState(self, ws):
         connectionMap = {}
