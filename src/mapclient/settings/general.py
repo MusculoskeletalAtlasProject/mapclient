@@ -18,6 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import os
+import logging
 import tempfile
 
 from PySide2 import QtCore
@@ -69,9 +70,14 @@ def get_log_location():
     """
     Set up location where log files will be stored (platform dependent).
     """
+    logger = logging.getLogger()
+    if logger.hasHandlers():
+        for i in range(len(logger.handlers)):
+            if isinstance(logger.handlers[i], logging.handlers.RotatingFileHandler):
+                return logger.handlers[i].baseFilename
+
     log_filename = 'logging_record.log'
     log_directory = get_log_directory()
-
     logging_file_location = os.path.join(log_directory, log_filename)
 
     return logging_file_location

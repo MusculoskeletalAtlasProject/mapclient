@@ -109,11 +109,11 @@ def windows_main(app_args):
 
                         suffix_list = []
                         for file_name in os.listdir(log_directory):
-                            if file_name.startswith("alt_logging_record"):
+                            if file_name.startswith("alt_logging_record_"):
                                 suffix_list.append(file_name[file_name.rindex('_')])
 
                         suffix = next(filterfalse(set(suffix_list).__contains__, count(1)))
-                        log_path = os.path.join(log_directory, "alt_logging_record" + str(suffix))
+                        log_path = os.path.join(log_directory, "alt_logging_record_" + str(suffix))
                         break
 
         except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
