@@ -195,7 +195,7 @@ class WorkflowManager(object):
             raise WorkflowError('No location given to open Workflow.')
 
         if not os.path.exists(location):
-            raise WorkflowError('Location %s does not exist' % location)
+            raise WorkflowError('Given location %s does not exist' % location)
 
         if os.path.isfile(location):
             location = os.path.dirname(location)
