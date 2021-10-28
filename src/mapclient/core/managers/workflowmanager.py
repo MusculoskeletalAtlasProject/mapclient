@@ -155,8 +155,8 @@ class WorkflowManager(object):
     def new(self, location):
         """
         Create a new workflow at the given location.  The location is a directory, it must exist
-        it will not be created.  A file '.workflow.conf' is created in the directory at 'location' which holds
-        information relating to the workflow.
+        it will not be created.  A file is created in the directory at 'location' which holds
+        information describing the workflow.
         """
         if location is None:
             raise WorkflowError('No location given to create new Workflow.')
@@ -167,7 +167,6 @@ class WorkflowManager(object):
         self._location = location
         wf = _getWorkflowConfiguration(location)
         wf.setValue('version', info.VERSION_STRING)
-#        self._title = info.APPLICATION_NAME + ' - ' + location
         self._scene.clear()
 
     def exists(self, location):
