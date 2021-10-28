@@ -1,9 +1,8 @@
-
+import os
 
 from PySide2 import QtWidgets
 
 from mapclientplugins.filechooserstep.ui_configuredialog import Ui_ConfigureDialog
-import os
 
 INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
 DEFAULT_STYLE_SHEET = ''
@@ -37,10 +36,18 @@ class ConfigureDialog(QtWidgets.QDialog):
         if location:
             self._previousLocation = location
 
-            if self._workflow_location:
-                self._ui.lineEditFileLocation.setText(os.path.relpath(location, self._workflow_location))
-            else:
-                self._ui.lineEditFileLocation.setText(location)
+            display_location = self._output_location(location)
+            self._ui.lineEditFileLocation.setText(display_location)
+
+    def _output_location(self, location=None):
+        if location is None:
+            display_path = self._ui.lineEditFileLocation.text()
+        else:
+            display_path = location
+        if self._workflow_location and os.path.isabs(display_path):
+            display_path = os.path.relpath(display_path, self._workflow_location)
+
+        return display_path
 
     def setWorkflowLocation(self, location):
         self._workflow_location = location
@@ -78,8 +85,15 @@ class ConfigureDialog(QtWidgets.QDialog):
 
         location_valid = os.path.exists(file_directory) and os.path.isfile(file_path) and non_empty
 
-        self._ui.lineEditFileLocation.setStyleSheet(DEFAULT_STYLE_SHEET if location_valid else INVALID_STYLE_SHEET)
+        non_empty = len(self._ui.lineEditFileLocation.text())
+
+        file_path = self._output_location()
+        if self._workflow_location:
+            file_path = os.path.join(self._workflow_location, file_path)
+        location_valid = non_empty and os.path.isfile(file_path)
+        
         self._ui.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(location_valid)
+        self._ui.lineEditFileLocation.setStyleSheet(DEFAULT_STYLE_SHEET if location_valid else INVALID_STYLE_SHEET)
 
         return location_valid
 
@@ -89,8 +103,9 @@ class ConfigureDialog(QtWidgets.QDialog):
         set the _previousIdentifier value so that we can check uniqueness of the
         identifier over the whole of the workflow.
         """
-        config = {}
-        config['File'] = self._ui.lineEditFileLocation.text()
+        self._previousIdentifier = self._ui.lineEdit0.text()
+        config = {'identifier': self._ui.lineEdit0.text(), 'File': self._output_location()}
+
         if self._previousLocation:
             config['previous_location'] = os.path.relpath(self._previousLocation, self._workflow_location)
         else:

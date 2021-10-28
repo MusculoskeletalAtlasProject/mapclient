@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>491</width>
-    <height>136</height>
+    <height>153</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,6 +40,9 @@
         </item>
         <item>
          <widget class="QPushButton" name="pushButtonStepChooser">
+          <property name="toolTip">
+           <string>Choose workflow directory to update</string>
+          </property>
           <property name="text">
            <string>...</string>
           </property>
@@ -73,6 +76,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButtonClose">
+       <property name="text">
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="pushButtonCancel">
        <property name="text">
         <string>Cancel</string>
@@ -104,6 +114,22 @@
     <hint type="destinationlabel">
      <x>199</x>
      <y>153</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonClose</sender>
+   <signal>clicked()</signal>
+   <receiver>UpdateWorkflowDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>357</x>
+     <y>124</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>245</x>
+     <y>76</y>
     </hint>
    </hints>
   </connection>

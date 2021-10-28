@@ -19,9 +19,15 @@ class ConfigureDialog(QtWidgets.QDialog):
         self._ui = Ui_ConfigureDialog()
         self._ui.setupUi(self)
 
-        self._workflow_location = None
-        
+        # Keep track of the previous identifier so that we can track changes
+        # and know how many occurrences of the current identifier there should
+        # be.
+        self._previousIdentifier = ''
+        # Set a place holder for a callable that will get set from the step.
+        # We will use this method to decide whether the identifier is unique.
+        self.identifierOccursCount = None
         self._previous_location = ''
+        self._workflow_location = None
 
         self._make_connections()
 
@@ -33,13 +39,21 @@ class ConfigureDialog(QtWidgets.QDialog):
     def _output_location_button_clicked(self):
         location, _ = QtWidgets.QFileDialog.getSaveFileName(self, caption='Choose Output File', dir=self._previous_location)
         if location:
-            self._previousLocation = location
+            self._previous_location = os.path.dirname(location)
 
-            if self._workflow_location:
-                self._ui.lineEditOutputLocation.setText(os.path.relpath(location, self._workflow_location))
-            else:
-                self._ui.lineEditOutputLocation.setText(location)
-    
+            display_location = self._output_location(location)
+            self._ui.lineEditOutputLocation.setText(display_location)
+
+    def _output_location(self, location=None):
+        if location is None:
+            display_path = self._ui.lineEditOutputLocation.text()
+        else:
+            display_path = location
+        if self._workflow_location and os.path.isabs(display_path):
+            display_path = os.path.relpath(display_path, self._workflow_location)
+
+        return display_path
+
     def accept(self):
         """
         Override the accept method so that we can confirm saving an
@@ -66,35 +80,37 @@ class ConfigureDialog(QtWidgets.QDialog):
         set the style sheet to the INVALID_STYLE_SHEET.  Return the outcome of the 
         overall validity of the configuration.
         """
-        output_path = self._ui.lineEditOutputLocation.text()
-        output_directory = os.path.dirname(output_path)
-        non_empty = len(output_path)
-
-        if not os.path.isabs(output_path):
-            output_path = os.path.join(self._workflow_location, output_path)
-            output_directory = os.path.join(self._workflow_location, output_directory)
-
-        output_directory_valid = os.path.exists(output_directory) and non_empty
-        default_directory_checked = self._ui.checkBoxDefaultLocation.isChecked()
-
-        if output_directory_valid:
-            self._ui.lineEditOutputLocation.setStyleSheet(DEFAULT_STYLE_SHEET)
+        # Determine if the current identifier is unique throughout the workflow
+        # The identifierOccursCount method is part of the interface to the workflow framework.
+        
+        sender = self.sender()
+        output_directory_valid = False
+        output_location_valid = False
+        output_location = self._output_location()
+        if self._workflow_location:
+            output_location = os.path.join(self._workflow_location, output_location)
+        
+        output_directory = os.path.dirname(output_location)
+        output_file = os.path.basename(output_location)
+        if os.path.isdir(output_directory):
+            output_directory_valid = True
+            
+        if sender == self._ui.lineEditOutputLocation and output_directory_valid:
+            self._ui.checkBoxDefaultLocation.setChecked(False)
+            
+        default_location = self._ui.checkBoxDefaultLocation.isChecked()
+        if output_location and output_file and output_directory_valid:
+            output_location_valid = True
+        
+        value = self.identifierOccursCount(self._ui.lineEditIdentifier.text())
+        valid = (value == 0) or (value == 1 and self._previousIdentifier == self._ui.lineEditIdentifier.text())
+        if valid:
+            self._ui.lineEditIdentifier.setStyleSheet(DEFAULT_STYLE_SHEET)
         else:
             self._ui.lineEditOutputLocation.setStyleSheet(INVALID_STYLE_SHEET)
             self._ui.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(self._ui.checkBoxDefaultLocation.isChecked())
 
         return output_directory_valid or default_directory_checked
-
-    def extended_validate(self):
-        valid = self.validate()
-
-        output_path = self._ui.lineEditOutputLocation.text()
-        output_directory_valid = os.path.exists(os.path.dirname(output_path)) and len(output_path)
-
-        if output_directory_valid:
-            self._ui.checkBoxDefaultLocation.setChecked(False)
-
-        return valid
 
     def getConfig(self):
         """
@@ -102,7 +118,10 @@ class ConfigureDialog(QtWidgets.QDialog):
         set the _previousIdentifier value so that we can check uniqueness of the
         identifier over the whole of the workflow.
         """
-        config = {'output': self._ui.lineEditOutputLocation.text(), 'default': self._ui.checkBoxDefaultLocation.isChecked()}
+        self._previousIdentifier = self._ui.lineEditIdentifier.text()
+        config = {'identifier': self._ui.lineEditIdentifier.text(), 'output': self._output_location(),
+                  'default': self._ui.checkBoxDefaultLocation.isChecked()}
+        
         return config
 
     def setConfig(self, config):

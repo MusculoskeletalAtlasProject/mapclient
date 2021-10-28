@@ -96,10 +96,9 @@ class WorkflowManager(object):
 
     def updateLocation(self, location):
         self._location = location
-        self._scene.updateWorkflowLocation(location)
+        return self._scene.updateWorkflowLocation(location)
 
     def setLocation(self, location):
-        print('setLocation', location)
         self._location = location
 
     def location(self):
@@ -199,6 +198,9 @@ class WorkflowManager(object):
         if not os.path.exists(location):
             raise WorkflowError('Location %s does not exist' % location)
 
+        if os.path.isfile(location):
+            location = os.path.dirname(location)
+
         wf = _getWorkflowConfiguration(location)
         if not wf.contains('version'):
             raise WorkflowError('The given Workflow configuration file is not valid.')
@@ -219,10 +221,10 @@ class WorkflowManager(object):
                 reason = report[name]
                 if reason.startswith('Not Found'):
                     not_found.append(name)
-                    logger.warn('Workflow not loadable due to missing plugin "{0}"'.format(name))
+                    logger.warning('Workflow not loadable due to missing plugin "{0}"'.format(name))
                 elif reason.startswith('Broken'):
                     not_found.append(name)
-                    logger.warn('Workflow not loadable due to broken plugin "{0}"'.format(name))
+                    logger.warning('Workflow not loadable due to broken plugin "{0}"'.format(name))
                 elif reason.startswith('Found'):
                     pass
                 else:
@@ -232,7 +234,7 @@ class WorkflowManager(object):
             if self._scene.isLoadable(wf):
                 self._scene.loadState(wf)
             elif new_packages:
-                logger.warn('Unable to load workflow.  You may need to restart the application.')
+                logger.warning('Unable to load workflow.  You may need to restart the application.')
                 raise WorkflowError('The given Workflow configuration file was not loaded. '
                                     'You may need to restart the application to pick up newly installed Python modules')
             else:

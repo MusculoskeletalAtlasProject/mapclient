@@ -1,124 +1,155 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt/pmrdialog.ui'
-#
-# Created: Tue Mar  3 20:33:42 2015
-#      by: pyside-uic 0.2.15 running on PySide 1.2.2
-#
-# WARNING! All changes made in this file will be lost!
+################################################################################
+## Form generated from reading UI file 'pmrdialog.ui'
+##
+## Created by: Qt User Interface Compiler version 5.15.2
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
 
-from PySide import QtCore, QtGui
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+
+from mapclient.tools.pmr.widgets.searchwidget import SearchWidget
+from mapclient.tools.pmr.widgets.settingswidget import SettingsWidget
+
 
 class Ui_PMRDialog(object):
     def setupUi(self, PMRDialog):
-        PMRDialog.setObjectName("PMRDialog")
+        if not PMRDialog.objectName():
+            PMRDialog.setObjectName(u"PMRDialog")
         PMRDialog.resize(433, 489)
-        self.verticalLayout = QtGui.QVBoxLayout(PMRDialog)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.horizontalLayout = QtGui.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.label = QtGui.QLabel(PMRDialog)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        self.verticalLayout = QVBoxLayout(PMRDialog)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.label = QLabel(PMRDialog)
+        self.label.setObjectName(u"label")
+        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(10)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
         self.label.setSizePolicy(sizePolicy)
-        self.label.setObjectName("label")
+
         self.horizontalLayout.addWidget(self.label)
-        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem)
-        self.loginStackedWidget = QtGui.QStackedWidget(PMRDialog)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.loginStackedWidget.sizePolicy().hasHeightForWidth())
-        self.loginStackedWidget.setSizePolicy(sizePolicy)
-        self.loginStackedWidget.setMaximumSize(QtCore.QSize(16777215, 40))
-        self.loginStackedWidget.setObjectName("loginStackedWidget")
-        self.loginPage = QtGui.QWidget()
-        self.loginPage.setObjectName("loginPage")
-        self.horizontalLayout_2 = QtGui.QHBoxLayout(self.loginPage)
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.registerLabel = QtGui.QLabel(self.loginPage)
-        font = QtGui.QFont()
+
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer)
+
+        self.loginStackedWidget = QStackedWidget(PMRDialog)
+        self.loginStackedWidget.setObjectName(u"loginStackedWidget")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.loginStackedWidget.sizePolicy().hasHeightForWidth())
+        self.loginStackedWidget.setSizePolicy(sizePolicy1)
+        self.loginStackedWidget.setMaximumSize(QSize(16777215, 40))
+        self.loginPage = QWidget()
+        self.loginPage.setObjectName(u"loginPage")
+        self.horizontalLayout_2 = QHBoxLayout(self.loginPage)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.registerLabel = QLabel(self.loginPage)
+        self.registerLabel.setObjectName(u"registerLabel")
+        font = QFont()
         font.setPointSize(7)
         self.registerLabel.setFont(font)
-        self.registerLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.registerLabel.setObjectName("registerLabel")
+        self.registerLabel.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+
         self.horizontalLayout_2.addWidget(self.registerLabel)
+
         self.loginStackedWidget.addWidget(self.loginPage)
-        self.logoutPage = QtGui.QWidget()
-        self.logoutPage.setObjectName("logoutPage")
-        self.horizontalLayout_3 = QtGui.QHBoxLayout(self.logoutPage)
-        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.deregisterLabel = QtGui.QLabel(self.logoutPage)
-        font = QtGui.QFont()
-        font.setPointSize(7)
+        self.logoutPage = QWidget()
+        self.logoutPage.setObjectName(u"logoutPage")
+        self.horizontalLayout_3 = QHBoxLayout(self.logoutPage)
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.deregisterLabel = QLabel(self.logoutPage)
+        self.deregisterLabel.setObjectName(u"deregisterLabel")
         self.deregisterLabel.setFont(font)
-        self.deregisterLabel.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
-        self.deregisterLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.deregisterLabel.setObjectName("deregisterLabel")
+        self.deregisterLabel.setContextMenuPolicy(Qt.DefaultContextMenu)
+        self.deregisterLabel.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+
         self.horizontalLayout_3.addWidget(self.deregisterLabel)
+
         self.loginStackedWidget.addWidget(self.logoutPage)
-        self.inactivePage = QtGui.QWidget()
-        self.inactivePage.setObjectName("inactivePage")
-        self.horizontalLayout_6 = QtGui.QHBoxLayout(self.inactivePage)
-        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
-        self.inactiveLabel = QtGui.QLabel(self.inactivePage)
-        font = QtGui.QFont()
-        font.setPointSize(7)
+        self.inactivePage = QWidget()
+        self.inactivePage.setObjectName(u"inactivePage")
+        self.horizontalLayout_6 = QHBoxLayout(self.inactivePage)
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.inactiveLabel = QLabel(self.inactivePage)
+        self.inactiveLabel.setObjectName(u"inactiveLabel")
         self.inactiveLabel.setFont(font)
-        self.inactiveLabel.setObjectName("inactiveLabel")
+
         self.horizontalLayout_6.addWidget(self.inactiveLabel)
+
         self.loginStackedWidget.addWidget(self.inactivePage)
+
         self.horizontalLayout.addWidget(self.loginStackedWidget)
+
+
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.tabWidget = QtGui.QTabWidget(PMRDialog)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
-        self.tabWidget.setSizePolicy(sizePolicy)
-        self.tabWidget.setObjectName("tabWidget")
-        self.searchTab = QtGui.QWidget()
-        self.searchTab.setObjectName("searchTab")
-        self.horizontalLayout_4 = QtGui.QHBoxLayout(self.searchTab)
-        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+
+        self.tabWidget = QTabWidget(PMRDialog)
+        self.tabWidget.setObjectName(u"tabWidget")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(1)
+        sizePolicy2.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
+        self.tabWidget.setSizePolicy(sizePolicy2)
+        self.searchTab = QWidget()
+        self.searchTab.setObjectName(u"searchTab")
+        self.horizontalLayout_4 = QHBoxLayout(self.searchTab)
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
         self.searchWidget = SearchWidget(self.searchTab)
-        self.searchWidget.setObjectName("searchWidget")
+        self.searchWidget.setObjectName(u"searchWidget")
+
         self.horizontalLayout_4.addWidget(self.searchWidget)
+
         self.tabWidget.addTab(self.searchTab, "")
-        self.settingsTab = QtGui.QWidget()
-        self.settingsTab.setObjectName("settingsTab")
-        self.horizontalLayout_5 = QtGui.QHBoxLayout(self.settingsTab)
-        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        self.settingsTab = QWidget()
+        self.settingsTab.setObjectName(u"settingsTab")
+        self.horizontalLayout_5 = QHBoxLayout(self.settingsTab)
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.settingsWidget = SettingsWidget(self.settingsTab)
-        self.settingsWidget.setObjectName("settingsWidget")
+        self.settingsWidget.setObjectName(u"settingsWidget")
+
         self.horizontalLayout_5.addWidget(self.settingsWidget)
+
         self.tabWidget.addTab(self.settingsTab, "")
+
         self.verticalLayout.addWidget(self.tabWidget)
-        self.buttonBox = QtGui.QDialogButtonBox(PMRDialog)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
-        self.buttonBox.setObjectName("buttonBox")
+
+        self.buttonBox = QDialogButtonBox(PMRDialog)
+        self.buttonBox.setObjectName(u"buttonBox")
+        self.buttonBox.setOrientation(Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+
         self.verticalLayout.addWidget(self.buttonBox)
 
+
         self.retranslateUi(PMRDialog)
+        self.buttonBox.accepted.connect(PMRDialog.accept)
+        self.buttonBox.rejected.connect(PMRDialog.reject)
+
         self.loginStackedWidget.setCurrentIndex(2)
         self.tabWidget.setCurrentIndex(0)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), PMRDialog.accept)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("rejected()"), PMRDialog.reject)
-        QtCore.QMetaObject.connectSlotsByName(PMRDialog)
+
+
+        QMetaObject.connectSlotsByName(PMRDialog)
+    # setupUi
 
     def retranslateUi(self, PMRDialog):
-        PMRDialog.setWindowTitle(QtGui.QApplication.translate("PMRDialog", "PMR", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("PMRDialog", "Physiome Model Repository", None, QtGui.QApplication.UnicodeUTF8))
-        self.registerLabel.setText(QtGui.QApplication.translate("PMRDialog", "<a href=\"mapclient.register\">register</a>", None, QtGui.QApplication.UnicodeUTF8))
-        self.deregisterLabel.setText(QtGui.QApplication.translate("PMRDialog", "<a href=\"http://mapclient.logout\">deregister</a>", None, QtGui.QApplication.UnicodeUTF8))
-        self.inactiveLabel.setToolTip(QtGui.QApplication.translate("PMRDialog", "No Physiome Model Repository currently set as active", None, QtGui.QApplication.UnicodeUTF8))
-        self.inactiveLabel.setText(QtGui.QApplication.translate("PMRDialog", "inactive", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.searchTab), QtGui.QApplication.translate("PMRDialog", "Search", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.settingsTab), QtGui.QApplication.translate("PMRDialog", "Settings", None, QtGui.QApplication.UnicodeUTF8))
+        PMRDialog.setWindowTitle(QCoreApplication.translate("PMRDialog", u"PMR", None))
+        self.label.setText(QCoreApplication.translate("PMRDialog", u"Physiome Model Repository", None))
+        self.registerLabel.setText(QCoreApplication.translate("PMRDialog", u"<a href=\"mapclient.register\">register</a>", None))
+        self.deregisterLabel.setText(QCoreApplication.translate("PMRDialog", u"<a href=\"http://mapclient.logout\">deregister</a>", None))
+#if QT_CONFIG(tooltip)
+        self.inactiveLabel.setToolTip(QCoreApplication.translate("PMRDialog", u"No Physiome Model Repository currently set as active", None))
+#endif // QT_CONFIG(tooltip)
+        self.inactiveLabel.setText(QCoreApplication.translate("PMRDialog", u"inactive", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.searchTab), QCoreApplication.translate("PMRDialog", u"Search", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.settingsTab), QCoreApplication.translate("PMRDialog", u"Settings", None))
+    # retranslateUi
 
-from mapclient.tools.pmr.widgets.searchwidget import SearchWidget
-from mapclient.tools.pmr.widgets.settingswidget import SettingsWidget

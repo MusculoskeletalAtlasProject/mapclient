@@ -126,6 +126,10 @@ def _workflow_step_setLocation(self, location):
     self._location = location
 
 
+def _workflow_step_getLocation(self):
+    return self._location
+
+
 def _workflow_step_execute(self, dataIn=None):
     self._doneExecution()
 
@@ -199,7 +203,11 @@ def _workflow_step_isConfigured(self):
 
 def _workflow_step_addPort(self, triple):
     port = WorkflowStepPort()
-    port.addProperty(triple)
+    if isinstance(triple, list):
+        for t in triple:
+            port.addProperty(t)
+    else:
+        port.addProperty(triple)
     port.addProperty(('http://physiomeproject.org/workflow/1.0/rdf-schema#port', 'http://physiomeproject.org/workflow/1.0/rdf-schema#index', len(self._ports)))
     self._ports.append(port)
 
@@ -214,6 +222,7 @@ def _workflow_step_getName(self):
 attr_dict = {}
 attr_dict['__init__'] = _workflow_step_init
 attr_dict['setLocation'] = _workflow_step_setLocation
+attr_dict['getLocation'] = _workflow_step_getLocation
 attr_dict['execute'] = _workflow_step_execute
 attr_dict['getPortData'] = _workflow_step_getPortData
 attr_dict['setPortData'] = _workflow_step_setPortData

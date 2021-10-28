@@ -120,13 +120,21 @@ class ConfigureDialog(QDialog):
         if location:
             self._ui.previousLocationLabel.setText(location)
 
-            if self._workflow_location:
-                self._ui.localLineEdit.setText(os.path.relpath(location, self._workflow_location))
-            else:
-                self._ui.localLineEdit.setText(location)
+            display_location = self._output_location(location)
+            self._ui.localLineEdit.setText(display_location)
 
     def _workspaceChanged(self, text):
         pass
+
+    def _output_location(self, location=None):
+        if location is None:
+            display_path = self._ui.localLineEdit.text()
+        else:
+            display_path = location
+        if self._workflow_location and os.path.isabs(display_path):
+            display_path = os.path.relpath(display_path, self._workflow_location)
+
+        return display_path
 
     def setWorkflowLocation(self, location):
         self._workflow_location = location
@@ -138,17 +146,15 @@ class ConfigureDialog(QDialog):
         return self._ui.localLineEdit.text()
 
     def validate(self):
-        directory = self._ui.localLineEdit.text()
-        non_empty = len(directory)
+        identifier_valid = len(self._ui.identifierLineEdit.text()) > 0
+        non_empty = self._ui.localLineEdit.text()
+        output_path = self._output_location()
+        if not os.path.isabs(output_path):
+            output_path = os.path.join(self._workflow_location, output_path)
 
-        if not os.path.isabs(directory):
-            directory = os.path.join(self._workflow_location, directory)
-
-        directory_valid = os.path.exists(directory)
+        directory_valid = non_empty and os.path.exists(output_path)
 
         self._ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(directory_valid)
         self._ui.localLineEdit.setStyleSheet(DEFAULT_STYLE_SHEET if directory_valid else REQUIRED_STYLE_SHEET)
 
-        return directory_valid
-
-
+        return identifier_valid and directory_valid

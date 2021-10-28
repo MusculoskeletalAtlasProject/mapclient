@@ -3,25 +3,28 @@ Created on May 19, 2015
 
 @author: hsorby
 """
+import io
+import json
 import os
 import sys
-import imp
 import logging
 import subprocess
-import json
+import pkg_resources
 import pkgutil
 import traceback
 import shutil
 import types
 import importlib
 
-from pkgutil import extend_path
-import pkg_resources
+from contextlib import redirect_stdout
+
 
 from mapclient.core.utils import which, FileTypeObject, grep, is_frozen, determineStepName, determineStepClassName
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     PLUGINS_PACKAGE_NAME, PLUGINS_PTH
 from mapclient.core.checks import getPipExecutable, getActivateScript
+
+from setuptools import sandbox
 
 from importlib import import_module
 
@@ -57,6 +60,12 @@ class PluginManager(object):
         self._unsuccessful_package_installations = {}
         self._resourceFiles = ['resources_rc']
         self._updaterSettings = {'syntax': True, 'indentation': True, 'location': True, 'resources': True}
+        self._import_errors = []
+        self._type_errors = []
+        self._syntax_errors = []
+        self._tab_errors = []
+        self._plugin_error_directories = {}
+        self._plugin_error_names = []
 
     def setVirtualEnvEnabled(self, state=True):
         self._virtualenv_enabled = state
@@ -121,8 +130,8 @@ class PluginManager(object):
         for candidate in getVirtualEnvCandidates():
             try:
                 p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
                 # p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
                 #                       stdout=subprocess.PIPE,
                 #                       stderr=subprocess.PIPE)
@@ -179,7 +188,7 @@ class PluginManager(object):
                 inbuilt_plugin_dir = os.path.join(sys._MEIPASS, PLUGINS_PACKAGE_NAME)
             else:
                 file_dir = os.path.dirname(os.path.abspath(__file__))
-                inbuilt_plugin_dir = os.path.realpath(os.path.join(file_dir, '..', '..', '..',))
+                inbuilt_plugin_dir = os.path.realpath(os.path.join(file_dir, '..', '..', '..', ))
             plugin_dirs.insert(0, inbuilt_plugin_dir)
 
         return plugin_dirs
@@ -206,36 +215,31 @@ class PluginManager(object):
         # subprocess.Popen([python_executable, "-m", "pip", "install", str(uri)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
         subprocess.run([python_executable, "-m", "pip", "install", str(uri)])
 
-        imp.reload(pkg_resources)
+        importlib.reload(pkg_resources)
 
     def extractPluginDependencies(self, path):
         setup_dir, step_dir = os.path.split(path)
-        setup_file_dir = os.path.join(setup_dir, 'setup.py')
-        dependencies = ''
-        if os.path.exists(setup_file_dir):
-            with open(setup_file_dir, 'r') as setup_file:
-                contents = setup_file.readlines()
-                for line in contents:
-                    if dependencies and ']' not in dependencies:
-                        if ']' in line:
-                            dependencies = dependencies.strip('\n') + line.lstrip()
-                            break
-                        else:
-                            dependencies = dependencies.strip('\n') + line.lstrip()
-                            continue
-                    if 'dependencies' in line:
-                        index = 0
-                        for char in line:
-                            index += 1
-                            if char == '[':
-                                break
-                        dependencies = line[index - 1:]
-            if "'" in dependencies:
-                dependencies = dependencies.replace("'", '"')
-            if dependencies:
-                return json.loads(dependencies)
-            else:
-                return []
+        setup_py_file = os.path.join(setup_dir, 'setup.py')
+        if os.path.exists(setup_py_file):
+            current_dir = os.getcwd()
+            os.chdir(setup_dir)
+            try:
+                # Skip this for now and move to using packagemeta package instead.
+                dependencies_str = '[]'
+                # f = io.StringIO()
+                # with redirect_stdout(f):
+                #     sandbox.run_setup('setup.py', ['--install-requires'])
+                # dependencies_str = f.getvalue().rstrip()
+                # if "'" in dependencies_str:
+                #     dependencies_str = dependencies_str.replace("'", '"')
+
+                dependencies = json.loads(dependencies_str)
+            finally:
+                os.chdir(current_dir)
+
+            return dependencies
+
+        return []
 
     def load(self):
         self._reload_plugins = False
@@ -270,10 +274,14 @@ class PluginManager(object):
         self._plugin_error_directories = {}
         self._plugin_error_names = []
 
-        for _, modname, ispkg in pkgutil.iter_modules(package.__path__):
+        # a(pkg_resources.working_set)
+        # installed = [pkg.key for pkg in pkg_resources.working_set]
+        # print(installed)
+
+        for module_finder, modname, ispkg in pkgutil.iter_modules(package.__path__):
             if ispkg:
                 try:
-                    plugin_dependencies = self.extractPluginDependencies(_.path)
+                    plugin_dependencies = self.extractPluginDependencies(module_finder.path)
                     missing_dependencies = self._plugin_database.check_for_missing_dependencies(plugin_dependencies)
                     for dependency in missing_dependencies:
                         self.installPackage(dependency)
@@ -305,29 +313,34 @@ class PluginManager(object):
                         self._syntax_errors += [modname]
                     elif type(e) == TabError:
                         self._tab_errors += [modname]
-                    self._plugin_error_directories[modname] = _.path
+                    self._plugin_error_directories[modname] = module_finder.path
 
-                    step_file_dir = os.path.join(_.path, modname, 'step.py')
+                    step_file_dir = os.path.join(module_finder.path, modname, 'step.py')
                     class_name = determineStepClassName(step_file_dir)
                     step_name = determineStepName(step_file_dir, class_name)
                     self._plugin_error_names.append(step_name)
 
-                    logger.warn('Plugin \'' + modname + '\' not loaded')
-                    logger.warn('Reason: {0}'.format(e))
+                    logger.warning('Plugin \'' + modname + '\' not loaded')
+                    logger.warning('Reason: {0}'.format(e))
                     exc_type, exc_value, exc_traceback = sys.exc_info()
                     redirect_output = FileTypeObject()
                     traceback.print_exception(exc_type, exc_value, exc_traceback, file=redirect_output)
-                    logger.warn(''.join(redirect_output.messages))
+                    logger.warning(''.join(redirect_output.messages))
+
+        # installed = [pkg.key for pkg in pkg_resources.working_set]
+        # print(installed)
+
 
     def get_plugin_error_names(self):
         return self._plugin_error_names
 
     def haveErrors(self):
         return len(self._import_errors) or len(self._type_errors) or \
-                len(self._syntax_errors) or len(self._tab_errors) or len(self._plugin_error_directories)
+               len(self._syntax_errors) or len(self._tab_errors) or len(self._plugin_error_directories)
 
     def getPluginErrors(self):
-        return {'ImportError': self._import_errors, 'TypeError': self._type_errors, 'SyntaxError': self._syntax_errors, 'TabError': self._tab_errors, 'directories': self._plugin_error_directories}
+        return {'ImportError': self._import_errors, 'TypeError': self._type_errors, 'SyntaxError': self._syntax_errors, 'TabError': self._tab_errors,
+                'directories': self._plugin_error_directories}
 
     def readSettings(self, settings):
         self._directories = []
@@ -431,6 +444,7 @@ class PluginSiteManager(object):
     """
     Python site module/pth based plugin manager.  WIP.
     """
+
     def __init__(self):
         pass
 
@@ -448,7 +462,7 @@ class PluginSiteManager(object):
 
 
 def reload_package(package):
-    assert(hasattr(package, "__package__"))
+    assert (hasattr(package, "__package__"))
     fn = package.__file__
     fn_dir = os.path.dirname(fn) + os.sep
     module_visit = {fn}
@@ -528,9 +542,9 @@ class PluginDatabase:
             ws.setArrayIndex(i)
             name = ws.value('name')
             pluginDict[name] = {
-                'author':ws.value('author'),
-                'version':ws.value('version'),
-                'location':ws.value('location')
+                'author': ws.value('author'),
+                'version': ws.value('version'),
+                'location': ws.value('location')
             }
             dependencies = []
             dependency_count = ws.beginReadArray('dependencies')
@@ -560,8 +574,8 @@ class PluginDatabase:
         missing_plugins = {}
         for plugin in to_check:
             if not (plugin in self._database and \
-                to_check[plugin]['author'] == self._database[plugin]['author'] and \
-                to_check[plugin]['version'] == self._database[plugin]['version']):
+                    to_check[plugin]['author'] == self._database[plugin]['author'] and \
+                    to_check[plugin]['version'] == self._database[plugin]['version']):
                 missing_plugins[plugin] = to_check[plugin]
 
         return missing_plugins
@@ -579,7 +593,7 @@ class PluginDatabase:
 
             if '@' in dependency:
                 index = dependency.find('@')
-                dependeny_name = dependency[:index - 1]
+                dependency_name = dependency[:index - 1]
                 dependency = dependency[index + 2:]
 
             elif '==' in dependency:
@@ -616,4 +630,3 @@ class PluginDatabase:
 
     def getDatabase(self):
         return self._database
-

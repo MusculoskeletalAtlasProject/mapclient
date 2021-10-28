@@ -224,6 +224,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             step.setIdentifier(step_name + "_" + str(new_suffix))
 
             step.setMainWindow(self._main_window)
+            step.setLocation(self._location)
             meta_step = MetaStep(step)
             node = Node(meta_step)
             node.showStepName(self._showStepNames)

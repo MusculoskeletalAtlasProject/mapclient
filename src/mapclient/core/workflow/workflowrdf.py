@@ -21,12 +21,15 @@ from rdflib.term import URIRef
 from rdflib.graph import Graph
 from rdflib.namespace import RDFS
 
+from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME
+
+
 def serializeWorkflowAnnotation():
     g = Graph()
 
-    workflow = URIRef("workflow.conf")
+    workflow = URIRef(DEFAULT_WORKFLOW_PROJECT_FILENAME)
 
-#     g.add((workflow, RDF.type, URIRef("http://physiomeproject.org/workflow/1.0/rdf-schema#workflowproject")))
+    #     g.add((workflow, RDF.type, URIRef("http://physiomeproject.org/workflow/1.0/rdf-schema#workflowproject")))
     g.add((workflow, RDFS.subClassOf, URIRef("http://physiomeproject.org/workflow/1.0/rdf-schema#workflowproject")))
 
     return g.serialize(format='xml')

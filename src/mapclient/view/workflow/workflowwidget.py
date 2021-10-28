@@ -17,7 +17,8 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-import os, logging
+import os
+import logging
 import shutil
 
 from PySide2 import QtCore, QtWidgets, QtGui
@@ -268,24 +269,29 @@ class WorkflowWidget(QtWidgets.QWidget):
         # In PySide the keyword argument is 'dir'
         # In PyQt4 the keyword argument is 'directory'
 
+        primary_filter = f"Workflow configuration file ({DEFAULT_WORKFLOW_PROJECT_FILENAME})"
+
         workflow_conf = QtWidgets.QFileDialog.getOpenFileName(
             self._mainWindow,
             caption='Open Workflow',
-            dir=os.path.join(m.previousLocation(), "workflow.conf"),
-            filter="Workflow configuration file (workflow.conf);;Any files (*)",
-            selectedFilter="Workflow configuration file (workflow.conf)",
+
+            dir=os.path.join(m.previousLocation(), DEFAULT_WORKFLOW_PROJECT_FILENAME),
+            filter=f"{primary_filter};;Any file (*.*)",
+            selectedFilter=primary_filter,
+
             options=(
-                QtWidgets.QFileDialog.ShowDirsOnly |
                 QtWidgets.QFileDialog.DontResolveSymlinks |
                 QtWidgets.QFileDialog.ReadOnly
             )
         )[0]
-        # Remove the filename to get the directory.
-        workflowDir = os.path.normpath(workflow_conf.removesuffix("workflow.conf"))
 
-        err = self.openWorkflow(workflowDir)
-        if err:
-            QtWidgets.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + err)
+        if workflow_conf:
+            # Remove the filename to get the directory.
+            workflowDir = os.path.dirname(workflow_conf)
+
+            err = self.openWorkflow(workflowDir)
+            if err:
+                QtWidgets.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + err)
 
     def openWorkflow(self, workflowDir):
         result = ''
@@ -456,7 +462,9 @@ class WorkflowWidget(QtWidgets.QWidget):
     def save(self):
         m = self._mainWindow.model().workflowManager()
         location_set = os.path.exists(m.location())
-        if not location_set:
+        if location_set:
+            self._updateLocation()
+        else:
             location_set = self._setLocation()
         if location_set:
             m.save()
@@ -471,6 +479,12 @@ class WorkflowWidget(QtWidgets.QWidget):
         location_set = self._setLocation()
         if location_set:
             self.save()
+
+    def _updateLocation(self):
+        m = self._mainWindow.model().workflowManager()
+        workflow_dir = m.location()
+        if m.updateLocation(workflow_dir):
+            self._graphicsScene.updateModel()
 
     def _setLocation(self):
         location_set = False

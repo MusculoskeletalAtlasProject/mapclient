@@ -56,6 +56,6 @@ UNSET_FLAG = '<unset>'
 INTERNAL_EXE = '<internal>'
 
 INTERNAL_WORKFLOWS_DIR = 'MAPClient-Workflows'
-INTERNAL_WORKFLOW_ZIP = 'internal_workflow.zip'
-INTERNAL_WORKFLOW_AVAILABLE = 'internal_workflow_available'
+INTERNAL_WORKFLOWS_ZIP = 'internal_workflows.zip'
+INTERNAL_WORKFLOWS_AVAILABLE = 'internal_workflows_available'
 INTERNAL_WORKFLOW_DIR = 'lineEditInternalWorkflowDirectory'
