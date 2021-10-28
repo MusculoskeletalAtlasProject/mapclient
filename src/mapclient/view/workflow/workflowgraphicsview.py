@@ -17,10 +17,12 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
+import re
 import sys
 import math
 import logging
 
+from itertools import count, filterfalse
 from PySide2 import QtCore, QtWidgets, QtGui
 
 from mapclient.mountpoints.workflowstep import workflowStepFactory
@@ -203,6 +205,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             scene = self.scene()
             position = self.mapToScene(event.pos() - hot_spot)
             step = workflowStepFactory(name, self._location)
+            self.set_default_id(step)
             step.setMainWindow(self._main_window)
             step.setLocation(self._location)
             meta_step = MetaStep(step)
@@ -225,6 +228,23 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             event.accept()
         else:
             event.ignore()
+
+    def set_default_id(self, step):
+        # Check if there are any existing steps with the default identifier.
+        scene = self.scene()
+        step_name = step.getName().replace(" ", "_").lower()
+
+        suffix_list = []
+        for item in scene.items():
+            if isinstance(item, Node):
+                identifier = item.metaItem().getStepIdentifier()
+                if re.search("^" + step_name + "_[\\d]+", identifier):
+                    suffix = identifier[identifier.rindex('_') + 1:]
+                    suffix_list.append(int(suffix))
+
+        # Assign the new step the suffix that is the lowest integer not already used by a step of this ID.
+        new_suffix = next(filterfalse(set(suffix_list).__contains__, count(1)))
+        step.setIdentifier(step_name + "_" + str(new_suffix))
 
     def dragMoveEvent(self, event):
         if event.mimeData().hasFormat("image/x-workflow-step"):
