@@ -109,6 +109,7 @@ class ConfigureDialog(QtWidgets.QDialog):
             self._ui.lineEditIdentifier.setStyleSheet(DEFAULT_STYLE_SHEET)
         else:
             self._ui.lineEditIdentifier.setStyleSheet(INVALID_STYLE_SHEET)
+        self._ui.lineEditOutputLocation.setStyleSheet(DEFAULT_STYLE_SHEET if output_location_valid else INVALID_STYLE_SHEET)
 
         return valid and (default_location or output_location_valid)
 

@@ -162,7 +162,7 @@ class ConfigureDialog(QDialog):
         if self._workflow_location:
             output_path = os.path.join(self._workflow_location, output_path)
 
-        localValid = non_empty and os.path.exists(output_path)
+        directory_valid = non_empty and os.path.exists(output_path)
         valid = identifierValid
 
         self._ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(valid)
@@ -172,4 +172,6 @@ class ConfigureDialog(QDialog):
         else:
             self._ui.identifierLineEdit.setStyleSheet(REQUIRED_STYLE_SHEET)
 
-        return valid and localValid
+        self._ui.localLineEdit.setStyleSheet(DEFAULT_STYLE_SHEET if directory_valid else REQUIRED_STYLE_SHEET)
+
+        return valid and directory_valid
