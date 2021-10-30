@@ -21,9 +21,19 @@ import os, math, weakref
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
+from mapclient.core.annotations import PROVIDES_ANNOTATIONS, USES_ANNOTATIONS, ANNOTATION_BASE
 from mapclient.core.workflow.workflowscene import Connection
 from mapclient.tools.annotation.annotationdialog import AnnotationDialog
 from mapclient.tools.pmr.pmrdvcshelper import repositoryIsUpToDate
+
+
+def _define_tooltip_for_triples(triples):
+    tips = []
+    for triple in triples:
+        stub = triple[1].replace(ANNOTATION_BASE, '')
+        tips.append(f'{stub}: {triple[2]}')
+
+    return '\n or\n'.join(tips)
 
 
 class ErrorItem(QtWidgets.QGraphicsItem):
@@ -319,22 +329,23 @@ class Node(Item):
                 index = uses_count
                 x_pos = -3 * w / 4
                 uses_count += 1
-                pred = 'http://physiomeproject.org/workflow/1.0/rdf-schema#uses'
-                tooltip_stub = 'uses: '
+                predicates = USES_ANNOTATIONS
             else:  # port in provides_ports:
                 port_total = provides_total
                 index = provides_count
                 x_pos = self.Size - w / 4
                 provides_count += 1
-                pred = 'http://physiomeproject.org/workflow/1.0/rdf-schema#provides'
-                tooltip_stub = 'provides: '
+                predicates = PROVIDES_ANNOTATIONS
 
-            triples = port.getTriplesForPred(pred)
-            triple_objects = [triple[2] for triple in triples]
+            triples = []
+            for predicate in predicates:
+                triples.extend(port.getTriplesForPred(predicate))
+            # triple_objects = [triple[2] for triple in triples]
+
             alpha = h / 4.0  # Controls the spacing between the ports
             y_pos = self.Size / 2.0 - (port_total * h + (port_total - 1) * alpha) / 2.0 + (h + alpha) * index
             port_item.setPos(x_pos, y_pos)
-            port_item.setToolTip(tooltip_stub + ', '.join(triple_objects))
+            port_item.setToolTip(_define_tooltip_for_triples(triples))
             self._step_port_items.append(port_item)
 
         for port in previous_step_ports:
@@ -354,7 +365,7 @@ class Node(Item):
             self._modified_item.hide()
 
     def setPos(self, pos):
-        QtWidgets.QGraphicsItem.setPos(self, pos)
+        super(Node, self).setPos(pos)
         self.scene().workflowScene().setItemPos(self._metastep, pos)
 
     def type(self):

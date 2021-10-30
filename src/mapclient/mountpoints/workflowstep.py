@@ -18,7 +18,10 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import sys
+
 from mapclient.core import pluginframework
+from mapclient.core.annotations import USES_ANNOTATIONS, PROVIDES_ANNOTATIONS, PORT_ANNOTATION, USES_ANNOTATION, PROVIDES_ANNOTATION, PROVIDES_LIST_OF_ANNOTATION, \
+    USES_LIST_OF_ANNOTATION
 
 
 class WorkflowStepPort(object):
@@ -54,17 +57,24 @@ class WorkflowStepPort(object):
 #        return [triple[2] for triple in self.obj[obj]]
 
     def hasUses(self):
-        return 'http://physiomeproject.org/workflow/1.0/rdf-schema#uses' in self.pred
+        for uses_annotation in USES_ANNOTATIONS:
+            if uses_annotation in self.pred:
+                return True
+
+        return False
 
     def hasProvides(self):
-        return 'http://physiomeproject.org/workflow/1.0/rdf-schema#provides' in self.pred
+        for provides_annotation in PROVIDES_ANNOTATIONS:
+            if provides_annotation in self.pred:
+                return True
+
+        return False
 
     def getTriplesForPred(self, pred):
         if pred in self.pred:
             return self.pred[pred]
 
         return []
-#        return [triple for triple in self.pred[pred]]
 
     def index(self):
         index = -1
@@ -74,16 +84,28 @@ class WorkflowStepPort(object):
 
         return index
 
+    def _test_for_possible_connection(self, mineProvides, theirsUses):
+        for mine in mineProvides:
+            for theirs in theirsUses:
+                if mine[2] == theirs[2]:
+                    return True
+
+        return False
+
     def canConnect(self, other):
-        if 'http://physiomeproject.org/workflow/1.0/rdf-schema#port' in self.subj and 'http://physiomeproject.org/workflow/1.0/rdf-schema#port' in other.subj:
-            myPorts = self.subj['http://physiomeproject.org/workflow/1.0/rdf-schema#port']
-            thierPorts = other.subj['http://physiomeproject.org/workflow/1.0/rdf-schema#port']
-            mineProvides = [triple for triple in myPorts if 'http://physiomeproject.org/workflow/1.0/rdf-schema#provides' == triple[1]]
-            thiersUses = [triple for triple in thierPorts if 'http://physiomeproject.org/workflow/1.0/rdf-schema#uses' == triple[1]]
-            for mine in mineProvides:
-                for thiers in thiersUses:
-                    if mine[2] == thiers[2]:
-                        return True
+        if PORT_ANNOTATION in self.subj and PORT_ANNOTATION in other.subj:
+            myPorts = self.subj[PORT_ANNOTATION]
+            theirPorts = other.subj[PORT_ANNOTATION]
+
+            mineProvides = [triple for triple in myPorts if PROVIDES_ANNOTATION == triple[1]]
+            theirsUses = [triple for triple in theirPorts if USES_ANNOTATION == triple[1]]
+            if self._test_for_possible_connection(mineProvides, theirsUses):
+                return True
+
+            mineProvides = [triple for triple in myPorts if PROVIDES_LIST_OF_ANNOTATION == triple[1]]
+            theirsUses = [triple for triple in theirPorts if USES_LIST_OF_ANNOTATION == triple[1]]
+            if self._test_for_possible_connection(mineProvides, theirsUses):
+                return True
 
         return False
 
