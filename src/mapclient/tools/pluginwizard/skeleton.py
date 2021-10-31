@@ -389,15 +389,15 @@ class Skeleton(object):
             widgets_string = ''
             set_config_string = """
     def setConfig(self, config):
-        \'\'\'
+        \"\"\"
         Set the current value of the configuration for the dialog.{additional_comment}
-        \'\'\'{previous_identifier}
+        \"\"\"{previous_identifier}
 """
             get_config_string = """
     def getConfig(self):
-        \'\'\'
+        \"\"\"
         Get the current value of the configuration from the dialog.{additional_comment}
-        \'\'\'{previous_identifier}
+        \"\"\"{previous_identifier}
         config = {{}}
 """
             if self._options.hasIdentifierConfig():

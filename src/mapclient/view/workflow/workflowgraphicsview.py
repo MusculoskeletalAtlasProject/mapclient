@@ -45,6 +45,9 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         self._errorIcon = None
 
         self._main_window = None
+        self._graphics_shown = False
+        self._graphics_initialised = False
+        self._graphics_scale_factor = 1.0
 
         self._undoStack = None
         self._location = ''
@@ -61,10 +64,25 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         grid_pic = QtGui.QPixmap(':/workflow/images/grid.png')
         self._grid_brush = QtGui.QBrush(grid_pic)
 
-#        self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
-#        self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
+        #        self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
+        #        self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
 
         self.setAcceptDrops(True)
+
+    def getViewParameters(self):
+        return {
+            'scale': self._graphics_scale_factor,
+            'rect': self.sceneRect(),
+            'transform': self.transform()
+        }
+
+    def setViewParameters(self, parameters):
+        self._graphics_scale_factor = parameters['scale']
+        if parameters['rect'] is not None:
+            scene = self.scene()
+            scene.setSceneRect(parameters['rect'])
+        if parameters['transform'] is not None:
+            self.setTransform(parameters['transform'])
 
     def clear(self):
         self.scene().clear()
@@ -105,9 +123,9 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         self.scene().setPreviouslySelectedItems(currentSelection)
 
     def nodeSelected(self, node, state):
-        if state == True and node not in self._selectedNodes:
+        if state and node not in self._selectedNodes:
             self._selectedNodes.append(node)
-        elif state == False and node in self._selectedNodes:
+        elif not state and node in self._selectedNodes:
             found = self._selectedNodes.index(node)
             del self._selectedNodes[found]
 
@@ -135,7 +153,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             centre = item.boundingRect().center()
             self._connectSourceNode = item
             self._connectLine = ArrowLine(QtCore.QLineF(item.mapToScene(centre),
-                                          self.mapToScene(event.pos())))
+                                                        self.mapToScene(event.pos())))
             self.scene().addItem(self._connectLine)
         else:
             QtWidgets.QGraphicsView.mousePressEvent(self, event)
@@ -202,8 +220,9 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
             stream >> hot_spot
 
+            position = self.mapToScene(event.pos()) - hot_spot
+
             scene = self.scene()
-            position = self.mapToScene(event.pos() - hot_spot)
             step = workflowStepFactory(name, self._location)
             self.set_default_id(step)
             step.setMainWindow(self._main_window)
@@ -211,10 +230,10 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             meta_step = MetaStep(step)
             node = Node(meta_step)
             node.showStepName(self._showStepNames)
-            meta_step._step.registerConfiguredObserver(scene.stepConfigured)
-            meta_step._step.registerDoneExecution(scene.doneExecution)
-            meta_step._step.registerOnExecuteEntry(scene.setCurrentWidget)
-            meta_step._step.registerIdentifierOccursCount(scene.identifierOccursCount)
+            meta_step.getStep().registerConfiguredObserver(scene.stepConfigured)
+            meta_step.getStep().registerDoneExecution(scene.doneExecution)
+            meta_step.getStep().registerOnExecuteEntry(scene.setCurrentWidget)
+            meta_step.getStep().registerIdentifierOccursCount(scene.identifierOccursCount)
 
             self._undoStack.beginMacro('Add node')
             self._undoStack.push(CommandAdd(scene, node))
@@ -255,8 +274,8 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
         self.update()
 
-#    def dragLeaveEvent(self, event):
-#        event.accept()
+    #    def dragLeaveEvent(self, event):
+    #        event.accept()
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasFormat("image/x-workflow-step"):
@@ -264,29 +283,54 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         else:
             event.ignore()
 
+    def showEvent(self, event):
+        self._graphics_shown = True
+
     def resizeEvent(self, event):
         QtWidgets.QGraphicsView.resizeEvent(self, event)
-        scene = self.scene()
-        event_size = event.size()
-        view_rect = QtCore.QRectF(0, 0, event_size.width(), event_size.height())
-        items_rect = scene.itemsBoundingRect()
-        items_rect.adjust(0, 0, 10, 10)
+        if self._graphics_shown:
 
-        scene_rect = view_rect.united(items_rect)
-        scene.setSceneRect(10, 10, scene_rect.width() - 20, scene_rect.height() - 20)
+            scene = self.scene()
+            event_size = event.size()
+            view_rect = QtCore.QRectF(0, 0, event_size.width(), event_size.height())
+            if not self._graphics_initialised:
+                scene.setReady()
+                self._graphics_initialised = True
+
+            scene.setSceneRect(10, 10, (view_rect.width() - 20) / self._graphics_scale_factor, (view_rect.height() - 20) / self._graphics_scale_factor)
+
+    def _unscale_view(self, scale_factor):
+        self._graphics_scale_factor *= scale_factor
+        scene = self.scene()
+        rect = scene.sceneRect()
+        rect.setWidth(rect.width() / scale_factor)
+        rect.setHeight(rect.height() / scale_factor)
+        scene.setSceneRect(rect)
 
     def wheelEvent(self, event):
-        self._scaleView(math.pow(2.0, -event.delta() / 240.0))
+        if event.modifiers() == QtCore.Qt.ControlModifier:
+            scale_factor = math.pow(2.0, -event.delta() / 240.0)
+            # original_transformation_anchor = self.transformationAnchor()
+            # self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorViewCenter)
+            self.scale(scale_factor, scale_factor)
+            self._unscale_view(scale_factor)
+            # self.setTransformationAnchor(original_transformation_anchor)
+        else:
+            super(WorkflowGraphicsView, self).wheelEvent(event)
 
-    def _scaleView(self, scaleFactor):
-        factor = self.matrix().scale(scaleFactor, scaleFactor).mapRect(QtCore.QRectF(0, 0, 1, 1)).width()
+    def zoomIn(self):
+        self.scale(1.2, 1.2)
+
+    def zoomOut(self):
+        self.scale(1 / 1.2, 1 / 1.2)
+
+    def _old_scale_view(self, scale_factor):
+        factor = self.matrix().scale(scale_factor, scale_factor).mapRect(QtCore.QRectF(0, 0, 1, 1)).width()
 
         if factor < 0.07 or factor > 100:
             return
 
         transformation_anchor = self.transformationAnchor()
         self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
-        self.scale(scaleFactor, scaleFactor)
+        self.scale(scale_factor, scale_factor)
         self.setTransformationAnchor(transformation_anchor)
-
-
