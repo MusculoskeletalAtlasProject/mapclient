@@ -20,6 +20,8 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import os
 import tempfile
 
+from filelock import FileLock
+
 from PySide2 import QtCore
 from mapclient.settings.definitions import INTERNAL_WORKFLOWS_DIR
 
@@ -67,11 +69,48 @@ def get_log_directory():
 
 def get_log_location():
     """
-    Set up location where log files will be stored (platform dependent).
+    Set up location where log files will be stored. To help identify active MAP Client processes we keep a "database" of all current PIDs.
+    We can then use this database to help us generate a unique name for the current MAP Client instance's log file - even if there are
+    multiple instances of the MAP Client running simultaneously.
     """
-    log_filename = 'logging_record.log'
     log_directory = get_log_directory()
+    database_file = os.path.join(get_data_directory(), "pid_database.txt")
 
+    try:
+        with open(database_file, "r") as file:
+            database = file.read().splitlines()
+    except IOError:
+        database = []
+
+    unassigned_indices = []
+    for i in range(len(database)):
+        if database[i] == '':
+            unassigned_indices.append(i)
+        else:
+            pid = int(database[i])
+            try:
+                os.kill(pid, 0)
+            except OSError:
+                database[i] = ''
+                while database and database[-1] == '':
+                    database.pop()
+
+    current_pid = os.getpid()
+    if unassigned_indices:
+        index = min(unassigned_indices)
+        database[index] = current_pid
+    else:
+        index = len(database)
+        database.append(current_pid)
+
+    # If the user experiences a hardware crash during the execution of this block, it is possible that the lockfile will remain
+    # possessed by a dead process. If this happens, the user will have to manually delete the lockfile.
+    with FileLock(database_file + ".lock"):
+        with open(database_file, "w") as file:
+            for item in database:
+                file.write(f"{item}\n")
+
+    log_filename = 'logging_record_' + str(index) + '.log'
     logging_file_location = os.path.join(log_directory, log_filename)
 
     return logging_file_location
