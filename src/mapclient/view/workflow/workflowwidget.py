@@ -56,10 +56,10 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._pluginUpdater = PluginUpdater()
 
         self._undoStack = QtWidgets.QUndoStack(self)
-        self._undoStack.indexChanged.connect(self.undoStackIndexChanged)
 
         self._workflowManager = self._mainWindow.model().workflowManager()
         self._graphicsScene = WorkflowGraphicsScene(self)
+
         self._ui.graphicsView.setScene(self._graphicsScene)
         self._ui.graphicsView.setMainWindow(mainWindow)
 
@@ -67,9 +67,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._graphicsScene.setUndoStack(self._undoStack)
 
         self._graphicsScene.setWorkflowScene(self._workflowManager.scene())
-        self._graphicsScene.selectionChanged.connect(self._ui.graphicsView.selectionChanged)
 
-        self._ui.executeButton.clicked.connect(self.executeWorkflow)
         self.action_Close = None  # Keep a handle to this for modifying the Ui.
         self._action_annotation = self._mainWindow.findChild(QtWidgets.QAction, "actionAnnotation")
         self._create_menu_items()
@@ -86,6 +84,9 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     def _make_connections(self):
         self._ui.lineEditFilter.textChanged.connect(self._filter_text_changed)
+        self._graphicsScene.selectionChanged.connect(self._ui.graphicsView.selectionChanged)
+        self._ui.executeButton.clicked.connect(self.executeWorkflow)
+        self._undoStack.indexChanged.connect(self.undoStackIndexChanged)
 
     def _filter_text_changed(self, text):
         reg_exp = QtCore.QRegExp(text, QtCore.Qt.CaseInsensitive)
@@ -116,6 +117,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             self.action_Open.setEnabled(widget_visible)
             self.action_Execute.setEnabled(workflow_open and widget_visible)
             self.action_Continue.setEnabled(workflow_open and not widget_visible)
+            self.action_ZoomIn.setEnabled(widget_visible)
 
     def updateStepTree(self):
         self._ui.stepTreeView.expandAll()
@@ -444,6 +446,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             m.load(workflowDir)
             m.setPreviousLocation(workflowDir)
             self._graphicsScene.updateModel()
+            self._ui.graphicsView.setViewParameters(m.scene().getViewParameters())
             self._update_ui()
         except:
             self.close()
@@ -465,6 +468,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         else:
             location_set = self._setLocation()
         if location_set:
+            m.scene().setViewParameters(self._ui.graphicsView.getViewParameters())
             m.save()
             if self.commitChanges(m.location()):
                 self._setIndexerFile(m.location())
@@ -562,11 +566,20 @@ class WorkflowWidget(QtWidgets.QWidget):
             action.setShortcut(QtGui.QKeySequence(shortcut))
         action.setStatusTip(statustip)
 
+    def zoom_in(self):
+        self._ui.graphicsView.zoomIn()
+
+    def zoom_out(self):
+        self._ui.graphicsView.zoomOut()
+
     def _create_menu_items(self):
         menu_file = self._mainWindow.get_menu_bar().findChild(QtWidgets.QMenu, 'menu_File')
         menu_workflow = self._mainWindow.get_menu_bar().findChild(QtWidgets.QMenu, 'menu_Workflow')
+        menu_view = self._mainWindow.get_menu_bar().findChild(QtWidgets.QMenu, 'menu_View')
 
+        last_view_menu_action = menu_view.actions()[-1]
         last_file_menu_action = menu_file.actions()[-1]
+
         menu_new = QtWidgets.QMenu('&New', menu_file)
 #        menu_Open = QtGui.QMenu('&Open', menu_File)
 
@@ -596,6 +609,13 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._set_action_properties(self.action_Continue, 'action_Continue', self.continueWorkflow, 'Ctrl+T',
                                     'Continue executing Workflow')
 
+        self.action_ZoomIn = QtWidgets.QAction('Zoom In', menu_view)
+        self._set_action_properties(self.action_ZoomIn, 'action_ZoomIn', self.zoom_in, 'Ctrl++',
+                                    'Zoom in Workflow')
+        self.action_ZoomOut = QtWidgets.QAction('Zoom Out', menu_view)
+        self._set_action_properties(self.action_ZoomOut, 'action_ZoomOut', self.zoom_out, 'Ctrl+-',
+                                    'Zoom out Workflow')
+
         menu_new.insertAction(QtWidgets.QAction(self), self.action_NewPMR)
         menu_new.insertAction(QtWidgets.QAction(self), self.action_New)
 
@@ -611,7 +631,9 @@ class WorkflowWidget(QtWidgets.QWidget):
         menu_file.insertAction(last_file_menu_action, self.action_Close)
         menu_file.insertSeparator(last_file_menu_action)
 
+        menu_view.addAction(self.action_ZoomIn)
+        menu_view.addAction(self.action_ZoomOut)
+        menu_view.insertSeparator(last_view_menu_action)
+
         menu_workflow.addAction(self.action_Execute)
         menu_workflow.addAction(self.action_Continue)
-
-

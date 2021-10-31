@@ -19,6 +19,7 @@ import sys, os, stat
 from subprocess import check_output
 import shutil
 
+
 def Usage():
     print("\n\tUsage: python " + sys.argv[0] + " appname version\n")
     sys.exit()
@@ -89,7 +90,7 @@ f.write("""<?xml version="1.0" encoding="UTF-8"?>
 </dict>
 </plist>
 """.format(projectversion, bundleIdentifier, project, projectversion, version)
-    )
+        )
 f.close()
 
 # not sure what this file does
@@ -110,5 +111,3 @@ f.close()
 os.chmod(shell, os.stat(shell).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 shutil.copyfile(os.path.join('.', 'mapclient.icns'), os.path.join(apppath, 'Contents', 'Resources', 'app.icns'))
-
-
