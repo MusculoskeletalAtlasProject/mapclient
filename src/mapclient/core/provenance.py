@@ -20,20 +20,24 @@ def _strip_pip_list_output(output_stream):
         if len(parts) > 1:
             output[parts[0]] = {'version': parts[1]}
             if len(parts) > 2:
-                output[parts[0]]['location'] = parts[2]
+                if os.path.isdir(parts[2]):
+                    output[parts[0]]['location'] = 'locally-acquired'
+                else:
+                    output[parts[0]]['location'] = parts[2]
 
     return output
 
 
 def _determine_capabilities():
+    import mapclientplugins
+
     my_env = os.environ.copy()
     python_executable = sys.executable
 
     result = subprocess.run([python_executable, "-m", "pip", "list"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
 
     output_info = _strip_pip_list_output(result.stdout)
-    import mapclientplugins
-    # print(pkgutil.walk_packages(mapclientplugins.__path__))
+
     mapclientplugins_info = {}
     for loader, module_name, is_pkg in pkgutil.walk_packages(mapclientplugins.__path__):
         if is_pkg:
@@ -44,7 +48,7 @@ def _determine_capabilities():
                 "location": module.__location__ if hasattr(module, '__location__') else "",
             }
 
-    return {'mapclient': info.VERSION_STRING, **output_info, **mapclientplugins_info}
+    return {**output_info, **mapclientplugins_info}
 
 
 def reproducibility_info():
