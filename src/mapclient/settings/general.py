@@ -20,6 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import os
 import tempfile
 
+import psutil
 from filelock import FileLock
 
 from PySide2 import QtCore
@@ -88,19 +89,21 @@ def get_log_location():
             unassigned_indices.append(i)
         else:
             pid = int(database[i])
-            try:
-                os.kill(pid, 0)
-            except OSError:
+            if not psutil.pid_exists(pid):
                 database[i] = ''
-                while database and database[-1] == '':
-                    database.pop()
+                unassigned_indices.append(i)
+
+    while database and database[-1] == '':
+        database.pop()
 
     current_pid = os.getpid()
+    index = len(database)
     if unassigned_indices:
-        index = min(unassigned_indices)
+        index = min(index, min(unassigned_indices))
+
+    if index < len(database):
         database[index] = current_pid
     else:
-        index = len(database)
         database.append(current_pid)
 
     # If the user experiences a hardware crash during the execution of this block, it is possible that the lockfile will remain
