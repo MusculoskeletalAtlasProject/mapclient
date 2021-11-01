@@ -17,7 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide2 import QtWidgets
+from PySide2 import QtWidgets, QtCore
 
 from mapclient.core.workflow.workflowscene import MetaStep, Connection
 from mapclient.view.workflow.workflowgraphicsitems import Node, Arc
@@ -40,6 +40,10 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
         self._previousSelection = []
         self._undoStack = None
         self._showStepNames = True
+        self._is_ready = False
+
+    def setReady(self):
+        self._is_ready = True
 
     def setWorkflowScene(self, scene):
         self._workflow_scene = scene
@@ -78,15 +82,15 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
             if workflowitem.Type == MetaStep.Type:
                 node = Node(workflowitem)
                 node.showStepName(self._showStepNames)
-                workflowitem._step.registerConfiguredObserver(self.stepConfigured)
-                workflowitem._step.registerDoneExecution(self.doneExecution)
-                workflowitem._step.registerOnExecuteEntry(self.setCurrentWidget, self.setWidgetUndoRedoStack)
-                workflowitem._step.registerIdentifierOccursCount(self.identifierOccursCount)
+                workflowitem.getStep().registerConfiguredObserver(self.stepConfigured)
+                workflowitem.getStep().registerDoneExecution(self.doneExecution)
+                workflowitem.getStep().registerOnExecuteEntry(self.setCurrentWidget, self.setWidgetUndoRedoStack)
+                workflowitem.getStep().registerIdentifierOccursCount(self.identifierOccursCount)
                 # Put the node into the scene straight away so that the items scene will
                 # be valid when we set the position.
                 QtWidgets.QGraphicsScene.addItem(self, node)
-                node.setPos(workflowitem.getPos())
                 self.blockSignals(True)
+                node.setPos(workflowitem.getPos())
                 node.setSelected(workflowitem.getSelected())
                 self.blockSignals(False)
                 meta_steps[workflowitem] = node
@@ -109,26 +113,27 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
         self._previousSelection = self.selectedItems()
 
     def ensureItemInScene(self, item, newPos):
-        bRect = item.boundingRect()
-        xp1 = bRect.x() + newPos.x()
-        yp1 = bRect.y() + newPos.y()
-        xp2 = bRect.x() + bRect.width() + newPos.x()
-        yp2 = bRect.y() + bRect.height() + newPos.y()
-        bRect.setCoords(xp1, yp1, xp2, yp2)
-        rect = self.sceneRect()
-        if not rect.contains(bRect):
-            x1 = max(bRect.left(), rect.left()) + 2.0  # plus bounding rectangle adjust
-            x2 = min(bRect.x() + bRect.width(), rect.x() + rect.width()) - bRect.width() + 2.0
-            y1 = max(bRect.top(), rect.top()) + 2.0  # plus bounding rectangle adjust
-            y2 = min(bRect.bottom(), rect.bottom()) - bRect.height() + 2.0
-            if newPos.x() != x1:
-                newPos.setX(x1)
-            elif newPos.x() != x2:
-                newPos.setX(x2)
-            if newPos.y() != y1:
-                newPos.setY(y1)
-            elif newPos.y() != y2:
-                newPos.setY(y2)
+        if self._is_ready:
+            bRect = item.boundingRect()
+            xp1 = bRect.x() + newPos.x()
+            yp1 = bRect.y() + newPos.y()
+            xp2 = bRect.x() + bRect.width() + newPos.x()
+            yp2 = bRect.y() + bRect.height() + newPos.y()
+            bRect.setCoords(xp1, yp1, xp2, yp2)
+            rect = self.sceneRect()
+            if not rect.contains(bRect):
+                x1 = max(bRect.left(), rect.left()) + 2.0  # plus bounding rectangle adjust
+                x2 = min(bRect.x() + bRect.width(), rect.x() + rect.width()) - bRect.width() + 2.0
+                y1 = max(bRect.top(), rect.top()) + 2.0  # plus bounding rectangle adjust
+                y2 = min(bRect.bottom(), rect.bottom()) - bRect.height() + 2.0
+                if newPos.x() != x1:
+                    newPos.setX(x1)
+                elif newPos.x() != x2:
+                    newPos.setX(x2)
+                if newPos.y() != y1:
+                    newPos.setY(y1)
+                elif newPos.y() != y2:
+                    newPos.setY(y2)
 
         return newPos
 
@@ -158,6 +163,7 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
             self._undoStack.push(CommandConfigure(self, self._currentConfigureNode, new_config, self._currentConfigureNodeConfig))
 
     def setCurrentWidget(self, widget):
+        # self.parent().set_current_widget(widget)
         self.parent().setCurrentWidget(widget)
 
     def setWidgetUndoRedoStack(self, stack):

@@ -46,13 +46,12 @@ class Item(object):
 
 
 class MetaStep(Item):
-
     Type = 'Step'
 
     def __init__(self, step):
         Item.__init__(self)
         self._step = step
-        self._pos = QtCore.QPoint(0, 0)
+        self._pos = QtCore.QPointF(0, 0)
         self._uid = str(uuid.uuid1())
         self._id = step.getIdentifier()
 
@@ -102,8 +101,6 @@ class MetaStep(Item):
 
 
 class Connection(Item):
-
-
     Type = 'Connection'
 
     def __init__(self, source, sourceIndex, destination, destinationIndex):
@@ -127,7 +124,6 @@ class Connection(Item):
 
 
 class WorkflowDependencyGraph(object):
-
 
     def __init__(self, scene):
         self._scene = scene
@@ -287,6 +283,13 @@ class WorkflowScene(object):
         self._items = {}
         self._dependencyGraph = WorkflowDependencyGraph(self)
         self._main_window = None
+        self._view_parameters = None
+
+    def getViewParameters(self):
+        return self._view_parameters
+
+    def setViewParameters(self, parameters):
+        self._view_parameters = parameters
 
     def saveAnnotation(self, f):
         pass
@@ -317,6 +320,11 @@ class WorkflowScene(object):
                     connectionMap[item.source()] = [item]
 
         location = self._manager.location()
+        ws.beginGroup('view')
+        for key in self._view_parameters:
+            ws.setValue(key, self._view_parameters[key])
+        ws.endGroup()
+
         ws.remove('nodes')
         ws.beginGroup('nodes')
         ws.beginWriteArray('nodelist')
@@ -413,6 +421,14 @@ class WorkflowScene(object):
     def loadState(self, ws):
         self.clear()
         location = self._manager.location()
+        ws.beginGroup('view')
+        self._view_parameters = {
+            'scale': float(ws.value('scale', '1.0')),
+            'rect': ws.value('rect'),
+            'transform': ws.value('transform')
+        }
+        ws.endGroup()
+
         ws.beginGroup('nodes')
         nodeCount = ws.beginReadArray('nodelist')
         metaStepList = []
@@ -490,11 +506,11 @@ class WorkflowScene(object):
 
     def setItemPos(self, item, pos):
         if item in self._items:
-            self._items[item]._pos = pos
+            self._items[item].setPos(pos)
 
     def setItemSelected(self, item, selected):
         if item in self._items:
-            self._items[item]._selected = selected
+            self._items[item].setSelected(selected)
 
     def identifierOccursCount(self, identifier):
         """
@@ -516,6 +532,7 @@ class WorkflowScene(object):
                     return identifier_occurrence_count
 
         return identifier_occurrence_count
+
 
 def reverseDictWithLists(inDict):
     reverseDictOut = {}  # defaultdict(list)
