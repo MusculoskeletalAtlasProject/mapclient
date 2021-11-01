@@ -101,6 +101,7 @@ class ImageSourceStep(WorkflowStepMountPoint):
     def configure(self):
         d = ConfigureDialog(self._state, QtWidgets.QApplication.activeWindow().current_widget())
         d.setWorkflowLocation(self._location)
+        d.validate()
         d.setModal(True)
         if d.exec_():
             self._state = d.getState()

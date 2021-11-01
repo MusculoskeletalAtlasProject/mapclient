@@ -17,7 +17,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-import os, math, weakref
+import os
+import math
+import weakref
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
@@ -235,7 +237,7 @@ class Node(Item):
         Item.__init__(self)
 
         self._metastep = metastep
-        icon = self._metastep._step._icon
+        icon = self._metastep.getStep().getIcon()
         if not icon:
             icon = QtGui.QImage(':/workflow/images/default_step_icon.png')
 
@@ -244,7 +246,7 @@ class Node(Item):
                     transformMode=QtCore.Qt.FastTransformation)
 
         self._step_port_items = []
-        self._text = StepText(metastep._step.getName(), self)
+        self._text = StepText(metastep.getStep().getName(), self)
         self._updateTextIcon()
 
         self._setToolTip()
@@ -293,7 +295,7 @@ class Node(Item):
         self._text.setPos(x_pos, y_pos)
 
     def _updateConfigureIcon(self):
-        self._configure_item.setConfigured(self._metastep._step.isConfigured())
+        self._configure_item.setConfigured(self._metastep.getStep().isConfigured())
         self._setToolTip()
 
     def _setToolTip(self):
