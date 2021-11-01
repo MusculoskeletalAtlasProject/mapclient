@@ -73,6 +73,7 @@ class DictSerializerStep(WorkflowStepMountPoint):
         """
         dlg = ConfigureDialog(self._main_window)
         dlg.identifierOccursCount = self._identifierOccursCount
+        dlg.set_workflow_location(self._location)
         dlg.setConfig(self._config)
         dlg.validate()
         dlg.setModal(True)
@@ -112,6 +113,7 @@ class DictSerializerStep(WorkflowStepMountPoint):
 
         d = ConfigureDialog()
         d.identifierOccursCount = self._identifierOccursCount
+        d.set_workflow_location(self._location)
         d.setConfig(self._config)
         self._configured = d.validate()
 
