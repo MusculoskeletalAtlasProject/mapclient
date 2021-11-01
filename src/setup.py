@@ -36,7 +36,9 @@ package_dependencies = [
     'dulwich',
     'pmr2.wfctrl @ https://github.com/PMR2/pmr2.wfctrl/archive/v0.3.0.zip',
     'pmr2.client',
-    'packaging'
+    'packaging',
+    'filelock',
+    'psutil'
 ]
 
 

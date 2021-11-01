@@ -18,12 +18,14 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import os
-import tempfile
+import sys
 
 import psutil
 from filelock import FileLock
 
 from PySide2 import QtCore
+
+from mapclient.core.exitcodes import LOG_FILE_LOCK_FAILED
 from mapclient.settings.definitions import INTERNAL_WORKFLOWS_DIR
 
 from mapclient.settings.info import VERSION_STRING
@@ -36,9 +38,8 @@ def get_data_directory():
     """
     settings = QtCore.QSettings()
     fn = settings.fileName()
-    app_dir, _ = os.path.splitext(fn)
 
-    return app_dir
+    return os.path.dirname(fn)
 
 
 def _get_app_directory(name):
@@ -78,40 +79,46 @@ def get_log_location():
     database_file = os.path.join(get_data_directory(), "pid_database.txt")
 
     try:
-        with open(database_file, "r") as file:
-            database = file.read().splitlines()
-    except IOError:
-        database = []
+        # If the user experiences a hardware crash during the execution of this block, it is possible that the lockfile will remain
+        # possessed by a dead process. If this happens, the user will have to manually delete the lockfile.
+        lock = FileLock(database_file + ".lock", 3)
+        with lock:
+            try:
+                with open(database_file, "r") as file:
+                    database = file.read().splitlines()
+            except IOError:
+                database = []
 
-    unassigned_indices = []
-    for i in range(len(database)):
-        if database[i] == '':
-            unassigned_indices.append(i)
-        else:
-            pid = int(database[i])
-            if not psutil.pid_exists(pid):
-                database[i] = ''
-                unassigned_indices.append(i)
+            unassigned_indices = []
+            for i in range(len(database)):
+                if database[i] == '':
+                    unassigned_indices.append(i)
+                else:
+                    pid = int(database[i])
+                    if not psutil.pid_exists(pid):
+                        database[i] = ''
+                        unassigned_indices.append(i)
 
-    while database and database[-1] == '':
-        database.pop()
+            while database and database[-1] == '':
+                database.pop()
 
-    current_pid = os.getpid()
-    index = len(database)
-    if unassigned_indices:
-        index = min(index, min(unassigned_indices))
+            current_pid = os.getpid()
 
-    if index < len(database):
-        database[index] = current_pid
-    else:
-        database.append(current_pid)
+            max_index = len(database)
+            unassigned_indices.append(max_index)
+            index = min(unassigned_indices)
 
-    # If the user experiences a hardware crash during the execution of this block, it is possible that the lockfile will remain
-    # possessed by a dead process. If this happens, the user will have to manually delete the lockfile.
-    with FileLock(database_file + ".lock"):
-        with open(database_file, "w") as file:
-            for item in database:
-                file.write(f"{item}\n")
+            if index < max_index:
+                database[index] = current_pid
+            else:
+                database.append(current_pid)
+
+            with open(database_file, "w") as file:
+                for item in database:
+                    file.write(f"{item}\n")
+
+    except TimeoutError:
+        sys.exit(LOG_FILE_LOCK_FAILED)
 
     log_filename = 'logging_record_' + str(index) + '.log'
     logging_file_location = os.path.join(log_directory, log_filename)

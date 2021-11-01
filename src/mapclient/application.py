@@ -29,6 +29,7 @@ import logging
 import zipfile
 from logging import handlers
 
+from mapclient.core.exitcodes import HEADLESS_MODE_WITH_NO_WORKFLOW, INVALID_WORKFLOW_LOCATION_GIVEN
 from mapclient.core.utils import is_frozen, find_file
 from mapclient.settings.definitions import INTERNAL_WORKFLOWS_ZIP, INTERNAL_WORKFLOWS_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG
 from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME
@@ -249,7 +250,7 @@ def sans_gui_main(app_args):
         wm.load(app_args.workflow)
     except Exception:
         logger.error('Not a valid workflow location: {0}'.format(app_args.workflow))
-        sys.exit(-1)
+        sys.exit(INVALID_WORKFLOW_LOCATION_GIVEN)
 
     wm.registerDoneExecutionForAll(wm.execute)
 
@@ -272,7 +273,7 @@ def main():
 
     if args.headless and args.workflow is None:
         parser.print_help()
-        sys.exit(-2)
+        sys.exit(HEADLESS_MODE_WITH_NO_WORKFLOW)
 
     if args.headless and args.workflow:
         sys.exit(sans_gui_main(args))
