@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>992</width>
+    <width>1009</width>
     <height>697</height>
    </rect>
   </property>
@@ -82,6 +82,9 @@
            <width>900</width>
            <height>600</height>
           </size>
+         </property>
+         <property name="viewportUpdateMode">
+          <enum>QGraphicsView::FullViewportUpdate</enum>
          </property>
         </widget>
        </item>
