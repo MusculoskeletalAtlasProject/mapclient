@@ -19,7 +19,6 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import os
 import sys
-from time import sleep
 
 import psutil
 from filelock import FileLock
