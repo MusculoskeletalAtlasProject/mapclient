@@ -17,12 +17,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-import re
-import sys
 import math
 import logging
 
-from itertools import count, filterfalse
 from PySide2 import QtCore, QtWidgets, QtGui
 
 from mapclient.mountpoints.workflowstep import workflowStepFactory
@@ -212,8 +209,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             stream = QtCore.QDataStream(piece_data, QtCore.QIODevice.ReadOnly)
             hot_spot = QtCore.QPoint()
 
-            name_len = stream.readUInt32()
-            # name = stream.readRawData(nameLen).decode('utf-8')
+            _name_len = stream.readUInt32()
             buf = QtCore.QByteArray()
             stream >> buf
             name = buf.data().decode()
@@ -223,21 +219,28 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             position = self.mapToScene(event.pos()) - hot_spot
 
             scene = self.scene()
+
+            # Create a step with the given name.
             step = workflowStepFactory(name, self._location)
             self.set_default_id(step)
             step.setMainWindow(self._main_window)
             step.setLocation(self._location)
+            step.registerConfiguredObserver(scene.stepConfigured)
+            step.registerDoneExecution(scene.doneExecution)
+            step.registerOnExecuteEntry(scene.setCurrentWidget)
+            step.registerIdentifierOccursCount(scene.identifierOccursCount)
+
+            # Trigger a validation.
+            step.deserialize(step.serialize())
+
+            # Prepare meta step for the graphics scene.
             meta_step = MetaStep(step)
             node = Node(meta_step)
             node.showStepName(self._showStepNames)
-            meta_step.getStep().registerConfiguredObserver(scene.stepConfigured)
-            meta_step.getStep().registerDoneExecution(scene.doneExecution)
-            meta_step.getStep().registerOnExecuteEntry(scene.setCurrentWidget)
-            meta_step.getStep().registerIdentifierOccursCount(scene.identifierOccursCount)
 
             self._undoStack.beginMacro('Add node')
             self._undoStack.push(CommandAdd(scene, node))
-            # Set the position after it has been added to the scene
+            # Set the position after it has been added to the scene.
             self._undoStack.push(CommandMove(node, position, scene.ensureItemInScene(node, position)))
             scene.clearSelection()
             node.setSelected(True)
@@ -251,19 +254,14 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
     def set_default_id(self, step):
         # Check if there are any existing steps with the default identifier.
         scene = self.scene()
-        step_name = step.getName().replace(" ", "_").lower()
 
-        suffix_list = []
-        for item in scene.items():
-            if isinstance(item, Node):
-                identifier = item.metaItem().getStepIdentifier()
-                if re.search("^" + step_name + "_[\\d]+", identifier):
-                    suffix = identifier[identifier.rindex('_') + 1:]
-                    suffix_list.append(int(suffix))
+        suffix = 1
+        potential_id = f'{step.getName().replace(" ", "_")}_{suffix}'
+        while scene.identifierOccursCount(potential_id):
+            suffix += 1
+            potential_id = f'{step.getName().replace(" ", "_")}_{suffix}'
 
-        # Assign the new step the suffix that is the lowest integer not already used by a step of this ID.
-        new_suffix = next(filterfalse(set(suffix_list).__contains__, count(1)))
-        step.setIdentifier(step_name + "_" + str(new_suffix))
+        step.setIdentifier(potential_id)
 
     def dragMoveEvent(self, event):
         if event.mimeData().hasFormat("image/x-workflow-step"):
