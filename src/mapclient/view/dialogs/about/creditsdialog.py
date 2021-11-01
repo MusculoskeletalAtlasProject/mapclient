@@ -44,7 +44,8 @@ class CreditsDialog(QDialog):
             for person in info.CREDITS[creditSection]:
                 creditList += ("\n%s [%s]" % (person['name'], person['email']))
             creditLabel = QLabel()
-            creditLabel.setStyleSheet("QLabel { background-color : white}")
+            creditLabel.setMargin(15)
+            creditLabel.setStyleSheet("QLabel { background-color : white; color: black}")
             creditLabel.setText(creditList)
             creditLabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
             vbox.addWidget(creditLabel)
