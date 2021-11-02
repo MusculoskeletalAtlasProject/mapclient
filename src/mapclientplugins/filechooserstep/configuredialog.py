@@ -96,6 +96,7 @@ class ConfigureDialog(QtWidgets.QDialog):
         if self._workflow_location:
             file_path = os.path.join(self._workflow_location, file_path)
         location_valid = non_empty and os.path.isfile(file_path)
+        self._ui.lineEditFileLocation.setStyleSheet(DEFAULT_STYLE_SHEET if location_valid else INVALID_STYLE_SHEET)
 
         return valid and location_valid
 
