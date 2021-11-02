@@ -45,9 +45,9 @@ elif platform.system() == "Windows":
     win_icon = os.path.join('..', 'win', 'MAP-Client.ico')
     run_command.append(f'--icon={win_icon}')
 
-internal_workflow_zip = os.path.abspath(os.path.join('..', '..', 'src', 'internal_workflow.zip'))
-if os.path.isfile(internal_workflow_zip):
-    data = os.pathsep.join([internal_workflow_zip, '.'])
+internal_workflows_zip = os.path.abspath(os.path.join('..', '..', 'src', 'internal_workflows.zip'))
+if os.path.isfile(internal_workflows_zip):
+    data = os.pathsep.join([internal_workflows_zip, '.'])
     run_command.append(f'--add-data={data}')
 
 print('Running command: ', run_command)
