@@ -186,32 +186,9 @@ CONFIGURE_DIALOG_IDENTIFIER_VALIDATE_METHOD = """
         return valid
 """
 
-PACKAGE_INIT_STRING = """
-\"\"\"
-MAP Client Plugin
-\"\"\"
-__version__ = '0.1.0'
-__author__ = '{author_name}'
-
-import os, sys
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-if current_dir not in sys.path:
-    # Using __file__ will not work if py2exe is used,
-    # Possible problem of OSX10.6 also.
-    sys.path.insert(1, current_dir)
-
-# import class that derives itself from the step mountpoint.
-from {package_name} import step
-
-( _, tail ) = os.path.split(current_dir)
-print("Plugin '{{0}}' version {{1}} by {{2}} loaded".format(tail, __version__, __author__))
-
-"""
-
 STEP_PACKAGE_INIT_STRING = """
 \"\"\"
-MAP Client Plugin
+MAP Client Plugin - Generated from MAP Client v{version}
 \"\"\"
 
 __version__ = '0.1.0'
@@ -331,13 +308,28 @@ The {name} step is a plugin for the MAP Client application.
 
 
 SETUP_PY_TEMPLATE = """\
-from setuptools import setup, find_packages
-from setuptools.command.install import install
-import os
+import codecs
 import io
+import os
+import re
+
+from setuptools import setup, find_packages
 
 SETUP_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
+def read(*parts):
+    with codecs.open(os.path.join(SETUP_DIR, *parts), 'r') as fp:
+        return fp.read()
+
+
+def find_version(*file_paths):
+    version_file = read(*file_paths)
+    version_match = re.search(r"^__version__ = ['\\"]([^'\\"]*)['\\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
 
 # List all of your Python package dependencies in the
 # requirements.txt file
@@ -353,22 +345,13 @@ def readfile(filename, split=False):
 readme = readfile("README.rst", split=True)[3:]  # skip title
 # For requirements not hosted on PyPi place listings
 # into the 'requirements.txt' file.
-requires = []  # minimal requirements listing
+requires = ['PySide2']  # minimal requirements listing
 source_license = readfile("LICENSE")
-
-
-class InstallCommand(install):
-
-    def run(self):
-        install.run(self)
-        # Automatically install requirements from requirements.txt
-        import subprocess
-        subprocess.call(['pip', 'install', '-r', os.path.join(SETUP_DIR, 'requirements.txt')])
 
 
 setup(
     name=%(name)r,
-    version=%(version)r,
+    version=find_version(%(plugin_namespace)r, %(package_name)r, '__init__.py'),
     description=%(description)r,
     long_description='\\n'.join(readme) + source_license,
     long_description_content_type='text/x-rst',
@@ -377,11 +360,10 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python",
     ],
-    cmdclass={'install': InstallCommand,},
     author=%(author)r,
     author_email=%(author_email)r,
     url=%(url)r,
-    packages=find_packages(exclude=['ez_setup',]),
+    packages=find_packages(exclude=['ez_setup', ]),
     namespace_packages=%(namespace_packages)r,
     include_package_data=True,
     zip_safe=False,
