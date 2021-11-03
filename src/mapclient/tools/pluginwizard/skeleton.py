@@ -17,36 +17,43 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-import os
-import logging
 import datetime
+import logging
+import os
 
 from mapclient.core.utils import qt_tool_wrapper
-
+from mapclient.settings import info
 from mapclient.settings.definitions import PYSIDE_UIC_EXE, PYSIDE_RCC_EXE, USE_EXTERNAL_UIC, USE_EXTERNAL_RCC
-
-from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_DIALOG_STRING, CONFIGURE_DIALOG_LINE, \
-    CONFIGURE_DIALOG_UI, CLASS_STRING, INIT_METHOD_STRING, APACHE_LICENSE, README_TEMPLATE
-from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_METHOD_STRING, IDENTIFIER_METHOD_STRING, \
-    SERIALIZE_METHOD_STRING, IMPORT_STRING, PACKAGE_INIT_STRING
-from mapclient.tools.pluginwizard.skeletonstrings import RESOURCE_FILE_STRING, GETIDENTIFIER_DEFAULT_CONTENT_STRING,\
-    GETIDENTIFIER_IDENTIFER_CONTENT_STRING
-from mapclient.tools.pluginwizard.skeletonstrings import SETIDENTIFIER_DEFAULT_CONTENT_STRING, \
-    SETIDENTIFIER_IDENTIFER_CONTENT_STRING
-from mapclient.tools.pluginwizard.skeletonstrings import SERIALIZE_DEFAULT_CONTENT_STRING, \
-    SERIALIZE_IDENTIFIER_CONTENT_STRING, STEP_PACKAGE_INIT_STRING
-from mapclient.tools.pluginwizard.skeletonstrings import DESERIALIZE_DEFAULT_CONTENT_STRING, \
-    DESERIALIZE_IDENTIFIER_CONTENT_STRING
-from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_DIALOG_INIT_ADDITIONS, \
-    CONFIGURE_DIALOG_ACCEPT_METHOD, CONFIGURE_DIALOG_MAKE_CONNECTIONS_METHOD
-from mapclient.tools.pluginwizard.skeletonstrings import CONFIGURE_DIALOG_IDENTIFIER_VALIDATE_METHOD, \
-    CONFIGURE_DIALOG_DEFAULT_VALIDATE_METHOD
-
 from mapclient.tools.pluginwizard.skeletonstrings import (
-    SETUP_PY_TEMPLATE,
+    APACHE_LICENSE,
+    CLASS_STRING,
+    CONFIGURE_DIALOG_ACCEPT_METHOD,
+    CONFIGURE_DIALOG_DEFAULT_VALIDATE_METHOD,
+    CONFIGURE_DIALOG_IDENTIFIER_VALIDATE_METHOD,
+    CONFIGURE_DIALOG_INIT_ADDITIONS,
+    CONFIGURE_DIALOG_LINE,
+    CONFIGURE_DIALOG_MAKE_CONNECTIONS_METHOD,
+    CONFIGURE_DIALOG_STRING,
+    CONFIGURE_DIALOG_UI,
+    CONFIGURE_METHOD_STRING,
+    DESERIALIZE_DEFAULT_CONTENT_STRING,
+    DESERIALIZE_IDENTIFIER_CONTENT_STRING,
+    GETIDENTIFIER_DEFAULT_CONTENT_STRING,
+    GETIDENTIFIER_IDENTIFER_CONTENT_STRING,
+    IDENTIFIER_METHOD_STRING,
+    IMPORT_STRING,
+    INIT_METHOD_STRING,
     NAMESPACE_INIT,
+    README_TEMPLATE,
+    RESOURCE_FILE_STRING,
+    SERIALIZE_DEFAULT_CONTENT_STRING,
+    SERIALIZE_IDENTIFIER_CONTENT_STRING,
+    SERIALIZE_METHOD_STRING,
+    SETIDENTIFIER_DEFAULT_CONTENT_STRING,
+    SETIDENTIFIER_IDENTIFER_CONTENT_STRING,
+    SETUP_PY_TEMPLATE,
+    STEP_PACKAGE_INIT_STRING,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -75,37 +82,36 @@ class Skeleton(object):
         Write the setup file, for integration with setuptools.
         """
         target_file = os.path.join(target_dir, 'setup.py')
-        with  open(target_file, 'w') as f:
+        with open(target_file, 'w') as f:
             f.write(SETUP_PY_TEMPLATE % dict(
-                version='0.1.0',
                 description='',
                 name=self._options.getFullPackageName(),
+                package_name=self._options.getPackageName(),
                 author=self._options.getAuthorName(),
                 author_email='',
                 url='',
+                plugin_namespace=PLUGIN_NAMESPACE,
                 namespace_packages=[PLUGIN_NAMESPACE],
             ))
 
         readme_file = os.path.join(target_dir, 'README.rst')
         requirements_file = os.path.join(target_dir, 'requirements.txt')
-        ext_requirements_file = os.path.join(target_dir, 'ext-requirements.txt')
         license_file = os.path.join(target_dir, 'LICENSE')
         with open(readme_file, 'w') as f:
-            step_name = self._options.getName()#.decode('utf-8')
+            step_name = self._options.getName()  # .decode('utf-8')
             f.write(README_TEMPLATE.format(
                 name=step_name,
                 underline='=' * len(step_name)
             ))
         with open(requirements_file, 'w'):
             pass
-        with open(ext_requirements_file, 'w'):
-            pass
         with open(license_file, 'w') as f:
             now = datetime.datetime.now()
             f.write(APACHE_LICENSE.format(yyyy=now.year,
                                           name_of_copyright_owner=self._options.getAuthorName()))
 
-    def _writeNamespaceInit(self, target_dir):
+    @staticmethod
+    def _writeNamespaceInit(target_dir):
         """
         Write the namespace declaration init file.
         """
@@ -114,20 +120,8 @@ class Skeleton(object):
         f.write(NAMESPACE_INIT)
         f.close()
 
-    def _writePackageInit(self, init_dir):
-        """
-        Write the package __init__ file.  This file imports the step, sets the
-        version number and lists the author(s) name.
-        """
-        init_file = os.path.join(init_dir, '__init__.py')
-        f = open(init_file, 'w')
-        f.write(PACKAGE_INIT_STRING.format(
-            package_name=self._options.getFullPackageName(),
-            author_name=self._options.getAuthorName())
-        )
-        f.close()
-
-    def _generateExecuteMethod(self):
+    @staticmethod
+    def _generateExecuteMethod():
         method_string = """
     def execute(self):
         \"\"\"
@@ -141,7 +135,8 @@ class Skeleton(object):
 
         return method_string
 
-    def _generateSetPortDataMethod(self, ports):
+    @staticmethod
+    def _generateSetPortDataMethod(ports):
         """
         Generates the set port data method string.  Returns an empty
         string if this step has no uses ports.
@@ -182,7 +177,8 @@ class Skeleton(object):
 
         return method_string
 
-    def _generateGetPortDataMethod(self, ports):
+    @staticmethod
+    def _generateGetPortDataMethod(ports):
         """
         Generate the get port data method string.  Returns the empty
         string if this step has no provides ports.
@@ -284,9 +280,11 @@ class Skeleton(object):
             init_string += '        self._portData{0} = None # {1}\n'.format(index, current_port[1])
 
         if self._options.hasIdentifierConfig():
-            id_method_string = IDENTIFIER_METHOD_STRING.format(getidentifiercontent=GETIDENTIFIER_IDENTIFER_CONTENT_STRING, setidentifiercontent=SETIDENTIFIER_IDENTIFER_CONTENT_STRING)
+            id_method_string = IDENTIFIER_METHOD_STRING.format(getidentifiercontent=GETIDENTIFIER_IDENTIFER_CONTENT_STRING,
+                                                               setidentifiercontent=SETIDENTIFIER_IDENTIFER_CONTENT_STRING)
         else:
-            id_method_string = IDENTIFIER_METHOD_STRING.format(getidentifiercontent=GETIDENTIFIER_DEFAULT_CONTENT_STRING.format(step_object_name=object_name), setidentifiercontent=SETIDENTIFIER_DEFAULT_CONTENT_STRING)
+            id_method_string = IDENTIFIER_METHOD_STRING.format(getidentifiercontent=GETIDENTIFIER_DEFAULT_CONTENT_STRING.format(step_object_name=object_name),
+                                                               setidentifiercontent=SETIDENTIFIER_DEFAULT_CONTENT_STRING)
 
         if self._options.configCount() > 0:
             init_string += '        # Config:\n'
@@ -328,7 +326,8 @@ class Skeleton(object):
             step_name=self._options.getName(),
             package_name=self._options.getFullPackageName(),
             author_name=self._options.getAuthorName(),
-            plugin_location=self._options.getPluginLocation())
+            plugin_location=self._options.getPluginLocation(),
+            version=info.VERSION_STRING)
         )
         icon = self._options.getIcon()
         if icon:
@@ -401,8 +400,16 @@ class Skeleton(object):
         config = {{}}
 """
             if self._options.hasIdentifierConfig():
-                set_config_string = set_config_string.format(additional_comment='  Also\n        set the _previousIdentifier value so that we can check uniqueness of the\n        identifier over the whole of the workflow.', previous_identifier='\n        self._previousIdentifier = config[\'identifier\']')
-                get_config_string = get_config_string.format(additional_comment='  Also\n        set the _previousIdentifier value so that we can check uniqueness of the\n        identifier over the whole of the workflow.', previous_identifier='\n        self._previousIdentifier = self._ui.lineEdit0.text()')
+                set_config_string = set_config_string.format(
+                    additional_comment='  Also\n'
+                                       '        set the _previousIdentifier value so that we can check uniqueness of the\n'
+                                       '        identifier over the whole of the workflow.',
+                    previous_identifier='\n        self._previousIdentifier = config[\'identifier\']')
+                get_config_string = get_config_string.format(
+                    additional_comment='  Also\n'
+                                       '        set the _previousIdentifier value so that we can check uniqueness of the\n'
+                                       '        identifier over the whole of the workflow.',
+                    previous_identifier='\n        self._previousIdentifier = self._ui.lineEdit0.text()')
             else:
                 set_config_string = set_config_string.format(additional_comment='', previous_identifier='')
                 get_config_string = get_config_string.format(additional_comment='', previous_identifier='')
@@ -447,8 +454,7 @@ class Skeleton(object):
 
     def getPackageDirectory(self):
         out_dir = self._options.getOutputDirectory()
-        package_name = self._options.getPackageName()
-        package_full_name = '%s.%s' % (PLUGIN_NAMESPACE, package_name)
+        package_full_name = self._options.getFullPackageName()
 
         package_dir = os.path.join(out_dir, package_full_name)
         return package_dir
@@ -461,8 +467,7 @@ class Skeleton(object):
 
         out_dir = self._options.getOutputDirectory()
         package_name = self._options.getPackageName()
-
-        package_full_name = '%s.%s' % (PLUGIN_NAMESPACE, package_name)
+        package_full_name = self._options.getFullPackageName()
 
         package_dir = os.path.join(out_dir, package_full_name)
         namespace_dir = os.path.join(package_dir, PLUGIN_NAMESPACE)
@@ -475,9 +480,6 @@ class Skeleton(object):
 
         self._writeSetup(package_dir)
         self._writeNamespaceInit(namespace_dir)
-
-        # Write the package init file
-        # self._writePackageInit(package_dir)
 
         # Write step package init file
         self._writeStepPackageInit(step_package_dir)
@@ -520,8 +522,8 @@ class SkeletonOptions(object):
     def getPluginLocation(self):
         return self._pluginLocation
 
-    def setPluginLocation(self, pluginLocation):
-        self._pluginLocation = pluginLocation
+    def setPluginLocation(self, plugin_location):
+        self._pluginLocation = plugin_location
 
     def setName(self, name):
         self._name = name
@@ -529,8 +531,8 @@ class SkeletonOptions(object):
     def getPackageName(self):
         return self._packageName
 
-    def setPackageName(self, packageName):
-        self._packageName = packageName
+    def setPackageName(self, package_name):
+        self._packageName = package_name
 
     def getFullPackageName(self):
         return PLUGIN_NAMESPACE + '.' + self._packageName
@@ -538,8 +540,8 @@ class SkeletonOptions(object):
     def getImageFile(self):
         return self._imageFile
 
-    def setImageFile(self, imageFile):
-        self._imageFile = imageFile
+    def setImageFile(self, image_file):
+        self._imageFile = image_file
 
     def getIcon(self):
         return self._icon
@@ -550,8 +552,8 @@ class SkeletonOptions(object):
     def getOutputDirectory(self):
         return self._outputDirectory
 
-    def setOutputDirectory(self, outputDirectory):
-        self._outputDirectory = outputDirectory
+    def setOutputDirectory(self, output_directory):
+        self._outputDirectory = output_directory
 
     def portCount(self):
         return len(self._ports)
@@ -579,11 +581,11 @@ class SkeletonOptions(object):
     def getAuthorName(self):
         return self._authorName
 
-    def setAuthorName(self, authorName):
-        if not authorName:
-            authorName = DEFAULT_AUTHOR_NAME
+    def setAuthorName(self, author_name):
+        if not author_name:
+            author_name = DEFAULT_AUTHOR_NAME
 
-        self._authorName = authorName
+        self._authorName = author_name
 
     def getCategory(self):
         return self._category
@@ -593,4 +595,3 @@ class SkeletonOptions(object):
             category = DEFAULT_CATEGORY
 
         self._category = category
-
