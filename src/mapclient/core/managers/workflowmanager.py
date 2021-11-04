@@ -259,8 +259,14 @@ class WorkflowManager(object):
         self._scene.saveState(wf)
         self._saveStateIndex = self._currentStateIndex
         af = _getWorkflowMetaAbsoluteFilename(self._location)
+
+        try:
+            annotation = serializeWorkflowAnnotation().decode('utf-8')
+        except AttributeError:
+            annotation = serializeWorkflowAnnotation()
+
         with open(af, 'w') as f:
-            f.write(serializeWorkflowAnnotation().decode('utf-8'))
+            f.write(annotation)
             self._scene.saveAnnotation(f)
 
 #        self._title = info.APPLICATION_NAME + ' - ' + self._location
