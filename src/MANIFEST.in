@@ -1,2 +1,2 @@
 include *.rst
-recursive-include tests *.py
+include mapclient/tools/pluginwizard/qt/images/default.png mapclient/tools/pluginwizard/qt/images/utility.png mapclient/tools/pluginwizard/qt/images/data-sink.png mapclient/tools/pluginwizard/qt/images/model-viewer.png mapclient/tools/pluginwizard/qt/images/segmentation.png mapclient/tools/pluginwizard/qt/images/fitting.png mapclient/tools/pluginwizard/qt/images/image-processing.png mapclient/tools/pluginwizard/qt/images/morphometric.png mapclient/tools/pluginwizard/qt/images/default.png mapclient/tools/pluginwizard/qt/images/registration.png mapclient/tools/pluginwizard/qt/images/data-source.png

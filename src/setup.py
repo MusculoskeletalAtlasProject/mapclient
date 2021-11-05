@@ -51,8 +51,12 @@ setup(
     url='https://github.com/MusculoskeletalAtlasProject/mapclient',
     # namespace_packages=['mapclientplugins', ],
     packages=find_packages(exclude=['tests', 'tests.*', 'mapclientplugins', 'mapclientplugins.*', 'utils', 'utils.*' ]),
-    package_data={'mapclient.tools.annotation': ['annotation.voc'], 'mapclient.tools.osxapp': ['mapclient.icns']},
+    package_data={'mapclient.tools.annotation': ['annotation.voc'], 'mapclient.tools.osxapp': ['mapclient.icns'],
+                  'mapclient.tools.pluginwizard.qt.images':
+                      ['data-sink.png', 'data-source.png', 'default.png', 'fitting.png', 'image-processing.png',
+                       'model-viewer.png', 'morphometric.png', 'registration.png', 'segmentation.png', 'utility.png']},
     # py_modules=['mapclient.mapclient'],
+    include_package_data=True,
     entry_points={'console_scripts': ['mapclient=mapclient.application:main']},
     install_requires=package_dependencies,
 )
