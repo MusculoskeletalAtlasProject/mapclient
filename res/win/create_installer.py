@@ -58,10 +58,10 @@ if __name__ == '__main__':
     here = os.path.realpath(os.path.dirname(__file__))
 
     root_dir = os.path.realpath(os.path.join(here, '..', '..'))
-	
+
     src_dir = os.path.join(root_dir, 'src')
     sys.path.append(src_dir)
-    
+
     from mapclient.settings import version as app_version
 
     app_variant = '-mapping-tools'
