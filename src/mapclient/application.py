@@ -31,7 +31,7 @@ from logging import handlers
 
 from mapclient.core.exitcodes import HEADLESS_MODE_WITH_NO_WORKFLOW, INVALID_WORKFLOW_LOCATION_GIVEN
 from mapclient.core.utils import is_frozen, find_file
-from mapclient.settings.definitions import INTERNAL_WORKFLOWS_ZIP, INTERNAL_WORKFLOWS_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG
+from mapclient.settings.definitions import INTERNAL_WORKFLOWS_ZIP, INTERNAL_WORKFLOWS_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG, PREVIOUS_WORKFLOW, AUTOLOAD_PREVIOUS_WORKFLOW
 from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME
 
 os.environ['ETS_TOOLKIT'] = 'qt'
@@ -144,7 +144,9 @@ def windows_main(app_args):
 
     splash.showMessage('Loading internal workflow ...', 70)
     om = model.optionsManager()
-    prepare_internal_workflow(app_args, om)
+    _prepare_internal_workflows(om)
+    if om.getOption(AUTOLOAD_PREVIOUS_WORKFLOW):
+        _load_previous_workflow(app_args, om)
 
     if app_args.workflow:
         splash.showMessage('Opening workflow ...', 80)
@@ -164,16 +166,45 @@ def windows_main(app_args):
     return app.exec_()
 
 
-def prepare_internal_workflow(app_args, om):
+def _get_default_internal_workflow(om):
+    internal_workflow_dir = om.getOption(INTERNAL_WORKFLOW_DIR)
+    default_workflow = os.path.join(internal_workflow_dir, "default_workflow.txt")
+    if os.path.isfile(default_workflow):
+        with open(default_workflow) as f:
+            lines = f.readlines()
+
+        return find_file(DEFAULT_WORKFLOW_PROJECT_FILENAME, os.path.join(internal_workflow_dir, lines[0].rstrip()))
+
+    return find_file(DEFAULT_WORKFLOW_PROJECT_FILENAME, internal_workflow_dir)
+
+
+def _load_previous_workflow(app_args, om):
+    previous_workflow_dir = om.getOption(PREVIOUS_WORKFLOW)
+    if previous_workflow_dir != UNSET_FLAG:
+        workflow_file = find_file(DEFAULT_WORKFLOW_PROJECT_FILENAME, previous_workflow_dir)
+        workflow_location = 'previous'
+    else:
+        workflow_file = _get_default_internal_workflow(om)
+        workflow_location = 'internal default'
+
+    # Should definitely have a workflow now.
+    workflow_directory = os.path.dirname(workflow_file)
+
+    # Set workflow to internal workflow if None is currently present.
+    if app_args.workflow is None:
+        app_args.workflow = workflow_directory
+        logger.info(f"Loading {workflow_location} workflow.")
+
+
+def _prepare_internal_workflows(om):
     # Determine if we have an internal workflow.
     if is_frozen():
-        internal_workflow_zip = os.path.join(sys._MEIPASS, INTERNAL_WORKFLOWS_ZIP)
+        internal_workflows_zip = os.path.join(sys._MEIPASS, INTERNAL_WORKFLOWS_ZIP)
     else:
         file_dir = os.path.dirname(os.path.abspath(__file__))
-        internal_workflow_zip = os.path.realpath(os.path.join(file_dir, '..', INTERNAL_WORKFLOWS_ZIP))
-        # internal_workflow_zip = ''
+        internal_workflows_zip = os.path.realpath(os.path.join(file_dir, '..', INTERNAL_WORKFLOWS_ZIP))
 
-    if os.path.isfile(internal_workflow_zip):
+    if os.path.isfile(internal_workflows_zip):
         # We have an internal workflow set the option as active.
         om.setOption(INTERNAL_WORKFLOWS_AVAILABLE, True)
 
@@ -193,17 +224,9 @@ def prepare_internal_workflow(app_args, om):
             # No workflow exists in the workflow directory so we will
             # unzip the stored workflow(s) into this location.
             logger.info("Decompressing internal workflow(s) ...")
-            archive = zipfile.ZipFile(internal_workflow_zip)
+            archive = zipfile.ZipFile(internal_workflows_zip)
             archive.extractall(f"{internal_workflow_dir}")
 
-        # Should definitely have a workflow now.
-        workflow_file = find_file(DEFAULT_WORKFLOW_PROJECT_FILENAME, internal_workflow_dir)
-        default_workflow_directory = os.path.dirname(workflow_file)
-
-        # Set workflow to internal workflow if None is currently present.
-        if app_args.workflow is None:
-            app_args.workflow = default_workflow_directory
-            logger.info("Loading internal default workflow.")
     else:
         om.setOption(INTERNAL_WORKFLOWS_AVAILABLE, False)
 
@@ -244,7 +267,7 @@ def sans_gui_main(app_args):
     pam.load()
     pm.load()
 
-    prepare_internal_workflow(app_args, om)
+    _prepare_internal_workflows(om)
 
     try:
         wm.load(app_args.workflow)
