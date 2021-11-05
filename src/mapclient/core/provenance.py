@@ -1,12 +1,13 @@
+import json
 import os
 import pkgutil
 import subprocess
 import sys
+
 from importlib import import_module
 
 from mapclient.core.utils import is_frozen
-from mapclient.settings import info
-from mapclient.settings.definitions import PLUGINS_PACKAGE_NAME
+from mapclient.settings.definitions import PLUGINS_PACKAGE_NAME, FROZEN_PROVENANCE_INFO_FILE
 
 
 def _strip_pip_list_output(output_stream):
@@ -53,8 +54,10 @@ def _determine_capabilities():
 
 def reproducibility_info():
     if is_frozen():
-        print('Getting hard-coded information.')
-        r = {}
+        info_file = os.path.join(sys._MEIPASS, FROZEN_PROVENANCE_INFO_FILE)
+        with open(info_file) as f:
+            content = f.read()
+        r = json.loads(content)
     else:
         r = _determine_capabilities()
 
