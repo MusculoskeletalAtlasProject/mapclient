@@ -29,21 +29,29 @@ for name in names:
     data = os.pathsep.join([os.path.join(os.path.abspath(images_dir), name), os.path.join('res', 'images')])
     run_command.append(f'--add-data={data}')
 
+pyside_dir = os.path.dirname(RefMod.__file__)
+
 if platform.system() == 'Darwin':
-    pyside_dir = os.path.dirname(RefMod.__file__)
     rcc_exe = os.path.join(pyside_dir, "rcc")
     uic_exe = os.path.join(pyside_dir, "uic")
-    rel_rcc_exe = os.path.relpath(rcc_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
-    rel_uic_exe = os.path.relpath(uic_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
 
     macos_icon = os.path.join('..', 'macos', 'MAP-Client.icns')
     run_command.append(f'--icon={macos_icon}')
 
-    run_command.append(f'--add-binary={rel_rcc_exe}:PySide2/')
-    run_command.append(f'--add-binary={rel_uic_exe}:PySide2/')
 elif platform.system() == "Windows":
+    rcc_exe = os.path.join(pyside_dir, "rcc.exe")
+    uic_exe = os.path.join(pyside_dir, "uic.exe")
+
     win_icon = os.path.join('..', 'win', 'MAP-Client.ico')
     run_command.append(f'--icon={win_icon}')
+else:
+    raise NotImplementedError("Platform is not supported for creating a MAP Client application.")
+
+rel_rcc_exe = os.path.relpath(rcc_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
+rel_uic_exe = os.path.relpath(uic_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
+
+run_command.append(os.pathsep.join([f'--add-binary={rel_rcc_exe}', 'PySide2/']))
+run_command.append(os.pathsep.join([f'--add-binary={rel_uic_exe}', 'PySide2/']))
 
 externally_specified_internal_workflows_zip = os.environ.get('INTERNAL_WORKFLOWS_ZIP', '<not-a-file>')
 if os.path.isfile(externally_specified_internal_workflows_zip):
