@@ -184,6 +184,9 @@ def _load_previous_workflow(app_args, om):
         workflow_file = find_file(DEFAULT_WORKFLOW_PROJECT_FILENAME, previous_workflow_dir)
         workflow_location = 'previous'
     else:
+        if not om.getOption(INTERNAL_WORKFLOWS_AVAILABLE):
+            return
+
         workflow_file = _get_default_internal_workflow(om)
         workflow_location = 'internal default'
 
