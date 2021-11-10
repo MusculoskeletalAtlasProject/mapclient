@@ -7,6 +7,10 @@ import PyInstaller.__main__
 from mapclient.core.provenance import reproducibility_info
 from mapclient.settings.definitions import FROZEN_PROVENANCE_INFO_FILE
 
+
+# Set Python optimisations on.
+os.environ['PYTHONOPTIMIZE'] = '1'
+
 variant = '-mapping-tools'
 
 here = os.path.dirname(__file__)
