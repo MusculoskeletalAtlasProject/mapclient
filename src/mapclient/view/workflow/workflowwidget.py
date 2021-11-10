@@ -193,15 +193,16 @@ class WorkflowWidget(QtWidgets.QWidget):
     def _getWorkflowDir(self):
         m = self._mainWindow.model().workflowManager()
         workflowDir = QtWidgets.QFileDialog.getExistingDirectory(self._mainWindow, caption='Select Workflow Directory', directory=m.previousLocation())
-        if not workflowDir:
+        if workflowDir is None:
             # user abort
             return ''
 
         class ProblemClass(object):
-            _mk_workflow_dir = False
-            _rm_tree_success = True
-            def rmTreeUnsuccessful(self, one, two, three):
-                self._rm_tree_success = False
+            mk_workflow_dir = False
+            rm_tree_success = True
+
+            def rm_tree_unsuccessful(self, _one, _two, _three):
+                self.rm_tree_success = False
 
         if m.exists(workflowDir):
             # Check to make sure user wishes to overwrite existing workflow.
@@ -216,13 +217,14 @@ class WorkflowWidget(QtWidgets.QWidget):
                 return ''
             else:
                 # Delete contents of directory
-                shutil.rmtree(workflowDir, onerror=ProblemClass.rmTreeUnsuccessful)
-                ProblemClass._mk_workflow_dir = True
+                shutil.rmtree(workflowDir, onerror=ProblemClass.rm_tree_unsuccessful)
+                ProblemClass.mk_workflow_dir = True
 
         # got dir, continue
-        if ProblemClass._rm_tree_success:
-            if ProblemClass._mk_workflow_dir:
+        if ProblemClass.rm_tree_success:
+            if ProblemClass.mk_workflow_dir:
                 os.mkdir(workflowDir)
+
             return workflowDir
         else:
             QtWidgets.QMessageBox.warning(self,
@@ -235,20 +237,20 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     @handle_runtime_error
     @set_wait_cursor
-    def _createNewWorkflow(self, workflowDir, pmr):
+    def _createNewWorkflow(self, workflow_dir, pmr):
         m = self._mainWindow.model().workflowManager()
         om = self._mainWindow.model().optionsManager()
-        m.new(workflowDir)
-        m.setPreviousLocation(workflowDir)
+        m.new(workflow_dir)
+        m.setPreviousLocation(workflow_dir)
 
         if pmr:
             pmr_info = PMR()
             pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
             if pmr_tool.hasAccess():
-                dir_name = os.path.basename(workflowDir)
+                dir_name = os.path.basename(workflow_dir)
                 try:
                     repourl = pmr_tool.addWorkspace('Workflow: ' + dir_name, None)
-                    pmr_tool.linkWorkspaceDirToUrl(workflowDir, repourl)
+                    pmr_tool.linkWorkspaceDirToUrl(workflow_dir, repourl)
                 except HTTPError as e:
                     logger.exception('Error creating new')
                     self.close()
@@ -258,7 +260,7 @@ class WorkflowWidget(QtWidgets.QWidget):
                 raise ClientRuntimeError('Error Creating New', "Client doesn't have access to PMR")
 
         self._undoStack.clear()
-        self._ui.graphicsView.setLocation(workflowDir)
+        self._ui.graphicsView.setLocation(workflow_dir)
         self._graphicsScene.updateModel()
         self._update_ui()
 
@@ -267,9 +269,6 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     def open(self):
         m = self._mainWindow.model().workflowManager()
-        # Warning: when switching between PySide and PyQt4 the keyword argument for the directory to initialise the dialog to is different.
-        # In PySide the keyword argument is 'dir'
-        # In PyQt4 the keyword argument is 'directory'
 
         primary_filter = f"Workflow configuration file ({DEFAULT_WORKFLOW_PROJECT_FILENAME})"
 
@@ -440,12 +439,13 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     @handle_runtime_error
     @set_wait_cursor
-    def _load(self, workflowDir):
+    def _load(self, workflow_dir):
         try:
             m = self._mainWindow.model().workflowManager()
-            m.load(workflowDir)
-            m.setPreviousLocation(workflowDir)
+            m.load(workflow_dir)
+            m.setPreviousLocation(workflow_dir)
             self._graphicsScene.updateModel()
+            self._ui.graphicsView.setLocation(workflow_dir)
             self._ui.graphicsView.setViewParameters(m.scene().getViewParameters())
             self._update_ui()
         except:
@@ -486,6 +486,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         m = self._mainWindow.model().workflowManager()
         workflow_dir = m.location()
         if m.updateLocation(workflow_dir):
+            self._ui.graphicsView.setLocation(workflow_dir)
             self._graphicsScene.updateModel()
 
     def _setLocation(self):
@@ -495,6 +496,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         if workflow_dir:
             m.setPreviousLocation(workflow_dir)
             m.updateLocation(workflow_dir)
+            self._ui.graphicsView.setLocation(workflow_dir)
             self._graphicsScene.updateModel()
             location_set = True
 

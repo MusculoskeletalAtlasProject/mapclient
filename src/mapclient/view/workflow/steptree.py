@@ -138,7 +138,7 @@ class StepTree(QtWidgets.QTreeWidget):
         if step._icon:
             pixmap = QtGui.QPixmap(step._icon)
         else:
-#             icon = createDefaultImageIcon(step.getName())
+            # icon = createDefaultImageIcon(step.getName())
             pixmap = QtGui.QPixmap()
             pixmap.convertFromImage(QtGui.QImage(':/workflow/images/default_step_icon.png'))
 
