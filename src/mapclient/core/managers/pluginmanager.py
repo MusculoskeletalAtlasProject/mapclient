@@ -212,9 +212,10 @@ class PluginManager(object):
         else:
             python_executable = sys.executable
 
-        subprocess.Popen([python_executable, "-m", "pip", "install", str(uri)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
+        if not is_frozen():
+            subprocess.Popen([python_executable, "-m", "pip", "install", str(uri)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
 
-        importlib.reload(pkg_resources)
+            importlib.reload(pkg_resources)
 
     def extractPluginDependencies(self, path):
         setup_dir, step_dir = os.path.split(path)
@@ -280,7 +281,10 @@ class PluginManager(object):
         for module_finder, modname, ispkg in pkgutil.iter_modules(package.__path__):
             if ispkg:
                 try:
-                    plugin_dependencies = self.extractPluginDependencies(module_finder.path)
+                    if is_frozen() and not isinstance(module_finder, importlib.machinery.FileFinder):
+                        plugin_dependencies = []
+                    else:
+                        plugin_dependencies = self.extractPluginDependencies(module_finder.path)
                     missing_dependencies = self._plugin_database.check_for_missing_dependencies(plugin_dependencies)
                     for dependency in missing_dependencies:
                         self.installPackage(dependency)
@@ -312,11 +316,15 @@ class PluginManager(object):
                         self._syntax_errors += [modname]
                     elif type(e) == TabError:
                         self._tab_errors += [modname]
-                    self._plugin_error_directories[modname] = module_finder.path
 
-                    step_file_dir = os.path.join(module_finder.path, modname, 'step.py')
-                    class_name = determineStepClassName(step_file_dir)
-                    step_name = determineStepName(step_file_dir, class_name)
+                    if is_frozen():
+                        self._plugin_error_directories[modname] = '<frozen-directory>'
+                        step_name = '<frozen-name>'
+                    else:
+                        self._plugin_error_directories[modname] = module_finder.path
+                        step_file_dir = os.path.join(module_finder.path, modname, 'step.py')
+                        class_name = determineStepClassName(step_file_dir)
+                        step_name = determineStepName(step_file_dir, class_name)
                     self._plugin_error_names.append(step_name)
 
                     logger.warning('Plugin \'' + modname + '\' not loaded')
@@ -328,7 +336,6 @@ class PluginManager(object):
 
         # installed = [pkg.key for pkg in pkg_resources.working_set]
         # print(installed)
-
 
     def get_plugin_error_names(self):
         return self._plugin_error_names
