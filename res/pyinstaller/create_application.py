@@ -18,8 +18,9 @@ here = os.path.dirname(__file__)
 run_command = [
     '../../src/mapclient/application.py',
     '-n', f'MAP-Client{variant}',
-    '--debug', 'noarchive',
+    # '--debug', 'noarchive',
     '--windowed',
+    '--no-embed-manifest',
     '--noconfirm',
     '--hidden-import', 'scipy',
     '--hidden-import', 'scipy.interpolate',
