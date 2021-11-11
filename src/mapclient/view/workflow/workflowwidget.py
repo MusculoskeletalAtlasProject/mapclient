@@ -40,7 +40,7 @@ from mapclient.view.managers.plugins.pluginupdater import PluginUpdater
 from mapclient.tools.pmr.settings.general import PMR
 from mapclient.settings.general import get_virtualenv_directory
 from mapclient.core.workflow.workflowerror import WorkflowError
-from mapclient.settings.definitions import SHOW_STEP_NAMES, USE_EXTERNAL_GIT
+from mapclient.settings.definitions import SHOW_STEP_NAMES, USE_EXTERNAL_GIT, PREVIOUS_WORKFLOW
 
 logger = logging.getLogger(__name__)
 
@@ -451,6 +451,9 @@ class WorkflowWidget(QtWidgets.QWidget):
         except:
             self.close()
             raise
+
+        om = self._mainWindow.model().optionsManager()
+        om.setOption(PREVIOUS_WORKFLOW, workflow_dir)
 
     def close(self):
         self._mainWindow.confirm_close()
