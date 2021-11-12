@@ -92,4 +92,8 @@ if __name__ == "__main__":
     parser.add_argument("variant", narg='?', default='', help="MAP Client variant")
     args = parser.parse_args()
 
+    app_variant = ''
+    if args.variant:
+        app_variant = f"-{args.variant}"
+
     main(args.variant)

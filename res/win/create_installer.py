@@ -68,4 +68,7 @@ if __name__ == '__main__':
     src_dir = os.path.join(root_dir, 'src')
     sys.path.append(src_dir)
 
-    run_makensis(root_dir, args.version, args.variant)
+    app_variant = ''
+    if args.variant:
+        app_variant = f"-{args.variant}"
+    run_makensis(root_dir, args.version, app_variant)
