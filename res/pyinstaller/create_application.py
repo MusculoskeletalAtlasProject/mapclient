@@ -89,7 +89,7 @@ def main(variant):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="create_installer")
-    parser.add_argument("variant", default='', help="MAP Client variant")
+    parser.add_argument("variant", narg='?', default='', help="MAP Client variant")
     args = parser.parse_args()
 
     main(args.variant)

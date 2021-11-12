@@ -58,7 +58,7 @@ if __name__ == '__main__':
     '''
     parser = argparse.ArgumentParser(prog="create_installer")
     parser.add_argument("version", help="MAP Client version")
-    parser.add_argument("variant", default='', help="MAP Client variant")
+    parser.add_argument("variant", default='', nargs='?', help="MAP Client variant")
     args = parser.parse_args()
 
     here = os.path.realpath(os.path.dirname(__file__))
