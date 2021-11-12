@@ -36,7 +36,7 @@ def run_makensis(repo_root_dir, app_version, app_variant):
             with open(os.path.join(repo_root_dir, 'res', 'win', 'nsis.nsi.template')) as f:
                 contents = f.read()
 
-            match_keys = ReplaceOnlyDict(map_client_version=app_version.__version__,
+            match_keys = ReplaceOnlyDict(map_client_version=app_version,
                                          app_variant=app_variant,
                                          dist_dir=os.path.join(repo_root_dir, 'res', 'pyinstaller', 'dist', 'MAP-Client' + app_variant),
                                          win_res_dir=os.path.join(repo_root_dir, 'res', 'win'),

@@ -30,7 +30,11 @@ def _strip_pip_list_output(output_stream):
 
 
 def _determine_capabilities():
-    import mapclientplugins
+    try:
+        import mapclientplugins
+        mapclientplugins_present = True
+    except ModuleNotFoundError:
+        mapclientplugins_present = False
 
     my_env = os.environ.copy()
     python_executable = sys.executable
@@ -40,14 +44,15 @@ def _determine_capabilities():
     output_info = _strip_pip_list_output(result.stdout)
 
     mapclientplugins_info = {}
-    for loader, module_name, is_pkg in pkgutil.walk_packages(mapclientplugins.__path__):
-        if is_pkg:
-            package_name = PLUGINS_PACKAGE_NAME + '.' + module_name
-            module = import_module(package_name)
-            mapclientplugins_info[package_name] = {
-                "version": module.__version__ if hasattr(module, '__version__') else "X.Y.Z",
-                "location": module.__location__ if hasattr(module, '__location__') else "",
-            }
+    if mapclientplugins_present:
+        for loader, module_name, is_pkg in pkgutil.walk_packages(mapclientplugins.__path__):
+            if is_pkg:
+                package_name = PLUGINS_PACKAGE_NAME + '.' + module_name
+                module = import_module(package_name)
+                mapclientplugins_info[package_name] = {
+                    "version": module.__version__ if hasattr(module, '__version__') else "X.Y.Z",
+                    "location": module.__location__ if hasattr(module, '__location__') else "",
+                }
 
     return {**output_info, **mapclientplugins_info}
 
