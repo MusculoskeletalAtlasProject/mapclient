@@ -2,7 +2,13 @@ import argparse
 import json
 import os
 import platform
-import PySide2 as RefMod
+import sys
+
+try:
+    import PySide2 as RefMod
+except ModuleNotFoundError:
+    pass
+
 import PyInstaller.__main__
 
 from mapclient.core.provenance import reproducibility_info
@@ -92,6 +98,8 @@ if __name__ == "__main__":
     parser.add_argument("variant", narg='?', default='', help="MAP Client variant")
     args = parser.parse_args()
 
+    print('hereherehereherehereherehere')
+    print(sys.executable)
     app_variant = ''
     if args.variant:
         app_variant = f"-{args.variant}"
