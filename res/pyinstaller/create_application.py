@@ -65,11 +65,11 @@ def main(variant):
     else:
         raise NotImplementedError("Platform is not supported for creating a MAP Client application.")
 
-    rel_rcc_exe = os.path.relpath(rcc_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
-    rel_uic_exe = os.path.relpath(uic_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
+    # rel_rcc_exe = os.path.relpath(rcc_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
+    # rel_uic_exe = os.path.relpath(uic_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
 
-    run_command.append(os.pathsep.join([f'--add-binary={rel_rcc_exe}', 'PySide2/']))
-    run_command.append(os.pathsep.join([f'--add-binary={rel_uic_exe}', 'PySide2/']))
+    run_command.append(os.pathsep.join([f'--add-binary={rcc_exe}', 'PySide2/']))
+    run_command.append(os.pathsep.join([f'--add-binary={uic_exe}', 'PySide2/']))
 
     externally_specified_internal_workflows_zip = os.environ.get('INTERNAL_WORKFLOWS_ZIP', '<not-a-file>')
     if os.path.isfile(externally_specified_internal_workflows_zip):
