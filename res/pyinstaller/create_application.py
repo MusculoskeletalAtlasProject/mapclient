@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import platform
@@ -11,75 +12,83 @@ from mapclient.settings.definitions import FROZEN_PROVENANCE_INFO_FILE
 # Set Python optimisations on.
 os.environ['PYTHONOPTIMIZE'] = '1'
 
-variant = '-mapping-tools'
-
 here = os.path.dirname(__file__)
 
-run_command = [
-    '../../src/mapclient/application.py',
-    '-n', f'MAP-Client{variant}',
-    # '--debug', 'noarchive',
-    '--windowed',
-    '--no-embed-manifest',
-    '--noconfirm',
-    '--hidden-import', 'scipy',
-    '--hidden-import', 'scipy.interpolate',
-    '--hidden-import', 'numpy',
-    '--hidden-import', 'mapclientplugins',
-    '--hidden-import', 'opencmiss.utils',
-    '--hidden-import', 'opencmiss.zincwidgets',
-    '--additional-hooks-dir=hooks',
-]
 
-info = reproducibility_info()
-info_file = FROZEN_PROVENANCE_INFO_FILE
-with open(info_file, 'w') as f:
-    f.write(json.dumps(info, default=lambda o: o.__dict__, sort_keys=True, indent=2))
+def main(variant):
+    run_command = [
+        '../../src/mapclient/application.py',
+        '-n', f'MAP-Client{variant}',
+        # '--debug', 'noarchive',
+        '--windowed',
+        '--no-embed-manifest',
+        '--noconfirm',
+        '--hidden-import', 'scipy',
+        '--hidden-import', 'scipy.interpolate',
+        '--hidden-import', 'numpy',
+        '--hidden-import', 'mapclientplugins',
+        '--hidden-import', 'opencmiss.utils',
+        '--hidden-import', 'opencmiss.zincwidgets',
+        '--additional-hooks-dir=hooks',
+    ]
 
-data = os.pathsep.join([info_file, '.'])
-run_command.append(f'--add-data={data}')
+    info = reproducibility_info()
+    info_file = FROZEN_PROVENANCE_INFO_FILE
+    with open(info_file, 'w') as f:
+        f.write(json.dumps(info, default=lambda o: o.__dict__, sort_keys=True, indent=2))
 
-images_dir = os.path.join('..', '..', 'src', 'mapclient', 'tools', 'pluginwizard', 'qt', 'images')
-names = os.listdir(images_dir)
-for name in names:
-    data = os.pathsep.join([os.path.join(os.path.abspath(images_dir), name), os.path.join('res', 'images')])
+    data = os.pathsep.join([info_file, '.'])
     run_command.append(f'--add-data={data}')
 
-pyside_dir = os.path.dirname(RefMod.__file__)
+    images_dir = os.path.join('..', '..', 'src', 'mapclient', 'tools', 'pluginwizard', 'qt', 'images')
+    names = os.listdir(images_dir)
+    for name in names:
+        data = os.pathsep.join([os.path.join(os.path.abspath(images_dir), name), os.path.join('res', 'images')])
+        run_command.append(f'--add-data={data}')
 
-if platform.system() == 'Darwin':
-    rcc_exe = os.path.join(pyside_dir, "rcc")
-    uic_exe = os.path.join(pyside_dir, "uic")
+    pyside_dir = os.path.dirname(RefMod.__file__)
 
-    macos_icon = os.path.join('..', 'macos', 'MAP-Client.icns')
-    run_command.append(f'--icon={macos_icon}')
+    if platform.system() == 'Darwin':
+        rcc_exe = os.path.join(pyside_dir, "rcc")
+        uic_exe = os.path.join(pyside_dir, "uic")
 
-elif platform.system() == "Windows":
-    rcc_exe = os.path.join(pyside_dir, "rcc.exe")
-    uic_exe = os.path.join(pyside_dir, "uic.exe")
+        macos_icon = os.path.join('..', 'macos', 'MAP-Client.icns')
+        run_command.append(f'--icon={macos_icon}')
 
-    win_icon = os.path.join('..', 'win', 'MAP-Client.ico')
-    run_command.append(f'--icon={win_icon}')
-else:
-    raise NotImplementedError("Platform is not supported for creating a MAP Client application.")
+    elif platform.system() == "Windows":
+        rcc_exe = os.path.join(pyside_dir, "rcc.exe")
+        uic_exe = os.path.join(pyside_dir, "uic.exe")
 
-rel_rcc_exe = os.path.relpath(rcc_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
-rel_uic_exe = os.path.relpath(uic_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
+        win_icon = os.path.join('..', 'win', 'MAP-Client.ico')
+        run_command.append(f'--icon={win_icon}')
+    else:
+        raise NotImplementedError("Platform is not supported for creating a MAP Client application.")
 
-run_command.append(os.pathsep.join([f'--add-binary={rel_rcc_exe}', 'PySide2/']))
-run_command.append(os.pathsep.join([f'--add-binary={rel_uic_exe}', 'PySide2/']))
+    rel_rcc_exe = os.path.relpath(rcc_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
+    rel_uic_exe = os.path.relpath(uic_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
 
-externally_specified_internal_workflows_zip = os.environ.get('INTERNAL_WORKFLOWS_ZIP', '<not-a-file>')
-if os.path.isfile(externally_specified_internal_workflows_zip):
-    internal_workflows_zip = externally_specified_internal_workflows_zip
-else:
-    internal_workflows_zip = os.path.abspath(os.path.join('..', '..', 'src', 'internal_workflows.zip'))
+    run_command.append(os.pathsep.join([f'--add-binary={rel_rcc_exe}', 'PySide2/']))
+    run_command.append(os.pathsep.join([f'--add-binary={rel_uic_exe}', 'PySide2/']))
 
-if os.path.isfile(internal_workflows_zip):
-    data = os.pathsep.join([internal_workflows_zip, '.'])
-    run_command.append(f'--add-data={data}')
+    externally_specified_internal_workflows_zip = os.environ.get('INTERNAL_WORKFLOWS_ZIP', '<not-a-file>')
+    if os.path.isfile(externally_specified_internal_workflows_zip):
+        internal_workflows_zip = externally_specified_internal_workflows_zip
+    else:
+        internal_workflows_zip = os.path.abspath(os.path.join('..', '..', 'src', 'internal_workflows.zip'))
 
-print('Running command: ', run_command)
-PyInstaller.__main__.run(run_command)
+    if os.path.isfile(internal_workflows_zip):
+        data = os.pathsep.join([internal_workflows_zip, '.'])
+        run_command.append(f'--add-data={data}')
 
-os.remove(info_file)
+    print('Running command: ', run_command)
+    PyInstaller.__main__.run(run_command)
+
+    os.remove(info_file)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(prog="create_installer")
+    parser.add_argument("variant", default='', help="MAP Client variant")
+    args = parser.parse_args()
+
+    main(args.variant)

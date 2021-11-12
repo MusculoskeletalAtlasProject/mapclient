@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 import subprocess
@@ -55,6 +56,11 @@ if __name__ == '__main__':
     '''
     Create a Windows application installer with NSIS and pyinsatller.
     '''
+    parser = argparse.ArgumentParser(prog="create_installer")
+    parser.add_argument("version", help="MAP Client version")
+    parser.add_argument("variant", default='', help="MAP Client variant")
+    args = parser.parse_args()
+
     here = os.path.realpath(os.path.dirname(__file__))
 
     root_dir = os.path.realpath(os.path.join(here, '..', '..'))
@@ -62,7 +68,4 @@ if __name__ == '__main__':
     src_dir = os.path.join(root_dir, 'src')
     sys.path.append(src_dir)
 
-    from mapclient.settings import version as app_version
-
-    app_variant = '-mapping-tools'
-    run_makensis(root_dir, app_version, app_variant)
+    run_makensis(root_dir, args.version, args.variant)
