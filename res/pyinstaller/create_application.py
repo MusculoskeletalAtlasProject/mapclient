@@ -2,7 +2,6 @@ import argparse
 import json
 import os
 import platform
-import sys
 
 import PySide2 as RefMod
 
@@ -68,9 +67,6 @@ def main(variant):
     else:
         raise NotImplementedError("Platform is not supported for creating a MAP Client application.")
 
-    # rel_rcc_exe = os.path.relpath(rcc_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
-    # rel_uic_exe = os.path.relpath(uic_exe, here)  # os.path.join(here, 'dist', 'MAPClient'))
-
     run_command.append(os.pathsep.join([f'--add-binary={rcc_exe}', 'PySide2/']))
     run_command.append(os.pathsep.join([f'--add-binary={uic_exe}', 'PySide2/']))
 
@@ -95,8 +91,6 @@ if __name__ == "__main__":
     parser.add_argument("variant", nargs='?', default='', help="MAP Client variant")
     args = parser.parse_args()
 
-    print('hereherehereherehereherehere')
-    print(sys.executable)
     app_variant = ''
     if args.variant:
         app_variant = f"-{args.variant}"
