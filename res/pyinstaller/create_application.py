@@ -4,10 +4,7 @@ import os
 import platform
 import sys
 
-try:
-    import PySide2 as RefMod
-except ModuleNotFoundError:
-    pass
+import PySide2 as RefMod
 
 import PyInstaller.__main__
 
@@ -95,7 +92,7 @@ def main(variant):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="create_installer")
-    parser.add_argument("variant", narg='?', default='', help="MAP Client variant")
+    parser.add_argument("variant", nargs='?', default='', help="MAP Client variant")
     args = parser.parse_args()
 
     print('hereherehereherehereherehere')
