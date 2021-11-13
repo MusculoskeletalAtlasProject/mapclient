@@ -101,4 +101,4 @@ if __name__ == "__main__":
     if args.variant:
         app_variant = f"-{args.variant}"
 
-    main(args.variant)
+    main(app_variant)
