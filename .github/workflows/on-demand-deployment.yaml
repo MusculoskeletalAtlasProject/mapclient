@@ -113,7 +113,7 @@ jobs:
           if [ "${{ matrix.variant }}" == "mapclient" ]; then
             $python_exe prepare_mapclient_release.py ${{ matrix.tag }}
           elif [ "${{ matrix.variant }}" == "mapping-tools" ]; then
-            $python_exe prepare_mapclient_release.py ${{ matrix.tag }} -v mapping-tools -p $scripts_dir/plugin_listing.txt -w $scripts_dir/workflow_listing.txt
+            $python_exe prepare_mapclient_release.py ${{ matrix.tag }} -v mapping-tools -p plugin_listing.txt -w workflow_listing.txt
           else
             echo "Variant not supported"
             exit 2
