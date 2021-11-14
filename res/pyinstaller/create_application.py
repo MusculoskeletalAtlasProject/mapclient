@@ -28,7 +28,7 @@ def main(variant):
         '--hidden-import', 'scipy',
         '--hidden-import', 'scipy.interpolate',
         '--hidden-import', 'numpy',
-        # '--hidden-import', 'mapclientplugins',
+        '--hidden-import', 'mapclientplugins',
         # '--hidden-import', 'opencmiss.utils',
         # '--hidden-import', 'opencmiss.zincwidgets',
         '--hidden-import', 'opencmiss.zinc',

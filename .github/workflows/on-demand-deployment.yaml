@@ -16,8 +16,17 @@ jobs:
         shell: bash
         run: |
           echo "Setting tag as: ${GITHUB_REF#refs/tags/}"
-          echo "${{ github.event.release.assets_url }}"
           echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
+      - name: Get the release name
+        id: get-release-name
+        shell: bash
+        run: |
+          tag=${GITHUB_REF#refs/tags/}
+          bare_tag=${tag/v//}
+          IFS='.' read -ra bare_tag_parts <<< "$bare_tag"
+          name="${bare_tag_parts[0]}.${bare_tag_parts[1]}.${bare_tag_parts[2]}"
+          echo "Setting name as: ${name}"
+          echo ::set-output name=NAME::$name
       - name: Determine required assets
         id: req-assets
         shell: cmake -P {0}
@@ -43,12 +52,12 @@ jobs:
           function join_by { local IFS="$1"; shift; echo "$*"; }
           matrixElements=()
           if [ "${{ steps.req-assets.outputs.include_installer }}" == "true" ]; then
-            matrixElements+=('{"os":"windows-2019","variant":"mapclient","tag":"${{ steps.get-tag.outputs.tag }}","python-version":"3.9"}')
-            matrixElements+=('{"os":"macos-10.15","variant":"mapclient","tag":"${{ steps.get-tag.outputs.tag }}","python-version":"3.9"}')
+            matrixElements+=('{"os":"windows-2019","variant":"mapclient","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
+            matrixElements+=('{"os":"macos-10.15","variant":"mapclient","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
           fi
           if [ "${{ steps.req-assets.outputs.include_mapping_tools }}" == "true" ]; then
-            matrixElements+=('{"os":"windows-2019","variant":"mapping-tools","tag":"${{ steps.get-tag.outputs.tag }}","python-version":"3.9"}')
-            matrixElements+=('{"os":"macos-10.15","variant":"mapping-tools","tag":"${{ steps.get-tag.outputs.tag }}","python-version":"3.9"}')
+            matrixElements+=('{"os":"windows-2019","variant":"mapping-tools","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
+            matrixElements+=('{"os":"macos-10.15","variant":"mapping-tools","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
           fi
           if [ "${#matrixElements[@]}" -eq "0" ]; then
             echo "::set-output name=RUN-INSTALLER::false"
@@ -79,7 +88,7 @@ jobs:
         with:
           repository: hsorby/mapclientreleasescripts
           path: scripts
-          ref: v0.7.0
+          ref: v0.8.0
       - name: Create installer asset
         id: create-installer
         shell: bash
@@ -120,7 +129,7 @@ jobs:
             else
               variant="-${{ matrix.variant }}"
             fi
-            asset=$GITHUB_WORKSPACE/scripts/mapclient/package/MAP-Client${variant}-${{ matrix.tag }}.exe
+            asset=$GITHUB_WORKSPACE/scripts/mapclient/package/MAP-Client${variant}-${{ matrix.release-name }}.exe
             # asset=`ls -1 "$GITHUB_WORKSPACE"/mapclient/package/MAP-Client*.exe`
             asset=${asset//\\//}
             echo $asset
