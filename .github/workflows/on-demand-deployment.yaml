@@ -22,7 +22,7 @@ jobs:
         shell: bash
         run: |
           tag=${GITHUB_REF#refs/tags/}
-          bare_tag=${tag/v//}
+          bare_tag=${tag/v/}
           IFS='.' read -ra bare_tag_parts <<< "$bare_tag"
           name="${bare_tag_parts[0]}.${bare_tag_parts[1]}.${bare_tag_parts[2]}"
           echo "Setting name as: ${name}"
