@@ -21,4 +21,5 @@ Then, run the following command::
 The updated html files can then be found in :code:`..\docs\_build\html`. :code:`index.html` is the entry to the documentation.
 
 If the user encounters any issues with the make command: Windows users should be using cmd.exe rather than any command line
-alternatives; macOS and Linux users should ensure that (GNU) make is installed.
+alternatives; macOS and Linux users should ensure that (GNU) make is installed. Otherwise, the problem is likely to be related
+to the installation of Sphinx.
