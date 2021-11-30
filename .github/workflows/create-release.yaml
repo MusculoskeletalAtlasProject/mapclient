@@ -24,7 +24,7 @@ jobs:
           count=${#split[@]}
           echo "something $tag - $count."
           [[ ${#split[@]} -eq 4 ]] && pre_release=true || pre_release=false
-          [[ ${#split[@]} -eq 4 ]] && body="Pre-release version $tag." || body="Version %tag."
+          [[ ${#split[@]} -eq 4 ]] && body="Pre-release version $tag." || body="Version $tag."
           echo ::set-output name=PRE_RELEASE::$pre_release
           echo ::set-output name=NAME::$tag
           echo ::set-output name=BODY::$body
