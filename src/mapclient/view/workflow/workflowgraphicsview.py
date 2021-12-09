@@ -134,8 +134,122 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             command = CommandRemove(self.scene(), self.scene().selectedItems())
             self._undoStack.push(command)
             event.accept()
+        elif event.matches(QtGui.QKeySequence.Copy):
+            mime_data = self.copy_steps()
+            QtWidgets.QApplication.clipboard().setMimeData(mime_data)
+            event.accept()
+        elif event.matches(QtGui.QKeySequence.Paste):
+            if QtWidgets.QApplication.clipboard().mimeData().hasFormat('image/x-workflow-step(s)'):
+                data = QtWidgets.QApplication.clipboard().mimeData().data("image/x-workflow-step(s)")
+                stream = QtCore.QDataStream(data, QtCore.QIODevice.ReadOnly)
+                self.paste_steps(stream)
+                event.accept()
         else:
             event.ignore()
+
+    def copy_steps(self, start_pos=QtCore.QPoint(0, 0)):
+        """
+        Generate and return a QMimeData object containing information for each of the current selected steps. This data is useful for
+        copying and pasting steps within the MAP Client workflow area.
+
+        When copying workflow items using the CTRL+Drag operation, you should specify a starting position. This argument is not necessary
+        (or relavant) when copying items with the CTRL+C shortcut.
+        """
+        data = QtCore.QByteArray()
+        data_stream = QtCore.QDataStream(data, QtCore.QIODevice.WriteOnly)
+
+        # The first part of the data_stream now gives the number of steps to be copied/pasted.
+        data_stream.writeUInt32(len(self.scene().selectedItems()))
+        data_stream << start_pos
+        data_stream << QtCore.QPoint(0, 0)      # Hotspot
+
+        # TODO: Copy the arrows aswell.
+        for item in self.scene().selectedItems():
+            name = item.metaItem().getStep().getName().encode('utf-8')
+            data_stream.writeUInt32(len(name))
+            buf = QtCore.QByteArray(name)
+            data_stream << buf
+
+            position = item.pos().toPoint()
+            data_stream << position
+
+        mime_data = QtCore.QMimeData()
+        mime_data.setData('image/x-workflow-step(s)', data)
+        return mime_data
+
+    # TODO: Paste the arrows aswell.
+    def paste_steps(self, stream, event_position=None):
+        """
+        This takes a stream of workflow items and pastes them to the workflow. See copy_steps for details on generating this stream.
+
+        The optional parameter (event_position) can be used to specify where to paste the copied steps. This argument is not relavant
+        when pasting workflow items using the CRTL+V shortcut, as this event has no position. In the future we may want to update the
+        CTRL+V action to consider the last workflow position the user clicked and use this to generate an event_position argument.
+        """
+        scene = self.scene()
+        start_pos = QtCore.QPoint()
+        hotspot = QtCore.QPoint()
+        position = QtCore.QPoint()
+        buf = QtCore.QByteArray()
+
+        self._undoStack.beginMacro('Paste Workflow Items')
+        scene.clearSelection()
+
+        step_count = stream.readUInt32()
+        stream >> start_pos
+        stream >> hotspot
+
+        if event_position:
+            offset = event_position - start_pos
+
+        for _ in range(step_count):
+            _name_len = stream.readUInt32()
+            stream >> buf
+            stream >> position
+
+            if event_position is None:
+                position.setX(position.x() + 20)
+                position.setY(position.y() + 20)
+            else:
+                position = position + offset - hotspot
+
+            name = buf.data().decode()
+            node = self.create_node(scene, name)
+
+            self._undoStack.push(CommandAdd(scene, node))
+            self._undoStack.push(CommandMove(node, position, scene.ensureItemInScene(node, position)))
+
+            node.setSelected(True)
+
+        self._undoStack.endMacro()
+        self.setFocus()
+
+    def setup_drag(self, start_pos):
+        """
+        Creates a QDrag object from the currently selected workflow items.
+
+        Takes a starting position as an argument.
+        """
+        if len(self.scene().selectedItems()) > 1:
+            pixmap = QtGui.QPixmap()
+            pixmap.convertFromImage(QtGui.QImage(':/workflow/images/clipboard_icon.png'))
+        else:
+            item = self.scene().itemAt(self.mapToScene(start_pos), QtGui.QTransform())
+            step = item.metaItem().getStep()
+            if step._icon:
+                pixmap = QtGui.QPixmap(step._icon)
+            else:
+                pixmap = QtGui.QPixmap()
+                pixmap.convertFromImage(QtGui.QImage(':/workflow/images/default_step_icon.png'))
+
+        pixmap = pixmap.scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        hotspot = QtCore.QPoint(pixmap.width() / 2, pixmap.height() / 2)
+
+        drag = QtGui.QDrag(self)
+        drag.setMimeData(self.copy_steps(start_pos))
+        drag.setHotSpot(hotspot)
+        drag.setPixmap(pixmap)
+        drag.exec_(QtCore.Qt.MoveAction)
 
     def contextMenuEvent(self, event):
         item = self.itemAt(event.pos())
@@ -162,6 +276,10 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             self._connectLine.setLine(newLine)
         else:
             QtWidgets.QGraphicsView.mouseMoveEvent(self, event)
+
+            modifiers = QtWidgets.QApplication.keyboardModifiers()
+            if modifiers == QtCore.Qt.ControlModifier:
+                self.setup_drag(event.pos())
 
     def mouseReleaseEvent(self, event):
         if self._connectLine:
@@ -204,52 +322,37 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         painter.drawRect(sceneRect)
 
     def dropEvent(self, event):
-        if event.mimeData().hasFormat("image/x-workflow-step"):
-            piece_data = event.mimeData().data("image/x-workflow-step")
+        if event.mimeData().hasFormat("image/x-workflow-step(s)"):
+            piece_data = event.mimeData().data("image/x-workflow-step(s)")
             stream = QtCore.QDataStream(piece_data, QtCore.QIODevice.ReadOnly)
-            hot_spot = QtCore.QPoint()
-
-            _name_len = stream.readUInt32()
-            buf = QtCore.QByteArray()
-            stream >> buf
-            name = buf.data().decode()
-
-            stream >> hot_spot
-
-            position = self.mapToScene(event.pos()) - hot_spot
-
-            scene = self.scene()
-
-            # Create a step with the given name.
-            step = workflowStepFactory(name, self._location)
-            self.set_default_id(step)
-            step.setMainWindow(self._main_window)
-            step.setLocation(self._location)
-            step.registerConfiguredObserver(scene.stepConfigured)
-            step.registerDoneExecution(scene.doneExecution)
-            step.registerOnExecuteEntry(scene.setCurrentWidget)
-            step.registerIdentifierOccursCount(scene.identifierOccursCount)
-
-            # Trigger a validation.
-            step.deserialize(step.serialize())
-
-            # Prepare meta step for the graphics scene.
-            meta_step = MetaStep(step)
-            node = Node(meta_step)
-            node.showStepName(self._showStepNames)
-
-            self._undoStack.beginMacro('Add node')
-            self._undoStack.push(CommandAdd(scene, node))
-            # Set the position after it has been added to the scene.
-            self._undoStack.push(CommandMove(node, position, scene.ensureItemInScene(node, position)))
-            scene.clearSelection()
-            node.setSelected(True)
-            self._undoStack.endMacro()
-
-            self.setFocus()
+            self.paste_steps(stream, event.pos())
             event.accept()
         else:
             event.ignore()
+
+    def create_node(self, scene, name):
+        """
+        Creates and returns a Node object based on the step name given.
+        """
+        # Create a step with the given name.
+        step = workflowStepFactory(name, self._location)
+        self.set_default_id(step)
+        step.setMainWindow(self._main_window)
+        step.setLocation(self._location)
+        step.registerConfiguredObserver(scene.stepConfigured)
+        step.registerDoneExecution(scene.doneExecution)
+        step.registerOnExecuteEntry(scene.setCurrentWidget)
+        step.registerIdentifierOccursCount(scene.identifierOccursCount)
+
+        # Trigger a validation.
+        step.deserialize(step.serialize())
+
+        # Prepare meta step for the graphics scene.
+        meta_step = MetaStep(step)
+        node = Node(meta_step)
+        node.showStepName(self._showStepNames)
+
+        return node
 
     def set_default_id(self, step):
         # Check if there are any existing steps with the default identifier.
@@ -264,7 +367,8 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         step.setIdentifier(potential_id)
 
     def dragMoveEvent(self, event):
-        if event.mimeData().hasFormat("image/x-workflow-step"):
+        QtWidgets.QGraphicsView.dragMoveEvent(self, event)
+        if event.mimeData().hasFormat("image/x-workflow-step(s)"):
             event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()
         else:
@@ -272,11 +376,9 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
         self.update()
 
-    #    def dragLeaveEvent(self, event):
-    #        event.accept()
-
     def dragEnterEvent(self, event):
-        if event.mimeData().hasFormat("image/x-workflow-step"):
+        QtWidgets.QGraphicsView.dragEnterEvent(self, event)
+        if event.mimeData().hasFormat("image/x-workflow-step(s)"):
             event.accept()
         else:
             event.ignore()
