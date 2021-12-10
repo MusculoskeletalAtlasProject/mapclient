@@ -96,11 +96,11 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
     def showStepNames(self, show):
         self._showStepNames = show
 
-    def connectNodes(self, node1, node2):
+    def connectNodes(self, src_port, dest_port):
         # Check if nodes are already connected
-        if not node1.hasArcToDestination(node2):
-            if node1.canConnect(node2):
-                command = CommandAdd(self.scene(), Arc(node1, node2))
+        if not src_port.hasArcToDestination(dest_port):
+            if src_port.canConnect(dest_port):
+                command = CommandAdd(self.scene(), Arc(src_port, dest_port))
                 self._undoStack.push(command)
             else:
                 # add temporary line ???
@@ -108,7 +108,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
                     self._errorIconTimer.stop()
                     self._errorIconTimeout()
 
-                self._errorIcon = ErrorItem(node1, node2)
+                self._errorIcon = ErrorItem(src_port, dest_port)
                 self.scene().addItem(self._errorIcon)
                 self._errorIconTimer.start()
 
@@ -163,15 +163,27 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         data_stream << start_pos
         data_stream << QtCore.QPoint(0, 0)      # Hotspot
 
-        # TODO: Copy the arrows aswell.
         for item in self.scene().selectedItems():
-            name = item.metaItem().getStep().getName().encode('utf-8')
-            data_stream.writeUInt32(len(name))
-            buf = QtCore.QByteArray(name)
-            data_stream << buf
+            if item.type() == Node.Type:
+                name = item.metaItem().getStep().getName().encode('utf-8')
+                data_stream.writeUInt32(len(name))
+                buf = QtCore.QByteArray(name)
+                data_stream << buf
 
-            position = item.pos().toPoint()
-            data_stream << position
+                position = item.pos().toPoint()
+                data_stream << position
+            else:
+                data_stream.writeUInt32(0)
+
+                src_pos = item.sourceNode().parentItem().pos().toPoint()
+                src_port_index = item.sourceNode().portIndex()
+                dest_pos = item.destinationNode().parentItem().pos().toPoint()
+                dest_port_index = item.destinationNode().portIndex()
+
+                data_stream << src_pos
+                data_stream.writeUInt32(src_port_index)
+                data_stream << dest_pos
+                data_stream.writeUInt32(dest_port_index)
 
         mime_data = QtCore.QMimeData()
         mime_data.setData('image/x-workflow-step(s)', data)
@@ -191,35 +203,64 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         hotspot = QtCore.QPoint()
         position = QtCore.QPoint()
         buf = QtCore.QByteArray()
+        arc_list = []
 
         self._undoStack.beginMacro('Paste Workflow Items')
         scene.clearSelection()
 
-        step_count = stream.readUInt32()
+        item_count = stream.readUInt32()
         stream >> start_pos
         stream >> hotspot
 
         if event_position:
             offset = event_position - start_pos
 
-        for _ in range(step_count):
+        for _ in range(item_count):
             _name_len = stream.readUInt32()
-            stream >> buf
-            stream >> position
+            if _name_len == 0:
+                src_pos = QtCore.QPoint()
+                dest_pos = QtCore.QPoint()
+
+                stream >> src_pos
+                src_port_index = stream.readUInt32()
+                stream >> dest_pos
+                dest_port_index = stream.readUInt32()
+
+                arc_list.append((src_pos, src_port_index, dest_pos, dest_port_index))
+            else:
+                stream >> buf
+                stream >> position
+
+                if event_position is None:
+                    position.setX(position.x() + 20)
+                    position.setY(position.y() + 20)
+                else:
+                    position = position + offset - hotspot
+
+                name = buf.data().decode()
+                node = self.create_node(scene, name)
+
+                self._undoStack.push(CommandAdd(scene, node))
+                self._undoStack.push(CommandMove(node, position, scene.ensureItemInScene(node, position)))
+
+                node.setSelected(True)
+
+        for arc in arc_list:
+            src_pos, src_port_index = arc[0], arc[1]
+            dest_pos, dest_port_index = arc[2], arc[3]
 
             if event_position is None:
-                position.setX(position.x() + 20)
-                position.setY(position.y() + 20)
+                src_pos += QtCore.QPoint(20, 20)
+                dest_pos += QtCore.QPoint(20, 20)
             else:
-                position = position + offset - hotspot
+                src_pos = src_pos + offset - hotspot
+                dest_pos = dest_pos + offset - hotspot
 
-            name = buf.data().decode()
-            node = self.create_node(scene, name)
+            src_port = self.scene().itemAt(self.mapToScene(src_pos), QtGui.QTransform())._step_port_items[src_port_index]
+            dest_port = self.scene().itemAt(self.mapToScene(dest_pos), QtGui.QTransform())._step_port_items[dest_port_index]
 
-            self._undoStack.push(CommandAdd(scene, node))
-            self._undoStack.push(CommandMove(node, position, scene.ensureItemInScene(node, position)))
-
-            node.setSelected(True)
+            if (src_port and src_port.type() == StepPort.Type) and (dest_port and dest_port.type() == StepPort.Type):
+                self.connectNodes(src_port, dest_port)
 
         self._undoStack.endMacro()
         self.setFocus()
