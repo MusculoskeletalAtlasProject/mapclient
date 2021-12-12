@@ -260,7 +260,10 @@ class PluginManager(object):
                         new_plugin_directories.append(os.path.join(directory, name))
 
         if len_package_modules_prior == 0:
-            package = import_module(PLUGINS_PACKAGE_NAME)
+            try:
+                package = import_module(PLUGINS_PACKAGE_NAME)
+            except ModuleNotFoundError:
+                return
         else:
             for d in new_plugin_directories:
                 sys.modules[PLUGINS_PACKAGE_NAME].__path__.append(os.path.join(d, PLUGINS_PACKAGE_NAME))

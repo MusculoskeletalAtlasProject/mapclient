@@ -489,7 +489,7 @@ class WorkflowScene(object):
     def registerDoneExecutionForAll(self, callback):
         for item in self._items:
             if item.Type == MetaStep.Type:
-                item.getStep.registerDoneExecution(callback)
+                item.getStep().registerDoneExecution(callback)
 
     def clear(self):
         self._items.clear()

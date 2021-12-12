@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 import subprocess
@@ -24,7 +25,7 @@ def run_command(cmd):
     yield 'command returned with value: %s' % return_code
 
 
-def run_makensis(repo_root_dir, app_version, app_variant):
+def run_makensis(repo_root_dir, app_version, variant):
     if not os.path.exists(os.path.join(repo_root_dir, 'package')):
         os.mkdir(os.path.join(repo_root_dir, 'package'))
 
@@ -35,9 +36,9 @@ def run_makensis(repo_root_dir, app_version, app_variant):
             with open(os.path.join(repo_root_dir, 'res', 'win', 'nsis.nsi.template')) as f:
                 contents = f.read()
 
-            match_keys = ReplaceOnlyDict(map_client_version=app_version.__version__,
-                                         app_variant=app_variant,
-                                         dist_dir=os.path.join(repo_root_dir, 'res', 'pyinstaller', 'dist', 'MAP-Client' + app_variant),
+            match_keys = ReplaceOnlyDict(map_client_version=app_version,
+                                         app_variant=variant,
+                                         dist_dir=os.path.join(repo_root_dir, 'res', 'pyinstaller', 'dist', 'MAP-Client' + variant),
                                          win_res_dir=os.path.join(repo_root_dir, 'res', 'win'),
                                          package_dir=os.path.join(repo_root_dir, 'package'))
             formatted_contents = contents.format_map(match_keys)
@@ -55,6 +56,11 @@ if __name__ == '__main__':
     '''
     Create a Windows application installer with NSIS and pyinsatller.
     '''
+    parser = argparse.ArgumentParser(prog="create_installer")
+    parser.add_argument("version", help="MAP Client version")
+    parser.add_argument("variant", default='', nargs='?', help="MAP Client variant")
+    args = parser.parse_args()
+
     here = os.path.realpath(os.path.dirname(__file__))
 
     root_dir = os.path.realpath(os.path.join(here, '..', '..'))
@@ -62,7 +68,7 @@ if __name__ == '__main__':
     src_dir = os.path.join(root_dir, 'src')
     sys.path.append(src_dir)
 
-    from mapclient.settings import version as app_version
-
-    app_variant = '-mapping-tools'
-    run_makensis(root_dir, app_version, app_variant)
+    app_variant = ''
+    if args.variant:
+        app_variant = f"-{args.variant}"
+    run_makensis(root_dir, args.version, app_variant)

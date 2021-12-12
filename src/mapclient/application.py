@@ -190,11 +190,11 @@ def _load_previous_workflow(app_args, om):
         workflow_file = _get_default_internal_workflow(om)
         workflow_location = 'internal default'
 
-    # Should definitely have a workflow now.
-    workflow_directory = os.path.dirname(workflow_file)
-
     # Set workflow to internal workflow if None is currently present.
-    if app_args.workflow is None:
+    if app_args.workflow is None and workflow_file is not None:
+        # Should definitely have a workflow now.
+        workflow_directory = os.path.dirname(workflow_file)
+
         app_args.workflow = workflow_directory
         logger.info(f"Loading {workflow_location} workflow.")
 
@@ -275,7 +275,7 @@ def sans_gui_main(app_args):
     try:
         wm.load(app_args.workflow)
     except Exception:
-        logger.error('Not a valid workflow location: {0}'.format(app_args.workflow))
+        logger.error('Not a valid workflow location: "{0}"'.format(app_args.workflow))
         sys.exit(INVALID_WORKFLOW_LOCATION_GIVEN)
 
     wm.registerDoneExecutionForAll(wm.execute)

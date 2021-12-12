@@ -1,0 +1,157 @@
+name: on-demand-deployment
+
+on:
+  release:
+    types: [edited]
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      run-installer: ${{ steps.set-matrix.outputs.run-installer }}
+    steps:
+      - name: Get the tag
+        id: get-tag
+        shell: bash
+        run: |
+          echo "Setting tag as: ${GITHUB_REF#refs/tags/}"
+          echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
+      - name: Get the release name
+        id: get-release-name
+        shell: bash
+        run: |
+          tag=${GITHUB_REF#refs/tags/}
+          bare_tag=${tag/v/}
+          IFS='.' read -ra bare_tag_parts <<< "$bare_tag"
+          name="${bare_tag_parts[0]}.${bare_tag_parts[1]}.${bare_tag_parts[2]}"
+          echo "Setting name as: ${name}"
+          echo ::set-output name=NAME::$name
+      - name: Determine required assets
+        id: req-assets
+        shell: cmake -P {0}
+        run: |
+          set(RELEASE_BODY "${{ github.event.release.body }}")
+
+          string(REPLACE "\n" ";" _PARTS "${RELEASE_BODY}")
+
+          foreach(_PART ${_PARTS})
+            string(STRIP "${_PART}" _PART)
+            if ("${_PART}" STREQUAL "[odd release with mapping tools]")
+              message(STATUS "Require a MAP Client mapping tools variant.")
+              message("::set-output name=INCLUDE_MAPPING_TOOLS::true")
+            endif()
+            if ("${_PART}" STREQUAL "[odd release with installer]")
+              message(STATUS "Require a MAP Client installer.")
+              message("::set-output name=INCLUDE_INSTALLER::true")
+            endif()
+          endforeach()
+      - name: set_matrix
+        id: set-matrix
+        run: |
+          function join_by { local IFS="$1"; shift; echo "$*"; }
+          matrixElements=()
+          if [ "${{ steps.req-assets.outputs.include_installer }}" == "true" ]; then
+            matrixElements+=('{"os":"windows-2019","variant":"mapclient","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
+            matrixElements+=('{"os":"macos-10.15","variant":"mapclient","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
+          fi
+          if [ "${{ steps.req-assets.outputs.include_mapping_tools }}" == "true" ]; then
+            matrixElements+=('{"os":"windows-2019","variant":"mapping-tools","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
+            matrixElements+=('{"os":"macos-10.15","variant":"mapping-tools","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
+          fi
+          if [ "${#matrixElements[@]}" -eq "0" ]; then
+            echo "::set-output name=RUN-INSTALLER::false"
+          else
+            echo "::set-output name=RUN-INSTALLER::true"
+          fi
+          content=`join_by ,  ${matrixElements[@]}`
+          echo "{\"include\":[$content]}"
+          echo "::set-output name=matrix::{\"include\":[$content]}"
+  installer:
+    needs: setup
+    name: installer
+    if: needs.setup.outputs.run-installer == 'true'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix: ${{fromJson(needs.setup.outputs.matrix)}}
+    steps:
+      - name: Install create-dmg
+        if: runner.os == 'macOS'
+        shell: bash
+        run: brew install create-dmg
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Setup scripts
+        uses: actions/checkout@v2
+        with:
+          repository: hsorby/mapclientreleasescripts
+          path: scripts
+          ref: v0.10.0
+      - name: Create installer asset
+        id: create-installer
+        shell: bash
+        run: |
+          echo "Creating installer asset"
+          python -m venv venv
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            python_exe=$GITHUB_WORKSPACE/venv/bin/python
+            pip_exe=$GITHUB_WORKSPACE/venv/bin/pip
+            # source venv/bin/activate
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            python_exe=$GITHUB_WORKSPACE/venv/Scripts/python.exe
+            pip_exe=$GITHUB_WORKSPACE/venv/Scripts/pip.exe
+            # source venv/Scripts/activate
+          else
+            echo "$RUNNER_OS not supported"
+            exit 1
+          fi
+          cd $GITHUB_WORKSPACE
+          cd scripts
+          # ${{ steps.get_tag.outputs.tag }}
+          if [ "${{ matrix.variant }}" == "mapclient" ]; then
+            $python_exe prepare_mapclient_release.py ${{ matrix.tag }}
+          elif [ "${{ matrix.variant }}" == "mapping-tools" ]; then
+            $python_exe prepare_mapclient_release.py ${{ matrix.tag }} -v mapping-tools -p plugin_listing.txt -w workflow_listing.txt
+          else
+            echo "Variant not supported"
+            exit 2
+          fi
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            echo "Have to find out how to modify a finder window in headless mode with AppleScript."
+            echo "Asset not ready for $RUNNER_OS"
+            #asset=`mapclient/res/macos/*.dmg`
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            ls -lh mapclient/package
+            if [ "x${{ matrix.variant }}" == "xmapclient" ]; then
+              variant=
+            else
+              variant="-${{ matrix.variant }}"
+            fi
+            asset=$GITHUB_WORKSPACE/scripts/mapclient/package/MAP-Client${variant}-${{ matrix.release-name }}.exe
+            # asset=`ls -1 "$GITHUB_WORKSPACE"/mapclient/package/MAP-Client*.exe`
+            asset=${asset//\\//}
+            echo $asset
+            echo "::set-output name=FILE::$asset"
+          else
+            echo "$RUNNER_OS not supported"
+            exit 1
+          fi
+          # echo $asset
+          echo "Upload it ..."
+      - name: Define asset
+        id: define-asset
+        shell: cmake -P {0}
+        run: |
+          set(ASSET_PATH "${{ steps.create-installer.outputs.file }}")
+          file(TO_NATIVE_PATH "${ASSET_PATH}" _NATIVE_PATH)
+          message(STATUS "file: ${_NATIVE_PATH}")
+          message("::set-output name=FILE::${_NATIVE_PATH}")
+      - name: Upload asset
+        if: runner.os != 'macOS'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ steps.define-asset.outputs.file }}
+          tag_name: ${{ matrix.tag }}
+

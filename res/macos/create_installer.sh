@@ -1,6 +1,6 @@
 #!/bin/sh
-version=0.16.0
-variant=-mapping-tools
+version=$1
+variant=$2
 
 app_name=MAP-Client$variant
 app_name_with_version=MAP-Client$variant-$version
