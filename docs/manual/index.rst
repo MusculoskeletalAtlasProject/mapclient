@@ -13,6 +13,7 @@ This is the MAP Client manual for MAP Client version |version|.
    MAP-feature-demonstration
    MAP-plugin
    MAP-plugin-wizard
+   MAP-plugin-authoring
    MAP-tutorial-create
    MAP-tutorial-plugin
    

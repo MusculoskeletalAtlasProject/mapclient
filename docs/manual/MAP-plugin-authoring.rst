@@ -17,16 +17,16 @@ The steps for adding a skeleton plugin to a git repository is
    #. cd into teh directory where skeleton plugin was created
    #. Link the repository and make the first commit with the following commands::
    
-      git init .
-      git remote add origin <repository location from above>
-      git pull -u origin master
-      git add .
-      git commit -m "Initial commit of skeleton step."
-      git push -u origin master
+        git init .
+        git remote add origin <repository location from above>
+        git pull -u origin master
+        git add .
+        git commit -m "Initial commit of skeleton step."
+        git push -u origin master
       
    #. [Optional] If using eclipse add the following lines to the .gitignore file::
    
-      # Eclipse PyDev
-      .project
-      .pydevproject
+        # Eclipse PyDev
+        .project
+        .pydevproject
 

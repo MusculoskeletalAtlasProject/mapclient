@@ -9,9 +9,9 @@ The MAP Client software is a Python application that uses the PySide Qt library 
 
 The `Installation`_ section details getting the MAP Client and it's dependencies installed on your system.
 There are two main ways of getting the MAP Client installed on your operating system.  This document will cover both of those methods.
-For users and plugin developers the suggested method is to `Install Using Pip`_, for developers of the MAP Client framework the suggested method is to `Install Using Bazaar`_.
+For users and plugin developers the suggested method is to `Install Using Pip`_.
 
-The `Install Using Pip`_ method is covered first followed by the instructions on how to `Install Using Pre-Built Binary`_.
+The `Install Using Pre-Built Binary`_ method is covered first followed by the instructions on how to `Install Using Pip`_.
 For most operating systems Python is already installed but for some, most notably Windows based operating systems, it is not.  For instructions on installing Python for Windows based operating systems see the `Installing Python on Windows`_ section.
 
 The `Setup`_ section details getting the MAP Client setup with external plugins.
@@ -31,7 +31,7 @@ Download and install the package.
 
 
 Install Using Pip
-=================
+-----------------
 
 Pip is a tool for installing and managing Python packages.  It is particularly suited for the installation and management of source distributions of Python software, of which the MAP Client is one.  The downside to using pip is that it is not great for installing binary packages, and there is one such binary package that the MAP Client requires, namely PySide.  This creates something of a problem for the installation of the MAP Client.  To make the installation via pip as easy as possible we must do some of the installation manually.
 
@@ -70,7 +70,7 @@ which should result in an application window similar to that shown below.
 The MAP Client relies heavily on plugins to do anything interesting, you can either create these yourself or add already available ones to your application by downloading them and using the Plugin Manager Tool in the MAP Client, read the documents :ref:`MAP-feature-demonstration` and :ref:`MAP-plugin-wizard` to learn more.
 
 Install Using Git
-=================
+-----------------
 
 Git is a distributed revision control tool.  It is used by Github for open source project hosting where the MAP Client source code is situated.  To get 'git' use you systems package management system to install it.  If you are on windows then download and install it from:
 
@@ -81,7 +81,7 @@ and clone the source code and manually setup the required software::
     git clone https://github.com/MusculoskeletalAtlasProject/mapclient.git
 
 Installing Pip
-==============
+--------------
 
 Pip is a tool for installing and managing Python packages.  It relies on setuptools to work, first you must install setuptools which has very good instructions available here
 
@@ -98,7 +98,7 @@ If this command prints out the version of setuptools you have installed then you
 otherwise you will probably need to adjust the PATH system variable so that the easy_install application is available. 
 
 Installing Python on Windows
-============================
+----------------------------
 
 This section is for setting up Python on Windows as other operating systems supported by the MAP Client already have Python available.  The MAP Client framework is written in :term:`Python` and is designed to work with Python 2 and Python 3.  The MAP Client framework is tested against Python 2.6, Python 2.7 and Python 3.3 and should work with any of these Python libraries.
 
@@ -118,7 +118,7 @@ Setup
 -----
 
 External Plugins
-================
+----------------
 
 .. _github orginisation: https://github.com/mapclient-plugins
 
@@ -127,7 +127,7 @@ The installation of external MAP Client plugins is a two step process.  The firs
 There is a `github orginisation`_ which has a collection of MAP Client plugins.  Some of the plugins here are more advanced and have a dependency on the Zinc and PyZinc libraries.  To use these plugins please read the `Zinc and PyZinc`_ section on how to setup them up.
 
 Zinc and PyZinc
-===============
+---------------
 
 `Zinc <http://physiomeproject.org/software/opencmiss/zinc/>`_ is an advanced field manipulation and visualisation library and PyZinc provides :term:`Python` bindings to the Zinc library.  The MAP client is able to make use of Zinc for advanced visualisation and image processing steps through PyZinc.  Binaries for Zinc and PyZinc are available from `here <http://physiomeproject.org/software/opencmiss/zinc/download/>`__ for Linux, Windows, and OS X.
 
