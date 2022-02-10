@@ -14,7 +14,7 @@
    <string>Plugin Manager</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../widgets/qt/resources.qrc">
+   <iconset resource="../../../qt/resources.qrc">
     <normaloff>:/mapclient/images/icon-app.png</normaloff>:/mapclient/images/icon-app.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -43,16 +43,6 @@
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
            <widget class="QListWidget" name="directoryListing"/>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="defaultPluginCheckBox">
-            <property name="text">
-             <string>Use default plugin directory</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
           </item>
          </layout>
         </item>
@@ -145,7 +135,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../widgets/qt/resources.qrc"/>
+  <include location="../../../qt/resources.qrc"/>
  </resources>
  <connections>
   <connection>

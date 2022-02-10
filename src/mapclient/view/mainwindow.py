@@ -355,7 +355,6 @@ class MainWindow(QtWidgets.QMainWindow):
                                   self._model.pluginManager()._unsuccessful_package_installations, self)
         self._pluginManagerDlg = dlg
         dlg.setDirectories(pm.directories())
-        dlg.setLoadDefaultPlugins(pm.loadDefaultPlugins())
         dlg.reloadPlugins = self._plugin_manager_load_plugins
 
         dlg.setModal(True)
@@ -381,7 +380,6 @@ class MainWindow(QtWidgets.QMainWindow):
         if self._pluginManagerDlg is not None:
             pm.setReloadPlugins()
             pm.setDirectories(self._pluginManagerDlg.directories())
-            pm.setLoadDefaultPlugins(self._pluginManagerDlg.loadDefaultPlugins())
 
         if pm.reloadPlugins():
             pm.load()
