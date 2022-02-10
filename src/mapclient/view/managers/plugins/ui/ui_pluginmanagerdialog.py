@@ -63,10 +63,10 @@ class Ui_PluginManagerDialog(object):
 
         self.verticalLayout_2.addItem(self.verticalSpacer)
 
-        self.reloadButton = QPushButton(self.groupBox)
-        self.reloadButton.setObjectName(u"reloadButton")
+        self.applyButton = QPushButton(self.groupBox)
+        self.applyButton.setObjectName(u"applyButton")
 
-        self.verticalLayout_2.addWidget(self.reloadButton)
+        self.verticalLayout_2.addWidget(self.applyButton)
 
 
         self.horizontalLayout.addLayout(self.verticalLayout_2)
@@ -92,7 +92,7 @@ class Ui_PluginManagerDialog(object):
         self.buttonBox = QDialogButtonBox(PluginManagerDialog)
         self.buttonBox.setObjectName(u"buttonBox")
         self.buttonBox.setOrientation(Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Close|QDialogButtonBox.Ok)
 
         self.horizontalLayout_2.addWidget(self.buttonBox)
 
@@ -114,9 +114,9 @@ class Ui_PluginManagerDialog(object):
         self.addButton.setText(QCoreApplication.translate("PluginManagerDialog", u"Add Directory", None))
         self.removeButton.setText(QCoreApplication.translate("PluginManagerDialog", u"Remove Directory", None))
 #if QT_CONFIG(tooltip)
-        self.reloadButton.setToolTip(QCoreApplication.translate("PluginManagerDialog", u"Reload the plugins from the current plugin directories", None))
+        self.applyButton.setToolTip(QCoreApplication.translate("PluginManagerDialog", u"Apply changes and reload the plugins from the current plugin directories", None))
 #endif // QT_CONFIG(tooltip)
-        self.reloadButton.setText(QCoreApplication.translate("PluginManagerDialog", u"Reload", None))
+        self.applyButton.setText(QCoreApplication.translate("PluginManagerDialog", u"Apply", None))
         self.advancedButton.setText(QCoreApplication.translate("PluginManagerDialog", u"Advanced...", None))
     # retranslateUi
 
