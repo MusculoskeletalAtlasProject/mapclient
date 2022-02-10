@@ -53,7 +53,6 @@ class PluginManager(object):
         self._virtualenv_dir = None
         self._virtualenv_setup_attempted = False
         self._reload_plugins = True
-        self._load_default_plugins = True
         self._doNotShowPluginErrors = False
         self._plugin_database = PluginDatabase()
         self._ignoredPlugins = []
@@ -165,31 +164,11 @@ class PluginManager(object):
 
         return self.virtualEnvExists()
 
-    def loadDefaultPlugins(self):
-        return self._load_default_plugins
-
     def getPluginDatabase(self):
         return self._plugin_database
 
-    def setLoadDefaultPlugins(self, loadDefaultPlugins):
-        """
-        Set whether or not the default plugins should be loaded.
-        Returns true if the default load plugin setting is changed
-        and false otherwise.
-        """
-        if self._load_default_plugins != loadDefaultPlugins:
-            self._load_default_plugins = loadDefaultPlugins
-            self._reload_plugins = True
-
     def allDirectories(self):
         plugin_dirs = self._directories[:]
-        if self._load_default_plugins:
-            if is_frozen():
-                inbuilt_plugin_dir = os.path.join(sys._MEIPASS, PLUGINS_PACKAGE_NAME)
-            else:
-                file_dir = os.path.dirname(os.path.abspath(__file__))
-                inbuilt_plugin_dir = os.path.realpath(os.path.join(file_dir, '..', '..', '..', ))
-            plugin_dirs.insert(0, inbuilt_plugin_dir)
 
         return plugin_dirs
 
@@ -354,7 +333,6 @@ class PluginManager(object):
     def readSettings(self, settings):
         self._directories = []
         settings.beginGroup('Plugins')
-        self._load_default_plugins = settings.value('load_defaults', 'true') == 'true'
         self._doNotShowPluginErrors = settings.value('donot_show_plugin_errors', 'true') == 'true'
         self._virtualenv_setup_attempted = settings.value('virtualenv_setup_attempted', 'false') == 'true'
         directory_count = settings.beginReadArray('directories')
@@ -393,7 +371,6 @@ class PluginManager(object):
 
     def writeSettings(self, settings):
         settings.beginGroup('Plugins')
-        settings.setValue('load_defaults', self._load_default_plugins)
         settings.setValue('donot_show_plugin_errors', self._doNotShowPluginErrors)
         settings.setValue('virtualenv_setup_attempted', self._virtualenv_setup_attempted)
         settings.beginWriteArray('directories')

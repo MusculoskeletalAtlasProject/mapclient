@@ -12,6 +12,8 @@ from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
+from  . import resources_rc
+
 class Ui_PluginManagerDialog(object):
     def setupUi(self, PluginManagerDialog):
         if not PluginManagerDialog.objectName():
@@ -41,12 +43,6 @@ class Ui_PluginManagerDialog(object):
         self.directoryListing.setObjectName(u"directoryListing")
 
         self.verticalLayout_3.addWidget(self.directoryListing)
-
-        self.defaultPluginCheckBox = QCheckBox(self.groupBox)
-        self.defaultPluginCheckBox.setObjectName(u"defaultPluginCheckBox")
-        self.defaultPluginCheckBox.setChecked(True)
-
-        self.verticalLayout_3.addWidget(self.defaultPluginCheckBox)
 
 
         self.horizontalLayout.addLayout(self.verticalLayout_3)
@@ -115,7 +111,6 @@ class Ui_PluginManagerDialog(object):
         PluginManagerDialog.setWindowTitle(QCoreApplication.translate("PluginManagerDialog", u"Plugin Manager", None))
         self.groupBox.setTitle(QCoreApplication.translate("PluginManagerDialog", u"Plugin Manager", None))
         self.label.setText(QCoreApplication.translate("PluginManagerDialog", u"Plugin directories:", None))
-        self.defaultPluginCheckBox.setText(QCoreApplication.translate("PluginManagerDialog", u"Use default plugin directory", None))
         self.addButton.setText(QCoreApplication.translate("PluginManagerDialog", u"Add Directory", None))
         self.removeButton.setText(QCoreApplication.translate("PluginManagerDialog", u"Remove Directory", None))
 #if QT_CONFIG(tooltip)
