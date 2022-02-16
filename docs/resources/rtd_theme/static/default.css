@@ -266,14 +266,14 @@ h1 {
     margin: 0;
     padding: 0.7em 0 0.3em 0;
     font-size: 1.5em;
-    /*color: #11557C; */
     color: #3361b5;
 }
 
 h2 {
-    margin: 1.3em 0 0.2em 0;
+    margin: 1.35em 0 0.2em 0;
     font-size: 1.35em;
     padding: 0;
+    color: #3361b5;
 }
 
 h3 {
