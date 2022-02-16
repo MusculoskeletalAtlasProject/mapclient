@@ -44,7 +44,7 @@ class PluginManagerDialog(QtWidgets.QDialog):
         self._ui.addButton.clicked.connect(self._addDirectoryClicked)
         self._ui.directoryListing.itemSelectionChanged.connect(self._directorySelectionChanged)
         self._ui.removeButton.clicked.connect(self._removeButtonClicked)
-        self._ui.reloadButton.clicked.connect(self.reloadPlugins)
+        self._ui.applyButton.clicked.connect(self.reloadPlugins)
         self._ui.advancedButton.clicked.connect(self.showAdvancedDialog)
 
     def showAdvancedDialog(self):
