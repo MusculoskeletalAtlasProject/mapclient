@@ -71,9 +71,8 @@ def get_log_directory():
 
 def get_log_location():
     """
-    Set up location where log files will be stored. To help identify active MAP Client processes we keep a "database" of all current PIDs.
-    We can then use this database to help us generate a unique name for the current MAP Client instance's log file - even if there are
-    multiple instances of the MAP Client running simultaneously.
+    Return the location of the log file that is associated with the current MAP Client instance. If the current instance has not been
+    assigned a log file, a new log file will be created and assigned to the current PID.
     """
     log_directory = get_log_directory()
     database_file = os.path.join(get_data_directory(), "pid_database.txt")
@@ -89,33 +88,15 @@ def get_log_location():
             except IOError:
                 database = []
 
-            unassigned_indices = []
-            for i in range(len(database)):
-                if database[i] == '':
-                    unassigned_indices.append(i)
-                else:
-                    pid = int(database[i])
-                    if not psutil.pid_exists(pid):
-                        database[i] = ''
-                        unassigned_indices.append(i)
-
-            while database and database[-1] == '':
-                database.pop()
-
+            # Check if the current PID has already been assigned to a log file. If not, assign it to a new log file.
             current_pid = os.getpid()
-
-            max_index = len(database)
-            unassigned_indices.append(max_index)
-            index = min(unassigned_indices)
-
-            if index < max_index:
-                database[index] = current_pid
-            else:
-                database.append(current_pid)
-
-            with open(database_file, "w") as file:
-                for item in database:
-                    file.write(f"{item}\n")
+            index = -1
+            for i in range(len(database)):
+                if int(database[i]) == current_pid:
+                    index = i
+                    break
+            if index == -1:
+                index = assign_log_file(database_file, database, current_pid)
 
     except TimeoutError:
         sys.exit(LOG_FILE_LOCK_FAILED)
@@ -124,6 +105,36 @@ def get_log_location():
     logging_file_location = os.path.join(log_directory, log_filename)
 
     return logging_file_location
+
+
+def assign_log_file(database_file, database, current_pid):
+    unassigned_indices = []
+    for i in range(len(database)):
+        if database[i] == '':
+            unassigned_indices.append(i)
+        else:
+            pid = int(database[i])
+            if not psutil.pid_exists(pid):
+                database[i] = ''
+                unassigned_indices.append(i)
+
+    while database and database[-1] == '':
+        database.pop()
+
+    max_index = len(database)
+    unassigned_indices.append(max_index)
+    index = min(unassigned_indices)
+
+    if index < max_index:
+        database[index] = current_pid
+    else:
+        database.append(current_pid)
+
+    with open(database_file, "w") as file:
+        for item in database:
+            file.write(f"{item}\n")
+
+    return index
 
 
 def get_configuration_suffix():
