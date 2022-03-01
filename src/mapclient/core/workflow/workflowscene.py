@@ -23,12 +23,12 @@ import uuid
 import logging
 import traceback
 
-from PySide2 import QtCore
+from PySide2 import QtCore, QtWidgets
 
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflow.workflowerror import WorkflowError
 from mapclient.core.utils import convertExceptionToMessage, loadConfiguration, FileTypeObject
-from mapclient.settings.general import get_configuration_file
+from mapclient.settings.general import get_configuration_file, get_restricted_plugins, restrict_plugins
 
 logger = logging.getLogger(__name__)
 
@@ -368,20 +368,47 @@ class WorkflowScene(object):
     def isLoadable(self, ws):
         loadable = True
         location = self._manager.location()
-        ws.beginGroup('nodes')
-        nodeCount = ws.beginReadArray('nodelist')
         try:
-            for i in range(nodeCount):
-                ws.setArrayIndex(i)
-                name = ws.value('name')
+            step_names = self.read_step_names(ws)
+            for name in step_names:
                 step = workflowStepFactory(name, location)
 
         except ValueError:
             loadable = False
 
+        return loadable
+
+    def read_step_names(self, ws):
+        ws.beginGroup('nodes')
+        node_count = ws.beginReadArray('nodelist')
+
+        step_names = set()
+        for i in range(node_count):
+            ws.setArrayIndex(i)
+            name = ws.value('name')
+            step_names.add(name)
+
         ws.endArray()
         ws.endGroup()
-        return loadable
+
+        return step_names
+
+    def is_restricted(self, ws):
+        step_names = self.read_step_names(ws)
+        restricted_plugins = get_restricted_plugins()
+        if len(step_names & restricted_plugins) != 0:
+            override = QtWidgets.QMessageBox.warning(self._main_window, 'Plugins Restricted',
+                                                     'One or more of the plugins required for this workflow are already in use by another instance of the MAP Client. ' \
+                                                     'Unpredictable behavior may result if you attempt to run both workflows at the same time. ' \
+                                                     'Are you sure you want to open this workflow?',
+                                                     QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                                     QtWidgets.QMessageBox.No)
+
+            if override == QtWidgets.QMessageBox.No:
+                return True
+
+        restrict_plugins(step_names)
+        return False
 
     def doStepReport(self, ws):
         report = {}

@@ -302,6 +302,8 @@ class WorkflowWidget(QtWidgets.QWidget):
             except (ValueError, WorkflowError) as e:
                 logger.error('Invalid Workflow.  ' + str(e))
                 result = str(e)
+            except ResourceWarning as e:
+                logger.warning(e)
 
         return result
 

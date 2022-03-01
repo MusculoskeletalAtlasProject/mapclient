@@ -211,6 +211,8 @@ class WorkflowManager(object):
 
         self._location = location
         if self._scene.isLoadable(wf):
+            if self._scene.is_restricted(wf):
+                raise ResourceWarning('Load action cancelled. One or more of the plugins required for this workflow are restricted.')
             self._scene.loadState(wf)
         else:
             report = self._scene.doStepReport(wf)
