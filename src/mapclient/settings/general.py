@@ -28,7 +28,7 @@ from filelock import FileLock
 from PySide2 import QtCore
 
 from mapclient.core.exitcodes import LOG_FILE_LOCK_FAILED
-from mapclient.settings.definitions import INTERNAL_WORKFLOWS_DIR
+from mapclient.settings.definitions import INTERNAL_WORKFLOWS_DIR, PID_DATABASE_FILE_NAME
 
 from mapclient.settings.info import VERSION_STRING
 
@@ -71,13 +71,17 @@ def get_log_directory():
     return _get_app_directory('logs')
 
 
+def _get_pid_database_file():
+    return os.path.join(get_data_directory(), PID_DATABASE_FILE_NAME)
+
+
 def get_log_location():
     """
     Return the location of the log file that is associated with the current MAP Client instance. If the current instance has not been
     assigned a log file, a new log file will be created and assigned to the current PID.
     """
     log_directory = get_log_directory()
-    database_file = os.path.join(get_data_directory(), "pid_database.txt")
+    database_file = _get_pid_database_file()
 
     try:
         # If the user experiences a hardware crash during the execution of this block, it is possible that the lockfile will remain
@@ -139,7 +143,7 @@ def assign_log_file(database_file, database, current_pid):
 
 
 def get_pid_database():
-    database_file = os.path.join(get_data_directory(), "pid_database.txt")
+    database_file = _get_pid_database_file()
 
     try:
         with open(database_file, "r") as file:
@@ -151,7 +155,7 @@ def get_pid_database():
 
 
 def set_pid_database(database):
-    database_file = os.path.join(get_data_directory(), "pid_database.txt")
+    database_file = _get_pid_database_file()
 
     try:
         lock = FileLock(database_file + ".lock", 3)
@@ -161,6 +165,7 @@ def set_pid_database(database):
 
     except TimeoutError:
         sys.exit(LOG_FILE_LOCK_FAILED)
+
 
 def get_restricted_plugins():
     """

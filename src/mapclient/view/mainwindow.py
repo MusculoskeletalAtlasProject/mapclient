@@ -236,8 +236,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if pm.haveErrors():
             self._show_plugin_errors_dialog()
 
-    def open_workflow(self, workflowDir):
-        self._workflowWidget.openWorkflow(workflowDir)
+    def open_workflow(self, workflow_dir):
+        self._workflowWidget.openWorkflow(workflow_dir)
 
     def set_current_undo_redo_stack(self, stack):
         current_stack = self._model.undoManager().currentStack()

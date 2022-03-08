@@ -17,13 +17,12 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-import os
 import sys
 import uuid
 import logging
 import traceback
 
-from PySide2 import QtCore, QtWidgets
+from PySide2 import QtCore
 
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflow.workflowerror import WorkflowError
@@ -365,11 +364,11 @@ class WorkflowScene(object):
         ws.endArray()
         ws.endGroup()
 
-    def isLoadable(self, ws):
+    def is_loadable(self, ws):
         loadable = True
         location = self._manager.location()
         try:
-            step_names = self.read_step_names(ws)
+            step_names = self._read_step_names(ws)
             for name in step_names:
                 step = workflowStepFactory(name, location)
 
@@ -378,7 +377,8 @@ class WorkflowScene(object):
 
         return loadable
 
-    def read_step_names(self, ws):
+    @staticmethod
+    def _read_step_names(ws):
         ws.beginGroup('nodes')
         node_count = ws.beginReadArray('nodelist')
 
@@ -394,21 +394,16 @@ class WorkflowScene(object):
         return step_names
 
     def is_restricted(self, ws):
-        step_names = self.read_step_names(ws)
+        step_names = self._read_step_names(ws)
         restricted_plugins = get_restricted_plugins()
         if len(step_names & restricted_plugins) != 0:
-            override = QtWidgets.QMessageBox.warning(self._main_window, 'Plugins Restricted',
-                                                     'One or more of the plugins required for this workflow are already in use by another instance of the MAP Client. ' \
-                                                     'Unpredictable behavior may result if you attempt to run both workflows at the same time. ' \
-                                                     'Are you sure you want to open this workflow?',
-                                                     QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-                                                     QtWidgets.QMessageBox.No)
+            return True
 
-            if override == QtWidgets.QMessageBox.No:
-                return True
-
-        restrict_plugins(step_names)
         return False
+
+    def restrict_plugins(self, ws):
+        step_names = self._read_step_names(ws)
+        restrict_plugins(step_names)
 
     def doStepReport(self, ws):
         report = {}
@@ -431,7 +426,7 @@ class WorkflowScene(object):
                     if plugin == name:
                         report[name] = 'Broken'
                         plugin_found = True
-                if plugin_found == True:
+                if plugin_found:
                     continue
 
                 source_uri = ws.value('source_uri', None)
@@ -445,7 +440,7 @@ class WorkflowScene(object):
 
         return report
 
-    def loadState(self, ws):
+    def load_state(self, ws):
         self.clear()
         location = self._manager.location()
         ws.beginGroup('view')

@@ -186,6 +186,16 @@ class WorkflowManager(object):
 
         return False
 
+    def is_restricted(self, location):
+        if location is None or not os.path.exists(location) or not os.path.isdir(location):
+            return False
+
+        wf = _getWorkflowConfiguration(location)
+        if not wf.contains('version'):
+            return False
+
+        return self._scene.is_restricted(wf)
+
     def load(self, location):
         """
         Open a workflow from the given location.
@@ -210,10 +220,9 @@ class WorkflowManager(object):
             pass  # should already have thrown an exception
 
         self._location = location
-        if self._scene.isLoadable(wf):
-            if self._scene.is_restricted(wf):
-                raise ResourceWarning('Load action cancelled. One or more of the plugins required for this workflow are restricted.')
-            self._scene.loadState(wf)
+        if self._scene.is_loadable(wf):
+            self._scene.restrict_plugins(wf)
+            self._scene.load_state(wf)
         else:
             report = self._scene.doStepReport(wf)
             new_packages = False
@@ -232,8 +241,9 @@ class WorkflowManager(object):
                     new_packages = True
                     self._parent.installPackage(reason)
 
-            if self._scene.isLoadable(wf):
-                self._scene.loadState(wf)
+            if self._scene.is_loadable(wf):
+                self._scene.restrict_plugins(wf)
+                self._scene.load_state(wf)
             elif new_packages:
                 logger.warning('Unable to load workflow.  You may need to restart the application.')
                 raise WorkflowError('The given Workflow configuration file was not loaded. '
