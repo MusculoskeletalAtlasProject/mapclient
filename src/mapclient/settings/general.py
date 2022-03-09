@@ -20,13 +20,15 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import os
 import sys
 
+import json
+
 import psutil
 from filelock import FileLock
 
 from PySide2 import QtCore
 
 from mapclient.core.exitcodes import LOG_FILE_LOCK_FAILED
-from mapclient.settings.definitions import INTERNAL_WORKFLOWS_DIR
+from mapclient.settings.definitions import INTERNAL_WORKFLOWS_DIR, PID_DATABASE_FILE_NAME
 
 from mapclient.settings.info import VERSION_STRING
 
@@ -69,13 +71,17 @@ def get_log_directory():
     return _get_app_directory('logs')
 
 
+def _get_pid_database_file():
+    return os.path.join(get_data_directory(), PID_DATABASE_FILE_NAME)
+
+
 def get_log_location():
     """
     Return the location of the log file that is associated with the current MAP Client instance. If the current instance has not been
     assigned a log file, a new log file will be created and assigned to the current PID.
     """
     log_directory = get_log_directory()
-    database_file = os.path.join(get_data_directory(), "pid_database.txt")
+    database_file = _get_pid_database_file()
 
     try:
         # If the user experiences a hardware crash during the execution of this block, it is possible that the lockfile will remain
@@ -84,7 +90,7 @@ def get_log_location():
         with lock:
             try:
                 with open(database_file, "r") as file:
-                    database = file.read().splitlines()
+                    database = json.loads(file.read())
             except IOError:
                 database = []
 
@@ -92,7 +98,7 @@ def get_log_location():
             current_pid = os.getpid()
             index = -1
             for i in range(len(database)):
-                if int(database[i]) == current_pid:
+                if int(database[i][0]) == current_pid:
                     index = i
                     break
             if index == -1:
@@ -110,15 +116,15 @@ def get_log_location():
 def assign_log_file(database_file, database, current_pid):
     unassigned_indices = []
     for i in range(len(database)):
-        if database[i] == '':
+        if database[i] == -1:
             unassigned_indices.append(i)
         else:
-            pid = int(database[i])
+            pid = int(database[i][0])
             if not psutil.pid_exists(pid):
-                database[i] = ''
+                database[i] = [-1, []]
                 unassigned_indices.append(i)
 
-    while database and database[-1] == '':
+    while database and database[-1][0] == -1:
         database.pop()
 
     max_index = len(database)
@@ -126,15 +132,76 @@ def assign_log_file(database_file, database, current_pid):
     index = min(unassigned_indices)
 
     if index < max_index:
-        database[index] = current_pid
+        database[index] = [current_pid, []]
     else:
-        database.append(current_pid)
+        database.append([current_pid, []])
 
     with open(database_file, "w") as file:
-        for item in database:
-            file.write(f"{item}\n")
+        file.write(json.dumps(database))
 
     return index
+
+
+def get_pid_database():
+    database_file = _get_pid_database_file()
+
+    try:
+        with open(database_file, "r") as file:
+            database = json.loads(file.read())
+    except IOError:
+        database = []
+
+    return database
+
+
+def set_pid_database(database):
+    database_file = _get_pid_database_file()
+
+    try:
+        lock = FileLock(database_file + ".lock", 3)
+        with lock:
+            with open(database_file, "w") as file:
+                file.write(json.dumps(database))
+
+    except TimeoutError:
+        sys.exit(LOG_FILE_LOCK_FAILED)
+
+
+def get_restricted_plugins():
+    """
+    Returns a set of MAP plugins names. This set identifies the plugins already in use by other instances of the MAP Client.
+    """
+    database = get_pid_database()
+
+    current_pid = os.getpid()
+    restricted_plugins = set()
+    for i in range(len(database)):
+        if database[i][0] == current_pid:
+            continue
+
+        restricted_plugins = restricted_plugins | set(database[i][1])
+
+    return restricted_plugins
+
+
+# TODO: Add a list of known MAP plugins that need not be restricted (e.g., TRC Reader, etc).
+def restrict_plugins(plugins):
+    """
+    Takes a set of plugins as input. Adds this set to the MAP PID database file. This is so that other instances of the MAP Client
+    can see what plugins this instance is currently using.
+    """
+    database = get_pid_database()
+
+    current_pid = os.getpid()
+    for i in range(len(database)):
+        if database[i][0] == current_pid:
+            database[i][1] = list(plugins)
+
+    set_pid_database(database)
+
+
+def unrestrict_plugins():
+    restrict_plugins(set())
 
 
 def get_configuration_suffix():

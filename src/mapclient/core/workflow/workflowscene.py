@@ -17,7 +17,6 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-import os
 import sys
 import uuid
 import logging
@@ -28,7 +27,7 @@ from PySide2 import QtCore
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflow.workflowerror import WorkflowError
 from mapclient.core.utils import convertExceptionToMessage, loadConfiguration, FileTypeObject
-from mapclient.settings.general import get_configuration_file
+from mapclient.settings.general import get_configuration_file, get_restricted_plugins, restrict_plugins
 
 logger = logging.getLogger(__name__)
 
@@ -365,23 +364,46 @@ class WorkflowScene(object):
         ws.endArray()
         ws.endGroup()
 
-    def isLoadable(self, ws):
+    def is_loadable(self, ws):
         loadable = True
         location = self._manager.location()
-        ws.beginGroup('nodes')
-        nodeCount = ws.beginReadArray('nodelist')
         try:
-            for i in range(nodeCount):
-                ws.setArrayIndex(i)
-                name = ws.value('name')
+            step_names = self._read_step_names(ws)
+            for name in step_names:
                 step = workflowStepFactory(name, location)
 
         except ValueError:
             loadable = False
 
+        return loadable
+
+    @staticmethod
+    def _read_step_names(ws):
+        ws.beginGroup('nodes')
+        node_count = ws.beginReadArray('nodelist')
+
+        step_names = set()
+        for i in range(node_count):
+            ws.setArrayIndex(i)
+            name = ws.value('name')
+            step_names.add(name)
+
         ws.endArray()
         ws.endGroup()
-        return loadable
+
+        return step_names
+
+    def is_restricted(self, ws):
+        step_names = self._read_step_names(ws)
+        restricted_plugins = get_restricted_plugins()
+        if len(step_names & restricted_plugins) != 0:
+            return True
+
+        return False
+
+    def restrict_plugins(self, ws):
+        step_names = self._read_step_names(ws)
+        restrict_plugins(step_names)
 
     def doStepReport(self, ws):
         report = {}
@@ -404,7 +426,7 @@ class WorkflowScene(object):
                     if plugin == name:
                         report[name] = 'Broken'
                         plugin_found = True
-                if plugin_found == True:
+                if plugin_found:
                     continue
 
                 source_uri = ws.value('source_uri', None)
@@ -418,7 +440,7 @@ class WorkflowScene(object):
 
         return report
 
-    def loadState(self, ws):
+    def load_state(self, ws):
         self.clear()
         location = self._manager.location()
         ws.beginGroup('view')
