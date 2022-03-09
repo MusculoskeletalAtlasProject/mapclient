@@ -25,27 +25,38 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 
+with open('README.rst') as f:
+    readme = f.read()
+
+
 # Define the list of requirements
 package_dependencies = [
     'PySide2',
     'rdflib',
     'virtualenv',
     'requests',
-    'PyInstaller',
     'python-dateutil',
     'dulwich',
-    'pmr2.wfctrl @ https://github.com/PMR2/pmr2.wfctrl/archive/v0.3.0.zip',
+    'pmr2.wfctrl',
     'pmr2.client >= 0.2',
     'packaging',
     'filelock',
     'psutil'
 ]
 
+extras_require={
+    'dev': [
+        'PyInstaller',
+    ]
+}
+
 
 setup(
     name='mapclient',
     version=find_version("mapclient", "settings", "version.py"),
     description='A framework for managing and sharing workflows.',
+    long_description=readme,
+    long_description_content_type='text/x-rst',
     author='MAP Client Developers',
     author_email='mapclient-devs@physiomeproject.org',
     url='https://github.com/MusculoskeletalAtlasProject/mapclient',
@@ -59,4 +70,5 @@ setup(
     include_package_data=True,
     entry_points={'console_scripts': ['mapclient=mapclient.application:main']},
     install_requires=package_dependencies,
+    extras_require=extras_require,
 )
