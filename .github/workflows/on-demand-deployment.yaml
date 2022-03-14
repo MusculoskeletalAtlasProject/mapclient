@@ -88,7 +88,7 @@ jobs:
         with:
           repository: hsorby/mapclientreleasescripts
           path: scripts
-          ref: v0.10.0
+          ref: v0.11.0
       - name: Create installer asset
         id: create-installer
         shell: bash
