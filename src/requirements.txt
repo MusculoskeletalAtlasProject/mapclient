@@ -1,1 +1,1 @@
-PySide2
+https://github.com/PMR2/pmr2.wfctrl/archive/v0.3.0.zip
