@@ -19,9 +19,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import os
 import logging
-from pkg_resources import parse_version
+from packaging import version
 
-from PySide2 import QtCore, QtGui
+from PySide2 import QtCore
 
 from mapclient.settings import info
 from mapclient.core.workflow.workflowscene import WorkflowScene
@@ -65,8 +65,6 @@ class WorkflowManager(object):
     def __init__(self, parent):
         self.name = 'WorkflowManager'
         self._parent = parent
-#        self.widget = None
-#        self.widgetIndex = -1
         self._location = ''
         self._conf_filename = None
         self._previousLocation = None
@@ -78,9 +76,7 @@ class WorkflowManager(object):
         self._scene = WorkflowScene(self)
         self._steps = WorkflowSteps(self)
         self._filtered_steps = WorkflowStepsFilter()
-#         self._filtered_steps = QtGui.QSortFilterProxyModel()
         self._filtered_steps.setSourceModel(self._steps)
-#         self._filtered_steps.setFilterKeyColumn(-1)
 
     def title(self):
         self._title = info.APPLICATION_NAME
@@ -220,9 +216,9 @@ class WorkflowManager(object):
         if not wf.contains('version'):
             raise WorkflowError('The given Workflow configuration file is not valid.')
 
-        workflow_version = versionTuple(wf.value('version'))
-        application_version = versionTuple(info.VERSION_STRING)
-        if not compatibleVersions(workflow_version, application_version):
+        workflow_version = version.parse(wf.value('version'))
+        application_version = version.parse(info.VERSION_STRING)
+        if not _compatible_versions(workflow_version, application_version):
             pass  # should already have thrown an exception
 
         self._location = location
@@ -269,9 +265,9 @@ class WorkflowManager(object):
 
         if 'version' not in wf.allKeys():
             wf.setValue('version', info.VERSION_STRING)
-        workflow_version = versionTuple(wf.value('version'))
-        application_version = versionTuple(info.VERSION_STRING)
-        if workflow_version != application_version:
+        workflow_version = version.parse(wf.value('version'))
+        application_version = version.parse(info.VERSION_STRING)
+        if workflow_version < application_version:
             wf.setValue('version', info.VERSION_STRING)
 
         self._scene.saveState(wf)
@@ -287,15 +283,12 @@ class WorkflowManager(object):
             f.write(annotation)
             self._scene.saveAnnotation(f)
 
-#        self._title = info.APPLICATION_NAME + ' - ' + self._location
-
     def close(self):
         """
         Close the current workflow
         """
         self._location = ''
         self._saveStateIndex = self._currentStateIndex = 0
-#        self._title = info.APPLICATION_NAME
 
     def isWorkflowOpen(self):
         return True  # not self._location == None
@@ -319,11 +312,7 @@ class WorkflowManager(object):
         settings.endGroup()
 
 
-def versionTuple(v):
-    return tuple(map(int, (v.split("."))))
-
-
-def compatibleVersions(workflow_version, application_version):
+def _compatible_versions(workflow_version, application_version):
     """
     Method checks whether two versions are compatible or not.  Raises a
     WorkflowError exception if the two versions are not compatible.
@@ -352,22 +341,11 @@ def compatibleVersions(workflow_version, application_version):
     if application_version == (0, 14, 0) and workflow_version == (0, 13, 0):
         return True
 
-    # if not workflow_version[0:2] == application_version[0:2]:
-    #     # compare first two elements of version (major, minor)
-    #     raise WorkflowError(
-    #         'Major/Minor version number mismatch - '
-    #         'workflow version: %s; application version: %s.' %
-    #             (workflow_version, application_version)
-    #     )
-
-    if not parse_version('.'.join(map(str,workflow_version))) <=\
-       parse_version('.'.join(map(str,application_version))):
+    if not workflow_version <= application_version:
         raise WorkflowError(
             'Workflow version is newer than MAP Client - '
             'workflow version: %s; application version: %s.' %
-                (workflow_version, application_version)
+            (workflow_version, application_version)
         )
 
     return True
-
-

@@ -94,7 +94,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._ui.stepTreeView.setFilterRegExp(reg_exp)
 
     def _update_ui(self):
-        if hasattr(self, '_mainWindow'):
+        if hasattr(self, '_main_window'):
             try:
                 wfm = self._main_window.model().workflowManager()
                 self._main_window.setWindowTitle(wfm.title())
