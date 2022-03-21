@@ -196,6 +196,12 @@ class WorkflowManager(object):
 
         return self._scene.is_restricted(wf)
 
+    def fit_workflow(self, graphics_view, graphics_scene):
+        """
+        Scales the workflow items to fit into the current window size. This method maintains the aspect ratio of the saved workflow.
+        """
+        self._scene.fit_workflow(graphics_view, graphics_scene)
+
     def load(self, location):
         """
         Open a workflow from the given location.

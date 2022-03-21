@@ -140,6 +140,7 @@ def windows_main(app_args):
     if om.getOption(AUTOLOAD_PREVIOUS_WORKFLOW):
         _load_previous_workflow(app_args, om)
 
+    window.show()
     wm = model.workflowManager()
     if app_args.workflow and not wm.is_restricted(app_args.workflow):
         splash.showMessage('Opening workflow ...', 80)
@@ -155,7 +156,6 @@ def windows_main(app_args):
         else:
             logger.error('Could not execute workflow.')
 
-    window.show()
     splash.showMessage('Ready ...', 100)
     splash.finish(window)
     return app.exec_()
