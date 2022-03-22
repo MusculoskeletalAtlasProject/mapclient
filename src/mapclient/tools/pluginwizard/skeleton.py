@@ -164,15 +164,15 @@ class Skeleton(object):
                 if current_port[0].endswith('uses'):
                     uses_count += 1
                     if uses_total == 1:
-                        method_string += '        self._portData{0} = dataIn # {1}\n'.format(index, current_port[1])
+                        method_string += '        self._portData{0} = dataIn  # {1}\n'.format(index, current_port[1])
                     else:
                         if uses_count == 1:
                             method_string += """        if index == {0}:
-            self._portData{0} = dataIn # {1}
+            self._portData{0} = dataIn  # {1}
 """.format(index, current_port[1])
                         else:
                             method_string += """        elif index == {0}:
-            self._portData{0} = dataIn # {1}
+            self._portData{0} = dataIn  # {1}
 """.format(index, current_port[1])
 
         return method_string
@@ -205,15 +205,15 @@ class Skeleton(object):
                 if current_port[0].endswith('provides'):
                     provides_count += 1
                     if provides_total == 1:
-                        method_string += '        return self._portData{0} # {1}\n'.format(index, current_port[1])
+                        method_string += '        return self._portData{0}  # {1}\n'.format(index, current_port[1])
                     else:
                         if provides_count == 1:
                             method_string += """        if index == {0}:
-            return self._portData{0} # {1}
+            return self._portData{0}  # {1}
 """.format(index, current_port[1])
                         else:
                             method_string += """        elif index == {0}:
-            return self._portData{0} # {1}
+            return self._portData{0}  # {1}
 """.format(index, current_port[1])
 
         return method_string
@@ -261,7 +261,7 @@ class Skeleton(object):
         icon = self._options.getIcon()
         if icon:
             image_filename = self._options.getImageFile()
-            icon_string = '        self._icon =  QtGui.QImage(\':/{step_package_name}/' + IMAGES_DIRECTORY + '/{image_filename}\')\n'
+            icon_string = '        self._icon = QtGui.QImage(\':/{step_package_name}/' + IMAGES_DIRECTORY + '/{image_filename}\')\n'
             init_string += icon_string.format(step_package_name=self._options.getPackageName(), image_filename=image_filename)
         port_index = 0
         ports = []
@@ -277,7 +277,7 @@ class Skeleton(object):
 
         init_string += '        # Port data:\n'
         for index, current_port in enumerate(ports):
-            init_string += '        self._portData{0} = None # {1}\n'.format(index, current_port[1])
+            init_string += '        self._portData{0} = None  # {1}\n'.format(index, current_port[1])
 
         if self._options.hasIdentifierConfig():
             id_method_string = IDENTIFIER_METHOD_STRING.format(getidentifiercontent=GETIDENTIFIER_IDENTIFER_CONTENT_STRING,
@@ -288,14 +288,14 @@ class Skeleton(object):
 
         if self._options.configCount() > 0:
             init_string += '        # Config:\n'
-            init_string += '        self._config = {}\n'
+            init_string += '        self._config = {\n'
             config_index = 0
             while config_index < self._options.configCount():
                 config = self._options.getConfig(config_index)
-                init_string += '        self._config[\'{0}\'] = \'{1}\'\n'.format(config[0], config[1])
+                init_string += '            \'{0}\': \'{1}\',\n'.format(config[0], config[1])
                 config_index += 1
 
-            # init_string += '\n'
+            init_string += '        }\n'
 
         if self._options.hasIdentifierConfig():
             serialize_method_string = SERIALIZE_METHOD_STRING.format(serializecontent=SERIALIZE_IDENTIFIER_CONTENT_STRING, deserializecontent=DESERIALIZE_IDENTIFIER_CONTENT_STRING)

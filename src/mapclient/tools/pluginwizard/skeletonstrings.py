@@ -37,7 +37,7 @@ class {step_object_name}Step(WorkflowStepMountPoint):
 INIT_METHOD_STRING = """
     def __init__(self, location):
         super({step_object_name}Step, self).__init__('{step_name}', location)
-        self._configured = False # A step cannot be executed until it has been configured.
+        self._configured = False  # A step cannot be executed until it has been configured.
         self._category = '{step_category}'
         # Add any other initialisation code here:
 """
@@ -67,8 +67,8 @@ IDENTIFIER_METHOD_STRING = """
         {setidentifiercontent}
 """
 
-GETIDENTIFIER_DEFAULT_CONTENT_STRING = 'return \'{step_object_name}\' # TODO: The string must be replaced with the step\'s unique identifier'
-SETIDENTIFIER_DEFAULT_CONTENT_STRING = 'pass # TODO: Must actually set the step\'s identifier here'
+GETIDENTIFIER_DEFAULT_CONTENT_STRING = 'return \'{step_object_name}\'  # TODO: The string must be replaced with the step\'s unique identifier'
+SETIDENTIFIER_DEFAULT_CONTENT_STRING = 'pass  # TODO: Must actually set the step\'s identifier here'
 GETIDENTIFIER_IDENTIFER_CONTENT_STRING = 'return self._config[\'identifier\']'
 SETIDENTIFIER_IDENTIFER_CONTENT_STRING = 'self._config[\'identifier\'] = identifier'
 
