@@ -95,7 +95,6 @@ class Skeleton(object):
             ))
 
         readme_file = os.path.join(target_dir, 'README.rst')
-        requirements_file = os.path.join(target_dir, 'requirements.txt')
         license_file = os.path.join(target_dir, 'LICENSE')
         with open(readme_file, 'w') as f:
             step_name = self._options.getName()  # .decode('utf-8')
@@ -103,8 +102,6 @@ class Skeleton(object):
                 name=step_name,
                 underline='=' * len(step_name)
             ))
-        with open(requirements_file, 'w'):
-            pass
         with open(license_file, 'w') as f:
             now = datetime.datetime.now()
             f.write(APACHE_LICENSE.format(yyyy=now.year,
