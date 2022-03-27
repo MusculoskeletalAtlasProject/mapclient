@@ -437,7 +437,10 @@ class MainWindow(QtWidgets.QMainWindow):
         from mapclient.tools.renameplugin.renamedialog import RenameDialog
 
         om = self._model.optionsManager()
-        dlg = RenameDialog(om.getOption(PYSIDE_RCC_EXE), self)
+        rcc_exe = "rcc"
+        if om.getOption(USE_EXTERNAL_RCC):
+            rcc_exe = om.getOption(PYSIDE_RCC_EXE)
+        dlg = RenameDialog(rcc_exe, self)
         dlg.setModal(True)
         dlg.exec_()
 
