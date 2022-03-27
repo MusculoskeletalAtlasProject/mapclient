@@ -9,14 +9,18 @@ MAP Plugin Creator Wizard
 .. _launchpad project: http://launchpad.net/mapclient
 .. _MAP: https://simtk.org/home/map
 
-.. note::
-   `MAP`_ is currently under active development, and this document will be updated to reflect any changes to the software or new features that are added. You can follow the development of MAP at the `launchpad project`_.
-
-The plugin lies at the heart of the MAP framework and the Plugin Creator Wizard creates skeleton plugins conforming to the MAP framework plugin interface.  The Plugin Creator Wizard assists with the initial plugin creation allowing the plugin developer to concentrate on implementing the plugins task.  For basic familiararity with the MAP Client please read the feature demonstration document :doc:`MAP-feature-demonstration`.
+The plugin lies at the heart of the MAP framework and the Plugin Creator Wizard creates skeleton plugins conforming to the MAP framework plugin interface.
+The Plugin Creator Wizard assists with the initial plugin creation allowing the plugin developer to concentrate on implementing the plugins task.
+For basic familiararity with the MAP Client please read the feature demonstration document :doc:`MAP-feature-demonstration`.
 
 For more detailed information on the plugin interface read the :doc:`MAP-plugin` document, this document defines the plugin interface that the new plugin must adhere to.
 
-The Plugin Creator Wizard takes the user through a series of pages/dialogs that user fills out as suits their needs.  The pages and a description about the elements in each page is given below.  To move from one page to the next use the 'next' button at the bottom of the page, for some pages the 'next' button is only available once the page is complete.  If the 'next' button is not available for a page it will be because at least one of the pages required fields is incomplete.  Required fields that are incomplete will be marked with a small cross icon (|cross icon|).  Once all the required fields are complete the 'next' button will become available, or the 'finish' button in the case of the last page/dialog.
+The Plugin Creator Wizard takes the user through a series of pages/dialogs that user fills out as suits their needs.
+The pages and a description about the elements in each page is given below.
+To move from one page to the next use the 'next' button at the bottom of the page, for some pages the 'next' button is only available once the page is complete.
+If the 'next' button is not available for a page it will be because at least one of the pages required fields is incomplete.
+Required fields that are incomplete will be marked with a small cross icon (|cross icon|).
+Once all the required fields are complete the 'next' button will become available, or the 'finish' button in the case of the last page/dialog.
 
 .. |cross icon| image:: images/cross.png
    :width: 10px
@@ -37,12 +41,24 @@ The introduction page contains a short welcome message and a paragraph on the Pl
 Identification Page
 ===================
 
-The identification page sets the name for the Workflow step, the Python package name and optionally the step icon.  The Workflow step name can be set in the text box (1).  As a recommendation Workflow step names should be defined in camel case as this name will be given to a class, spaces between words are acceptable however.  The Workflow step name is visible in the Step box when active in the application so a descriptive name will aide users.  The 'cross' icon (6) indicates that the entry for the step name is not valid.  When a valid step name has been entered in the text box the 'cross' icon will be removed.  Examples of valid step names are: 'Image Source', 'Point Cloud Serializer' and 'Segmentation'.
+The identification page sets the Workflow step name, the Python package name and optionally the step icon.
+The Workflow step name can be set in the text box (1).
+As a recommendation Workflow step names should be defined in Pascal case as this name will be given to a class, spaces between words are acceptable however.
+The Workflow step name is visible in the Step box when active in the application so a descriptive name will aide users.
+The 'cross' icon (6) indicates that the entry for the step name is not valid.
+When a valid step name has been entered in the text box the 'cross' icon will be removed.
+Examples of valid step names are: 'Image Source', 'Point Cloud Serializer' and 'Segmentation'.
 
 
-The package name for the step will be automatically derived from the step name and set into the package name text box (2).  The wizard will make changes so that the package name conforms to the PEP8 guidelines for Python.  The wizard will also append the text 'step' to the package name.  However if the default name is unsatisfactory the package name can be edited directly and given an alternative name.  The matching package names for the examples given above would be: 'imagesourcestep', 'pointcloudserializerstep' and 'segementationstep'.
+The package name for the step will be automatically derived from the step name and set into the package name text box (2).
+The wizard will make changes so that the package name conforms to the PEP8 guidelines for Python.
+The wizard will also append the text 'step' to the package name.
+However if the default name is unsatisfactory the package name can be edited directly and given an alternative name.
+The matching package names for the examples given above would be: 'imagesourcestep', 'pointcloudserializerstep' and 'segementationstep'.
 
-An icon may be specified using the icon text box (3), the icon file may be chosen from the file system using the file chooser button (4).  When an icon is specified it will be copied into the created skeleton step and be made available as a Qt resource.  The suggested size of the icon is that it should be around 128px by 128px.
+An icon may be specified using the icon text box (3), the icon file may be chosen from the file system using the file chooser button (4).
+When an icon is specified it will be copied into the created skeleton step and be made available as a Qt resource.
+The suggested size of the icon is that it should be around 128px by 128px.
 
 .. figure:: images/plugin_wizard_identify_1.png
    :align: center
@@ -50,20 +66,18 @@ An icon may be specified using the icon text box (3), the icon file may be chose
    
    **Figure:** The identification page.
 
-The step icon is an important part of the Workflow step as it is used to identify it graphically on the Workflow canvas.  The default icon displays the step name across the icon to help differentiate it from other steps with no icon specified.  A preview of the step icon (5) is shown so that you can see how it will look in the application.
+The step icon is an important part of the Workflow step as it is used to identify it graphically on the Workflow canvas.
+A preview of the step icon (5) is shown so that you can see how it will look in the application.
 
-.. note::
-
-  The PySide resource compiler application 'pyside-rcc' is required when choosing an icon image from the file system 
-  
-.. note::
-
-  When a 'cross' icon appears on any page of the wizard it is used to indicate that the current field is not valid.  When a field on a page is not valid the wizard cannot be progressed or finished.  Therefore the 'cross' icon also indicates which fields require modification before the wizard can be continued.
 
 Ports Page
 ==========
 
-The ports page sets up the ports for the step.  To add a port use the 'Add' button (1).  This will create an entry in the port list (2) with a default type of 'provides' and an empty object.  A port can either provide or use a given object.  The object should be uniquely identified using a namespace prefix, for example 'http://my.example.org/1.0/workflowstep'.
+The ports page sets up the ports for the step.
+To add a port use the 'Add' button (1).
+This will create an entry in the port list (2) with a default type of 'provides' and an empty object.
+A port can either provide or use a given object.
+The object should be uniquely identified using a namespace prefix, for example 'http://my.example.org/1.0/workflowstep'.
 
 .. _`plugin wizard ports`:
 
@@ -75,7 +89,10 @@ The ports page sets up the ports for the step.  To add a port use the 'Add' butt
 
 To remove a port, select an entry in the port list (2) and click the 'Remove' button (3).
 
-For one port to be connected to any other the objects of both ports must match.  The match is a determination of object compatibility (currently this is just a simple string matching test).  Additionally to this one port must be the provider and the other the user (the order that the connection is made in when using the MAP Client is important).  In summary the second port must use the object that the first port provides. 
+For one port to be connected to any other the objects of both ports must match.
+The match is a determination of object compatibility (currently this is just a simple string matching test).
+Additionally to this one port must be the provider and the other the user (the order that the connection is made in when using the MAP Client is important).
+In summary the second port must use the object that the first port provides.
 
 Example
 -------
@@ -111,14 +128,19 @@ The configuration page can help setup the configuration dialog for the step.  Th
    
    **Figure:** The configuration page.
 
-.. note::
-
-  The PySide ui compiler application 'pyside-uic' is required when using the wizard to generate a step which has at least one configuration parameter.
-
 Miscellaneous Page
 ==================
 
-The miscellaneous page sets a number of properties that are not important to the function of the step.  The author name(s) for the step can be set in the text box (1).  The author's name appears when the step plugin is loaded and is not seen or used anywhere else.  The category for the step can be set in the text box (2).   The category determines the group that the step appears in in the Step Box of the application.  We encourage plugin developers to make their plugins available to download from an online repository (eg. GitHub or Bitbucket) to promote resource sharing and improve the time and ease with which new workflows can be created. The download link for the plugin from an online repository can be set in the text box (3). This must link to a .zip file download and it is highly recommended that this be provided during plugin creation to allow workflows and their required plugins to be shared easily.
+The miscellaneous page sets a number of properties that are not important to the function of the step.
+The author name(s) for the step can be set in the text box (1).
+The author's name appears when the step plugin is loaded and is not seen or used anywhere else.
+The category for the step can be set in the text box (2).
+The category determines the group that the step appears in in the Step Box of the application.
+We encourage plugin developers to make their plugins available to download from an online repository (eg. GitHub or Bitbucket) to promote resource sharing and improve the time and ease with which new workflows can be created.
+The download link for the plugin from an online repository can be set in the text box (3).
+This must link to a .zip file.
+If you do not set the download link during creation, please ensure that this is done soon after, as this link is essential to allow workflows and their required plugins to be shared easily.
+This can be done
 
 .. figure:: images/plugin_wizard_misc_1.png
    :align: center

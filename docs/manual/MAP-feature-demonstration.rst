@@ -91,7 +91,7 @@ This includes a *Plugin Manager*, *Package Manager*, *Plugin Wizard*, *Physiome 
 *Rename Plugin* tool, and an *Update Plugin* tool.
 
 The :ref:`Plugin Manager<MAP-plugin-manager-tool>`, :ref:`Physiome Model Repository (PMR)<MAP-PMR-tool>` tool,
-:ref:`Update Workflow<MAP-update-workflow-tool>` tool and :ref:`Update Plugin<MAP-update-plugin-tool>` tool are described in detail below.
+:ref:`Update Workflow<MAP-update-workflow-tool>` tool and :ref:`Rename Plugin<MAP-rename-plugin-tool>` tool are described in detail below.
 The :ref:`Plugin Wizard<MAP-plugin-wizard>` is explained in its own section later in this manual.
 
 
@@ -153,7 +153,7 @@ Dependencies tab:
 .. _MAP-update-workflow-tool:
 
 Update Workflow Tool
-------------------
+--------------------
 
 MAP Client workflows that have been saved in an earlier version of MAP Client to that which the user is currently running, may need to be updated.
 The *Update Workflow* tool is intended to simplify the updating process.
