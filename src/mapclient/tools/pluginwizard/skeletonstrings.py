@@ -331,9 +331,6 @@ def find_version(*file_paths):
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
 
-# List all of your Python package dependencies in the
-# requirements.txt file
-
 
 def readfile(filename, split=False):
     with io.open(filename, encoding="utf-8") as stream:
@@ -342,11 +339,9 @@ def readfile(filename, split=False):
         return stream.read()
 
 
-readme = readfile("README.rst", split=True)[3:]  # skip title
-# For requirements not hosted on PyPi place listings
-# into the 'requirements.txt' file.
-requires = ['PySide2']  # minimal requirements listing
+readme = readfile("README.rst", split=True)[3:]  # Skip title
 source_license = readfile("LICENSE")
+requires = ['PySide2']  # Minimal requirements listing. Insert additional dependencies here.
 
 
 setup(
