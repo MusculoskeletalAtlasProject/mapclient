@@ -53,6 +53,10 @@ class UpdateWorkflowDialog(QDialog):
             title = 'Update Confirmed'
             messages.append('Renamed Mesh Generator to Scaffold Creator\t')
 
+        if _update_geometry_fitter_rename(self._workflow_location):
+            title = 'Update Confirmed'
+            messages.append('Renamed Geometric Fit to Geometry Fitter\t')
+
         self._show_message(title, messages)
 
     def _show_message(self, title, messages):
@@ -119,30 +123,27 @@ def _update_to_version_0_16_0(workflow_location, workflow_conf_file):
     workflow_conf.setValue('version', '0.16.0')
 
 
-def _update_scaffold_creator_rename(workflow_location):
+def _rename_step(workflow_location, old_name, new_name, new_src_uri):
     updated = False
     workflow_conf_location = os.path.join(workflow_location, DEFAULT_WORKFLOW_PROJECT_FILENAME)
     workflow_conf = QSettings(workflow_conf_location, QSettings.IniFormat)
 
-    new_name = "Scaffold Creator"
-    new_src_uri = "https://github.com/ABI-Software/mapclientplugins.scafffoldcreator"
-
     workflow_conf.beginGroup('nodes')
     node_count = workflow_conf.beginReadArray('nodelist')
 
-    scaffold_creator_name_indices = []
+    name_indices = []
     for i in range(node_count):
         workflow_conf.setArrayIndex(i)
         name = workflow_conf.value('name')
-        if name == "Mesh Generator":
-            scaffold_creator_name_indices.append(i)
+        if name == old_name:
+            name_indices.append(i)
 
     workflow_conf.endArray()
     workflow_conf.beginWriteArray('nodelist')
 
     for i in range(node_count):
         workflow_conf.setArrayIndex(i)
-        if i in scaffold_creator_name_indices:
+        if i in name_indices:
             workflow_conf.setValue('name', new_name)
             workflow_conf.setValue('source_uri', new_src_uri)
             updated = True
@@ -151,3 +152,17 @@ def _update_scaffold_creator_rename(workflow_location):
     workflow_conf.endGroup()
 
     return updated
+
+
+def _update_scaffold_creator_rename(workflow_location):
+    new_name = "Scaffold Creator"
+    new_src_uri = "https://github.com/ABI-Software/mapclientplugins.scafffoldcreator"
+
+    return _rename_step(workflow_location, "Mesh Generator", new_name, new_src_uri)
+
+
+def _update_geometry_fitter_rename(workflow_location):
+    new_name = "Geometry Fitter"
+    new_src_uri = "https://github.com/ABI-Software/mapclientplugins.geometryfitter"
+
+    return _rename_step(workflow_location, "Geometric Fit", new_name, new_src_uri)
