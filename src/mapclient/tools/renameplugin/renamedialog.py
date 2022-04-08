@@ -38,6 +38,7 @@ class RenameDialog(QtWidgets.QDialog):
         self._ui.lineEditRenameStepTo.textEdited.connect(self._editDelayTimer.start)
         self._ui.lineEditRenameStepTo.textEdited.connect(self._stepNameEdited)
         self._ui.lineEditRenamePackageTo.textEdited.connect(self._packageNameEdited)
+        self._ui.lineEditRenamePackageTo.textEdited.connect(self._editDelayTimer.start)
         self._editDelayTimer.timeout.connect(self._runRenameSearch)
 
     def _runRenameSearch(self):
