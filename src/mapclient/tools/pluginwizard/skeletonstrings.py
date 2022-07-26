@@ -236,7 +236,7 @@ CONFIGURE_DIALOG_UI = """<?xml version="1.0" encoding="UTF-8"?>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Configure Step</string>
+   <string>Configure {0}</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -244,7 +244,7 @@ CONFIGURE_DIALOG_UI = """<?xml version="1.0" encoding="UTF-8"?>
      <property name="title">
       <string/>
      </property>
-     <layout class="QFormLayout" name="formLayout">{0}     </layout>
+     <layout class="QFormLayout" name="formLayout">{1}     </layout>
     </widget>
    </item>
    <item row="1" column="0">

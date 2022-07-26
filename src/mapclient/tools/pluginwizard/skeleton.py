@@ -425,7 +425,7 @@ class Skeleton(object):
 
             ui_file = os.path.join(qt_dir, QT_CONFDIALOG_UI_FILENAME)
             with open(ui_file, 'w') as fui:
-                fui.write(CONFIGURE_DIALOG_UI.format(widgets_string))
+                fui.write(CONFIGURE_DIALOG_UI.format(self._options.getName(), widgets_string))
 
             py_file = os.path.join(step_dir, PYTHON_QT_CONFDIALOG_UI_FILENAME)
             if self._qt_tool_options[USE_EXTERNAL_UIC]:
