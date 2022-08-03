@@ -28,6 +28,7 @@ from mapclient.exceptions import ClientRuntimeError
 
 from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME, \
     DEFAULT_WORKFLOW_ANNOTATION_FILENAME
+from mapclient.view.dialogs.selfclosing.messagebox import MessageBox
 
 from mapclient.view.utils import set_wait_cursor
 from mapclient.view.utils import handle_runtime_error
@@ -90,7 +91,7 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     def _filter_text_changed(self, text):
         reg_exp = QtCore.QRegExp(text, QtCore.Qt.CaseInsensitive)
-#         self._workflowManager.getFilteredStepModel().setFilterRegExp(reg_exp)
+        #         self._workflowManager.getFilteredStepModel().setFilterRegExp(reg_exp)
         self._ui.stepTreeView.setFilterRegExp(reg_exp)
 
     def _update_ui(self):
@@ -152,25 +153,24 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     def executeWorkflow(self):
         wfm = self._main_window.model().workflowManager()
+        wfm.register_finished_workflow_callback(self._workflow_finished)
         errors = []
 
         if wfm.isModified():
             errors.append('The workflow has not been saved.')
 
         if not wfm.canExecute():
-            errors.append('Not all steps in the workflow have been '
-                'successfully configured.')
+            errors.append('Not all steps in the workflow have been successfully configured.')
 
         if not errors:
             self.executeNext()
-#             self._mainWindow.execute()  # .model().workflowManager().execute()
         else:
             errors_str = '\n'.join(
                 ['  %d. %s' % (i + 1, e) for i, e in enumerate(errors)])
             error_msg = ('The workflow could not be executed for the '
-                'following reason%s:\n\n%s' % (
-                    len(errors) > 1 and 's' or '', errors_str,
-            ))
+                         'following reason%s:\n\n%s' % (
+                             len(errors) > 1 and 's' or '', errors_str,
+                         ))
             QtWidgets.QMessageBox.critical(self, 'Workflow Execution', error_msg, QtWidgets.QMessageBox.Ok)
 
     def continueWorkflow(self):
@@ -190,9 +190,18 @@ class WorkflowWidget(QtWidgets.QWidget):
         if workflowDir:
             self._createNewWorkflow(workflowDir, pmr)
 
+    def _workflow_finished(self):
+        # MessageBox()
+        mb = MessageBox(QtWidgets.QMessageBox.Icon.Information, "Workflow Finished",
+                        "Workflow finished successfully.",
+                        QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Default,
+                        parent=self._main_window)
+        mb.setIconPixmap(QtGui.QPixmap(":/mapclient/images/green_tick.png").scaled(64, 64))
+        mb.exec_()
+
     def _getWorkflowDir(self):
         m = self._main_window.model().workflowManager()
-        workflowDir = QtWidgets.QFileDialog.getExistingDirectory(self._main_window, caption='Select Workflow Directory', directory=m.previousLocation())
+        workflowDir = QtWidgets.QFileDialog.getExistingDirectory(self._main_window, caption='Select Workflow Directory', dir=m.previousLocation())
         if workflowDir is None:
             # user abort
             return ''
@@ -279,8 +288,8 @@ class WorkflowWidget(QtWidgets.QWidget):
             filter=f"{primary_filter};;Any file (*.*)",
             selectedFilter=primary_filter,
             options=(
-                QtWidgets.QFileDialog.DontResolveSymlinks |
-                QtWidgets.QFileDialog.ReadOnly
+                    QtWidgets.QFileDialog.DontResolveSymlinks |
+                    QtWidgets.QFileDialog.ReadOnly
             )
         )[0]
 
@@ -392,7 +401,7 @@ class WorkflowWidget(QtWidgets.QWidget):
          5. Check for errors
          6. Update step tree
         """
-#         wm = self._mainWindow.model().workflowManager()
+        #         wm = self._mainWindow.model().workflowManager()
         pm = self._main_window.model().pluginManager()
         steps_to_install = pm.checkPlugins(workflow_dir)
         dependencies_to_install = pm.checkDependencies(workflow_dir)
@@ -403,8 +412,8 @@ class WorkflowWidget(QtWidgets.QWidget):
             if download_plugins:
                 self.installMissingPlugins(steps_to_install)
 
-#         pm = self._mainWindow.model().pluginManager()
-#         pm.load()
+        #         pm = self._mainWindow.model().pluginManager()
+        #         pm.load()
         if pm.haveErrors():
             self._main_window._show_plugin_errors_dialog()
             self.updateStepTree()
@@ -545,8 +554,8 @@ class WorkflowWidget(QtWidgets.QWidget):
                         workflow_files.append(full_filename)
 
             pmr_tool.commitFiles(workflowDir, comment, workflow_files)
-#                 [workflowDir + '/%s' % (DEFAULT_WORKFLOW_PROJECT_FILENAME),
-#                  workflowDir + '/%s' % (DEFAULT_WORKFLOW_ANNOTATION_FILENAME)])  # XXX make/use file tracker
+            #                 [workflowDir + '/%s' % (DEFAULT_WORKFLOW_PROJECT_FILENAME),
+            #                  workflowDir + '/%s' % (DEFAULT_WORKFLOW_ANNOTATION_FILENAME)])  # XXX make/use file tracker
             if not commit_local:
                 pmr_tool.pushToRemote(workflowDir)
             committed_changes = True
@@ -571,7 +580,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             return
         try:
             pmr_tool.addFileToIndexer(workflow_dir, DEFAULT_WORKFLOW_ANNOTATION_FILENAME)
-#             pmr_tool.commitFiles(local_workspace_dir, message, files)
+        #             pmr_tool.commitFiles(local_workspace_dir, message, files)
         except ClientRuntimeError:
             # handler will deal with this.
             raise
@@ -599,7 +608,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         last_file_menu_action = menu_file.actions()[-1]
 
         menu_new = QtWidgets.QMenu('&New', menu_file)
-#        menu_Open = QtGui.QMenu('&Open', menu_File)
+        #        menu_Open = QtGui.QMenu('&Open', menu_File)
 
         self.action_NewPMR = QtWidgets.QAction('PMR Workflow', menu_new)
         self._set_action_properties(self.action_NewPMR, 'action_NewPMR', self.newpmr, 'Ctrl+N',

@@ -125,6 +125,9 @@ class WorkflowManager(object):
     def identifierOccursCount(self, identifier):
         return self._scene.identifierOccursCount(identifier)
 
+    def register_finished_workflow_callback(self, callback):
+        self._scene.register_finished_workflow_callback(callback)
+
     def execute(self):
         self._scene.execute()
 
