@@ -113,14 +113,6 @@ def windows_main(app_args):
     except ImportError:
         logger.warning(' *** OpenCMISS-Zinc is not available ***')
 
-    splash.showMessage('Loading opencmiss.iron ...', 15)
-    try:
-        from opencmiss.iron import iron
-        # import opencmiss.utils.iron
-        logger.info('OpenCMISS-Iron is available.')
-    except ImportError:
-        logger.warning(' *** OpenCMISS-Iron is not available ***')
-
     splash.showMessage('Creating application ...', 20)
     from mapclient.core.mainapplication import MainApplication
     model = MainApplication()
@@ -148,13 +140,16 @@ def windows_main(app_args):
     if om.getOption(AUTOLOAD_PREVIOUS_WORKFLOW):
         _load_previous_workflow(app_args, om)
 
-    if app_args.workflow:
+    wm = model.workflowManager()
+    if app_args.workflow and not wm.is_restricted(app_args.workflow):
         splash.showMessage('Opening workflow ...', 80)
+        logger.info(f"Opening workflow: {app_args.workflow}")
         window.open_workflow(app_args.workflow)
+    elif app_args.workflow:
+        logger.info(f"Not opening workflow '{app_args.workflow}', at least some required plugins are already in use.")
 
     if app_args.execute:
         splash.showMessage('Executing workflow ...', 90)
-        wm = model.workflowManager()
         if wm.canExecute():
             window.execute()
         else:
@@ -182,21 +177,16 @@ def _load_previous_workflow(app_args, om):
     previous_workflow_dir = om.getOption(PREVIOUS_WORKFLOW)
     if previous_workflow_dir != UNSET_FLAG:
         workflow_file = find_file(DEFAULT_WORKFLOW_PROJECT_FILENAME, previous_workflow_dir)
-        workflow_location = 'previous'
     else:
         if not om.getOption(INTERNAL_WORKFLOWS_AVAILABLE):
             return
 
         workflow_file = _get_default_internal_workflow(om)
-        workflow_location = 'internal default'
 
     # Set workflow to internal workflow if None is currently present.
     if app_args.workflow is None and workflow_file is not None:
         # Should definitely have a workflow now.
-        workflow_directory = os.path.dirname(workflow_file)
-
-        app_args.workflow = workflow_directory
-        logger.info(f"Loading {workflow_location} workflow.")
+        app_args.workflow = os.path.dirname(workflow_file)
 
 
 def _prepare_internal_workflows(om):
@@ -274,7 +264,7 @@ def sans_gui_main(app_args):
 
     try:
         wm.load(app_args.workflow)
-    except Exception:
+    except:
         logger.error('Not a valid workflow location: "{0}"'.format(app_args.workflow))
         sys.exit(INVALID_WORKFLOW_LOCATION_GIVEN)
 

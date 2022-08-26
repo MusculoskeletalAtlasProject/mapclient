@@ -1,4 +1,3 @@
-
 import os
 
 import shutil
@@ -8,7 +7,7 @@ from PySide2 import QtCore, QtWidgets
 
 from mapclient.core.managers.pluginmanager import isMapClientPluginsDir
 from mapclient.core.utils import grep, determinePackageName, determineStepClassName, determineStepName, \
-    convertNameToPythonPackage, find_file
+    convertNameToPythonPackage, find_file, qt_tool_wrapper
 from mapclient.settings.definitions import PLUGINS_PACKAGE_NAME
 from mapclient.tools.renameplugin.ui.ui_renamedialog import Ui_RenameDialog
 
@@ -39,6 +38,7 @@ class RenameDialog(QtWidgets.QDialog):
         self._ui.lineEditRenameStepTo.textEdited.connect(self._editDelayTimer.start)
         self._ui.lineEditRenameStepTo.textEdited.connect(self._stepNameEdited)
         self._ui.lineEditRenamePackageTo.textEdited.connect(self._packageNameEdited)
+        self._ui.lineEditRenamePackageTo.textEdited.connect(self._editDelayTimer.start)
         self._editDelayTimer.timeout.connect(self._runRenameSearch)
 
     def _runRenameSearch(self):
@@ -138,8 +138,8 @@ class RenameDialog(QtWidgets.QDialog):
             self._ui.lineEditRenameStepFrom.setText(step_name)
             self._ui.lineEditRenamePackageFrom.setText(package_name)
         else:
-            QtGui.QMessageBox.warning(self, 'Rename',
-                                      'Target directory is not recognized as a MAP Client plugin directory')
+            QtWidgets.QMessageBox.warning(self, 'Rename',
+                                          'Target directory is not recognized as a MAP Client plugin directory')
 
     def _renameClicked(self):
         tree = self._ui.treeWidgetRename
@@ -169,11 +169,11 @@ class RenameDialog(QtWidgets.QDialog):
         qrc_file = find_file('resources.qrc', target)
         python_rc_file = find_file('resources_rc.py', target)
         if qrc_file is None or python_rc_file is None:
-            return -1
-        p = subprocess.Popen([self._pyside_rcc, '-py3', qrc_file, '-o', python_rc_file],
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        p.communicate()
-        return p.returncode
+            return 1
+
+        return_code, _ = qt_tool_wrapper(self._pyside_rcc, ['-g', 'python', '-o', python_rc_file, qrc_file], self._pyside_rcc != "rcc")
+
+        return return_code
 
     def _doDirectoryRename(self):
         target = self._ui.lineEditStepLocation.text()

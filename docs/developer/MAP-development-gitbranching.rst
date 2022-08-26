@@ -44,13 +44,9 @@ The other role for the PQM is to merge a finalising branch into master.  The fin
 Centralised Workflow (using distributed VCS)
 ============================================
 
-The repository setup for this workflow makes use of the notion of a central definitive repository.  This concept is just
- a notion as there is no such thing (at a technical level) as a central repository in a DVCS like Git.  We will refer to
-  this central repository as the **prime** repostiory.
+The repository setup for this workflow makes use of the notion of a central definitive repository.  This concept is just a notion as there is no such thing (at a technical level) as a central repository in a DVCS like Git.  We will refer to this central repository as the **prime** repostiory.
 
-Official releases are made from the master branch in *prime*.  This process is managed by the PQM which goes through the
- process of a release in a systematic way.  Making in release in a systematic way is intended to make the task of
-creating a release easier and consistent.
+Official releases are made from the master branch in *prime*.  This process is managed by the PQM which goes through the process of a release in a systematic way.  Making in release in a systematic way is intended to make the task of creating a release easier and consistent.
 
 Main Branches
 =============

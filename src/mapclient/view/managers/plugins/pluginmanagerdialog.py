@@ -37,7 +37,6 @@ class PluginManagerDialog(QtWidgets.QDialog):
         self._resource_filenames = resource_filenames
         self._updaterSettings = updater_settings
         self._unsuccessful_package_installations = unsuccessful_package_installations
-        self._loadDefaultPlugins = True
 
         self._makeConnections()
 
@@ -45,7 +44,7 @@ class PluginManagerDialog(QtWidgets.QDialog):
         self._ui.addButton.clicked.connect(self._addDirectoryClicked)
         self._ui.directoryListing.itemSelectionChanged.connect(self._directorySelectionChanged)
         self._ui.removeButton.clicked.connect(self._removeButtonClicked)
-        self._ui.reloadButton.clicked.connect(self.reloadPlugins)
+        self._ui.applyButton.clicked.connect(self.reloadPlugins)
         self._ui.advancedButton.clicked.connect(self.showAdvancedDialog)
 
     def showAdvancedDialog(self):
@@ -91,18 +90,12 @@ class PluginManagerDialog(QtWidgets.QDialog):
     def setDirectories(self, directories):
         self._ui.directoryListing.addItems([directory for directory in directories if os.path.exists(directory)])
 
-    def setLoadDefaultPlugins(self, loadDefaultPlugins):
-        self._ui.defaultPluginCheckBox.setChecked(loadDefaultPlugins)
-
     def directories(self):
         directories = []
         for index in range(self._ui.directoryListing.count()):
             directories.append(self._ui.directoryListing.item(index).text())
 
         return directories
-
-    def loadDefaultPlugins(self):
-        return self._ui.defaultPluginCheckBox.isChecked()
 
 
 class PluginDirectories(object):

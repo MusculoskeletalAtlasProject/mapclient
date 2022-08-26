@@ -88,7 +88,7 @@ jobs:
         with:
           repository: hsorby/mapclientreleasescripts
           path: scripts
-          ref: v0.10.0
+          ref: v0.13.0
       - name: Create installer asset
         id: create-installer
         shell: bash
@@ -110,6 +110,10 @@ jobs:
           cd $GITHUB_WORKSPACE
           cd scripts
           # ${{ steps.get_tag.outputs.tag }}
+
+          # Manually install PyInstaller rather than use the dev install requires from setup.py.
+          $pip_exe install pyinstaller
+
           if [ "${{ matrix.variant }}" == "mapclient" ]; then
             $python_exe prepare_mapclient_release.py ${{ matrix.tag }}
           elif [ "${{ matrix.variant }}" == "mapping-tools" ]; then

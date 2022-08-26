@@ -14,7 +14,7 @@
    <string>Plugin Manager</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../widgets/qt/resources.qrc">
+   <iconset resource="../../../qt/resources.qrc">
     <normaloff>:/mapclient/images/icon-app.png</normaloff>:/mapclient/images/icon-app.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -43,16 +43,6 @@
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
            <widget class="QListWidget" name="directoryListing"/>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="defaultPluginCheckBox">
-            <property name="text">
-             <string>Use default plugin directory</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
           </item>
          </layout>
         </item>
@@ -86,12 +76,12 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="reloadButton">
+           <widget class="QPushButton" name="applyButton">
             <property name="toolTip">
-             <string>Reload the plugins from the current plugin directories</string>
+             <string>Apply changes and reload the plugins from the current plugin directories</string>
             </property>
             <property name="text">
-             <string>Reload</string>
+             <string>Apply</string>
             </property>
            </widget>
           </item>
@@ -136,7 +126,7 @@
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+        <set>QDialogButtonBox::Close|QDialogButtonBox::Ok</set>
        </property>
       </widget>
      </item>
@@ -145,7 +135,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../widgets/qt/resources.qrc"/>
+  <include location="../../../qt/resources.qrc"/>
  </resources>
  <connections>
   <connection>

@@ -8,10 +8,8 @@ import subprocess
 import os.path
 import platform
 
-from PySide2 import QtCore
-
 from mapclient.settings.definitions import GIT_EXE, \
-    PYSIDE_RCC_EXE, PYSIDE_UIC_EXE, USE_EXTERNAL_GIT, INTERNAL_EXE, \
+    PYSIDE_RCC_EXE, PYSIDE_UIC_EXE, USE_EXTERNAL_GIT, \
     USE_EXTERNAL_RCC, USE_EXTERNAL_UIC
 from mapclient.core.utils import which, qt_tool_wrapper
 

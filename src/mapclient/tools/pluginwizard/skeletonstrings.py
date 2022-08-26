@@ -37,7 +37,7 @@ class {step_object_name}Step(WorkflowStepMountPoint):
 INIT_METHOD_STRING = """
     def __init__(self, location):
         super({step_object_name}Step, self).__init__('{step_name}', location)
-        self._configured = False # A step cannot be executed until it has been configured.
+        self._configured = False  # A step cannot be executed until it has been configured.
         self._category = '{step_category}'
         # Add any other initialisation code here:
 """
@@ -67,8 +67,8 @@ IDENTIFIER_METHOD_STRING = """
         {setidentifiercontent}
 """
 
-GETIDENTIFIER_DEFAULT_CONTENT_STRING = 'return \'{step_object_name}\' # TODO: The string must be replaced with the step\'s unique identifier'
-SETIDENTIFIER_DEFAULT_CONTENT_STRING = 'pass # TODO: Must actually set the step\'s identifier here'
+GETIDENTIFIER_DEFAULT_CONTENT_STRING = 'return \'{step_object_name}\'  # TODO: The string must be replaced with the step\'s unique identifier'
+SETIDENTIFIER_DEFAULT_CONTENT_STRING = 'pass  # TODO: Must actually set the step\'s identifier here'
 GETIDENTIFIER_IDENTIFER_CONTENT_STRING = 'return self._config[\'identifier\']'
 SETIDENTIFIER_IDENTIFER_CONTENT_STRING = 'self._config[\'identifier\'] = identifier'
 
@@ -236,7 +236,7 @@ CONFIGURE_DIALOG_UI = """<?xml version="1.0" encoding="UTF-8"?>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Configure Step</string>
+   <string>Configure {0}</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -244,7 +244,7 @@ CONFIGURE_DIALOG_UI = """<?xml version="1.0" encoding="UTF-8"?>
      <property name="title">
       <string/>
      </property>
-     <layout class="QFormLayout" name="formLayout">{0}     </layout>
+     <layout class="QFormLayout" name="formLayout">{1}     </layout>
     </widget>
    </item>
    <item row="1" column="0">
@@ -331,9 +331,6 @@ def find_version(*file_paths):
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
 
-# List all of your Python package dependencies in the
-# requirements.txt file
-
 
 def readfile(filename, split=False):
     with io.open(filename, encoding="utf-8") as stream:
@@ -342,11 +339,9 @@ def readfile(filename, split=False):
         return stream.read()
 
 
-readme = readfile("README.rst", split=True)[3:]  # skip title
-# For requirements not hosted on PyPi place listings
-# into the 'requirements.txt' file.
-requires = ['PySide2']  # minimal requirements listing
+readme = readfile("README.rst", split=True)[3:]  # Skip title
 source_license = readfile("LICENSE")
+requires = ['PySide2']  # Minimal requirements listing. Insert additional dependencies here.
 
 
 setup(
