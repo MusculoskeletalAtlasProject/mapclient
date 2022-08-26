@@ -541,11 +541,6 @@ class StepText(QtWidgets.QGraphicsTextItem):
     def setText(self, text):
         self.setPlainText(text)
 
-    def boundingRect(self):
-        br = super(StepText, self).boundingRect()
-        adjust = 0.0
-        return br.adjusted(-adjust, -adjust, adjust, adjust)
-
     def paint(self, painter, option, widget):
 
         painter.eraseRect(self.boundingRect())
