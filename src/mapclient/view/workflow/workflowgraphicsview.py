@@ -255,11 +255,14 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         # Check if there are any existing steps with the default identifier.
         scene = self.scene()
 
-        suffix = 1
-        potential_id = f'{step.getName().replace(" ", "_")}_{suffix}'
-        while scene.identifierOccursCount(potential_id):
-            suffix += 1
-            potential_id = f'{step.getName().replace(" ", "_")}_{suffix}'
+        no_space_name = step.getName().replace(" ", "_")
+        potential_id = f'{no_space_name}'
+        if scene.identifierOccursCount(potential_id):
+            suffix = 1
+            potential_id = f'{no_space_name}_{suffix}'
+            while scene.identifierOccursCount(potential_id):
+                suffix += 1
+                potential_id = f'{no_space_name}_{suffix}'
 
         step.setIdentifier(potential_id)
 
