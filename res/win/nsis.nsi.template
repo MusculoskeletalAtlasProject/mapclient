@@ -137,6 +137,8 @@ Section "Add to PATH" section_add_to_path
 SectionEnd
 
 Section "Create Desktop Shortcut" section_create_desktop_shortcut
+    IfFileExists "$DESKTOP\${APP_NAME}.lnk" 0 +2
+    Delete "$DESKTOP\${APP_NAME}.lnk"
     CreateShortcut "$DESKTOP\${APP_NAME}.lnk" "$INSTDIR\${APP_NAME}.exe"
 SectionEnd
 
