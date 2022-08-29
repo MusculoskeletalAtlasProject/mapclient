@@ -6,6 +6,8 @@ import sys
 
 from importlib import import_module
 
+import dulwich.porcelain
+
 from mapclient.core.utils import is_frozen
 from mapclient.settings.definitions import PLUGINS_PACKAGE_NAME, FROZEN_PROVENANCE_INFO_FILE
 
@@ -21,12 +23,29 @@ def _strip_pip_list_output(output_stream):
         if len(parts) > 1:
             output[parts[0]] = {'version': parts[1]}
             if len(parts) > 2:
-                if os.path.isdir(parts[2]):
-                    output[parts[0]]['location'] = 'locally-acquired'
+                if parts[0] == 'mapclient' and os.path.isdir(parts[2]):
+                    output[parts[0]]['location'] = _describe_tag(parts[2])
+                elif os.path.isdir(parts[2]):
+                    output[parts[0]]['location'] = f'locally-acquired-{_describe_tag(parts[2])}'
                 else:
                     output[parts[0]]['location'] = parts[2]
+            else:
+                output[parts[0]]['location'] = 'pypi'
 
     return output
+
+
+def _describe_tag(src_dir):
+    git_repo = None
+    if os.path.isdir(os.path.join(src_dir, ".git")):
+        git_repo = src_dir
+    elif os.path.isdir(os.path.join(src_dir, "..", ".git")):
+        git_repo = os.path.join(src_dir, "..")
+
+    if git_repo is None:
+        return "******"
+
+    return dulwich.porcelain.describe(git_repo)
 
 
 def _determine_capabilities():
@@ -51,7 +70,7 @@ def _determine_capabilities():
                 module = import_module(package_name)
                 mapclientplugins_info[package_name] = {
                     "version": module.__version__ if hasattr(module, '__version__') else "X.Y.Z",
-                    "location": module.__location__ if hasattr(module, '__location__') else "",
+                    "location": module.__location__ if hasattr(module, '__location__') else "<plugin-location-not-set>",
                 }
 
     return {**output_info, **mapclientplugins_info}
