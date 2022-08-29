@@ -34,15 +34,18 @@ class ProvenanceDialog(QDialog):
         self._ui.setupUi(self)
 
         info = reproducibility_info()
-        self._ui.tableWidget.setColumnCount(2)
+        headers = ["Package", "Version", "Location"]
+        self._ui.tableWidget.setColumnCount(len(headers))
         self._ui.tableWidget.setRowCount(len(info))
 
-        self._ui.tableWidget.setHorizontalHeaderLabels(["Package", "Version"])
+        self._ui.tableWidget.setHorizontalHeaderLabels(headers)
 
         for row, i in enumerate(info):
             item_1 = QTableWidgetItem(i)
             item_2 = QTableWidgetItem(info[i]["version"])
+            item_3 = QTableWidgetItem(info[i]["location"])
             self._ui.tableWidget.setItem(row, 0, item_1)
             self._ui.tableWidget.setItem(row, 1, item_2)
+            self._ui.tableWidget.setItem(row, 2, item_3)
 
         self._ui.tableWidget.resizeColumnsToContents()
