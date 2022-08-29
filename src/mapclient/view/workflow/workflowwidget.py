@@ -469,6 +469,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             self._graphicsScene.updateModel()
             self._ui.graphicsView.setLocation(workflow_dir)
             self._ui.graphicsView.setViewParameters(m.scene().getViewParameters())
+            m.fit_workflow(self._ui.graphicsView, self._graphicsScene)
             self._update_ui()
         except:
             self.close()

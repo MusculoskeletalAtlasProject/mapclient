@@ -159,6 +159,27 @@ class WorkflowScene(object):
         step_names = self._read_step_names(ws)
         restrict_plugins(step_names)
 
+    def fit_workflow(self, graphics_view, graphics_scene):
+        """
+        Scales the workflow items to fit into the current window size. This method maintains the aspect ratio of the saved workflow.
+        """
+        view_size = graphics_view.size()
+        scene_size = graphics_scene.sceneRect()
+
+        # -70 from both to account for step item width. +22 to scene to account for scene border.
+        sf_x = (view_size.width() - 70) / (scene_size.width() - 48)
+        sf_y = (view_size.height() - 70) / (scene_size.height() - 48)
+
+        if sf_x != 0 or sf_y != 0:
+            for item in self.items():
+                if isinstance(item, MetaStep):
+                    x = sf_x * item.getPos().x()
+                    y = sf_y * item.getPos().y()
+                    item.setPos(QtCore.QPointF(x, y))
+
+            graphics_scene.setSceneRect(graphics_view.rect())
+            graphics_scene.updateModel()
+
     def doStepReport(self, ws):
         report = {}
         location = self._manager.location()
