@@ -75,6 +75,11 @@ class WorkflowStepTreeView(QtWidgets.QTreeView):
             pixmap = pixmap.scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
             hotspot = QtCore.QPoint(pixmap.width() / 2, pixmap.height() / 2)
 
+            # The first part of the data_stream contains positioning info.
+            dataStream.writeUInt32(1)               # Number of items.
+            dataStream << QtCore.QPoint(0, 0)       # Starting position - not relavant here.
+            dataStream << hotspot
+
             name = step.getName().encode('utf-8')  # bytearray(step.getName(), sys.stdout.encoding)
             dataStream.writeUInt32(len(name))
             if sys.version_info < (3, 0):
@@ -83,10 +88,11 @@ class WorkflowStepTreeView(QtWidgets.QTreeView):
                 buf = QtCore.QByteArray(name)
                 dataStream << buf#.writeRawData(name)
 
-            dataStream << hotspot
+            position = QtCore.QPoint(0, 0)
+            dataStream << position
 
             mimeData = QtCore.QMimeData()
-            mimeData.setData('image/x-workflow-step', itemData)
+            mimeData.setData('image/x-workflow-step(s)', itemData)
 
             drag = QtGui.QDrag(self)
             drag.setMimeData(mimeData)
