@@ -46,7 +46,9 @@ class ErrorItem(QtWidgets.QGraphicsItem):
         self._dest = weakref.ref(destNode)
         self._sourcePoint = QtCore.QPointF()
         self._destPoint = QtCore.QPointF()
-        self._pixmap = QtGui.QPixmap(':/workflow/images/cancel_256.png').scaled(16, 16, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        self._pixmap = QtGui.QPixmap(':/workflow/images/cancel_256.png').scaled(16, 16,
+                                                                                aspectRatioMode=QtCore.Qt.KeepAspectRatio,
+                                                                                transformMode=QtCore.Qt.FastTransformation)
         self._source().addArc(self)
         self._dest().addArc(self)
         self.setZValue(-1.5)
@@ -59,7 +61,10 @@ class ErrorItem(QtWidgets.QGraphicsItem):
 
         return QtCore.QRectF(self._sourcePoint,
                              QtCore.QSizeF(self._destPoint.x() - self._sourcePoint.x(),
-                                           self._destPoint.y() - self._sourcePoint.y())).normalized().adjusted(-extra, -extra, extra, extra)
+                                           self._destPoint.y() - self._sourcePoint.y())).normalized().adjusted(-extra,
+                                                                                                               -extra,
+                                                                                                               extra,
+                                                                                                               extra)
 
     def adjust(self):
         if not self._source() or not self._dest():
@@ -67,7 +72,8 @@ class ErrorItem(QtWidgets.QGraphicsItem):
 
         sourceCentre = self._source().boundingRect().center()
         destCentre = self._dest().boundingRect().center()
-        line = QtCore.QLineF(self.mapFromItem(self._source(), sourceCentre.x(), sourceCentre.y()), self.mapFromItem(self._dest(), destCentre.x(), destCentre.y()))
+        line = QtCore.QLineF(self.mapFromItem(self._source(), sourceCentre.x(), sourceCentre.y()),
+                             self.mapFromItem(self._dest(), destCentre.x(), destCentre.y()))
         length = line.length()
 
         if length == 0.0:
@@ -123,12 +129,13 @@ class Arc(Item):
         self._arrowSize = 10.0
         self._arrow = QtGui.QPolygonF()
 
-        self._connection = Connection(sourceNode.parentItem()._metastep, sourceNode.portIndex(), destNode.parentItem()._metastep, destNode.portIndex())
+        self._connection = Connection(sourceNode.parentItem()._metastep, sourceNode.portIndex(),
+                                      destNode.parentItem()._metastep, destNode.portIndex())
         self._connection.setSelected(False)
 
         self._sourcePoint = QtCore.QPointF()
         self._destPoint = QtCore.QPointF()
-#        self.setAcceptedMouseButtons(QtCore.Qt.NoButton)
+        #        self.setAcceptedMouseButtons(QtCore.Qt.NoButton)
         self._source = weakref.ref(sourceNode)
         self._dest = weakref.ref(destNode)
         self._source().addArc(self)
@@ -154,7 +161,8 @@ class Arc(Item):
 
         sourceCentre = self._source().boundingRect().center()
         destCentre = self._dest().boundingRect().center()
-        line = QtCore.QLineF(self.mapFromItem(self._source(), sourceCentre.x(), sourceCentre.y()), self.mapFromItem(self._dest(), destCentre.x(), destCentre.y()))
+        line = QtCore.QLineF(self.mapFromItem(self._source(), sourceCentre.x(), sourceCentre.y()),
+                             self.mapFromItem(self._dest(), destCentre.x(), destCentre.y()))
         length = line.length()
 
         if length == 0.0:
@@ -179,7 +187,7 @@ class Arc(Item):
 
         sceneRect = QtCore.QRectF(self._sourcePoint,
                                   QtCore.QSizeF(self._destPoint.x() - self._sourcePoint.x(),
-                                                self._destPoint.y() - self._sourcePoint.y()))\
+                                                self._destPoint.y() - self._sourcePoint.y())) \
             .normalized().adjusted(-extra, -extra, extra, extra)
 
         return sceneRect
@@ -198,7 +206,7 @@ class Arc(Item):
         if option.state & QtWidgets.QStyle.State_Selected:  # or self.selected:
             painter.setBrush(QtCore.Qt.darkGray)
             painter.drawRoundedRect(self.boundingRect(), 5, 5)
-#            brush = QtGui.QBrush(QtCore.Qt.red)
+        #            brush = QtGui.QBrush(QtCore.Qt.red)
 
         painter.setBrush(brush)
 
@@ -211,9 +219,9 @@ class Arc(Item):
             midPoint = (self._destPoint + self._sourcePoint) / 2
 
             destArrowP1 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi / 3) * self._arrowSize,
-                                                          math.cos(angle - Arc.Pi / 3) * self._arrowSize)
+                                                    math.cos(angle - Arc.Pi / 3) * self._arrowSize)
             destArrowP2 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize,
-                                                          math.cos(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize)
+                                                    math.cos(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize)
 
             self._arrow.clear()
             self._arrow.append(midPoint)
@@ -241,7 +249,7 @@ class Node(Item):
         if not icon:
             icon = QtGui.QImage(':/workflow/images/default_step_icon.png')
 
-        self._pixmap = QtGui.QPixmap.fromImage(icon)\
+        self._pixmap = QtGui.QPixmap.fromImage(icon) \
             .scaled(self.Size, self.Size, aspectRatioMode=QtCore.Qt.KeepAspectRatio,
                     transformMode=QtCore.Qt.FastTransformation)
 
@@ -300,7 +308,8 @@ class Node(Item):
 
     def _setToolTip(self):
         self.setToolTip(self._metastep._step.getName() + ": " + self._metastep._step.getIdentifier())
-        self._text.setText(self._metastep.getStepIdentifier() if self._metastep.getStepIdentifier() != self._metastep.getUniqueIdentifier() else self._metastep.getName())
+        self._text.setText(
+            self._metastep.getStepIdentifier() if self._metastep.getStepIdentifier() != self._metastep.getUniqueIdentifier() else self._metastep.getName())
         self._updateTextIcon()
 
     def _updatePorts(self):
@@ -417,10 +426,11 @@ class Node(Item):
             painter.setBrush(QtCore.Qt.darkGray)
             painter.drawRoundedRect(self.boundingRect(), 5, 5)
 
-#            super(Node, self).paint(painter, option, widget)
+        #            super(Node, self).paint(painter, option, widget)
         painter.drawPixmap(0, 0, self._pixmap)
-#            if not self._metastep._step.isConfigured():
-#                painter.drawPixmap(40, 40, self._configure_red)
+
+    #            if not self._metastep._step.isConfigured():
+    #                painter.drawPixmap(40, 40, self._configure_red)
 
     def itemChange(self, change, value):
         if change == QtWidgets.QGraphicsItem.ItemPositionChange and self.scene():
@@ -441,7 +451,6 @@ class Node(Item):
 
 
 class StepPort(QtWidgets.QGraphicsEllipseItem):
-
     Type = QtWidgets.QGraphicsItem.UserType + 3
 
     def __init__(self, port, parent):
@@ -488,9 +497,8 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
         Unfortunately the weakref doesn't work correctly for c based classes.  This function
         removes any None type references in _connections.
         """
-        prunedArcList = [ arc for arc in self._connections if arc() ]
+        prunedArcList = [arc for arc in self._connections if arc()]
         self._connections = prunedArcList
-
 
     def hasArcToDestination(self, node):
         self._removeDeadwood()
@@ -514,24 +522,50 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
 
         return QtWidgets.QGraphicsItem.itemChange(self, change, value)
 
-class StepText(QtWidgets.QGraphicsTextItem):
 
+class StepText(QtWidgets.QGraphicsTextItem):
     Type = QtWidgets.QGraphicsItem.UserType + 4
 
     def __init__(self, *args):
         super().__init__(*args)
-        self.setTextInteractionFlags(QtCore.Qt.TextEditable | QtCore.Qt.TextSelectableByMouse | QtCore.Qt.TextSelectableByKeyboard)
+        self._editable_flags = QtCore.Qt.TextEditable | QtCore.Qt.TextSelectableByMouse | QtCore.Qt.TextSelectableByKeyboard
+        self.setTextInteractionFlags(self._editable_flags)
+        self._active_key = None
         self._make_connections()
 
     def _make_connections(self):
         self.document().contentsChanged.connect(self.adjust)
 
-    def focusOutEvent(self, event):
-        super().focusOutEvent(event)
+    def _update_identifier(self):
         self.scene().setConfigureNode(self.parentItem())
         step = self.parentItem().metaItem().getStep()
         step.setIdentifier(self.toPlainText())
         step._configuredObserver()
+
+    def focusOutEvent(self, event):
+        super().focusOutEvent(event)
+        self._update_identifier()
+
+    def mousePressEvent(self, event):
+        modifiers = QtWidgets.QApplication.keyboardModifiers()
+        if modifiers != QtCore.Qt.NoModifier:
+            self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
+        super().mousePressEvent(event)
+        self.setTextInteractionFlags(self._editable_flags)
+
+    def keyPressEvent(self, event):
+        self._active_key = event.key()
+        if self._active_key != QtCore.Qt.Key_Return and self._active_key != QtCore.Qt.Key_Enter:
+            super().keyPressEvent(event)
+
+    def keyReleaseEvent(self, event):
+        super().keyReleaseEvent(event)
+        if self._active_key and self._active_key == event.key():
+            if self._active_key == QtCore.Qt.Key_Return or self._active_key == QtCore.Qt.Key_Enter:
+                self._update_identifier()
+                self.clearFocus()
+
+        self._active_key = None
 
     def adjust(self):
         parent_x = self.parentItem().boundingRect().center().x()
@@ -542,7 +576,6 @@ class StepText(QtWidgets.QGraphicsTextItem):
         self.setPlainText(text)
 
     def paint(self, painter, option, widget):
-
         painter.eraseRect(self.boundingRect())
         painter.setBrush(QtCore.Qt.white)
         painter.drawRoundedRect(self.boundingRect(), 5, 5)
@@ -553,7 +586,7 @@ class MercurialIcon(QtWidgets.QGraphicsItem):
 
     def __init__(self, *args, **kwargs):
         super(MercurialIcon, self).__init__(*args, **kwargs)
-        self._hg_yellow = QtGui.QPixmap(':/workflow/images/modified_repo.png')\
+        self._hg_yellow = QtGui.QPixmap(':/workflow/images/modified_repo.png') \
             .scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
         self.setToolTip('The repository has been modified')
 
@@ -576,8 +609,12 @@ class ConfigureIcon(QtWidgets.QGraphicsItem):
     def __init__(self, *args, **kwargs):
         super(ConfigureIcon, self).__init__(*args, **kwargs)
         self._configured = False
-        self._configure_green = QtGui.QPixmap(':/workflow/images/configure_green.png').scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
-        self._configure_red = QtGui.QPixmap(':/workflow/images/configure_red.png').scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        self._configure_green = QtGui.QPixmap(':/workflow/images/configure_green.png').scaled(24, 24,
+                                                                                              aspectRatioMode=QtCore.Qt.KeepAspectRatio,
+                                                                                              transformMode=QtCore.Qt.FastTransformation)
+        self._configure_red = QtGui.QPixmap(':/workflow/images/configure_red.png').scaled(24, 24,
+                                                                                          aspectRatioMode=QtCore.Qt.KeepAspectRatio,
+                                                                                          transformMode=QtCore.Qt.FastTransformation)
         self.setToolTip('Configure the step')
 
     def setConfigured(self, state):
@@ -614,7 +651,8 @@ class ArrowLine(QtWidgets.QGraphicsLineItem):
         line = self.line()
         return QtCore.QRectF(line.p1(),
                              QtCore.QSizeF(line.p2().x() - line.p1().x(),
-                                           line.p2().y() - line.p1().y())).normalized().adjusted(-extra, -extra, extra, extra)
+                                           line.p2().y() - line.p1().y())).normalized().adjusted(-extra, -extra, extra,
+                                                                                                 extra)
 
     def paint(self, painter, option, widget):
         super(ArrowLine, self).paint(painter, option, widget)
@@ -624,7 +662,7 @@ class ArrowLine(QtWidgets.QGraphicsLineItem):
             return
 
         angle = math.acos(line.dx() / line.length())
-#        print('angle: ', angle)
+        #        print('angle: ', angle)
         if line.dy() >= 0:
             angle = Arc.TwoPi - angle
         # Draw the arrows if there's enough room.
@@ -632,10 +670,10 @@ class ArrowLine(QtWidgets.QGraphicsLineItem):
             midPoint = (line.p1() + line.p2()) / 2
 
             destArrowP1 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi / 3) * self._arrowSize,
-                                                          math.cos(angle - Arc.Pi / 3) * self._arrowSize)
+                                                    math.cos(angle - Arc.Pi / 3) * self._arrowSize)
             destArrowP2 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize,
-                                                          math.cos(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize)
+                                                    math.cos(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize)
 
             painter.setBrush(QtCore.Qt.black)
-#        painter.drawPolygon(QtGui.QPolygonF([line.p1(), sourceArrowP1, sourceArrowP2]))
+            #        painter.drawPolygon(QtGui.QPolygonF([line.p1(), sourceArrowP1, sourceArrowP2]))
             painter.drawPolygon(QtGui.QPolygonF([midPoint, destArrowP1, destArrowP2]))

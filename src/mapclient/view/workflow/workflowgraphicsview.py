@@ -303,6 +303,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             item.showContextMenu(event.globalPos())
 
     def mousePressEvent(self, event):
+        self._selectionStartPos = None
         item = self.scene().itemAt(self.mapToScene(event.pos()), QtGui.QTransform())
         if event.button() == QtCore.Qt.RightButton:
             event.ignore()
@@ -323,9 +324,9 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         else:
             QtWidgets.QGraphicsView.mouseMoveEvent(self, event)
 
-            modifiers = QtWidgets.QApplication.keyboardModifiers()
-            if modifiers == QtCore.Qt.ControlModifier:
-                self.setup_drag(event.pos())
+            # modifiers = QtWidgets.QApplication.keyboardModifiers()
+            # if modifiers == QtCore.Qt.ControlModifier:
+            #     self.setup_drag(event.pos())
 
     def mouseReleaseEvent(self, event):
         if self._connectLine:
