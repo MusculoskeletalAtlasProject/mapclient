@@ -29,6 +29,8 @@ class Ui_ProvenanceDialog(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.tableWidget = QTableWidget(self.frame_2)
         self.tableWidget.setObjectName(u"tableWidget")
+        self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.tableWidget.setSortingEnabled(True)
 
         self.verticalLayout_2.addWidget(self.tableWidget)
 
