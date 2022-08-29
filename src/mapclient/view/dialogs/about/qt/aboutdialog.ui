@@ -96,7 +96,7 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QPushButton" name="btn_Credits">
         <property name="sizePolicy">
@@ -114,6 +114,13 @@
        <widget class="QPushButton" name="btn_License">
         <property name="text">
          <string>&amp;License</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_Provenance">
+        <property name="text">
+         <string>&amp;Provenance</string>
         </property>
        </widget>
       </item>

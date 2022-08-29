@@ -17,7 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide2 import QtWidgets
+from PySide2 import QtCore, QtWidgets
 
 from mapclient.settings import info
 from mapclient.view.dialogs.about.ui.ui_aboutdialog import Ui_AboutDialog
@@ -34,20 +34,31 @@ class AboutDialog(QtWidgets.QDialog):
         self._ui.setupUi(self)
         text = self._ui.aboutTextLabel.text()
         self._ui.aboutTextLabel.setText(text.replace('##version##', info.VERSION_STRING))
-        self._makeConnections()
+        self._make_connections()
 
-    def _makeConnections(self):
-        self._ui.btn_Credits.clicked.connect(self.showCreditsDialog)
-        self._ui.btn_License.clicked.connect(self.showLicenseDialog)
+    def _make_connections(self):
+        self._ui.btn_Credits.clicked.connect(self._show_credits_dialog)
+        self._ui.btn_License.clicked.connect(self._show_license_dialog)
+        self._ui.btn_Provenance.clicked.connect(self._show_provenance_dialog)
 
-    def showCreditsDialog(self):
+    def _show_credits_dialog(self):
         from mapclient.view.dialogs.about.creditsdialog import CreditsDialog
         dlg = CreditsDialog(self)
         dlg.setModal(True)
         dlg.exec_()
 
-    def showLicenseDialog(self):
+    def _show_license_dialog(self):
         from mapclient.view.dialogs.about.licensedialog import LicenseDialog
         dlg = LicenseDialog(self)
+        dlg.setModal(True)
+        dlg.exec_()
+
+    def _show_provenance_dialog(self):
+        from mapclient.view.dialogs.about.provenancedialog import ProvenanceDialog
+
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        dlg = ProvenanceDialog(self)
+        QtWidgets.QApplication.restoreOverrideCursor()
+
         dlg.setModal(True)
         dlg.exec_()
