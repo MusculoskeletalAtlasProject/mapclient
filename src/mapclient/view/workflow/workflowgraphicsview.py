@@ -130,7 +130,12 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             self.connectNodes(self._selectedNodes[0], self._selectedNodes[1])
 
     def keyPressEvent(self, event):
+        QtWidgets.QGraphicsView.keyPressEvent(self, event)
         if event.key() == QtCore.Qt.Key_Backspace or event.key() == QtCore.Qt.Key_Delete:
+
+            if self.scene().focusItem():
+                return
+
             command = CommandRemove(self.scene(), self.scene().selectedItems())
             self._undoStack.push(command)
             event.accept()

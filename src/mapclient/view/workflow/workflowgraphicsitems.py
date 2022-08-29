@@ -514,15 +514,32 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
 
         return QtWidgets.QGraphicsItem.itemChange(self, change, value)
 
-
-class StepText(QtWidgets.QGraphicsSimpleTextItem):
+class StepText(QtWidgets.QGraphicsTextItem):
 
     Type = QtWidgets.QGraphicsItem.UserType + 4
 
-    def boundingRect(self):
-        br = super(StepText, self).boundingRect()
-        adjust = 2.0
-        return br.adjusted(-adjust, -adjust, adjust, adjust)
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.setTextInteractionFlags(QtCore.Qt.TextEditable | QtCore.Qt.TextSelectableByMouse | QtCore.Qt.TextSelectableByKeyboard)
+        self._make_connections()
+
+    def _make_connections(self):
+        self.document().contentsChanged.connect(self.adjust)
+
+    def focusOutEvent(self, event):
+        super().focusOutEvent(event)
+        self.scene().setConfigureNode(self.parentItem())
+        step = self.parentItem().metaItem().getStep()
+        step.setIdentifier(self.toPlainText())
+        step._configuredObserver()
+
+    def adjust(self):
+        parent_x = self.parentItem().boundingRect().center().x()
+        offset = int(self.boundingRect().width() / 2)
+        self.setX(parent_x - offset)
+
+    def setText(self, text):
+        self.setPlainText(text)
 
     def paint(self, painter, option, widget):
 
