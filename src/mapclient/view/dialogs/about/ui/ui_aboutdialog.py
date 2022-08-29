@@ -63,8 +63,8 @@ class Ui_AboutDialog(object):
         self.frame_3.setObjectName(u"frame_3")
         self.frame_3.setFrameShape(QFrame.StyledPanel)
         self.frame_3.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_2 = QHBoxLayout(self.frame_3)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout = QHBoxLayout(self.frame_3)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.btn_Credits = QPushButton(self.frame_3)
         self.btn_Credits.setObjectName(u"btn_Credits")
         sizePolicy2 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
@@ -73,21 +73,26 @@ class Ui_AboutDialog(object):
         sizePolicy2.setHeightForWidth(self.btn_Credits.sizePolicy().hasHeightForWidth())
         self.btn_Credits.setSizePolicy(sizePolicy2)
 
-        self.horizontalLayout_2.addWidget(self.btn_Credits)
+        self.horizontalLayout.addWidget(self.btn_Credits)
 
         self.btn_License = QPushButton(self.frame_3)
         self.btn_License.setObjectName(u"btn_License")
 
-        self.horizontalLayout_2.addWidget(self.btn_License)
+        self.horizontalLayout.addWidget(self.btn_License)
+
+        self.btn_Provenance = QPushButton(self.frame_3)
+        self.btn_Provenance.setObjectName(u"btn_Provenance")
+
+        self.horizontalLayout.addWidget(self.btn_Provenance)
 
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout_2.addItem(self.horizontalSpacer)
+        self.horizontalLayout.addItem(self.horizontalSpacer)
 
         self.btn_Close = QPushButton(self.frame_3)
         self.btn_Close.setObjectName(u"btn_Close")
 
-        self.horizontalLayout_2.addWidget(self.btn_Close)
+        self.horizontalLayout.addWidget(self.btn_Close)
 
 
         self.gridLayout.addWidget(self.frame_3, 1, 0, 1, 1)
@@ -105,6 +110,7 @@ class Ui_AboutDialog(object):
         self.aboutTextLabel.setText(QCoreApplication.translate("AboutDialog", u"<p align=\"center\"><span style=\" font-size:24pt; font-weight:600;\">MAP Client ##version##</span></p><p align=\"center\">MAP Client, a program to generate detailed musculoskeletal models for OpenSim.</p><p align=\"center\">Copyright (C) 2012 University of Auckland</p><p align=\"justify\">MAP Client is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p><p align=\"justify\">MAP Client is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.</p><p align=\"justify\">You should have received a copy of the GNU General Public License along with MAP Client. If not, see &lt;http://www.gnu.org/licenses/&gt;.</p><p><br/></p>", None))
         self.btn_Credits.setText(QCoreApplication.translate("AboutDialog", u"C&redits", None))
         self.btn_License.setText(QCoreApplication.translate("AboutDialog", u"&License", None))
+        self.btn_Provenance.setText(QCoreApplication.translate("AboutDialog", u"&Provenance", None))
         self.btn_Close.setText(QCoreApplication.translate("AboutDialog", u"&Close", None))
     # retranslateUi
 
