@@ -264,6 +264,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self.set_current_undo_redo_stack(self._workflowWidget.undoRedoStack())
         self.model().workflowManager().execute()
 
+    def abort_execution(self):
+        self.model().workflowManager().abort_execution()
+        self.set_current_widget(self._workflowWidget)
+        self.set_current_undo_redo_stack(self._workflowWidget.undoRedoStack())
+
     @set_wait_cursor
     def set_current_widget(self, widget):
         if self._ui.stackedWidget.indexOf(widget) <= 0:

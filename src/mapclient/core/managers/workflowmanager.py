@@ -131,6 +131,9 @@ class WorkflowManager(object):
     def execute(self):
         self._scene.execute()
 
+    def abort_execution(self):
+        self._scene.abort_execution()
+
     def canExecute(self):
         return self._scene.canExecute()
 

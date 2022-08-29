@@ -152,6 +152,9 @@ class WorkflowDependencyGraph(object):
         can = len(configured) == len(self._topological_order) and len(self._topological_order) >= 0
         return can and self._current == -1
 
+    def abort(self):
+        self._current = -1
+
     def execute(self):
         self._current += 1
         if self._current >= len(self._topological_order):
