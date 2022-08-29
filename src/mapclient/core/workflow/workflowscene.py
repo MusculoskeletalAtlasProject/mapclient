@@ -285,6 +285,12 @@ class WorkflowScene(object):
     def execute(self):
         self._dependencyGraph.execute()
 
+    def abort_execution(self):
+        self._dependencyGraph.abort()
+
+    def set_workflow_direction(self, direction):
+        self._dependencyGraph.set_direction(direction)
+
     def register_finished_workflow_callback(self, callback):
         self._dependencyGraph.set_finished_callback(callback)
 

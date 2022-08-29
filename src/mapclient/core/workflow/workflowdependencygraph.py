@@ -101,6 +101,7 @@ class WorkflowDependencyGraph(object):
         self._reverse_dependency_graph = {}
         self._topological_order = []
         self._current = -1
+        self._direction = 1
         self._finished_callback = None
 
     def _find_all_connected_nodes(self):
@@ -152,12 +153,21 @@ class WorkflowDependencyGraph(object):
         can = len(configured) == len(self._topological_order) and len(self._topological_order) >= 0
         return can and self._current == -1
 
+    def abort(self):
+        self._current = -1
+
+    def set_direction(self, direction):
+        self._direction = 1 if direction else -1
+
     def execute(self):
-        self._current += 1
+        self._current += self._direction
         if self._current >= len(self._topological_order):
             self._current = -1
             if callable(self._finished_callback):
-                self._finished_callback()
+                self._finished_callback(True)
+        elif self._current == -1:
+            if callable(self._finished_callback):
+                self._finished_callback(False)
         else:
             # Form input requirements
             current_node = self._topological_order[self._current]

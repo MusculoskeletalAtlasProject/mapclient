@@ -117,7 +117,9 @@ class WorkflowWidget(QtWidgets.QWidget):
             self.action_NewPMR.setEnabled(widget_visible)
             self.action_Open.setEnabled(widget_visible)
             self.action_Execute.setEnabled(workflow_open and widget_visible)
-            self.action_Continue.setEnabled(workflow_open and not widget_visible)
+            # self.action_Continue.setEnabled(workflow_open and not widget_visible)
+            self.action_Reverse.setEnabled(workflow_open and not widget_visible)
+            self.action_Abort.setEnabled(workflow_open and not widget_visible)
             self.action_ZoomIn.setEnabled(widget_visible)
 
     def updateStepTree(self):
@@ -145,6 +147,10 @@ class WorkflowWidget(QtWidgets.QWidget):
         return QtWidgets.QWidget.hideEvent(self, *args, **kwargs)
 
     @handle_runtime_error
+    def _abort_execution(self):
+        self._main_window.abort_execution()
+
+    @handle_runtime_error
     def executeNext(self):
         try:
             self._main_window.execute()
@@ -153,7 +159,6 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     def executeWorkflow(self):
         wfm = self._main_window.model().workflowManager()
-        wfm.register_finished_workflow_callback(self._workflow_finished)
         errors = []
 
         if wfm.isModified():
@@ -162,9 +167,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         if not wfm.canExecute():
             errors.append('Not all steps in the workflow have been successfully configured.')
 
-        if not errors:
-            self.executeNext()
-        else:
+        if errors:
             errors_str = '\n'.join(
                 ['  %d. %s' % (i + 1, e) for i, e in enumerate(errors)])
             error_msg = ('The workflow could not be executed for the '
@@ -172,9 +175,23 @@ class WorkflowWidget(QtWidgets.QWidget):
                              len(errors) > 1 and 's' or '', errors_str,
                          ))
             QtWidgets.QMessageBox.critical(self, 'Workflow Execution', error_msg, QtWidgets.QMessageBox.Ok)
+        else:
+            wfm.register_finished_workflow_callback(self._workflow_finished)
+            self.executeNext()
 
     def continueWorkflow(self):
         self.executeNext()
+
+    def _abort_workflow(self):
+        self._abort_execution()
+        self._reset_workflow_direction()
+
+    def _reverse_workflow_direction(self):
+        self._main_window.set_workflow_direction(not self.action_Reverse.isChecked())
+
+    def _reset_workflow_direction(self):
+        self.action_Reverse.setChecked(False)
+        self._main_window.set_workflow_direction(True)
 
     def identifierOccursCount(self, identifier):
         return self._main_window.model().workflowManager().identifierOccursCount(identifier)
@@ -190,14 +207,16 @@ class WorkflowWidget(QtWidgets.QWidget):
         if workflowDir:
             self._createNewWorkflow(workflowDir, pmr)
 
-    def _workflow_finished(self):
-        # MessageBox()
-        mb = MessageBox(QtWidgets.QMessageBox.Icon.Information, "Workflow Finished",
-                        "Workflow finished successfully.",
-                        QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Default,
-                        parent=self._main_window)
-        mb.setIconPixmap(QtGui.QPixmap(":/mapclient/images/green_tick.png").scaled(64, 64))
-        mb.exec_()
+    def _workflow_finished(self, successfully):
+        if successfully:
+            mb = MessageBox(QtWidgets.QMessageBox.Icon.Information, "Workflow Finished",
+                            "Workflow finished successfully.",
+                            QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Default,
+                            parent=self._main_window)
+            mb.setIconPixmap(QtGui.QPixmap(":/mapclient/images/green_tick.png").scaled(64, 64))
+            mb.exec_()
+        else:
+            self._reset_workflow_direction()
 
     def _getWorkflowDir(self):
         m = self._main_window.model().workflowManager()
@@ -633,9 +652,16 @@ class WorkflowWidget(QtWidgets.QWidget):
         self.action_Execute = QtWidgets.QAction('E&xecute', menu_workflow)
         self._set_action_properties(self.action_Execute, 'action_Execute', self.executeWorkflow, 'Ctrl+X',
                                     'Execute Workflow')
-        self.action_Continue = QtWidgets.QAction('&Continue', menu_workflow)
-        self._set_action_properties(self.action_Continue, 'action_Continue', self.continueWorkflow, 'Ctrl+T',
-                                    'Continue executing Workflow')
+        # self.action_Continue = QtWidgets.QAction('&Continue', menu_workflow)
+        # self._set_action_properties(self.action_Continue, 'action_Continue', self.continueWorkflow, 'Ctrl+T',
+        #                             'Continue executing Workflow')
+        self.action_Reverse = QtWidgets.QAction('Reverse', menu_workflow)
+        self.action_Reverse.setCheckable(True)
+        self._set_action_properties(self.action_Reverse, 'action_Reverse', self._reverse_workflow_direction, '',
+                                    'Reverse Workflow Direction')
+        self.action_Abort = QtWidgets.QAction('Abort', menu_workflow)
+        self._set_action_properties(self.action_Abort, 'action_Abort', self._abort_workflow, '',
+                                    'Abort Workflow')
 
         self.action_ZoomIn = QtWidgets.QAction('Zoom In', menu_view)
         self._set_action_properties(self.action_ZoomIn, 'action_ZoomIn', self.zoom_in, 'Ctrl++',
@@ -664,4 +690,6 @@ class WorkflowWidget(QtWidgets.QWidget):
         menu_view.insertSeparator(last_view_menu_action)
 
         menu_workflow.addAction(self.action_Execute)
-        menu_workflow.addAction(self.action_Continue)
+        # menu_workflow.addAction(self.action_Continue)
+        menu_workflow.addAction(self.action_Reverse)
+        menu_workflow.addAction(self.action_Abort)
