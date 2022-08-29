@@ -4,6 +4,9 @@
     !include LogicLib.nsh
     !include nsDialogs.nsh
 
+; Plugin directories
+    !addplugindir "{win_res_dir}\Plugins\x86-unicode"
+
 ;------------------------------------------------------------------------------
 ; Constants
     !define APP_NAME "MAP-Client{app_variant}"
