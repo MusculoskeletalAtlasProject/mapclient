@@ -548,10 +548,11 @@ class StepText(QtWidgets.QGraphicsTextItem):
 
     def mousePressEvent(self, event):
         modifiers = QtWidgets.QApplication.keyboardModifiers()
-        if modifiers != QtCore.Qt.NoModifier:
+        if modifiers == QtCore.Qt.NoModifier:
+            self.setTextInteractionFlags(self._editable_flags)
+        else:
             self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         super().mousePressEvent(event)
-        self.setTextInteractionFlags(self._editable_flags)
 
     def keyPressEvent(self, event):
         self._active_key = event.key()
@@ -564,6 +565,7 @@ class StepText(QtWidgets.QGraphicsTextItem):
             if self._active_key == QtCore.Qt.Key_Return or self._active_key == QtCore.Qt.Key_Enter:
                 self._update_identifier()
                 self.clearFocus()
+                self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
 
         self._active_key = None
 
@@ -577,7 +579,7 @@ class StepText(QtWidgets.QGraphicsTextItem):
 
     def paint(self, painter, option, widget):
         painter.eraseRect(self.boundingRect())
-        painter.setBrush(QtCore.Qt.white)
+        # painter.setBrush(QtCore.Qt.white)
         painter.drawRoundedRect(self.boundingRect(), 5, 5)
         super(StepText, self).paint(painter, option, widget)
 
