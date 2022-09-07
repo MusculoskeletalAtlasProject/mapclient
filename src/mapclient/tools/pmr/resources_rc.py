@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
-
-# Resource object code
-#
-# Created: Wed Jun 26 15:10:01 2019
-#      by: The Resource Compiler for PySide2 (Qt v5.11.2)
-#
+# Resource object code (Python 3)
+# Created by: object code
+# Created by: The Resource Compiler for Qt version 5.15.2
 # WARNING! All changes made in this file will be lost!
 
 from PySide2 import QtCore
@@ -4699,17 +4695,23 @@ qt_resource_name = b"\
 
 qt_resource_struct = b"\
 \x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x01\
+\x00\x00\x00\x00\x00\x00\x00\x00\
 \x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x02\
+\x00\x00\x00\x00\x00\x00\x00\x00\
 \x00\x00\x00\x0c\x00\x02\x00\x00\x00\x03\x00\x00\x00\x03\
+\x00\x00\x00\x00\x00\x00\x00\x00\
 \x00\x00\x00b\x00\x00\x00\x00\x00\x01\x00\x00\xc3\xf3\
+\x00\x00\x01\x82\xf7\xc7L\xde\
 \x00\x00\x00\x1e\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
+\x00\x00\x01\x82\xf7\xc7L\xdd\
 \x00\x00\x00>\x00\x00\x00\x00\x00\x01\x00\x00`\x08\
+\x00\x00\x01\x82\xf7\xc7L\xde\
 "
 
 def qInitResources():
-    QtCore.qRegisterResourceData(0x01, qt_resource_struct, qt_resource_name, qt_resource_data)
+    QtCore.qRegisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
 
 def qCleanupResources():
-    QtCore.qUnregisterResourceData(0x01, qt_resource_struct, qt_resource_name, qt_resource_data)
+    QtCore.qUnregisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
 
 qInitResources()
