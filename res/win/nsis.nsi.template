@@ -20,7 +20,7 @@
 ; Attributes
     Name "${APP_NAME} ${APP_VERSION}"
     OutFile "{package_dir}\${APP_NAME}-${APP_VERSION}.exe"
-    InstallDir "$PROGRAMFILES64\${APP_ORGANISATION}\${APP_NAME}"
+    InstallDir "$PROGRAMFILES64\${APP_ORGANISATION}\${APP_NAME}-v${APP_VERSION}"
     RequestExecutionLevel admin
     Unicode True
 
@@ -41,6 +41,7 @@
 
 ;-------------------------------------------------------------------------------
 ; Installer Pages
+    !define MUI_WELCOMEPAGE_TITLE_3LINES
     !insertmacro MUI_PAGE_WELCOME
 
     ; Directory Page Configuration
@@ -117,7 +118,7 @@ Section
 
     ; Write uninstall information to registry.
     !insertmacro WriteUninstallInfo "DisplayName" "${APP_NAME} ${APP_VERSION}"
-    !insertmacro WriteUninstallInfo "DisplayVersion" "0.1.1"
+    !insertmacro WriteUninstallInfo "DisplayVersion" "${INSTALLER_VERSION}"
     !insertmacro WriteUninstallInfo "Publisher" "${APP_ORGANISATION}"
     !insertmacro WriteUninstallInfo "UninstallString" "$INSTDIR\Uninstall.exe"
     !insertmacro WriteUninstallInfo "NoRepair" "1"
