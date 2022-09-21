@@ -29,6 +29,7 @@ changing the string.
 # Options related strings
 OPTIONS_SETTINGS_TAG = 'Options'
 SHOW_STEP_NAMES = 'checkBoxShowStepNames'
+CLOSE_AFTER = 'doubleSpinBoxMessageBoxTimer'
 DONT_CREATE_VIRTUAL_ENV = 'checkBoxDontCreateVirtualEnvironment'
 PYSIDE_UIC_EXE = 'lineEditPySideUIC'
 PYSIDE_RCC_EXE = 'lineEditPySideRCC'
