@@ -129,8 +129,6 @@ class WorkflowWidget(QtWidgets.QWidget):
         om = self._main_window.model().optionsManager()
         show_step_names = om.getOption(SHOW_STEP_NAMES)
         self._graphicsScene.showStepNames(show_step_names)
-        close_after = om.getOption(CLOSE_AFTER)
-        MessageBox.close_after = close_after * 1000
 
     def undoStackIndexChanged(self, index):
         self._main_window.model().workflowManager().undoStackIndexChanged(index)
@@ -210,10 +208,12 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     def _workflow_finished(self, successfully):
         if successfully:
+            close_after = self._main_window.model().optionsManager().getOption(CLOSE_AFTER) * 1000
             mb = MessageBox(QtWidgets.QMessageBox.Icon.Information, "Workflow Finished",
                             "Workflow finished successfully.",
                             QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Default,
-                            parent=self._main_window)
+                            parent=self._main_window,
+                            close_after=close_after)
             mb.setIconPixmap(QtGui.QPixmap(":/mapclient/images/green_tick.png").scaled(64, 64))
             mb.exec_()
         else:
