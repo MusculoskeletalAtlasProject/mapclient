@@ -77,6 +77,7 @@ class Ui_OptionsDialog(object):
         self.doubleSpinBoxMessageBoxTimer.setObjectName(u"doubleSpinBoxMessageBoxTimer")
         self.doubleSpinBoxMessageBoxTimer.setMaximumSize(QSize(120, 16777215))
         self.doubleSpinBoxMessageBoxTimer.setDecimals(3)
+        self.doubleSpinBoxMessageBoxTimer.setSingleStep(0.100000000000000)
         self.doubleSpinBoxMessageBoxTimer.setValue(2.000000000000000)
 
         self.horizontalLayout_2.addWidget(self.doubleSpinBoxMessageBoxTimer)
