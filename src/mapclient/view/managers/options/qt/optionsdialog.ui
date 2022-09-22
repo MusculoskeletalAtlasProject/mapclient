@@ -88,7 +88,7 @@
        <item>
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
-          <string>MessageBox display timer</string>
+          <string>Workflow notification display</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
@@ -99,6 +99,12 @@
               <height>16777215</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>Setting a value of zero will disable the display of the notification.</string>
+            </property>
+            <property name="decimals">
+             <number>3</number>
+            </property>
             <property name="value">
              <double>2.000000000000000</double>
             </property>
@@ -107,7 +113,7 @@
           <item>
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>seconds</string>
+             <string>Auto close after (seconds)</string>
             </property>
            </widget>
           </item>

@@ -25,7 +25,7 @@ class OptionsManager(object):
     def __init__(self):
         # Set default values
         self._options = {
-            SHOW_STEP_NAMES: True, CLOSE_AFTER: 2000, DONT_CREATE_VIRTUAL_ENV: False, CHECK_TOOLS_ON_STARTUP: True,
+            SHOW_STEP_NAMES: True, CLOSE_AFTER: 2.0, DONT_CREATE_VIRTUAL_ENV: False, CHECK_TOOLS_ON_STARTUP: True,
             USE_EXTERNAL_GIT: False, USE_EXTERNAL_RCC: False, USE_EXTERNAL_UIC: False,
             VIRTUAL_ENV_PATH: get_virtualenv_directory(), GIT_EXE: which('git'),
             PYSIDE_RCC_EXE: INTERNAL_EXE, PYSIDE_UIC_EXE: INTERNAL_EXE,
