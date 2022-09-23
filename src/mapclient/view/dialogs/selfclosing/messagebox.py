@@ -5,9 +5,10 @@ from PySide2 import QtWidgets, QtCore
 class MessageBox(QtWidgets.QMessageBox):
     def __init__(self, icon, title, text, buttons, parent=None, close_after=None):
         """
-        An extension of the Qt.QMessageBox class that automatically closes itself after a set number of seconds. This class allows the user
-        to pass an additional argument (close_after) to specify how long the MessageBox should be displayed for before it terminates. If
-        the close_after argument is set to zero, the MessageBox will not be displayed.
+        An extension of the QtWidgets.QMessageBox class that automatically closes itself after a set number of seconds. This class allows the user
+        to pass an additional argument (close_after) to specify how long the MessageBox should be displayed for before it closes. 
+        The close_after parameter is specified in units of seconds. If the close_after argument is set to zero, the MessageBox 
+        will not be displayed.
 
         Parameters
         ----------
