@@ -41,7 +41,7 @@ from mapclient.view.managers.plugins.pluginupdater import PluginUpdater
 from mapclient.tools.pmr.settings.general import PMR
 from mapclient.settings.general import get_virtualenv_directory
 from mapclient.core.workflow.workflowerror import WorkflowError
-from mapclient.settings.definitions import SHOW_STEP_NAMES, USE_EXTERNAL_GIT, PREVIOUS_WORKFLOW
+from mapclient.settings.definitions import SHOW_STEP_NAMES, CLOSE_AFTER, USE_EXTERNAL_GIT, PREVIOUS_WORKFLOW
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,6 @@ class WorkflowWidget(QtWidgets.QWidget):
         om = self._main_window.model().optionsManager()
         show_step_names = om.getOption(SHOW_STEP_NAMES)
         self._graphicsScene.showStepNames(show_step_names)
-        # self._ui.graphicsView.showStepNames(show_step_names)
 
     def undoStackIndexChanged(self, index):
         self._main_window.model().workflowManager().undoStackIndexChanged(index)
@@ -209,10 +208,12 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     def _workflow_finished(self, successfully):
         if successfully:
+            close_after = self._main_window.model().optionsManager().getOption(CLOSE_AFTER)
             mb = MessageBox(QtWidgets.QMessageBox.Icon.Information, "Workflow Finished",
                             "Workflow finished successfully.",
                             QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Default,
-                            parent=self._main_window)
+                            parent=self._main_window,
+                            close_after=close_after)
             mb.setIconPixmap(QtGui.QPixmap(":/mapclient/images/green_tick.png").scaled(64, 64))
             mb.exec_()
         else:

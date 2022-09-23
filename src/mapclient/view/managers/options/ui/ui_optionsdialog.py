@@ -69,6 +69,27 @@ class Ui_OptionsDialog(object):
 
         self.verticalLayout_4.addWidget(self.groupBoxInternalWorkflowDirectory)
 
+        self.groupBox_2 = QGroupBox(self.tabGeneral)
+        self.groupBox_2.setObjectName(u"groupBox_2")
+        self.horizontalLayout_2 = QHBoxLayout(self.groupBox_2)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.doubleSpinBoxMessageBoxTimer = QDoubleSpinBox(self.groupBox_2)
+        self.doubleSpinBoxMessageBoxTimer.setObjectName(u"doubleSpinBoxMessageBoxTimer")
+        self.doubleSpinBoxMessageBoxTimer.setMaximumSize(QSize(120, 16777215))
+        self.doubleSpinBoxMessageBoxTimer.setDecimals(3)
+        self.doubleSpinBoxMessageBoxTimer.setSingleStep(0.100000000000000)
+        self.doubleSpinBoxMessageBoxTimer.setValue(2.000000000000000)
+
+        self.horizontalLayout_2.addWidget(self.doubleSpinBoxMessageBoxTimer)
+
+        self.label = QLabel(self.groupBox_2)
+        self.label.setObjectName(u"label")
+
+        self.horizontalLayout_2.addWidget(self.label)
+
+
+        self.verticalLayout_4.addWidget(self.groupBox_2)
+
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout_4.addItem(self.verticalSpacer)
@@ -232,6 +253,11 @@ class Ui_OptionsDialog(object):
         self.pushButtonInternalWorkflowDirectory.setToolTip(QCoreApplication.translate("OptionsDialog", u"Select the internal workflow directory.", None))
 #endif // QT_CONFIG(tooltip)
         self.pushButtonInternalWorkflowDirectory.setText(QCoreApplication.translate("OptionsDialog", u"...", None))
+        self.groupBox_2.setTitle(QCoreApplication.translate("OptionsDialog", u"Workflow notification display", None))
+#if QT_CONFIG(tooltip)
+        self.doubleSpinBoxMessageBoxTimer.setToolTip(QCoreApplication.translate("OptionsDialog", u"Setting a value of zero will disable the display of the notification.", None))
+#endif // QT_CONFIG(tooltip)
+        self.label.setText(QCoreApplication.translate("OptionsDialog", u"Auto close after (seconds)", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGeneral), QCoreApplication.translate("OptionsDialog", u"&General", None))
         self.groupBoxStepWizard.setTitle(QCoreApplication.translate("OptionsDialog", u"Step Wizard", None))
         self.checkBoxUseExternalPySideRCC.setText(QCoreApplication.translate("OptionsDialog", u"Use external PySide resource compiler (rcc)", None))
