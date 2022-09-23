@@ -208,7 +208,7 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     def _workflow_finished(self, successfully):
         if successfully:
-            close_after = self._main_window.model().optionsManager().getOption(CLOSE_AFTER) * 1000
+            close_after = self._main_window.model().optionsManager().getOption(CLOSE_AFTER)
             mb = MessageBox(QtWidgets.QMessageBox.Icon.Information, "Workflow Finished",
                             "Workflow finished successfully.",
                             QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Default,
