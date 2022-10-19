@@ -21,12 +21,24 @@ def check_plugins_for_updates(plugin_orgs, plugin_repos):
         name = repo.name
         updated_at = repo.updated_at.timestamp()
         if (name not in plugin_data.get_plugins().keys()) or (data_timestamp < updated_at):
-            try:
-                step_file = repo.get_contents(f'mapclientplugins/{name}/step.py').decoded_content.decode()
-                category, icon_path = read_step_info(step_file)
-                icon_name = save_plugin_icon(icon_path)
-                plugin_data.get_plugins()[name] = MAPPlugin(name, category, icon_name)
-            except UnknownObjectException:
+            step_paths = [
+                f'mapclientplugins/{name}/step.py',
+                f'mapclientplugins/{name}step/step.py',
+                f'mapclientplugins/{name[name.find(".") + 1:]}/step.py',
+                f'mapclientplugins/{name[name.find(".") + 1:]}step/step.py'
+            ]
+            step_file = None
+            for step_path in step_paths:
+                try:
+                    step_file = repo.get_contents(step_path).decoded_content.decode()
+                except UnknownObjectException:
+                    continue
+                else:
+                    category, icon_path = read_step_info(step_file)
+                    icon_name = save_plugin_icon(icon_path)
+                    plugin_data.get_plugins()[name] = MAPPlugin(name, category, icon_name)
+                    break
+            if not step_file:
                 print(f"GitHub repository \"{repo.full_name}\" in not a valid MAP-Client plugin.")
 
     plugin_data = read_step_database()
