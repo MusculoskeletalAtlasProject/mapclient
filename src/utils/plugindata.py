@@ -125,21 +125,44 @@ def write_step_database(data):
 
 
 def read_step_info(step_file):
-    category = icon_path = None
-    lines = step_file.splitlines()
+    def read_value(identifier):
+        value = read_line(line, identifier)
+        if not value:
+            extended_line = line + next(lines).strip(' \t\r\n')
+            value = read_line(extended_line, identifier)
+
+        return value
+
+    name = category = icon_path = None
+    lines = iter(step_file.splitlines())
     for line in lines:
         line = line.strip()
 
-        if line.startswith("self._category"):
-            category = line[line.find("=") + 1:].strip(' "\'\t\r\n')
+        if line.startswith("super"):
+            name = read_value("__init__")
+        elif line.startswith("self._category"):
+            category = read_value("=")
             if icon_path:
                 break
         elif line.startswith("self._icon"):
-            icon_path = line[line.find("(") + 2: line.rfind(")") - 1].strip()
+            icon_path = read_value("QImage")
             if category:
                 break
 
-    return category, icon_path
+    return name, category, icon_path
+
+
+def read_line(line, identifier):
+
+    value = None
+    for quote in ["'", '"']:
+        start = line.find(quote, line.find(identifier) + len(identifier))
+        if start == -1:
+            continue
+        end = line.find(quote, start + 1)
+        value = line[start:end].strip(' "\'\t\r\n')
+
+    return value
 
 
 def get_icon(plugin):
