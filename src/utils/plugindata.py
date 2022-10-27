@@ -7,13 +7,14 @@ from mapclient.core.workflow.workflowsteps import addStep
 
 
 class MAPPlugin:
-    def __init__(self, name, category, icon_name):
+    def __init__(self, name, category, icon_name, url):
         """
         This is a simplified version of the WorkflowSteps class, to be used for visualizing step objects that aren't installed locally.
         """
         self._name = name
         self._category = category
         self._icon = icon_name
+        self._url = url
 
     def get_name(self):
         return self._name
@@ -24,11 +25,15 @@ class MAPPlugin:
     def get_icon_name(self):
         return self._icon
 
+    def get_url(self):
+        return self._url
+
     def __iter__(self):
         yield from {
             "_name": self._name,
             "_category": self._category,
-            "_icon": self._icon
+            "_icon": self._icon,
+            "_url": self._url
         }.items()
 
     def __str__(self):
@@ -42,7 +47,7 @@ class MAPPlugin:
 
     @staticmethod
     def from_json(json_dict):
-        return MAPPlugin(json_dict['_name'], json_dict['_category'], json_dict['_icon'])
+        return MAPPlugin(json_dict['_name'], json_dict['_category'], json_dict['_icon'], json_dict['_url'])
 
 
 # This makes the MAPPlugin class compatible with workflowsteps.addStep().

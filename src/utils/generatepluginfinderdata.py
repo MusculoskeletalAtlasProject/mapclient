@@ -36,7 +36,8 @@ def check_plugins_for_updates(plugin_orgs, plugin_repos):
                 else:
                     category, icon_path = read_step_info(step_file)
                     icon_name = save_plugin_icon(icon_path)
-                    plugin_data.get_plugins()[name] = MAPPlugin(name, category, icon_name)
+                    url = repo.url
+                    plugin_data.get_plugins()[name] = MAPPlugin(name, category, icon_name, url)
                     break
             if not step_file:
                 print(f"GitHub repository \"{repo.full_name}\" in not a valid MAP-Client plugin.")
