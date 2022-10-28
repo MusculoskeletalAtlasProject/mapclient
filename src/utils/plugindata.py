@@ -1,9 +1,12 @@
 import os
 import json
 
-from PySide2 import QtGui
+from PySide2 import QtCore, QtGui
+from PySide2.QtWidgets import QApplication, QStyle, QStyleOptionButton
 
 from mapclient.core.workflow.workflowsteps import addStep
+from mapclient.view.workflow.workflowsteptreeview import HeaderDelegate
+from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 
 
 class MAPPlugin:
@@ -99,6 +102,75 @@ class PluginData(QtGui.QStandardItemModel):
             return json_dict
 
 
+class PushButtonDelegate(HeaderDelegate):
+    buttonClicked = QtCore.Signal(str)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._pressed = None
+        self._installed_plugins = self.get_installed_plugins()
+        self._download_icon = QtGui.QPixmap(':/mapclient/images/download_icon.png')
+        self._downloaded_icon = QtGui.QPixmap(':/mapclient/images/downloaded_icon.png')
+        self._loading_icon = QtGui.QPixmap(':/mapclient/images/loading_icon.png')
+
+    def paint(self, painter, option, index):
+        super(PushButtonDelegate, self).paint(painter, option, index)
+
+        if not index.parent().row() < 0:
+            opt = QStyleOptionButton()
+
+            name = index.data()
+            if name in self._installed_plugins.keys():
+                if self._installed_plugins[name]:
+                    opt.icon = self._downloaded_icon
+                else:
+                    opt.icon = self._loading_icon
+            else:
+                opt.icon = self._download_icon
+
+            opt.iconSize = QtCore.QSize(48, 48)
+            opt.rect = self.get_button_rect(option)
+
+            if self._pressed and self._pressed == (index.row(), index.column()):
+                opt.state = QStyle.State_Enabled | QStyle.State_Sunken
+            else:
+                opt.state = QStyle.State_Enabled | QStyle.State_Raised
+            QApplication.style().drawControl(QStyle.CE_PushButton, opt, painter)
+
+    def editorEvent(self, event, model, option, index):
+        if index.data() in self._installed_plugins.keys():
+            return True
+
+        if event.type() == QtCore.QEvent.MouseButtonPress:
+            if self.get_button_rect(option).contains(event.pos()):
+                self._pressed = (index.row(), index.column())
+            return True
+
+        elif event.type() == QtCore.QEvent.MouseButtonRelease:
+            if self._pressed == (index.row(), index.column()):
+                if self.get_button_rect(option).contains(event.pos()):
+                    plugin = model.data(index, QtCore.Qt.UserRole + 1)
+                    self.buttonClicked.emit(plugin.get_url())
+            self._pressed = None
+            return True
+
+        return False
+
+    @staticmethod
+    def get_installed_plugins():
+        installed_plugins = {}
+        for step in WorkflowStepMountPoint.getPlugins(''):
+            installed_plugins[step.getName()] = True
+
+        return installed_plugins
+
+    @staticmethod
+    def get_button_rect(option):
+        button_rect = option.rect
+        button_rect.setRect(button_rect.width() - 58, button_rect.y() + 8, 48, 48)
+        return button_rect
+
+
 def get_step_database_file():
     return os.path.join(os.path.dirname(__file__), 'plugin_manager', 'plugin_database.json')
 
@@ -108,7 +180,7 @@ def read_step_database():
 
     try:
         with open(database_file, "r") as file:
-            data = json.loads(file.read(), object_hook=PluginData.from_json)
+            data = json.load(file, object_hook=PluginData.from_json)
     except IOError:
         data = PluginData(0.0, {})
 
@@ -121,7 +193,7 @@ def write_step_database(data):
         os.mkdir(os.path.dirname(database_file))
 
     with open(database_file, "w") as file:
-        file.write(json.dumps(data, default=default))
+        json.dump(data, file, default=default)
 
 
 def read_step_info(step_file):

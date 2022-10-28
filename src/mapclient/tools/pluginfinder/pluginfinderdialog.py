@@ -9,7 +9,7 @@ import logging
 from PySide2 import QtCore
 from PySide2.QtWidgets import QDialog
 
-from utils.plugindata import read_step_database
+from utils.plugindata import read_step_database, PushButtonDelegate
 from mapclient.core.workflow.workflowsteps import WorkflowStepsFilter
 from mapclient.tools.pluginfinder.ui.ui_pluginfinderdialog import Ui_PluginFinderDialog
 
@@ -29,11 +29,19 @@ class PluginFinderDialog(QDialog):
         self._plugin_data = read_step_database()
         self._filtered_plugins = WorkflowStepsFilter()
         self._filtered_plugins.setSourceModel(self._plugin_data)
+        self._ui.stepTreeView.setMouseTracking(True)
         self._ui.stepTreeView.setModel(self._filtered_plugins)
+        self.tree_delegate = PushButtonDelegate(self._plugin_data)
+        self._ui.stepTreeView.setItemDelegateForColumn(0, self.tree_delegate)
+        self.tree_delegate.buttonClicked.connect(self.tree_button_clicked)
         self.update_available_steps()
         self.expand_step_tree()
 
         self._make_connections()
+
+    def tree_button_clicked(self, url):
+        # TODO: Implement method to install the selected plugin to the user's plugin directory.
+        print(f"URL = {url}")
 
     def _make_connections(self):
         self._ui.lineEditFilter.textChanged.connect(self._filter_text_changed)
