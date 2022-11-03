@@ -13,6 +13,8 @@ from utils.plugindata import read_step_database, PushButtonDelegate
 from mapclient.core.workflow.workflowsteps import WorkflowStepsFilter
 from mapclient.tools.pluginfinder.ui.ui_pluginfinderdialog import Ui_PluginFinderDialog
 
+from mapclient.tools.pluginfinder.downloadtodirectorydialog import DownloadToDirectoryDialog
+
 logger = logging.getLogger(__name__)
 
 
@@ -26,6 +28,7 @@ class PluginFinderDialog(QDialog):
         self._ui = Ui_PluginFinderDialog()
         self._ui.setupUi(self)
 
+        self._plugin_directories = parent.model().pluginManager().directories()
         self._plugin_data = read_step_database()
         self._filtered_plugins = WorkflowStepsFilter()
         self._filtered_plugins.setSourceModel(self._plugin_data)
@@ -40,8 +43,12 @@ class PluginFinderDialog(QDialog):
         self._make_connections()
 
     def tree_button_clicked(self, url):
-        # TODO: Implement method to install the selected plugin to the user's plugin directory.
-        print(f"URL = {url}")
+        self._download_to_directory_dialog(url)
+
+    def _download_to_directory_dialog(self, url):
+        dlg = DownloadToDirectoryDialog(self._plugin_directories, url, self)
+        dlg.setModal(True)
+        dlg.exec_()
 
     def _make_connections(self):
         self._ui.lineEditFilter.textChanged.connect(self._filter_text_changed)
