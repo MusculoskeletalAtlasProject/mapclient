@@ -19,7 +19,7 @@ class Ui_PluginFinderDialog(object):
     def setupUi(self, PluginFinderDialog):
         if not PluginFinderDialog.objectName():
             PluginFinderDialog.setObjectName(u"PluginFinderDialog")
-        PluginFinderDialog.resize(772, 422)
+        PluginFinderDialog.resize(900, 550)
         self.verticalLayout = QVBoxLayout(PluginFinderDialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.splitter = QSplitter(PluginFinderDialog)
