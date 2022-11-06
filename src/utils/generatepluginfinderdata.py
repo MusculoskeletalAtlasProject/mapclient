@@ -1,9 +1,10 @@
+import os
 import time
 
 from utils.plugindata import MAPPlugin, read_step_info, read_step_database, write_step_database, save_plugin_icon
 
 from github import Github
-from github.GithubException import UnknownObjectException
+from github.GithubException import UnknownObjectException, BadCredentialsException, RateLimitExceededException
 
 
 # The following variables define where the Plugin Finder searches for plugin repositories.
@@ -12,8 +13,20 @@ plugin_repositories = []
 
 
 def authenticate_github_user():
-    token = input("Personal Access Token for GitHub: ")
-    return Github(token)
+    try:
+        token = os.environ["GITHUB_PAT"]
+        g = Github(token)
+        _ = g.get_user().name
+        return g
+    except (KeyError, BadCredentialsException):
+        while True:
+            try:
+                token = input("GITHUB_PAT cannot be found or is invalid. Please provide a Personal Access Token for GitHub: ")
+                g = Github(token)
+                _ = g.get_user().name
+                return g
+            except BadCredentialsException:
+                print("The Personal Access Token given is not valid.")
 
 
 def check_plugins_for_updates(plugin_orgs, plugin_repos):
@@ -46,16 +59,25 @@ def check_plugins_for_updates(plugin_orgs, plugin_repos):
     data_timestamp = plugin_data.get_timestamp()
     current_time = time.time()
 
-    g = authenticate_github_user()
+    g = Github()
+    i = 0
+    while i < 2:
+        try:
+            for organisation in plugin_orgs:
+                org = g.get_organization(organisation)
+                for repo in org.get_repos():
+                    check_plugin_info()
 
-    for organisation in plugin_orgs:
-        org = g.get_organization(organisation)
-        for repo in org.get_repos():
-            check_plugin_info()
+            for repository in plugin_repos:
+                repo = g.get_repo(repository)
+                check_plugin_info()
 
-    for repository in plugin_repos:
-        repo = g.get_repo(repository)
-        check_plugin_info()
+            break
+        except RateLimitExceededException:
+            i += 1
+            if i < 2:
+                print("GitHub API rate limit exceeded. GitHub personal access token required.")
+                g = authenticate_github_user()
 
     plugin_data.set_timestamp(current_time)
     write_step_database(plugin_data)
