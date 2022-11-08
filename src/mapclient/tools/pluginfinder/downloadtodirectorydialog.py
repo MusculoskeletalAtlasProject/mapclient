@@ -55,7 +55,7 @@ class DownloadToDirectoryDialog(QDialog):
                 archive.extractall(self._selected_directory)
 
             answer = QMessageBox.information(self, 'Download Successful', 'The selected plugin was successfully downloaded. '
-                                             'You may need to restart the application to pick up newly downloaded plugins')
+                                             'You may need to restart the application to pick up newly downloaded plugins.')
 
             if answer == QMessageBox.Ok:
                 self.accept()

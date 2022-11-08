@@ -59,16 +59,9 @@ setattr(MAPPlugin, 'getName', MAPPlugin.get_name)
 
 class PluginData(QtGui.QStandardItemModel):
 
-    def __init__(self, timestamp, plugins, parent=None):
+    def __init__(self, plugins, parent=None):
         super(PluginData, self).__init__(parent)
-        self._timestamp = float(timestamp)
         self._plugins = plugins
-
-    def get_timestamp(self):
-        return self._timestamp
-
-    def set_timestamp(self, timestamp):
-        self._timestamp = timestamp
 
     def get_plugins(self):
         return self._plugins
@@ -90,14 +83,14 @@ class PluginData(QtGui.QStandardItemModel):
         for key, plugin in self._plugins.items():
             _plugins[key] = plugin.__dict__
 
-        return {"_timestamp": self._timestamp, "_plugins": _plugins}
+        return {"_plugins": _plugins}
 
     @staticmethod
     def from_json(json_dict):
         if '_name' in json_dict.keys():
             return MAPPlugin.from_json(json_dict)
         elif '_plugins' in json_dict.keys():
-            return PluginData(json_dict['_timestamp'], json_dict['_plugins'])
+            return PluginData(json_dict['_plugins'])
         else:
             return json_dict
 
@@ -182,7 +175,7 @@ def read_step_database():
         with open(database_file, "r") as file:
             data = json.load(file, object_hook=PluginData.from_json)
     except IOError:
-        data = PluginData(0.0, {})
+        data = PluginData({})
 
     return data
 

@@ -33,7 +33,7 @@ def check_plugins_for_updates(plugin_orgs, plugin_repos):
     def check_plugin_info():
         name = repo.name
         updated_at = repo.updated_at.timestamp()
-        if (name not in plugin_data.get_plugins().keys()) or (data_timestamp < updated_at):
+        if True:
             step_paths = [
                 f'mapclientplugins/{name}/step.py',
                 f'mapclientplugins/{name}step/step.py',
@@ -56,8 +56,6 @@ def check_plugins_for_updates(plugin_orgs, plugin_repos):
                 print(f"GitHub repository \"{repo.full_name}\" in not a valid MAP-Client plugin.")
 
     plugin_data = read_step_database()
-    data_timestamp = plugin_data.get_timestamp()
-    current_time = time.time()
 
     g = Github()
     i = 0
@@ -79,7 +77,6 @@ def check_plugins_for_updates(plugin_orgs, plugin_repos):
                 print("GitHub API rate limit exceeded. GitHub personal access token required.")
                 g = authenticate_github_user()
 
-    plugin_data.set_timestamp(current_time)
     write_step_database(plugin_data)
 
 
