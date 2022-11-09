@@ -46,7 +46,7 @@ class MAPPlugin:
         return self.__str__()
 
     def to_json(self):
-        return self.__str__()
+        return self.__dict__
 
     @staticmethod
     def from_json(json_dict):
@@ -63,36 +63,11 @@ class PluginData(QtGui.QStandardItemModel):
         super(PluginData, self).__init__(parent)
         self._plugins = plugins
 
-    def get_plugins(self):
-        return self._plugins
-
     def reload(self):
         self.clear()
         self.setColumnCount(1)
         for plugin in self._plugins.values():
             addStep(self, plugin)
-
-    def __str__(self):
-        return json.dumps(self.to_json())
-
-    def __repr__(self):
-        return self.__str__()
-
-    def to_json(self):
-        _plugins = {}
-        for key, plugin in self._plugins.items():
-            _plugins[key] = plugin.__dict__
-
-        return {"_plugins": _plugins}
-
-    @staticmethod
-    def from_json(json_dict):
-        if '_name' in json_dict.keys():
-            return MAPPlugin.from_json(json_dict)
-        elif '_plugins' in json_dict.keys():
-            return PluginData(json_dict['_plugins'])
-        else:
-            return json_dict
 
 
 class PushButtonDelegate(HeaderDelegate):
@@ -173,11 +148,18 @@ def read_step_database():
 
     try:
         with open(database_file, "r") as file:
-            data = json.load(file, object_hook=PluginData.from_json)
+            data = json.load(file, object_hook=from_json)
     except IOError:
-        data = PluginData({})
+        data = {}
 
     return data
+
+
+def from_json(json_dict):
+    if '_name' in json_dict.keys():
+        return MAPPlugin.from_json(json_dict)
+    else:
+        return json_dict
 
 
 def write_step_database(data):
