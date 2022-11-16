@@ -9,7 +9,7 @@ import logging
 from PySide2 import QtCore
 from PySide2.QtWidgets import QDialog
 
-from utils.plugindata import read_step_database, PushButtonDelegate, PluginData
+from utils.plugindata import get_plugin_database, PushButtonDelegate, PluginData
 from mapclient.core.workflow.workflowsteps import WorkflowStepsFilter
 from mapclient.tools.pluginfinder.ui.ui_pluginfinderdialog import Ui_PluginFinderDialog
 
@@ -29,7 +29,7 @@ class PluginFinderDialog(QDialog):
         self._ui.setupUi(self)
 
         self._plugin_directories = parent.model().pluginManager().directories()
-        self._plugin_data = PluginData(read_step_database())
+        self._plugin_data = PluginData(get_plugin_database())
         self._filtered_plugins = WorkflowStepsFilter()
         self._filtered_plugins.setSourceModel(self._plugin_data)
         self._ui.stepTreeView.setMouseTracking(True)

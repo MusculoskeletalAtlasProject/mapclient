@@ -2,11 +2,15 @@ import os
 import json
 
 from PySide2 import QtCore, QtGui
-from PySide2.QtWidgets import QApplication, QStyle, QStyleOptionButton
+from PySide2.QtWidgets import QApplication, QStyle, QStyleOptionButton, QInputDialog, QLineEdit, QMessageBox
 
 from mapclient.core.workflow.workflowsteps import addStep
 from mapclient.view.workflow.workflowsteptreeview import HeaderDelegate
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
+from mapclient.settings.general import get_data_directory
+
+from github import Github
+from github.GithubException import BadCredentialsException, RateLimitExceededException
 
 
 class MAPPlugin:
@@ -139,20 +143,102 @@ class PushButtonDelegate(HeaderDelegate):
         return button_rect
 
 
-def get_step_database_file():
-    return os.path.join(os.path.dirname(__file__), 'plugin_manager', 'plugin_database.json')
+def authenticate_github_user():
+    print("GitHub API rate limit exceeded. GitHub personal access token required.")
+    try:
+        token = os.environ["GITHUB_PAT"]
+        g = Github(token)
+        _ = g.get_user().name
+        return g
+    except (KeyError, BadCredentialsException):
+        if QApplication.instance() is None:
+            _ = QApplication([])
+        while True:
+            try:
+                token, ok = QInputDialog().getText(None, "GitHub PAT", "GITHUB_PAT cannot be found or is invalid. "
+                                                   "Please provide a Personal Access Token for GitHub:", QLineEdit.Password)
+                if ok:
+                    g = Github(token)
+                    _ = g.get_user().name
+                    os.environ["GITHUB_PAT"] = token
+                    return g
+                else:
+                    return None
+            except BadCredentialsException:
+                QMessageBox.information(None, 'Token Invalid', 'The Personal Access Token given is not valid.')
 
 
-def read_step_database():
-    database_file = get_step_database_file()
+# This method is used by the visualisation script to get an up-to-date version of the plugin database. DB in dictionary format.
+def get_plugin_database():
+    cached_database, cached_timestamp = get_cached_database()
+    remote_timestamp = get_remote_database_timestamp()
 
+    if not remote_timestamp:
+        print("Retrieving remote database failed. Using cached database.")
+        return cached_database
+
+    if cached_timestamp < remote_timestamp:
+        data = cache_plugin_database()
+        if data:
+            cached_database = data
+
+    return cached_database
+
+
+def get_cache_file_path():
+    return os.path.join(get_data_directory(), "plugin_database.json")
+
+
+def get_cached_database():
+    database_file = get_cache_file_path()
     try:
         with open(database_file, "r") as file:
-            data = json.load(file, object_hook=from_json)
-    except IOError:
-        data = {}
+            cached_database = json.load(file, object_hook=from_json)
+        cached_timestamp = os.path.getmtime(database_file)
 
-    return data
+        return cached_database, cached_timestamp
+    except IOError:
+        return {}, 0.0
+
+
+def cache_plugin_database():
+    database = get_remote_database()
+
+    database_file = get_cache_file_path()
+    if not os.path.exists(os.path.dirname(database_file)):
+        os.mkdir(os.path.dirname(database_file))
+
+    with open(database_file, "w") as file:
+        json.dump(database, file, default=default)
+
+    return database
+
+
+def get_remote_database():
+    return github_api_wrapper(lambda r: json.loads(r.get_contents("plugin_database.json").decoded_content.decode(), object_hook=from_json))
+
+
+def get_remote_database_timestamp():
+    return github_api_wrapper(lambda r: r.updated_at.timestamp())
+
+
+def get_plugin_sources():
+    return github_api_wrapper(lambda r: json.loads(r.get_contents("plugin_sources.json").decoded_content.decode()))
+
+
+def github_api_wrapper(f):
+    def call_inner():
+        repo = g.get_repo("MusculoskeletalAtlasProject/map-plugin-database")
+        return f(repo)
+
+    try:
+        g = Github()
+        return call_inner()
+    except RateLimitExceededException:
+        g = authenticate_github_user()
+        if not g:
+            return None
+        return call_inner()
 
 
 def from_json(json_dict):
@@ -163,12 +249,7 @@ def from_json(json_dict):
 
 
 def write_step_database(data):
-    database_file = get_step_database_file()
-    if not os.path.exists(os.path.dirname(database_file)):
-        os.mkdir(os.path.dirname(database_file))
-
-    with open(database_file, "w") as file:
-        json.dump(data, file, default=default)
+    pass
 
 
 def read_step_info(step_file):

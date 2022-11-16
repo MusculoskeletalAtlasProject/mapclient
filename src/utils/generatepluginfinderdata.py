@@ -1,39 +1,15 @@
-import os
-import time
-
-from utils.plugindata import MAPPlugin, read_step_info, read_step_database, write_step_database, save_plugin_icon
+from utils.plugindata import MAPPlugin, read_step_info, get_remote_database, write_step_database, save_plugin_icon, \
+    authenticate_github_user, get_plugin_sources, get_remote_database_timestamp
 
 from github import Github
-from github.GithubException import UnknownObjectException, BadCredentialsException, RateLimitExceededException
+from github.GithubException import UnknownObjectException, RateLimitExceededException
 
 
-# The following variables define where the Plugin Finder searches for plugin repositories.
-plugin_organisations = ['mapclient-plugins']
-plugin_repositories = []
-
-
-def authenticate_github_user():
-    try:
-        token = os.environ["GITHUB_PAT"]
-        g = Github(token)
-        _ = g.get_user().name
-        return g
-    except (KeyError, BadCredentialsException):
-        while True:
-            try:
-                token = input("GITHUB_PAT cannot be found or is invalid. Please provide a Personal Access Token for GitHub: ")
-                g = Github(token)
-                _ = g.get_user().name
-                return g
-            except BadCredentialsException:
-                print("The Personal Access Token given is not valid.")
-
-
-def check_plugins_for_updates(plugin_orgs, plugin_repos):
+def check_plugins_for_updates():
     def check_plugin_info():
         name = repo.name
         updated_at = repo.updated_at.timestamp()
-        if True:
+        if (name not in plugin_data.keys()) or (data_timestamp < updated_at):
             step_paths = [
                 f'mapclientplugins/{name}/step.py',
                 f'mapclientplugins/{name}step/step.py',
@@ -55,7 +31,11 @@ def check_plugins_for_updates(plugin_orgs, plugin_repos):
             if not step_file:
                 print(f"GitHub repository \"{repo.full_name}\" in not a valid MAP-Client plugin.")
 
-    plugin_data = read_step_database()
+    plugin_sources = get_plugin_sources()
+    plugin_orgs = plugin_sources["plugin_organizations"]
+    plugin_repos = plugin_sources["plugin_repositories"]
+    plugin_data = get_remote_database()
+    data_timestamp = get_remote_database_timestamp()
 
     g = Github()
     i = 0
@@ -74,11 +54,10 @@ def check_plugins_for_updates(plugin_orgs, plugin_repos):
         except RateLimitExceededException:
             i += 1
             if i < 2:
-                print("GitHub API rate limit exceeded. GitHub personal access token required.")
                 g = authenticate_github_user()
 
     write_step_database(plugin_data)
 
 
 if __name__ == '__main__':
-    check_plugins_for_updates(plugin_organisations, plugin_repositories)
+    check_plugins_for_updates()
