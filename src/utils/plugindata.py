@@ -1,12 +1,12 @@
 import os
 import json
+from packaging import version
 
 from PySide2 import QtCore, QtGui
 from PySide2.QtWidgets import QApplication, QStyle, QStyleOptionButton, QInputDialog, QLineEdit, QMessageBox
 
 from mapclient.core.workflow.workflowsteps import addStep
 from mapclient.view.workflow.workflowsteptreeview import HeaderDelegate
-from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclient.settings.general import get_data_directory
 
 from github import Github
@@ -14,7 +14,7 @@ from github.GithubException import BadCredentialsException, RateLimitExceededExc
 
 
 class MAPPlugin:
-    def __init__(self, name, category, icon_name, url):
+    def __init__(self, name, category, icon_name, url, version_number):
         """
         This is a simplified version of the WorkflowSteps class, to be used for visualizing step objects that aren't installed locally.
         """
@@ -22,6 +22,7 @@ class MAPPlugin:
         self._category = category
         self._icon = icon_name
         self._url = url
+        self._version = version_number
 
     def get_name(self):
         return self._name
@@ -35,12 +36,16 @@ class MAPPlugin:
     def get_url(self):
         return self._url
 
+    def get_version(self):
+        return self._version
+
     def __iter__(self):
         yield from {
             "_name": self._name,
             "_category": self._category,
             "_icon": self._icon,
-            "_url": self._url
+            "_url": self._url,
+            "_version": self._version
         }.items()
 
     def __str__(self):
@@ -54,7 +59,7 @@ class MAPPlugin:
 
     @staticmethod
     def from_json(json_dict):
-        return MAPPlugin(json_dict['_name'], json_dict['_category'], json_dict['_icon'], json_dict['_url'])
+        return MAPPlugin(json_dict['_name'], json_dict['_category'], json_dict['_icon'], json_dict['_url'], json_dict['_version'])
 
 
 # This makes the MAPPlugin class compatible with workflowsteps.addStep().
@@ -77,10 +82,11 @@ class PluginData(QtGui.QStandardItemModel):
 class PushButtonDelegate(HeaderDelegate):
     buttonClicked = QtCore.Signal(str)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, installed_versions=None, database_versions=None):
         super().__init__(parent)
         self._pressed = None
-        self._installed_plugins = self.get_installed_plugins()
+        self._installed_versions = installed_versions
+        self._database_versions = database_versions
         self._download_icon = QtGui.QPixmap(':/mapclient/images/download_icon.png')
         self._downloaded_icon = QtGui.QPixmap(':/mapclient/images/downloaded_icon.png')
         self._loading_icon = QtGui.QPixmap(':/mapclient/images/loading_icon.png')
@@ -92,11 +98,16 @@ class PushButtonDelegate(HeaderDelegate):
             opt = QStyleOptionButton()
 
             name = index.data()
-            if name in self._installed_plugins.keys():
-                if self._installed_plugins[name]:
+            if name in self._installed_versions.keys():
+                installed_version = self._installed_versions[name]
+                if version.parse(self._database_versions[name]) > version.parse(installed_version):
+                    installed_version += " ▼"
+                    opt.icon = self._download_icon
+                elif self._installed_versions[name]:
                     opt.icon = self._downloaded_icon
                 else:
                     opt.icon = self._loading_icon
+                painter.drawText(self.get_label_pos(option), QtCore.Qt.AlignCenter | QtCore.Qt.AlignRight, installed_version)
             else:
                 opt.icon = self._download_icon
 
@@ -110,7 +121,8 @@ class PushButtonDelegate(HeaderDelegate):
             QApplication.style().drawControl(QStyle.CE_PushButton, opt, painter)
 
     def editorEvent(self, event, model, option, index):
-        if index.data() in self._installed_plugins.keys():
+        name = index.data()
+        if (name in self._installed_versions.keys()) and self._installed_versions[name] >= self._database_versions[name]:
             return True
 
         if event.type() == QtCore.QEvent.MouseButtonPress:
@@ -129,18 +141,15 @@ class PushButtonDelegate(HeaderDelegate):
         return False
 
     @staticmethod
-    def get_installed_plugins():
-        installed_plugins = {}
-        for step in WorkflowStepMountPoint.getPlugins(''):
-            installed_plugins[step.getName()] = True
-
-        return installed_plugins
+    def get_button_rect(option):
+        button_rect = QtCore.QRect()
+        button_rect.setRect(option.rect.width() - 58, option.rect.y() + 8, 48, 48)
+        return button_rect
 
     @staticmethod
-    def get_button_rect(option):
-        button_rect = option.rect
-        button_rect.setRect(button_rect.width() - 58, button_rect.y() + 8, 48, 48)
-        return button_rect
+    def get_label_pos(option):
+        label_rect = QtCore.QRect(option.rect.x(), option.rect.y(), option.rect.width() - 70, option.rect.height())
+        return label_rect
 
 
 def authenticate_github_user():

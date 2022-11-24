@@ -29,18 +29,32 @@ class PluginFinderDialog(QDialog):
         self._ui.setupUi(self)
 
         self._plugin_directories = parent.model().pluginManager().directories()
-        self._plugin_data = PluginData(get_plugin_database())
+        self._installed_plugins = parent.model().pluginManager().getPluginDatabase().getDatabase()
+        self._plugin_database = get_plugin_database()
+        self._plugin_data = PluginData(self._plugin_database)
         self._filtered_plugins = WorkflowStepsFilter()
         self._filtered_plugins.setSourceModel(self._plugin_data)
         self._ui.stepTreeView.setMouseTracking(True)
         self._ui.stepTreeView.setModel(self._filtered_plugins)
-        self.tree_delegate = PushButtonDelegate(self._plugin_data)
+        self.tree_delegate = PushButtonDelegate(self._plugin_data, self._get_installed_versions(), self._get_database_versions())
         self._ui.stepTreeView.setItemDelegateForColumn(0, self.tree_delegate)
         self.tree_delegate.buttonClicked.connect(self.tree_button_clicked)
         self.update_available_steps()
         self.expand_step_tree()
 
         self._make_connections()
+
+    def _get_installed_versions(self):
+        version_dict = {}
+        for plugin_name, plugin_data in self._installed_plugins.items():
+            version_dict[plugin_name] = plugin_data['version']
+        return version_dict
+
+    def _get_database_versions(self):
+        version_dict = {}
+        for _, plugin_data in self._plugin_database.items():
+            version_dict[plugin_data.get_name()] = plugin_data.get_version()
+        return version_dict
 
     def tree_button_clicked(self, url):
         self._download_to_directory_dialog(url)
