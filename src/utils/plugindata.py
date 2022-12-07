@@ -257,66 +257,6 @@ def from_json(json_dict):
         return json_dict
 
 
-def write_step_database(data):
-    pass
-
-
-def read_step_info(step_file):
-    def read_value(identifier):
-        value = read_line(line, identifier)
-        if not value:
-            extended_line = line + next(lines).strip(' \t\r\n')
-            value = read_line(extended_line, identifier)
-
-        return value
-
-    name = category = icon_path = None
-    lines = iter(step_file.splitlines())
-    for line in lines:
-        line = line.strip()
-
-        if line.startswith("super"):
-            name = read_value("__init__")
-        elif line.startswith("self._category"):
-            category = read_value("=")
-            if icon_path:
-                break
-        elif line.startswith("self._icon"):
-            icon_path = read_value("QImage")
-            if category:
-                break
-
-    return name, category, icon_path
-
-
-def read_line(line, identifier):
-
-    value = None
-    for quote in ["'", '"']:
-        start = line.find(quote, line.find(identifier) + len(identifier))
-        if start == -1:
-            continue
-        end = line.find(quote, start + 1)
-        value = line[start:end].strip(' "\'\t\r\n')
-
-    return value
-
-
-def get_icon(plugin):
-    icon_path = os.path.join(os.path.dirname(__file__), 'plugin_manager', 'icons', plugin['icon_name'])
-
-    return QtGui.QImage(icon_path)
-
-
-def save_plugin_icon(icon_path):
-    save_dir = os.path.join(os.path.dirname(__file__), 'plugin_manager', 'icons')
-
-    # TODO: Implement.
-    icon_name = ""
-
-    return icon_name
-
-
 def default(obj):
     if hasattr(obj, 'to_json'):
         return obj.to_json()
