@@ -12,7 +12,7 @@ from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
-from mapclient.view.workflow.workflowsteptreeview import WorkflowStepTreeView
+from mapclient.tools.pluginfinder.plugindata import PluginTreeView
 
 
 class Ui_PluginFinderDialog(object):
@@ -35,7 +35,7 @@ class Ui_PluginFinderDialog(object):
 
         self.verticalLayout_2.addWidget(self.lineEditFilter)
 
-        self.stepTreeView = WorkflowStepTreeView(self.layoutWidget_2)
+        self.stepTreeView = PluginTreeView(self.layoutWidget_2)
         self.stepTreeView.setObjectName(u"stepTreeView")
         self.stepTreeView.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.stepTreeView.setDragEnabled(True)
@@ -48,6 +48,11 @@ class Ui_PluginFinderDialog(object):
         self.stepTreeView.setExpandsOnDoubleClick(False)
 
         self.verticalLayout_2.addWidget(self.stepTreeView)
+
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+
+        self.verticalLayout_2.addLayout(self.horizontalLayout_4)
 
         self.splitter.addWidget(self.layoutWidget_2)
 

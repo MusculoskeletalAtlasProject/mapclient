@@ -3,10 +3,10 @@ import json
 from packaging import version
 
 from PySide2 import QtCore, QtGui
-from PySide2.QtWidgets import QApplication, QStyle, QStyleOptionButton, QInputDialog, QLineEdit, QMessageBox
+from PySide2.QtWidgets import QApplication, QStyle, QStyleOptionButton, QInputDialog, QLineEdit, QMessageBox, QTreeView
 
 from mapclient.core.workflow.workflowsteps import addStep
-from mapclient.view.workflow.workflowsteptreeview import HeaderDelegate
+from mapclient.view.workflow.workflowsteptreeview import HeaderDelegate, WorkflowStepTreeView
 from mapclient.settings.general import get_data_directory
 
 from github import Github
@@ -91,6 +91,9 @@ class PushButtonDelegate(HeaderDelegate):
         self._downloaded_icon = QtGui.QPixmap(':/mapclient/images/downloaded_icon.png')
         self._loading_icon = QtGui.QPixmap(':/mapclient/images/loading_icon.png')
 
+    def get_installed_versions(self):
+        return self._installed_versions
+
     def paint(self, painter, option, index):
         super(PushButtonDelegate, self).paint(painter, option, index)
 
@@ -121,6 +124,9 @@ class PushButtonDelegate(HeaderDelegate):
             QApplication.style().drawControl(QStyle.CE_PushButton, opt, painter)
 
     def editorEvent(self, event, model, option, index):
+        if index.parent().row() < 0:
+            return False
+
         name = index.data()
         if (name in self._installed_versions.keys()) and self._installed_versions[name] >= self._database_versions[name]:
             return True
@@ -150,6 +156,18 @@ class PushButtonDelegate(HeaderDelegate):
     def get_label_pos(option):
         label_rect = QtCore.QRect(option.rect.x(), option.rect.y(), option.rect.width() - 70, option.rect.height())
         return label_rect
+
+
+class PluginTreeView(WorkflowStepTreeView):
+    selection_changed = QtCore.Signal(list)
+
+    def mousePressEvent(self, event):
+        QTreeView.mousePressEvent(self, event)
+        item = self.indexAt(event.pos())
+
+        if not item.parent().row() < 0:
+            self.selectionModel().select(item, QtCore.QItemSelectionModel.Toggle)
+            self.selection_changed.emit(self.selectionModel().selectedIndexes())
 
 
 def authenticate_github_user():

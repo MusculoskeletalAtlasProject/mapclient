@@ -13,7 +13,7 @@ class DownloadToDirectoryDialog(QDialog):
     """
     This dialog is used to select the directory in which to download new MAP-Client plugins.
     """
-    def __init__(self, plugin_manager, url, parent=None):
+    def __init__(self, plugin_manager, url_list, parent=None):
         QDialog.__init__(self, parent)
 
         self._ui = Ui_DownloadToDirectoryDialog()
@@ -21,7 +21,7 @@ class DownloadToDirectoryDialog(QDialog):
 
         self._plugin_manager = plugin_manager
         self._plugin_directories = plugin_manager.directories()
-        self._url = url
+        self._url_list = url_list
 
         self._update_combo_box()
         self._selection_changed()
@@ -50,10 +50,11 @@ class DownloadToDirectoryDialog(QDialog):
 
     def _download_clicked(self):
         if self._selected_directory:
-            x = requests.get(join(self._url, "zipball", ""))
+            for url in self._url_list:
+                x = requests.get(join(url, "zipball", ""))
 
-            with zipfile.ZipFile(io.BytesIO(x.content)) as archive:
-                archive.extractall(self._selected_directory)
+                with zipfile.ZipFile(io.BytesIO(x.content)) as archive:
+                    archive.extractall(self._selected_directory)
 
             # If the selected directory is not a MAP-plugin-directory, ask the user if they want to add it as one.
             if self._selected_directory not in self._plugin_directories:
