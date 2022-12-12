@@ -80,7 +80,7 @@ class PluginData(QtGui.QStandardItemModel):
 
 
 class PushButtonDelegate(HeaderDelegate):
-    buttonClicked = QtCore.Signal(str)
+    buttonClicked = QtCore.Signal(str, str)
 
     def __init__(self, parent=None, installed_versions=None, database_versions=None):
         super().__init__(parent)
@@ -140,7 +140,7 @@ class PushButtonDelegate(HeaderDelegate):
             if self._pressed == (index.row(), index.column()):
                 if self.get_button_rect(option).contains(event.pos()):
                     plugin = model.data(index, QtCore.Qt.UserRole + 1)
-                    self.buttonClicked.emit(plugin.get_url())
+                    self.buttonClicked.emit(name, plugin.get_url())
             self._pressed = None
             return True
 

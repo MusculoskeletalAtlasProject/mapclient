@@ -7,7 +7,7 @@ Author: Timothy Salemink
 from packaging import version
 
 from PySide2 import QtCore, QtGui
-from PySide2.QtWidgets import QDialog, QLabel, QPushButton
+from PySide2.QtWidgets import QDialog, QLabel, QPushButton, QMessageBox
 
 from mapclient.tools.pluginfinder.plugindata import get_plugin_database, PushButtonDelegate, PluginData
 from mapclient.core.workflow.workflowsteps import WorkflowStepsFilter
@@ -35,7 +35,8 @@ class PluginFinderDialog(QDialog):
         self._ui.stepTreeView.setDragEnabled(False)
         self._ui.stepTreeView.setStyleSheet("QTreeView::item:hover{background-color:#94c8ea;}")
         self._ui.stepTreeView.setModel(self._filtered_plugins)
-        self.tree_delegate = PushButtonDelegate(self._plugin_data, self._get_installed_versions(), self._get_database_versions())
+        self._database_versions = self._get_database_versions()
+        self.tree_delegate = PushButtonDelegate(self._plugin_data, self._get_installed_versions(), self._database_versions)
         self._ui.stepTreeView.setItemDelegateForColumn(0, self.tree_delegate)
         self.tree_delegate.buttonClicked.connect(self.tree_button_clicked)
         self._ui.stepTreeView.selection_changed.connect(self.tree_selection_changed)
@@ -79,19 +80,35 @@ class PluginFinderDialog(QDialog):
         url_list = []
         for index in self._selected_indexes:
             installed_versions = self.tree_delegate.get_installed_versions()
-            database_versions = self._get_database_versions()
             name = index.data()
 
             if name in installed_versions.keys():
-                installed_version = installed_versions[name]
-                if version.parse(database_versions[name]) <= version.parse(installed_version):
+                if version.parse(self._database_versions[name]) <= version.parse(installed_versions[name]):
                     continue
+                else:
+                    overwrite = self.confirm_overwrite(name)
+                    if overwrite == QMessageBox.No:
+                        continue
 
             url = self._ui.stepTreeView.selectionModel().model().data(index, QtCore.Qt.UserRole + 1).get_url()
             url_list.append(url)
         self._download_to_directory_dialog(url_list)
 
-    def tree_button_clicked(self, url):
+    def confirm_overwrite(self, name):
+        overwrite = QMessageBox.question(self, 'Confirm Overwrite', f'The plugin ({name}) is already installed. Updating this plugin '
+                                         'will overwrite the currently installed version of the plugin, please ensure that you don\'t '
+                                         'have any development changes that you wish to retain.\n\n Do you want to overwrite the '
+                                         'currently installed plugin?')
+        return overwrite
+
+    def tree_button_clicked(self, name, url):
+        installed_versions = self.tree_delegate.get_installed_versions()
+        if name in installed_versions.keys():
+            if version.parse(self._database_versions[name]) > version.parse(installed_versions[name]):
+                overwrite = self.confirm_overwrite(name)
+                if overwrite == QMessageBox.No:
+                    return
+
         self._download_to_directory_dialog([url])
 
     def _download_to_directory_dialog(self, url_list):
