@@ -36,12 +36,12 @@ class PluginFinderDialog(QDialog):
         self._ui.stepTreeView.setStyleSheet("QTreeView::item:hover{background-color:#94c8ea;}")
         self._ui.stepTreeView.setModel(self._filtered_plugins)
         self._database_versions = self._get_database_versions()
-        self.tree_delegate = PushButtonDelegate(self._plugin_data, self._get_installed_versions(), self._database_versions)
-        self._ui.stepTreeView.setItemDelegateForColumn(0, self.tree_delegate)
-        self.tree_delegate.buttonClicked.connect(self.tree_button_clicked)
-        self._ui.stepTreeView.selection_changed.connect(self.tree_selection_changed)
-        self.update_available_steps()
-        self.expand_step_tree()
+        self._tree_delegate = PushButtonDelegate(self._plugin_data, self._get_installed_versions(), self._database_versions)
+        self._ui.stepTreeView.setItemDelegateForColumn(0, self._tree_delegate)
+        self._tree_delegate.buttonClicked.connect(self._tree_button_clicked)
+        self._ui.stepTreeView.selection_changed.connect(self._tree_selection_changed)
+        self._update_available_steps()
+        self._expand_step_tree()
 
         self._make_connections()
 
@@ -57,7 +57,7 @@ class PluginFinderDialog(QDialog):
             version_dict[plugin_data.get_name()] = plugin_data.get_version()
         return version_dict
 
-    def tree_selection_changed(self, selected_indexes):
+    def _tree_selection_changed(self, selected_indexes):
         self._selected_indexes = selected_indexes
         if self._selected_indexes:
             if self._ui.horizontalLayout_4.isEmpty():
@@ -66,7 +66,7 @@ class PluginFinderDialog(QDialog):
 
                 download_button = QPushButton("  Download Selected Plugins  ")
                 download_button.setFont(QtGui.QFont('MS Shell Dlg', 9))
-                download_button.clicked.connect(self.download_selected)
+                download_button.clicked.connect(self._download_selected)
 
                 self._ui.horizontalLayout_4.addWidget(selection_label)
                 self._ui.horizontalLayout_4.addWidget(download_button, alignment=QtCore.Qt.AlignRight)
@@ -76,17 +76,17 @@ class PluginFinderDialog(QDialog):
             for i in reversed(range(self._ui.horizontalLayout_4.count())):
                 self._ui.horizontalLayout_4.itemAt(i).widget().deleteLater()
 
-    def download_selected(self):
+    def _download_selected(self):
         url_list = []
         for index in self._selected_indexes:
-            installed_versions = self.tree_delegate.get_installed_versions()
+            installed_versions = self._tree_delegate.get_installed_versions()
             name = index.data()
 
             if name in installed_versions.keys():
                 if version.parse(self._database_versions[name]) <= version.parse(installed_versions[name]):
                     continue
                 else:
-                    overwrite = self.confirm_overwrite(name)
+                    overwrite = self._confirm_overwrite(name)
                     if overwrite == QMessageBox.No:
                         continue
 
@@ -94,18 +94,18 @@ class PluginFinderDialog(QDialog):
             url_list.append(url)
         self._download_to_directory_dialog(url_list)
 
-    def confirm_overwrite(self, name):
+    def _confirm_overwrite(self, name):
         overwrite = QMessageBox.question(self, 'Confirm Overwrite', f'The plugin ({name}) is already installed. Updating this plugin '
                                          'will overwrite the currently installed version of the plugin, please ensure that you don\'t '
                                          'have any development changes that you wish to retain.\n\n Do you want to overwrite the '
                                          'currently installed plugin?')
         return overwrite
 
-    def tree_button_clicked(self, name, url):
-        installed_versions = self.tree_delegate.get_installed_versions()
+    def _tree_button_clicked(self, name, url):
+        installed_versions = self._tree_delegate.get_installed_versions()
         if name in installed_versions.keys():
             if version.parse(self._database_versions[name]) > version.parse(installed_versions[name]):
-                overwrite = self.confirm_overwrite(name)
+                overwrite = self._confirm_overwrite(name)
                 if overwrite == QMessageBox.No:
                     return
 
@@ -123,9 +123,9 @@ class PluginFinderDialog(QDialog):
         reg_exp = QtCore.QRegExp(text, QtCore.Qt.CaseInsensitive)
         self._ui.stepTreeView.setFilterRegExp(reg_exp)
 
-    def update_available_steps(self):
+    def _update_available_steps(self):
         self._plugin_data.reload()
         self._filtered_plugins.sort(QtCore.Qt.AscendingOrder)
 
-    def expand_step_tree(self):
+    def _expand_step_tree(self):
         self._ui.stepTreeView.expandAll()

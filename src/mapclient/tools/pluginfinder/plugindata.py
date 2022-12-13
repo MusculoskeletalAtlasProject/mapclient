@@ -110,12 +110,12 @@ class PushButtonDelegate(HeaderDelegate):
                     opt.icon = self._downloaded_icon
                 else:
                     opt.icon = self._loading_icon
-                painter.drawText(self.get_label_pos(option), QtCore.Qt.AlignCenter | QtCore.Qt.AlignRight, installed_version)
+                painter.drawText(self._get_label_pos(option), QtCore.Qt.AlignCenter | QtCore.Qt.AlignRight, installed_version)
             else:
                 opt.icon = self._download_icon
 
             opt.iconSize = QtCore.QSize(48, 48)
-            opt.rect = self.get_button_rect(option)
+            opt.rect = self._get_button_rect(option)
 
             if self._pressed and self._pressed == (index.row(), index.column()):
                 opt.state = QStyle.State_Enabled | QStyle.State_Sunken
@@ -132,13 +132,13 @@ class PushButtonDelegate(HeaderDelegate):
             return True
 
         if event.type() == QtCore.QEvent.MouseButtonPress:
-            if self.get_button_rect(option).contains(event.pos()):
+            if self._get_button_rect(option).contains(event.pos()):
                 self._pressed = (index.row(), index.column())
             return True
 
         elif event.type() == QtCore.QEvent.MouseButtonRelease:
             if self._pressed == (index.row(), index.column()):
-                if self.get_button_rect(option).contains(event.pos()):
+                if self._get_button_rect(option).contains(event.pos()):
                     plugin = model.data(index, QtCore.Qt.UserRole + 1)
                     self.buttonClicked.emit(name, plugin.get_url())
             self._pressed = None
@@ -147,13 +147,13 @@ class PushButtonDelegate(HeaderDelegate):
         return False
 
     @staticmethod
-    def get_button_rect(option):
+    def _get_button_rect(option):
         button_rect = QtCore.QRect()
         button_rect.setRect(option.rect.width() - 58, option.rect.y() + 8, 48, 48)
         return button_rect
 
     @staticmethod
-    def get_label_pos(option):
+    def _get_label_pos(option):
         label_rect = QtCore.QRect(option.rect.x(), option.rect.y(), option.rect.width() - 70, option.rect.height())
         return label_rect
 
@@ -170,7 +170,7 @@ class PluginTreeView(WorkflowStepTreeView):
             self.selection_changed.emit(self.selectionModel().selectedIndexes())
 
 
-def authenticate_github_user():
+def _authenticate_github_user():
     print("GitHub API rate limit exceeded. GitHub personal access token required.")
     try:
         token = os.environ["GITHUB_PAT"]
@@ -197,27 +197,27 @@ def authenticate_github_user():
 
 # This method is used by the visualisation script to get an up-to-date version of the plugin database. DB in dictionary format.
 def get_plugin_database():
-    cached_database, cached_timestamp = get_cached_database()
-    remote_timestamp = get_remote_database_timestamp()
+    cached_database, cached_timestamp = _get_cached_database()
+    remote_timestamp = _get_remote_database_timestamp()
 
     if not remote_timestamp:
         print("Retrieving remote database failed. Using cached database.")
         return cached_database
 
     if cached_timestamp < remote_timestamp:
-        data = cache_plugin_database()
+        data = _cache_plugin_database()
         if data:
             cached_database = data
 
     return cached_database
 
 
-def get_cache_file_path():
+def _get_cache_file_path():
     return os.path.join(get_data_directory(), "plugin_database.json")
 
 
-def get_cached_database():
-    database_file = get_cache_file_path()
+def _get_cached_database():
+    database_file = _get_cache_file_path()
     try:
         with open(database_file, "r") as file:
             cached_database = json.load(file, object_hook=from_json)
@@ -228,10 +228,10 @@ def get_cached_database():
         return {}, 0.0
 
 
-def cache_plugin_database():
-    database = get_remote_database()
+def _cache_plugin_database():
+    database = _get_remote_database()
 
-    database_file = get_cache_file_path()
+    database_file = _get_cache_file_path()
     if not os.path.exists(os.path.dirname(database_file)):
         os.mkdir(os.path.dirname(database_file))
 
@@ -241,19 +241,15 @@ def cache_plugin_database():
     return database
 
 
-def get_remote_database():
-    return github_api_wrapper(lambda r: json.loads(r.get_contents("plugin_database.json").decoded_content.decode(), object_hook=from_json))
+def _get_remote_database():
+    return _github_api_wrapper(lambda r: json.loads(r.get_contents("plugin_database.json").decoded_content.decode(), object_hook=from_json))
 
 
-def get_remote_database_timestamp():
-    return github_api_wrapper(lambda r: r.updated_at.timestamp())
+def _get_remote_database_timestamp():
+    return _github_api_wrapper(lambda r: r.updated_at.timestamp())
 
 
-def get_plugin_sources():
-    return github_api_wrapper(lambda r: json.loads(r.get_contents("plugin_sources.json").decoded_content.decode()))
-
-
-def github_api_wrapper(f):
+def _github_api_wrapper(f):
     def call_inner():
         repo = g.get_repo("MusculoskeletalAtlasProject/map-plugin-database")
         return f(repo)
@@ -262,7 +258,7 @@ def github_api_wrapper(f):
         g = Github()
         return call_inner()
     except RateLimitExceededException:
-        g = authenticate_github_user()
+        g = _authenticate_github_user()
         if not g:
             return None
         return call_inner()
