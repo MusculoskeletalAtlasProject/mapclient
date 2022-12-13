@@ -110,12 +110,12 @@ class PushButtonDelegate(HeaderDelegate):
                     opt.icon = self._downloaded_icon
                 else:
                     opt.icon = self._loading_icon
-                painter.drawText(self._get_label_pos(option), QtCore.Qt.AlignCenter | QtCore.Qt.AlignRight, installed_version)
+                painter.drawText(_get_label_pos(option), QtCore.Qt.AlignCenter | QtCore.Qt.AlignRight, installed_version)
             else:
                 opt.icon = self._download_icon
 
             opt.iconSize = QtCore.QSize(48, 48)
-            opt.rect = self._get_button_rect(option)
+            opt.rect = _get_button_rect(option.rect)
 
             if self._pressed and self._pressed == (index.row(), index.column()):
                 opt.state = QStyle.State_Enabled | QStyle.State_Sunken
@@ -132,13 +132,13 @@ class PushButtonDelegate(HeaderDelegate):
             return True
 
         if event.type() == QtCore.QEvent.MouseButtonPress:
-            if self._get_button_rect(option).contains(event.pos()):
+            if _get_button_rect(option.rect).contains(event.pos()):
                 self._pressed = (index.row(), index.column())
             return True
 
         elif event.type() == QtCore.QEvent.MouseButtonRelease:
             if self._pressed == (index.row(), index.column()):
-                if self._get_button_rect(option).contains(event.pos()):
+                if _get_button_rect(option.rect).contains(event.pos()):
                     plugin = model.data(index, QtCore.Qt.UserRole + 1)
                     self.buttonClicked.emit(name, plugin.get_url())
             self._pressed = None
@@ -146,16 +146,16 @@ class PushButtonDelegate(HeaderDelegate):
 
         return False
 
-    @staticmethod
-    def _get_button_rect(option):
-        button_rect = QtCore.QRect()
-        button_rect.setRect(option.rect.width() - 58, option.rect.y() + 8, 48, 48)
-        return button_rect
 
-    @staticmethod
-    def _get_label_pos(option):
-        label_rect = QtCore.QRect(option.rect.x(), option.rect.y(), option.rect.width() - 70, option.rect.height())
-        return label_rect
+def _get_button_rect(option_rect):
+    button_rect = QtCore.QRect()
+    button_rect.setRect(option_rect.width() - 58, option_rect.y() + 8, 48, 48)
+    return button_rect
+
+
+def _get_label_pos(option):
+    label_rect = QtCore.QRect(option.rect.x(), option.rect.y(), option.rect.width() - 70, option.rect.height())
+    return label_rect
 
 
 class PluginTreeView(WorkflowStepTreeView):
@@ -166,8 +166,10 @@ class PluginTreeView(WorkflowStepTreeView):
         item = self.indexAt(event.pos())
 
         if not item.parent().row() < 0:
-            self.selectionModel().select(item, QtCore.QItemSelectionModel.Toggle)
-            self.selection_changed.emit(self.selectionModel().selectedIndexes())
+            item_rect = self.visualRect(item)
+            if not _get_button_rect(item_rect).contains(event.pos()):
+                self.selectionModel().select(item, QtCore.QItemSelectionModel.Toggle)
+                self.selection_changed.emit(self.selectionModel().selectedIndexes())
 
 
 def _authenticate_github_user():
