@@ -112,9 +112,10 @@ class PluginFinderDialog(QDialog):
         self._download_to_directory_dialog([url])
 
     def _download_to_directory_dialog(self, url_list):
-        dlg = DownloadToDirectoryDialog(self._plugin_manager, url_list, self)
-        dlg.setModal(True)
-        dlg.exec_()
+        if url_list:
+            dlg = DownloadToDirectoryDialog(self._plugin_manager, url_list, self)
+            dlg.setModal(True)
+            dlg.exec_()
 
     def _make_connections(self):
         self._ui.lineEditFilter.textChanged.connect(self._filter_text_changed)
