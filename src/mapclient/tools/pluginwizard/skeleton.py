@@ -240,7 +240,7 @@ class Skeleton(object):
         json_import = ''
         icon = self._options.getIcon()
         if icon:
-            qtgui_import = 'from PySide2 import QtGui\n\n'
+            qtgui_import = 'from PySide6 import QtGui\n\n'
         if self._options.configCount() > 0:
             json_import = 'import json\n\n'
 

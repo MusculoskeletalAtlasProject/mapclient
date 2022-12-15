@@ -3,7 +3,7 @@ import os
 import shutil
 import subprocess
 
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 
 from mapclient.core.managers.pluginmanager import isMapClientPluginsDir
 from mapclient.core.utils import grep, determinePackageName, determineStepClassName, determineStepName, \

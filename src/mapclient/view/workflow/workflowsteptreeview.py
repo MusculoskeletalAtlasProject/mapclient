@@ -5,7 +5,7 @@ Created on Aug 18, 2015
 """
 import sys
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 
 
 class HeaderDelegate(QtWidgets.QStyledItemDelegate):

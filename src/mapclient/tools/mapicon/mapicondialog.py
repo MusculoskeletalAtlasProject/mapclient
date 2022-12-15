@@ -3,7 +3,7 @@ Created on Jun 24, 2015
 
 @author: hsorby
 """
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 
 from mapclient.tools.mapicon.ui_mapicondialog import Ui_MAPIconDialog
 import os.path

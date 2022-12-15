@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import logging
 
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 
 from mapclient.tools.annotation.annotationtool import AnnotationTool
 from mapclient.tools.pmr.pmrtool import PMRTool, PMRToolError

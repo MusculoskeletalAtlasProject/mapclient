@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import re
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
 from mapclient.tools.pmr.ui_pmrworkflowwidget import Ui_PMRWorkflowWidget
 from mapclient.view.utils import handle_runtime_error, set_wait_cursor

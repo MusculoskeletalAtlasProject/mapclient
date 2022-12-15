@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import uuid
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 from mapclient.core.workflow.workflowdependencygraph import WorkflowDependencyGraph
 from mapclient.core.workflow.workflowitems import MetaStep, Connection

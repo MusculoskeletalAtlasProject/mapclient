@@ -3,7 +3,7 @@ Created on Aug 18, 2015
 
 @author: hsorby
 """
-from PySide2 import QtCore, QtGui
+from PySide6 import QtCore, QtGui
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 

@@ -18,7 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import os
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 from mapclient.view.managers.plugins.ui.ui_pluginmanagerdialog import Ui_PluginManagerDialog
 
 

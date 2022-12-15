@@ -21,7 +21,7 @@ import os
 import math
 import weakref
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 
 from mapclient.core.annotations import PROVIDES_ANNOTATIONS, USES_ANNOTATIONS, ANNOTATION_BASE
 from mapclient.core.workflow.workflowscene import Connection
@@ -265,12 +265,12 @@ class Node(Item):
         self.setZValue(-1)
 
         self._contextMenu = QtWidgets.QMenu()
-        configureAction = QtWidgets.QAction('Configure', self._contextMenu)
+        configureAction = QtGui.QAction('Configure', self._contextMenu)
         configureAction.triggered.connect(self.configureMe)
-        annotateAction = QtWidgets.QAction('Annotate', self._contextMenu)
+        annotateAction = QtGui.QAction('Annotate', self._contextMenu)
         annotateAction.setEnabled(False)
         annotateAction.triggered.connect(self.annotateMe)
-        deleteAction = QtWidgets.QAction('Delete', self._contextMenu)
+        deleteAction = QtGui.QAction('Delete', self._contextMenu)
         deleteAction.triggered.connect(self._removeMe)
         self._contextMenu.addAction(configureAction)
         self._contextMenu.addAction(annotateAction)

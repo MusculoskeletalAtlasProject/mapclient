@@ -21,7 +21,7 @@ import os
 import logging
 import shutil
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 
 from requests.exceptions import HTTPError
 from mapclient.exceptions import ClientRuntimeError
@@ -56,7 +56,7 @@ class WorkflowWidget(QtWidgets.QWidget):
 
         self._pluginUpdater = PluginUpdater()
 
-        self._undoStack = QtWidgets.QUndoStack(self)
+        self._undoStack = QtGui.QUndoStack(self)
 
         self._workflowManager = self._main_window.model().workflowManager()
         self._graphicsScene = WorkflowGraphicsScene(self)
@@ -70,7 +70,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._graphicsScene.setWorkflowScene(self._workflowManager.scene())
 
         self.action_Close = None  # Keep a handle to this for modifying the Ui.
-        self._action_annotation = self._main_window.findChild(QtWidgets.QAction, "actionAnnotation")
+        self._action_annotation = self._main_window.findChild(QtGui.QAction, "actionAnnotation")
         self._create_menu_items()
 
         model = self._workflowManager.getFilteredStepModel()
@@ -631,48 +631,48 @@ class WorkflowWidget(QtWidgets.QWidget):
         menu_new = QtWidgets.QMenu('&New', menu_file)
         #        menu_Open = QtGui.QMenu('&Open', menu_File)
 
-        self.action_NewPMR = QtWidgets.QAction('PMR Workflow', menu_new)
+        self.action_NewPMR = QtGui.QAction('PMR Workflow', menu_new)
         self._set_action_properties(self.action_NewPMR, 'action_NewPMR', self.newpmr, 'Ctrl+N',
                                     'Create a new PMR based Workflow')
-        self.action_New = QtWidgets.QAction('Workflow', menu_new)
+        self.action_New = QtGui.QAction('Workflow', menu_new)
         self._set_action_properties(self.action_New, 'action_New', self.new, 'Ctrl+Shift+N', 'Create a new Workflow')
-        self.action_Open = QtWidgets.QAction('&Open', menu_file)
+        self.action_Open = QtGui.QAction('&Open', menu_file)
         self._set_action_properties(self.action_Open, 'action_Open', self.open, 'Ctrl+O', 'Open an existing Workflow')
-        self.action_Import = QtWidgets.QAction('I&mport', menu_file)
+        self.action_Import = QtGui.QAction('I&mport', menu_file)
         self._set_action_properties(self.action_Import, 'action_Import', self.importFromPMR, 'Ctrl+M',
                                     'Import existing Workflow from PMR')
-        self.action_Update = QtWidgets.QAction('&Update', menu_file)
+        self.action_Update = QtGui.QAction('&Update', menu_file)
         self._set_action_properties(self.action_Update, 'action_Update', self.updateFromPMR, 'Ctrl+U',
                                     'update existing PMR Workflow')
-        self.action_Close = QtWidgets.QAction('&Close', menu_file)
+        self.action_Close = QtGui.QAction('&Close', menu_file)
         self._set_action_properties(self.action_Close, 'action_Close', self.close, 'Ctrl+W', 'Close open Workflow')
-        self.action_Save = QtWidgets.QAction('&Save', menu_file)
+        self.action_Save = QtGui.QAction('&Save', menu_file)
         self._set_action_properties(self.action_Save, 'action_Save', self.save, 'Ctrl+S', 'Save Workflow')
-        self.action_SaveAs = QtWidgets.QAction('Save As', menu_file)
+        self.action_SaveAs = QtGui.QAction('Save As', menu_file)
         self._set_action_properties(self.action_SaveAs, 'action_SaveAs', self.saveAs, '', 'Save Workflow as ...')
-        self.action_Execute = QtWidgets.QAction('E&xecute', menu_workflow)
+        self.action_Execute = QtGui.QAction('E&xecute', menu_workflow)
         self._set_action_properties(self.action_Execute, 'action_Execute', self.executeWorkflow, 'Ctrl+X',
                                     'Execute Workflow')
-        # self.action_Continue = QtWidgets.QAction('&Continue', menu_workflow)
+        # self.action_Continue = QtGui.QAction('&Continue', menu_workflow)
         # self._set_action_properties(self.action_Continue, 'action_Continue', self.continueWorkflow, 'Ctrl+T',
         #                             'Continue executing Workflow')
-        self.action_Reverse = QtWidgets.QAction('Reverse', menu_workflow)
+        self.action_Reverse = QtGui.QAction('Reverse', menu_workflow)
         self.action_Reverse.setCheckable(True)
         self._set_action_properties(self.action_Reverse, 'action_Reverse', self._reverse_workflow_direction, '',
                                     'Reverse Workflow Direction')
-        self.action_Abort = QtWidgets.QAction('Abort', menu_workflow)
+        self.action_Abort = QtGui.QAction('Abort', menu_workflow)
         self._set_action_properties(self.action_Abort, 'action_Abort', self._abort_workflow, '',
                                     'Abort Workflow')
 
-        self.action_ZoomIn = QtWidgets.QAction('Zoom In', menu_view)
+        self.action_ZoomIn = QtGui.QAction('Zoom In', menu_view)
         self._set_action_properties(self.action_ZoomIn, 'action_ZoomIn', self.zoom_in, 'Ctrl++',
                                     'Zoom in Workflow')
-        self.action_ZoomOut = QtWidgets.QAction('Zoom Out', menu_view)
+        self.action_ZoomOut = QtGui.QAction('Zoom Out', menu_view)
         self._set_action_properties(self.action_ZoomOut, 'action_ZoomOut', self.zoom_out, 'Ctrl+-',
                                     'Zoom out Workflow')
 
-        menu_new.insertAction(QtWidgets.QAction(self), self.action_NewPMR)
-        menu_new.insertAction(QtWidgets.QAction(self), self.action_New)
+        menu_new.insertAction(QtGui.QAction(self), self.action_NewPMR)
+        menu_new.insertAction(QtGui.QAction(self), self.action_New)
 
         menu_file.insertMenu(last_file_menu_action, menu_new)
         menu_file.insertAction(last_file_menu_action, self.action_Open)

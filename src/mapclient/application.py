@@ -89,7 +89,7 @@ def windows_main(app_args):
     # locale-aware number to string formatting
     locale.setlocale(locale.LC_ALL, '')
 
-    from PySide2 import QtWidgets
+    from PySide6 import QtWidgets
     from mapclient.splashscreen import SplashScreen
 
     app = QtWidgets.QApplication(sys.argv)
@@ -235,7 +235,7 @@ class ConsumeOutput(object):
 def sans_gui_main(app_args):
     locale.setlocale(locale.LC_ALL, '')
 
-    from PySide2 import QtWidgets
+    from PySide6 import QtWidgets
 
     app = QtWidgets.QApplication(sys.argv)
     logging.basicConfig(level='DEBUG')

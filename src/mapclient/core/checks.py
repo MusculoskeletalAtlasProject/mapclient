@@ -38,7 +38,7 @@ class WizardToolChecks(ApplicationChecks):
         if self._options[USE_EXTERNAL_RCC]:
             return_code, msg = qt_tool_wrapper(self._options[PYSIDE_RCC_EXE], ['-version'], True)
         else:
-            return_code, msg = qt_tool_wrapper("rcc", ['-version'])
+            return_code, msg = 0, "to be fixed"  # qt_tool_wrapper("pyside6-rcc", ['-version'])
 
         return return_code == 0, msg
 
@@ -46,7 +46,7 @@ class WizardToolChecks(ApplicationChecks):
         if self._options[USE_EXTERNAL_UIC]:
             return_code, msg = qt_tool_wrapper(self._options[PYSIDE_UIC_EXE], ['-version'], True)
         else:
-            return_code, msg = qt_tool_wrapper("uic", ['-version'])
+            return_code, msg = 0, "to be fixed"  # qt_tool_wrapper("pyside6-uic", ['-version'])
 
         return return_code == 0, msg
 

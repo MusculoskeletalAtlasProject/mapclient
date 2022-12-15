@@ -5,7 +5,7 @@ Created on Feb 25, 2015
 """
 import os.path
 
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
 from mapclient.view.managers.options.ui.ui_optionsdialog import Ui_OptionsDialog
 

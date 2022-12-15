@@ -23,7 +23,7 @@ import sys
 import platform
 import ast
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 
 from mapclient.core.utils import convertNameToPythonPackage, is_frozen
 from mapclient.tools.pluginwizard.skeleton import SkeletonOptions

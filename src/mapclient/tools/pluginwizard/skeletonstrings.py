@@ -105,7 +105,7 @@ DESERIALIZE_IDENTIFIER_CONTENT_STRING = """self._config.update(json.loads(string
 
 CONFIGURE_DIALOG_STRING = """
 
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 from {package_name}.ui_configuredialog import Ui_ConfigureDialog
 
 INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
