@@ -239,11 +239,11 @@ class NameWizardPage(QtWidgets.QWizardPage):
                 image = QtGui.QPixmap.fromImage(image)
 
             if image:
-                self._ui.iconPictureLabel.setPixmap(image.scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation))
+                self._ui.iconPictureLabel.setPixmap(image.scaled(64, 64, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation))
         else:
             image = QtGui.QImage(':icons/images/default.png')
             image = self._combineImageWithBackground(image)
-            self._ui.iconPictureLabel.setPixmap(QtGui.QPixmap.fromImage(image).scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation))
+            self._ui.iconPictureLabel.setPixmap(QtGui.QPixmap.fromImage(image).scaled(64, 64, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation))
 
         self.completeChanged.emit()
 

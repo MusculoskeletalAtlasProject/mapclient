@@ -288,7 +288,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
                 pixmap = QtGui.QPixmap()
                 pixmap.convertFromImage(QtGui.QImage(':/workflow/images/default_step_icon.png'))
 
-        pixmap = pixmap.scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        pixmap = pixmap.scaled(64, 64, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
         hotspot = QtCore.QPoint(pixmap.width() / 2, pixmap.height() / 2)
 
         drag = QtGui.QDrag(self)

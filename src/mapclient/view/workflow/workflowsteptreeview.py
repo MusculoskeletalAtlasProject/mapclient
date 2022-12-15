@@ -23,7 +23,7 @@ class HeaderDelegate(QtWidgets.QStyledItemDelegate):
             ry = option.rect.y()
             ht = option.rect.height()
             wd = option.rect.width()
-            painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
+            # painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
             painter.setBrush(QtGui.QBrush(QtCore.Qt.lightGray))
             painter.drawRoundedRect(rx + 1, ry + 1, wd - 2, ht - 2, 7, 7, QtCore.Qt.RelativeSize)
 
@@ -61,7 +61,7 @@ class WorkflowStepTreeView(QtWidgets.QTreeView):
         self.model().setFilterRegExp(reg_exp)
 
     def _handleMousePress(self, index):
-        self._leftMouseButton = int(QtWidgets.QApplication.mouseButtons()) == QtCore.Qt.LeftButton
+        self._leftMouseButton = QtWidgets.QApplication.mouseButtons() == QtCore.Qt.LeftButton
         if index.parent().isValid() and self._leftMouseButton:
             itemData = QtCore.QByteArray()
             dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
@@ -72,7 +72,7 @@ class WorkflowStepTreeView(QtWidgets.QTreeView):
                 pixmap = QtGui.QPixmap()
                 pixmap.convertFromImage(QtGui.QImage(':/workflow/images/default_step_icon.png'))
 
-            pixmap = pixmap.scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+            pixmap = pixmap.scaled(64, 64, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
             hotspot = QtCore.QPoint(pixmap.width() / 2, pixmap.height() / 2)
 
             # The first part of the data_stream contains positioning info.
