@@ -158,7 +158,7 @@ def windows_main(app_args):
 
     splash.showMessage('Ready ...', 100)
     splash.finish(window)
-    return app.exec_()
+    return app.exec()
 
 
 def _get_default_internal_workflow(om):
