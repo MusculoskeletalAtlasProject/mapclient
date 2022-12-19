@@ -12,11 +12,11 @@ class MessageBox(QtWidgets.QMessageBox):
 
         Parameters
         ----------
-        icon: PySide2.QtWidgets.QMessageBox.Icon
+        icon: PySide6.QtWidgets.QMessageBox.Icon
         title: str
         text: str
-        buttons: PySide2.QtWidgets.QMessageBox.StandardButtons
-        parent: PySide2.QtWidgets.QWidget, optional
+        buttons: PySide6.QtWidgets.QMessageBox.StandardButtons
+        parent: PySide6.QtWidgets.QWidget, optional
         close_after: float, optional
         """
         super().__init__(icon, title, text, buttons, parent=parent)

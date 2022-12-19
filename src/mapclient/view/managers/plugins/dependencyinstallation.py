@@ -24,7 +24,7 @@ import random
 import logging
 
 from PySide6 import QtWidgets
-from PySide2.QtCore import QObject, Signal
+from PySide6.QtCore import QObject, Signal
 
 from mapclient.view.managers.plugins.pluginprogress import PluginProgress
 from mapclient.view.ui.ui_progressdialog import Ui_ProgressDialog
