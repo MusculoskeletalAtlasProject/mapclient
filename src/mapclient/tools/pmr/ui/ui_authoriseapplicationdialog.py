@@ -1,47 +1,70 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'src/mapclient/tools/pmr/qt/authoriseapplicationdialog.ui',
-# licensing of 'src/mapclient/tools/pmr/qt/authoriseapplicationdialog.ui' applies.
-#
-# Created: Wed Jun 26 11:30:03 2019
-#      by: pyside2-uic  running on PySide2 5.11.2
-#
-# WARNING! All changes made in this file will be lost!
+################################################################################
+## Form generated from reading UI file 'authoriseapplicationdialog.ui'
+##
+## Created by: Qt User Interface Compiler version 6.4.1
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialog, QDialogButtonBox,
+    QGroupBox, QLabel, QLineEdit, QSizePolicy,
+    QSpacerItem, QVBoxLayout, QWidget)
 
 class Ui_AuthoriseApplicationDialog(object):
     def setupUi(self, AuthoriseApplicationDialog):
-        AuthoriseApplicationDialog.setObjectName("AuthoriseApplicationDialog")
+        if not AuthoriseApplicationDialog.objectName():
+            AuthoriseApplicationDialog.setObjectName(u"AuthoriseApplicationDialog")
         AuthoriseApplicationDialog.resize(482, 300)
-        self.verticalLayout = QtWidgets.QVBoxLayout(AuthoriseApplicationDialog)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.groupBox = QtWidgets.QGroupBox(AuthoriseApplicationDialog)
-        self.groupBox.setObjectName("groupBox")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.groupBox)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.label = QtWidgets.QLabel(self.groupBox)
-        self.label.setObjectName("label")
+        self.verticalLayout = QVBoxLayout(AuthoriseApplicationDialog)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.groupBox = QGroupBox(AuthoriseApplicationDialog)
+        self.groupBox.setObjectName(u"groupBox")
+        self.verticalLayout_2 = QVBoxLayout(self.groupBox)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.label = QLabel(self.groupBox)
+        self.label.setObjectName(u"label")
+
         self.verticalLayout_2.addWidget(self.label)
-        self.tokenLineEdit = QtWidgets.QLineEdit(self.groupBox)
-        self.tokenLineEdit.setObjectName("tokenLineEdit")
+
+        self.tokenLineEdit = QLineEdit(self.groupBox)
+        self.tokenLineEdit.setObjectName(u"tokenLineEdit")
+
         self.verticalLayout_2.addWidget(self.tokenLineEdit)
-        spacerItem = QtWidgets.QSpacerItem(20, 122, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.verticalLayout_2.addItem(spacerItem)
+
+        self.verticalSpacer = QSpacerItem(20, 122, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_2.addItem(self.verticalSpacer)
+
+
         self.verticalLayout.addWidget(self.groupBox)
-        self.buttonBox = QtWidgets.QDialogButtonBox(AuthoriseApplicationDialog)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
-        self.buttonBox.setObjectName("buttonBox")
+
+        self.buttonBox = QDialogButtonBox(AuthoriseApplicationDialog)
+        self.buttonBox.setObjectName(u"buttonBox")
+        self.buttonBox.setOrientation(Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+
         self.verticalLayout.addWidget(self.buttonBox)
 
+
         self.retranslateUi(AuthoriseApplicationDialog)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("rejected()"), AuthoriseApplicationDialog.reject)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), AuthoriseApplicationDialog.accept)
-        QtCore.QMetaObject.connectSlotsByName(AuthoriseApplicationDialog)
+        self.buttonBox.rejected.connect(AuthoriseApplicationDialog.reject)
+        self.buttonBox.accepted.connect(AuthoriseApplicationDialog.accept)
+
+        QMetaObject.connectSlotsByName(AuthoriseApplicationDialog)
+    # setupUi
 
     def retranslateUi(self, AuthoriseApplicationDialog):
-        AuthoriseApplicationDialog.setWindowTitle(QtWidgets.QApplication.translate("AuthoriseApplicationDialog", "Authorise Application", None, -1))
-        self.groupBox.setTitle(QtWidgets.QApplication.translate("AuthoriseApplicationDialog", "Authorise Application", None, -1))
-        self.label.setText(QtWidgets.QApplication.translate("AuthoriseApplicationDialog", "Paste authorisation token here:", None, -1))
+        AuthoriseApplicationDialog.setWindowTitle(QCoreApplication.translate("AuthoriseApplicationDialog", u"Authorise Application", None))
+        self.groupBox.setTitle(QCoreApplication.translate("AuthoriseApplicationDialog", u"Authorise Application", None))
+        self.label.setText(QCoreApplication.translate("AuthoriseApplicationDialog", u"Paste authorisation token here:", None))
+    # retranslateUi
 
