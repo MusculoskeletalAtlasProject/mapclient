@@ -22,7 +22,7 @@ from PySide6 import QtWidgets
 from mapclient.tools.pmr.settings.general import PMR
 from mapclient.tools.pmr.pmrtool import PMRTool
 from mapclient.tools.pmr.authoriseapplicationdialog import AuthoriseApplicationDialog
-from mapclient.tools.pmr.dialogs.ui_registerdialog import Ui_RegisterDialog
+from mapclient.tools.pmr.ui.ui_registerdialog import Ui_RegisterDialog
 
 
 class PMRRegisterDialog(QtWidgets.QDialog):

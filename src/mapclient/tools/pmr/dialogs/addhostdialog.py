@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 from PySide6 import QtWidgets
 
-from mapclient.tools.pmr.dialogs.ui_addhostdialog import Ui_AddHostDialog
+from mapclient.tools.pmr.ui.ui_addhostdialog import Ui_AddHostDialog
 
 
 class AddHostDialog(QtWidgets.QDialog):
