@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 from dateutil.parser import parse
 
-from PySide2.QtWidgets import QDialog, QTableWidgetItem, QLabel
+from PySide6.QtWidgets import QDialog, QTableWidgetItem, QLabel
 
 from mapclient.view.dialogs.log.ui.ui_loginformation import Ui_LogInformation
 from mapclient.settings.general import get_log_location
