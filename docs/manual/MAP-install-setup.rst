@@ -5,7 +5,7 @@ MAP Client Installation and Setup Guide
 =======================================
 
 This document describes how to install and setup the MAP Client software for use on your machine.
-The MAP Client software is a Python application that uses the PySide2 Qt library bindings.
+The MAP Client software is a Python application that uses the PySide6 Qt library bindings.
 
 The `Installation`_ section details getting the MAP Client and it's dependencies installed on your system.
 There are two main ways of getting the MAP Client installed on your operating system.  This document will cover both of those methods.

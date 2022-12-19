@@ -3,7 +3,7 @@ import json
 import os
 import platform
 
-import PySide2 as RefMod
+import PySide6 as RefMod
 
 import PyInstaller.__main__
 
@@ -67,8 +67,8 @@ def main(variant):
     else:
         raise NotImplementedError("Platform is not supported for creating a MAP Client application.")
 
-    run_command.append(os.pathsep.join([f'--add-binary={rcc_exe}', 'PySide2/']))
-    run_command.append(os.pathsep.join([f'--add-binary={uic_exe}', 'PySide2/']))
+    run_command.append(os.pathsep.join([f'--add-binary={rcc_exe}', 'PySide6/']))
+    run_command.append(os.pathsep.join([f'--add-binary={uic_exe}', 'PySide6/']))
 
     externally_specified_internal_workflows_zip = os.environ.get('INTERNAL_WORKFLOWS_ZIP', '<not-a-file>')
     if os.path.isfile(externally_specified_internal_workflows_zip):
