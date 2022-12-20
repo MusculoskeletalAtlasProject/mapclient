@@ -21,7 +21,7 @@ import re
 
 from PySide6 import QtWidgets, QtCore
 
-from mapclient.tools.pmr.ui_pmrworkflowwidget import Ui_PMRWorkflowWidget
+from mapclient.tools.pmr.ui.ui_pmrworkflowwidget import Ui_PMRWorkflowWidget
 from mapclient.view.utils import handle_runtime_error, set_wait_cursor
 from mapclient.tools.pmr.pmrtool import PMRTool, search_domains, \
     workflow_search_string, ontological_search_string

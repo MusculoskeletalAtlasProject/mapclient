@@ -19,8 +19,6 @@ from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialog, QDialogBu
     QGroupBox, QHBoxLayout, QLabel, QListWidget,
     QListWidgetItem, QPushButton, QSizePolicy, QSpacerItem,
     QVBoxLayout, QWidget)
-import resources_rc
-
 class Ui_PackageManagerDialog(object):
     def setupUi(self, PackageManagerDialog):
         if not PackageManagerDialog.objectName():
