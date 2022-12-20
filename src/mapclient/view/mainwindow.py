@@ -314,14 +314,14 @@ class MainWindow(QtWidgets.QMainWindow):
         from mapclient.view.dialogs.about.aboutdialog import AboutDialog
         dlg = AboutDialog(self)
         dlg.setModal(True)
-        dlg.exec_()
+        dlg.exec()
 
     def _show_log_information_dialog(self):
         from mapclient.view.dialogs.log.loginformation import LogInformation
         dlg = LogInformation(self)
         dlg.fillTable(self)
         dlg.setModal(True)
-        dlg.exec_()
+        dlg.exec()
 
     def show_options_dialog(self, current_tab=0):
         from mapclient.view.managers.options.optionsdialog import OptionsDialog
@@ -331,7 +331,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg = OptionsDialog(self)
         dlg.setCurrentTab(current_tab)
         dlg.load(options)
-        if dlg.exec_() == QtWidgets.QDialog.Accepted:
+        if dlg.exec():
             if dlg.isModified():
                 om.setOptions(dlg.save())
 
@@ -348,7 +348,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg = PackageManagerDialog(self)
         dlg.set_directories(pm.directories())
         dlg.setModal(True)
-        if dlg.exec_():
+        if dlg.exec():
             pm.set_directories(dlg.directories())
             if pm.is_modified():
                 pm.load()
@@ -369,7 +369,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg.reloadPlugins = self._plugin_manager_load_plugins
 
         dlg.setModal(True)
-        if dlg.exec_():
+        if dlg.exec():
             pm._ignoredPlugins = dlg._ignoredPlugins
             pm._doNotShowPluginErrors = dlg._do_not_show_plugin_errors
             pm._resourceFiles = dlg._resource_filenames
@@ -420,7 +420,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg.setPreviousIconLocation(om.getOption(PREVIOUS_PW_ICON_LOCATION))
 
         dlg.setModal(True)
-        if dlg.exec_() == dlg.Accepted:
+        if dlg.exec():
             om.setOption(PREVIOUS_PW_WRITE_STEP_LOCATION, dlg.getPreviousWriteStepLocation())
             om.setOption(PREVIOUS_PW_ICON_LOCATION, dlg.getPreviousIconLocation())
 

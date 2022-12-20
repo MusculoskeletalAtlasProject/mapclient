@@ -295,7 +295,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         drag.setMimeData(self.copy_steps(start_pos))
         drag.setHotSpot(hotspot)
         drag.setPixmap(pixmap)
-        drag.exec_(QtCore.Qt.MoveAction)
+        drag.exec(QtCore.Qt.MoveAction)
 
     def contextMenuEvent(self, event):
         item = self.itemAt(event.pos())

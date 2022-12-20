@@ -215,7 +215,7 @@ class WorkflowWidget(QtWidgets.QWidget):
                             parent=self._main_window,
                             close_after=close_after)
             mb.setIconPixmap(QtGui.QPixmap(":/mapclient/images/green_tick.png").scaled(64, 64))
-            mb.exec_()
+            mb.exec()
         else:
             self._reset_workflow_direction()
 
@@ -353,7 +353,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         dlg.fillPluginTable(plugins)
         dlg.fillDependenciesTable(dependencies)
         dlg.setModal(True)
-        if dlg.exec_():
+        if dlg.exec():
             return dlg.downloadDependencies(), dlg.installMissingPlugins()
 
         return False, False
@@ -441,7 +441,7 @@ class WorkflowWidget(QtWidgets.QWidget):
     def importFromPMR(self):
         m = self._main_window.model().workflowManager()
         dlg = ImportWorkflowDialog(m.previousLocation(), self._main_window)
-        if dlg.exec_():
+        if dlg.exec():
             destination_dir = dlg.destinationDir()
             workspace_url = dlg.workspaceUrl()
             if os.path.exists(destination_dir) and workspace_url:

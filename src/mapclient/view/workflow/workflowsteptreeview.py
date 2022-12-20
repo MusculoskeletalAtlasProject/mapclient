@@ -99,7 +99,7 @@ class WorkflowStepTreeView(QtWidgets.QTreeView):
             drag.setHotSpot(hotspot)
             drag.setPixmap(pixmap)
 
-            drag.exec_(QtCore.Qt.MoveAction)
+            drag.exec(QtCore.Qt.MoveAction)
 
     def _handleMouseClicked(self, index):
 

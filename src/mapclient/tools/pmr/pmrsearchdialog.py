@@ -102,7 +102,7 @@ class PMRSearchDialog(QtWidgets.QDialog):
 
         dlg = AuthoriseApplicationDialog(self)
         dlg.setModal(True)
-        dlg.exec_()
+        dlg.exec()
 
         self._updateUi()
 

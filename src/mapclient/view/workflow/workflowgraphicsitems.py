@@ -404,7 +404,7 @@ class Node(Item):
     def annotateMe(self):
         dlg = AnnotationDialog(self._getStepLocation())
         dlg.setModal(True)
-        dlg.exec_()
+        dlg.exec()
 
     def showStepName(self, show):
         self._text.setVisible(show)

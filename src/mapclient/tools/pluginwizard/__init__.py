@@ -1,2 +1,2 @@
 
-import mapclient.tools.pluginwizard.resources_rc
+import mapclient.tools.pluginwizard.ui.resources_rc

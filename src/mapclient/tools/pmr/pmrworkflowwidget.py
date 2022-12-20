@@ -132,7 +132,7 @@ class PMRWorkflowWidget(QtWidgets.QWidget):
         if link == 'mapclient.register':
             dlg = AuthoriseApplicationDialog(self)
             dlg.setModal(True)
-            dlg.exec_()
+            dlg.exec()
             self._updateUi()
         elif link == 'mapclient.deregister':
             self._pmrTool.deregister()

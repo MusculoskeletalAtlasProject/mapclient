@@ -71,7 +71,7 @@ class PMRDialog(QtGui.QDialog):
 
         dlg = AuthoriseApplicationDialog(self)
         dlg.setModal(True)
-        dlg.exec_()
+        dlg.exec()
 
         self._update_ui()
 

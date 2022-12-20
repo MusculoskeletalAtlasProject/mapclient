@@ -26,4 +26,4 @@ class MessageBox(QtWidgets.QMessageBox):
     def exec_(self):
         # Only display the MessageBox if the close timer is greater than 0.
         if self._close_after > 0:
-            super().exec_()
+            super().exec()

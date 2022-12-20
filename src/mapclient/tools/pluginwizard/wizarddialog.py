@@ -27,11 +27,11 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 from mapclient.core.utils import convertNameToPythonPackage, is_frozen
 from mapclient.tools.pluginwizard.skeleton import SkeletonOptions
-from mapclient.tools.pluginwizard.ui_output import Ui_Output
-from mapclient.tools.pluginwizard.ui_name import Ui_Name
-from mapclient.tools.pluginwizard.ui_ports import Ui_Ports
-from mapclient.tools.pluginwizard.ui_config import Ui_Config
-from mapclient.tools.pluginwizard.ui_misc import Ui_Misc
+from mapclient.tools.pluginwizard.ui.ui_output import Ui_Output
+from mapclient.tools.pluginwizard.ui.ui_name import Ui_Name
+from mapclient.tools.pluginwizard.ui.ui_ports import Ui_Ports
+from mapclient.tools.pluginwizard.ui.ui_config import Ui_Config
+from mapclient.tools.pluginwizard.ui.ui_misc import Ui_Misc
 
 # Registered field names:
 OUTPUT_DIRECTORY_FIELD = 'output_directory'

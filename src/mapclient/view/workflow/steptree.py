@@ -159,6 +159,6 @@ class StepTree(QtWidgets.QTreeWidget):
         drag.setHotSpot(hotspot)
         drag.setPixmap(pixmap)
 
-        drag.exec_(QtCore.Qt.MoveAction)
+        drag.exec(QtCore.Qt.MoveAction)
 
         return QtWidgets.QTreeWidget.mousePressEvent(self, event)

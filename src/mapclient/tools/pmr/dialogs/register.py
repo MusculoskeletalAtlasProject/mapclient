@@ -60,7 +60,7 @@ class PMRRegisterDialog(QtWidgets.QDialog):
     def _register(self):
         dlg = AuthoriseApplicationDialog(self)
         dlg.setModal(True)
-        dlg.exec_()
+        dlg.exec()
 
         self._updateUi()
 

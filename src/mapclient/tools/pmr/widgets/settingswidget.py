@@ -103,7 +103,7 @@ class SettingsWidget(QtWidgets.QWidget):
         dlg = AddHostDialog(self)
 
         dlg.setModal(True)
-        if dlg.exec_():
+        if dlg.exec():
             self.addHost(dlg.getHost())
 
     def _removeClicked(self):

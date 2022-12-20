@@ -68,13 +68,13 @@ class LogInformation(QDialog):
                 text = self._ui.information_table.item(row, column).text()
             log_details.append(text)
         dlg.fillTable(log_details)
-        dlg.exec_()
+        dlg.exec()
 
     def loadLogSession(self):
         from mapclient.view.dialogs.log.loadlogsession import LoadLogSession
         dlg = LoadLogSession(self)
         dlg.setModal(True)
-        if dlg.exec_():
+        if dlg.exec():
             log_file = dlg.getLogSession()
             logs = self.loadSession(log_file)
             if logs:
