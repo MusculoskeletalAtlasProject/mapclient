@@ -3,15 +3,21 @@
 ################################################################################
 ## Form generated from reading UI file 'mapicondialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 5.15.2
+## Created by: Qt User Interface Compiler version 6.4.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide2.QtCore import *
-from PySide2.QtGui import *
-from PySide2.QtWidgets import *
-
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialogButtonBox, QFrame,
+    QGridLayout, QLabel, QLineEdit, QPushButton,
+    QSizePolicy, QSpacerItem, QWidget)
 
 class Ui_MAPIconDialog(object):
     def setupUi(self, MAPIconDialog):
@@ -71,7 +77,6 @@ class Ui_MAPIconDialog(object):
         self.frame.setMinimumSize(QSize(0, 72))
         font = QFont()
         font.setBold(False)
-        font.setWeight(50)
         self.frame.setFont(font)
         self.frame.setAutoFillBackground(False)
         self.frame.setStyleSheet(u"QFrame {background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 aliceblue, stop:1 lightskyblue);}\n"
