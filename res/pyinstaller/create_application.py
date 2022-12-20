@@ -52,8 +52,8 @@ def main(variant):
     pyside_dir = os.path.dirname(RefMod.__file__)
 
     if platform.system() == 'Darwin':
-        rcc_exe = os.path.join(pyside_dir, "rcc")
-        uic_exe = os.path.join(pyside_dir, "uic")
+        rcc_exe = os.path.join(pyside_dir, 'Qt', 'libexec', "rcc")
+        uic_exe = os.path.join(pyside_dir, 'Qt', 'libexec', "uic")
 
         macos_icon = os.path.join('..', 'macos', 'MAP-Client.icns')
         run_command.append(f'--icon={macos_icon}')

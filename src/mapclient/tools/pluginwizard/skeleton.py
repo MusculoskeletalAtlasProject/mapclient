@@ -429,9 +429,9 @@ class Skeleton(object):
 
             py_file = os.path.join(step_dir, PYTHON_QT_CONFDIALOG_UI_FILENAME)
             if self._qt_tool_options[USE_EXTERNAL_UIC]:
-                return_code, msg = qt_tool_wrapper(self._qt_tool_options[PYSIDE_UIC_EXE], ['-g', 'python', '--from-imports', '-o', py_file, ui_file], True)
+                return_code, msg = qt_tool_wrapper(self._qt_tool_options[PYSIDE_UIC_EXE], ['-g', 'python', '-o', py_file, ui_file], True)
             else:
-                return_code, msg = qt_tool_wrapper("uic", ['-g', 'python', '--from-imports', '-o', py_file, ui_file])
+                return_code, msg = qt_tool_wrapper("uic", ['-g', 'python', '-o', py_file, ui_file])
 
             if return_code != 0:
                 raise Exception('Error: {}\nFailed to generate Python resource file using the PySide resource compiler.'.format(msg))
