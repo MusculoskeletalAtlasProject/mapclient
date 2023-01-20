@@ -37,7 +37,7 @@ Search the plugin you need and go to the plugin repository page.
 
 On the repository page, click the green code button and download the source code.
 If you are a developer, you can download the source code anyway you like.
-If you don't have git in your environment, you can simply click "Download Zip" to download the source code and unzip it.ddd
+If you don't have git in your environment, you can simply click "Download Zip" to download the source code and unzip it.
 
 You also can create your own plugins, the :ref:`MAP plugin wizard <MAP-plugin-wizard>` can help you generated a skeleton step.
 
