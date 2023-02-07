@@ -459,7 +459,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
     def wheelEvent(self, event):
         if event.modifiers() == QtCore.Qt.ControlModifier:
-            scale_factor = math.pow(2.0, -event.delta() / 240.0)
+            scale_factor = math.pow(2.0, -event.angleDelta().y() / 240.0)
             # original_transformation_anchor = self.transformationAnchor()
             # self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorViewCenter)
             self.scale(scale_factor, scale_factor)
