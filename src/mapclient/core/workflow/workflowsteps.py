@@ -9,12 +9,13 @@ from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 
 
 def addStep(model, step):
-    items = model.findItems(step._category)
+    category = step.getCategory()
+    items = model.findItems(category)
 
     if not items:
         rootItem = model.invisibleRootItem()
         parentItem = QtGui.QStandardItem()
-        parentItem.setText(step._category)
+        parentItem.setText(category)
         font = parentItem.font()
         font.setPointSize(12)
         font.setWeight(QtGui.QFont.Bold)
@@ -25,8 +26,9 @@ def addStep(model, step):
 
     item = QtGui.QStandardItem()
     item.setData(step)
-    if step._icon:
-        item.setIcon(QtGui.QIcon(QtGui.QPixmap.fromImage(step._icon)))
+    icon = step.getIcon()
+    if icon:
+        item.setIcon(QtGui.QIcon(QtGui.QPixmap.fromImage(icon)))
     else:
         item.setIcon(QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(':/workflow/images/default_step_icon.png'))))
 
@@ -70,4 +72,3 @@ class WorkflowSteps(QtGui.QStandardItemModel):
         self.setColumnCount(1)
         for step in WorkflowStepMountPoint.getPlugins(''):
             addStep(self, step)
-

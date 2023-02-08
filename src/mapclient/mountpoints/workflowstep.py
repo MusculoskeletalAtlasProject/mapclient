@@ -245,6 +245,10 @@ def _workflow_step_get_icon(self):
     return self._icon
 
 
+def _workflow_step_get_category(self):
+    return self._category
+
+
 attr_dict = {}
 attr_dict['__init__'] = _workflow_step_init
 attr_dict['setLocation'] = _workflow_step_setLocation
@@ -265,6 +269,7 @@ attr_dict['deserialize'] = _workflow_step_deserialize
 attr_dict['serialize'] = _workflow_step_serialize
 attr_dict['getSourceURI'] = _workflow_step_get_source_uri
 attr_dict['getIcon'] = _workflow_step_get_icon
+attr_dict['getCategory'] = _workflow_step_get_category
 
 WorkflowStepMountPoint = pluginframework.MetaPluginMountPoint('WorkflowStepMountPoint', (object,), attr_dict)
 
