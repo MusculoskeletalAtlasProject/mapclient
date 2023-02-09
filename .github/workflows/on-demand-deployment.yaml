@@ -123,9 +123,11 @@ jobs:
             exit 2
           fi
           if [ "$RUNNER_OS" == "macOS" ]; then
-            echo "Have to find out how to modify a finder window in headless mode with AppleScript."
-            echo "Asset not ready for $RUNNER_OS"
-            #asset=`mapclient/res/macos/*.dmg`
+            #echo "Have to find out how to modify a finder window in headless mode with AppleScript."
+            #echo "Asset not ready for $RUNNER_OS"
+            asset=`mapclient/res/macos/*.dmg`
+            echo $asset
+            echo "::set-output name=FILE::$asset"
           elif [ "$RUNNER_OS" == "Windows" ]; then
             ls -lh mapclient/package
             if [ "x${{ matrix.variant }}" == "xmapclient" ]; then
