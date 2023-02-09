@@ -259,7 +259,7 @@ def qt_tool_wrapper(qt_tool, args, external=False):
         exe = qt_tool
     else:
         pyside_dir = os.path.dirname(RefMod.__file__)
-        exe = os.path.join(pyside_dir, 'Qt', 'libexec', qt_tool)
+        exe = os.path.join(pyside_dir, qt_tool)
 
     cmd = [exe] + args
     proc = Popen(cmd, stdout=DEVNULL, stderr=PIPE)
