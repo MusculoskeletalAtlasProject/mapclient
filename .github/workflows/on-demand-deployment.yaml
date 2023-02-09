@@ -80,7 +80,7 @@ jobs:
         shell: bash
         run: brew install create-dmg
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Setup scripts
@@ -148,6 +148,7 @@ jobs:
           echo "Upload it ..."
       - name: Define asset
         id: define-asset
+        if: false
         shell: cmake -P {0}
         run: |
           set(ASSET_PATH "${{ steps.create-installer.outputs.file }}")
@@ -158,5 +159,5 @@ jobs:
         if: runner.os != 'macOS'
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{ steps.define-asset.outputs.file }}
+          files: ${{ steps.create-installer.outputs.file }}
           tag_name: ${{ matrix.tag }}
