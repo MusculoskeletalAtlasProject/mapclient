@@ -16,7 +16,7 @@ jobs:
         shell: bash
         run: |
           echo "Setting tag as: ${GITHUB_REF#refs/tags/}"
-          echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
       - name: Get the release name
         id: get-release-name
         shell: bash
@@ -26,7 +26,7 @@ jobs:
           IFS='.' read -ra bare_tag_parts <<< "$bare_tag"
           name="${bare_tag_parts[0]}.${bare_tag_parts[1]}.${bare_tag_parts[2]}"
           echo "Setting name as: ${name}"
-          echo ::set-output name=NAME::$name
+          echo "name=$name" >> $GITHUB_OUTPUT
       - name: Determine required assets
         id: req-assets
         shell: cmake -P {0}
@@ -39,11 +39,11 @@ jobs:
             string(STRIP "${_PART}" _PART)
             if ("${_PART}" STREQUAL "[odd release with mapping tools]")
               message(STATUS "Require a MAP Client mapping tools variant.")
-              message("::set-output name=INCLUDE_MAPPING_TOOLS::true")
+              file(APPEND $ENV{GITHUB_OUTPUT} "include_mapping_tools=true")
             endif()
             if ("${_PART}" STREQUAL "[odd release with installer]")
               message(STATUS "Require a MAP Client installer.")
-              message("::set-output name=INCLUDE_INSTALLER::true")
+              file(APPEND $ENV{GITHUB_OUTPUT} "include_installer=true")
             endif()
           endforeach()
       - name: set_matrix
@@ -53,20 +53,20 @@ jobs:
           matrixElements=()
           if [ "${{ steps.req-assets.outputs.include_installer }}" == "true" ]; then
             matrixElements+=('{"os":"windows-2019","variant":"mapclient","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
-            matrixElements+=('{"os":"macos-10.15","variant":"mapclient","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
+            matrixElements+=('{"os":"macos-11","variant":"mapclient","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
           fi
           if [ "${{ steps.req-assets.outputs.include_mapping_tools }}" == "true" ]; then
             matrixElements+=('{"os":"windows-2019","variant":"mapping-tools","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
-            matrixElements+=('{"os":"macos-10.15","variant":"mapping-tools","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
+            matrixElements+=('{"os":"macos-11","variant":"mapping-tools","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
           fi
           if [ "${#matrixElements[@]}" -eq "0" ]; then
-            echo "::set-output name=RUN-INSTALLER::false"
+            echo run-installer=false >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=RUN-INSTALLER::true"
+            echo run-installer=true >> $GITHUB_OUTPUT
           fi
           content=`join_by ,  ${matrixElements[@]}`
           echo "{\"include\":[$content]}"
-          echo "::set-output name=matrix::{\"include\":[$content]}"
+          echo "matrix={\"include\":[$content]}" >> $GITHUB_OUTPUT
   installer:
     needs: setup
     name: installer
@@ -80,11 +80,11 @@ jobs:
         shell: bash
         run: brew install create-dmg
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
       - name: Setup scripts
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: hsorby/mapclientreleasescripts
           path: scripts
@@ -123,11 +123,11 @@ jobs:
             exit 2
           fi
           if [ "$RUNNER_OS" == "macOS" ]; then
-            #echo "Have to find out how to modify a finder window in headless mode with AppleScript."
-            #echo "Asset not ready for $RUNNER_OS"
-            asset=`mapclient/res/macos/*.dmg`
-            echo $asset
-            echo "::set-output name=FILE::$asset"
+            echo "Have to find out how to modify a finder window in headless mode with AppleScript."
+            echo "Asset not ready for $RUNNER_OS"
+            #asset=`mapclient/res/macos/*.dmg`
+            #echo $asset
+            #echo "file=$asset" >> $GITHUB_OUTPUT
           elif [ "$RUNNER_OS" == "Windows" ]; then
             ls -lh mapclient/package
             if [ "x${{ matrix.variant }}" == "xmapclient" ]; then
@@ -139,7 +139,7 @@ jobs:
             # asset=`ls -1 "$GITHUB_WORKSPACE"/mapclient/package/MAP-Client*.exe`
             asset=${asset//\\//}
             echo $asset
-            echo "::set-output name=FILE::$asset"
+            echo "file=$asset" >> $GITHUB_OUTPUT
           else
             echo "$RUNNER_OS not supported"
             exit 1
@@ -153,11 +153,10 @@ jobs:
           set(ASSET_PATH "${{ steps.create-installer.outputs.file }}")
           file(TO_NATIVE_PATH "${ASSET_PATH}" _NATIVE_PATH)
           message(STATUS "file: ${_NATIVE_PATH}")
-          message("::set-output name=FILE::${_NATIVE_PATH}")
+          file(APPEND $ENV{GITHUB_OUTPUT} "file=${_NATIVE_PATH}")
       - name: Upload asset
         if: runner.os != 'macOS'
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ steps.define-asset.outputs.file }}
           tag_name: ${{ matrix.tag }}
-
