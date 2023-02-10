@@ -41,7 +41,7 @@ package_dependencies = [
     'pmr2.client >= 0.2',
     'packaging',
     'filelock',
-    'psutil'
+    'psutil == 5.9.3'
 ]
 
 extras_require={
