@@ -35,6 +35,7 @@ class WorkflowScene(object):
 
     def __init__(self, manager):
         self._manager = manager
+        self._location = ''
         self._items = {}
         self._dependencyGraph = WorkflowDependencyGraph(self)
         self._main_window = None
@@ -50,6 +51,7 @@ class WorkflowScene(object):
         pass
 
     def updateWorkflowLocation(self, location):
+        self._location = location
         update_made = False
         for meta_item in self._items:
             if meta_item.Type == MetaStep.Type:
@@ -74,7 +76,6 @@ class WorkflowScene(object):
                 else:
                     connectionMap[item.source()] = [item]
 
-        location = self._manager.location()
         ws.beginGroup('view')
         for key in self._view_parameters:
             ws.setValue(key, self._view_parameters[key])
@@ -94,7 +95,7 @@ class WorkflowScene(object):
             step = metastep.getStep()
             step_config = step.serialize()
             if step_config:
-                with open(get_configuration_file(location, identifier), 'w') as f:
+                with open(get_configuration_file(self._location, identifier), 'w') as f:
                     f.write(step_config)
             ws.setArrayIndex(nodeIndex)
             source_uri = step.getSourceURI()
@@ -122,11 +123,10 @@ class WorkflowScene(object):
 
     def is_loadable(self, ws):
         loadable = True
-        location = self._manager.location()
         try:
             step_names = self._read_step_names(ws)
             for name in step_names:
-                step = workflowStepFactory(name, location)
+                step = workflowStepFactory(name, self._location)
 
         except ValueError:
             loadable = False
@@ -184,7 +184,6 @@ class WorkflowScene(object):
 
     def doStepReport(self, ws):
         report = {}
-        location = self._manager.location()
         ws.beginGroup('nodes')
         node_count = ws.beginReadArray('nodelist')
         for i in range(node_count):
@@ -192,7 +191,7 @@ class WorkflowScene(object):
             name = ws.value('name')
 
             try:
-                step = workflowStepFactory(name, location)
+                step = workflowStepFactory(name, self._location)
                 report[name] = 'Found'
 
             except ValueError as e:
@@ -219,7 +218,6 @@ class WorkflowScene(object):
 
     def load_state(self, ws):
         self.clear()
-        location = self._manager.location()
         ws.beginGroup('view')
         self._view_parameters = {
             'scale': float(ws.value('scale', '1.0')),
@@ -240,7 +238,7 @@ class WorkflowScene(object):
             identifier = ws.value('identifier')
             uniqueIdentifier = ws.value('unique_identifier', uuid.uuid1())
 
-            step = workflowStepFactory(name, location)
+            step = workflowStepFactory(name, self._location)
             step.setMainWindow(self._main_window)
             step.registerIdentifierOccursCount(self.identifierOccursCount)
             metastep = MetaStep(step)
@@ -253,7 +251,7 @@ class WorkflowScene(object):
 
             # Deserialize after adding the step to the scene, this is so
             # we can validate the step identifier
-            configuration = loadConfiguration(location, identifier)
+            configuration = loadConfiguration(self._location, identifier)
             step.deserialize(configuration)
             arcCount = ws.beginReadArray('connections')
             for j in range(arcCount):
@@ -275,9 +273,6 @@ class WorkflowScene(object):
 
     def setMainWindow(self, main_window):
         self._main_window = main_window
-
-    def manager(self):
-        return self._manager
 
     def canExecute(self):
         return self._dependencyGraph.can_execute()

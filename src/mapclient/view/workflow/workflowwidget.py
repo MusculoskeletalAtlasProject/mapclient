@@ -484,12 +484,11 @@ class WorkflowWidget(QtWidgets.QWidget):
     def _load(self, workflow_dir):
         try:
             m = self._main_window.model().workflowManager()
+            m.scene().setViewParameters(self._ui.graphicsView.getViewParameters())
             m.load(workflow_dir)
             m.setPreviousLocation(workflow_dir)
             self._graphicsScene.updateModel()
             self._ui.graphicsView.setLocation(workflow_dir)
-            self._ui.graphicsView.setViewParameters(m.scene().getViewParameters())
-            m.fit_workflow(self._ui.graphicsView, self._graphicsScene)
             self._update_ui()
         except:
             self.close()
@@ -531,7 +530,7 @@ class WorkflowWidget(QtWidgets.QWidget):
     def _updateLocation(self):
         m = self._main_window.model().workflowManager()
         workflow_dir = m.location()
-        if m.updateLocation(workflow_dir):
+        if m.set_location(workflow_dir):
             self._ui.graphicsView.setLocation(workflow_dir)
             self._graphicsScene.updateModel()
 
@@ -541,7 +540,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         workflow_dir = self._getWorkflowDir()
         if workflow_dir:
             m.setPreviousLocation(workflow_dir)
-            m.updateLocation(workflow_dir)
+            m.set_location(workflow_dir)
             self._ui.graphicsView.setLocation(workflow_dir)
             self._graphicsScene.updateModel()
             location_set = True
