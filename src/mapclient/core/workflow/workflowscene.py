@@ -172,7 +172,7 @@ class WorkflowScene(object):
         sf_x = (view_size.width() - 70) / (scene_size.width() - 48)
         sf_y = (view_size.height() - 70) / (scene_size.height() - 48)
 
-        if sf_x != 0 or sf_y != 0:
+        if sf_x != 1 or sf_y != 1:
             for item in self.items():
                 if isinstance(item, MetaStep):
                     x = sf_x * item.getPos().x()
@@ -219,12 +219,27 @@ class WorkflowScene(object):
     def load_state(self, ws):
         self.clear()
         ws.beginGroup('view')
-        self._view_parameters = {
+        loaded_view_parameters = {
             'scale': float(ws.value('scale', '1.0')),
-            'rect': ws.value('rect'),
+            'rect': ws.value('rect', self._view_parameters['rect']),
             'transform': ws.value('transform')
         }
         ws.endGroup()
+
+        # Scale the WorkflowScene view-parameters:
+        current_rect = self._view_parameters['rect']
+        loaded_rect = loaded_view_parameters['rect']
+        scale_factor = loaded_view_parameters['scale']
+        if scale_factor != 1.0:
+            current_rect.setWidth(current_rect.width() / scale_factor)
+            current_rect.setHeight(current_rect.height() / scale_factor)
+            self._view_parameters = {
+                'scale': scale_factor,
+                'rect': current_rect,
+                'transform': loaded_view_parameters['transform']
+            }
+        sf_x = current_rect.width() / loaded_rect.width()
+        sf_y = current_rect.height() / loaded_rect.height()
 
         ws.beginGroup('nodes')
         nodeCount = ws.beginReadArray('nodelist')
@@ -237,6 +252,10 @@ class WorkflowScene(object):
             selected = ws.value('selected', 'false') == 'true'
             identifier = ws.value('identifier')
             uniqueIdentifier = ws.value('unique_identifier', uuid.uuid1())
+
+            # Adjust the item positions according to the scale factors.
+            position.setX(position.x() * sf_x)
+            position.setY(position.y() * sf_y)
 
             step = workflowStepFactory(name, self._location)
             step.setMainWindow(self._main_window)

@@ -488,6 +488,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             m.scene().setViewParameters(self._ui.graphicsView.getViewParameters())
             m.load(workflow_dir)
             m.setPreviousLocation(workflow_dir)
+            self._ui.graphicsView.setViewParameters(m.scene().getViewParameters())
             self._graphicsScene.updateModel()
             self._ui.graphicsView.setLocation(workflow_dir)
             self._update_ui()
