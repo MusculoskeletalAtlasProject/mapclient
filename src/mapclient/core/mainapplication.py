@@ -40,6 +40,7 @@ class MainApplication(object):
     def __init__(self):
         self._size = QtCore.QSize(600, 400)
         self._pos = QtCore.QPoint(100, 150)
+        self._is_maximized = False
         self._pluginManager = PluginManager()
         self._package_manager = PackageManager()
         self._workflowManager = WorkflowManager(self)
@@ -60,6 +61,12 @@ class MainApplication(object):
 
     def pos(self):
         return self._pos
+
+    def set_maximized(self, is_maximized):
+        self._is_maximized = is_maximized
+
+    def is_maximized(self):
+        return self._is_maximized
 
     def undoManager(self):
         return self._undoManager
@@ -85,6 +92,7 @@ class MainApplication(object):
         settings.beginGroup('MainWindow')
         settings.setValue('size', self._size)
         settings.setValue('pos', self._pos)
+        settings.setValue('is_maximized', self._is_maximized)
         settings.endGroup()
         self._pluginManager.writeSettings(settings)
         self._workflowManager.writeSettings(settings)
@@ -96,6 +104,7 @@ class MainApplication(object):
         settings.beginGroup('MainWindow')
         self._size = settings.value('size', self._size)
         self._pos = settings.value('pos', self._pos)
+        self._is_maximized = settings.value('is_maximized', 'true') == 'true'
         settings.endGroup()
         self._pluginManager.readSettings(settings)
         self._workflowManager.readSettings(settings)
