@@ -624,6 +624,9 @@ class WorkflowWidget(QtWidgets.QWidget):
     def reset_zoom(self):
         self._ui.graphicsView.reset_zoom()
 
+    def reset_view(self):
+        self._ui.graphicsView.reset_view()
+
     def _create_menu_items(self):
         menu_file = self._main_window.get_menu_bar().findChild(QtWidgets.QMenu, 'menu_File')
         menu_workflow = self._main_window.get_menu_bar().findChild(QtWidgets.QMenu, 'menu_Workflow')
@@ -678,6 +681,10 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._set_action_properties(self.action_ResetZoom, 'action_ResetZoom', self.reset_zoom, '',
                                     'Reset Workflow Zoom')
 
+        self.action_ResetView = QtGui.QAction('Reset View', menu_view)
+        self._set_action_properties(self.action_ResetView, 'action_ResetView', self.reset_view, '',
+                                    'Centre and Spread Workflow Items')
+
         menu_new.insertAction(QtGui.QAction(self), self.action_NewPMR)
         menu_new.insertAction(QtGui.QAction(self), self.action_New)
 
@@ -696,6 +703,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         menu_view.addAction(self.action_ZoomIn)
         menu_view.addAction(self.action_ZoomOut)
         menu_view.addAction(self.action_ResetZoom)
+        menu_view.addAction(self.action_ResetView)
         menu_view.insertSeparator(last_view_menu_action)
 
         menu_workflow.addAction(self.action_Execute)

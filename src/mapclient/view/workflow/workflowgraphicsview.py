@@ -482,6 +482,42 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         self._graphics_scale_factor = 1.0
         self.resetTransform()
 
+    def view_all(self):
+        scene_rect = self.sceneRect()
+        scene_rect.setWidth(scene_rect.width() - 66)
+        scene_rect.setHeight(scene_rect.height() - 66)
+        for item in self.items():
+            if isinstance(item, Node):
+                if not scene_rect.contains(item.pos()):
+                    self.reset_view()
+                    break
+
+    def reset_view(self):
+        point_array = [[], []]
+        for item in self.items():
+            if isinstance(item, Node):
+                point_array[0].append(item.x())
+                point_array[1].append(item.y())
+        bounding_rect = QtCore.QRectF(
+            QtCore.QPointF(min(point_array[0]), min(point_array[1])),
+            QtCore.QPointF(max(point_array[0]), max(point_array[1]))
+        )
+
+        # Calculate the scale factors needed to fit the entire workflow in the scene.
+        # This includes 100px of whitespace on each side of the workflow items. Subtract 68 to account for step-icon width.
+        scene_rect = self.sceneRect()
+        sf_x = (scene_rect.width() - 268) / bounding_rect.width()
+        sf_y = (scene_rect.height() - 268) / bounding_rect.height()
+
+        # Scale the workflow item positions. Add 12 to account for subtracting the view border before scaling.
+        self._undoStack.beginMacro('Move Step(s)')
+        for item in self.items():
+            if isinstance(item, Node):
+                x = ((item.x() - bounding_rect.x()) * sf_x) + 112
+                y = ((item.y() - bounding_rect.y()) * sf_y) + 112
+                self._undoStack.push(CommandMove(item, item.pos(), QtCore.QPointF(x, y)))
+        self._undoStack.endMacro()
+
     def _old_scale_view(self, scale_factor):
         factor = self.matrix().scale(scale_factor, scale_factor).mapRect(QtCore.QRectF(0, 0, 1, 1)).width()
 
