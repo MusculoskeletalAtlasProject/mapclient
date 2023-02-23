@@ -58,9 +58,6 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         self.setCacheMode(QtWidgets.QGraphicsView.CacheBackground)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
 
-        grid_pic = QtGui.QPixmap(':/workflow/images/grid.png')
-        self._grid_brush = QtGui.QBrush(grid_pic)
-
         #        self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
         #        self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
 
@@ -365,8 +362,25 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         if bottomShadow.intersects(rect) or bottomShadow.contains(rect):
             painter.fillRect(bottomShadow, QtCore.Qt.darkGray)
 
-        painter.setBrush(self._grid_brush)  # QtCore.Qt.NoBrush
-        painter.drawRect(sceneRect)
+        self._draw_grid(sceneRect, painter)
+
+    def _draw_grid(self, scene_rect, painter):
+        self.grid_pen = QtGui.QPen(QtGui.QColor("lightblue"))
+        painter.setPen(self.grid_pen)
+
+        top = int(scene_rect.y())
+        left = int(scene_rect.x())
+        bottom = int(scene_rect.y() + scene_rect.height())
+        right = int(scene_rect.x() + scene_rect.width())
+        step = 10
+
+        for y in range(top, bottom, step):
+            painter.drawLine(left, y, right, y)
+        for x in range(left, right, step):
+            painter.drawLine(x, top, x, bottom)
+
+        painter.setPen(QtGui.QPen(QtGui.QColor("black")))
+        painter.drawRect(scene_rect)
 
     def dropEvent(self, event):
         if event.mimeData().hasFormat("image/x-workflow-step(s)"):
