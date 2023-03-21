@@ -116,25 +116,23 @@ jobs:
 
           if [ "${{ matrix.variant }}" == "mapclient" ]; then
             $python_exe prepare_mapclient_release.py ${{ matrix.tag }}
+            variant=
           elif [ "${{ matrix.variant }}" == "mapping-tools" ]; then
             $python_exe prepare_mapclient_release.py ${{ matrix.tag }} -v mapping-tools -p plugin_listing.txt -w workflow_listing.txt
+            variant="-${{ matrix.variant }}"
           else
             echo "Variant not supported"
             exit 2
           fi
+
           if [ "$RUNNER_OS" == "macOS" ]; then
             #echo "Have to find out how to modify a finder window in headless mode with AppleScript."
             #echo "Asset not ready for $RUNNER_OS"
-            asset=`mapclient/res/macos/*.dmg`
+            asset=$GITHUB_WORKSPACE/scripts/mapclient/res/macos/MAP-Client${variant}-${{ matrix.release-name }}.dmg
             echo $asset
             echo "file=$asset" >> $GITHUB_OUTPUT
           elif [ "$RUNNER_OS" == "Windows" ]; then
             ls -lh mapclient/package
-            if [ "x${{ matrix.variant }}" == "xmapclient" ]; then
-              variant=
-            else
-              variant="-${{ matrix.variant }}"
-            fi
             asset=$GITHUB_WORKSPACE/scripts/mapclient/package/MAP-Client${variant}-${{ matrix.release-name }}.exe
             # asset=`ls -1 "$GITHUB_WORKSPACE"/mapclient/package/MAP-Client*.exe`
             asset=${asset//\\//}
