@@ -123,11 +123,11 @@ jobs:
             exit 2
           fi
           if [ "$RUNNER_OS" == "macOS" ]; then
-            echo "Have to find out how to modify a finder window in headless mode with AppleScript."
-            echo "Asset not ready for $RUNNER_OS"
-            #asset=`mapclient/res/macos/*.dmg`
-            #echo $asset
-            #echo "file=$asset" >> $GITHUB_OUTPUT
+            #echo "Have to find out how to modify a finder window in headless mode with AppleScript."
+            #echo "Asset not ready for $RUNNER_OS"
+            asset=`mapclient/res/macos/*.dmg`
+            echo $asset
+            echo "file=$asset" >> $GITHUB_OUTPUT
           elif [ "$RUNNER_OS" == "Windows" ]; then
             ls -lh mapclient/package
             if [ "x${{ matrix.variant }}" == "xmapclient" ]; then
@@ -156,7 +156,6 @@ jobs:
           message(STATUS "file: ${_NATIVE_PATH}")
           file(APPEND $ENV{GITHUB_OUTPUT} "file=${_NATIVE_PATH}")
       - name: Upload asset
-        if: runner.os != 'macOS'
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ steps.create-installer.outputs.file }}
