@@ -42,7 +42,7 @@ To do this, open a Terminal window and type::
 
   xattr -d com.apple.quarantine /Applications/MAP-Client.app
 
-The application can now be opened as normal, without an error message appearing.
+The application can now be opened as normal, without a warning message appearing.
 
 Install Using Pip
 -----------------
