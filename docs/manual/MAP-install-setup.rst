@@ -32,6 +32,17 @@ For Windows there is an installer application available from:
 
 Download and install the package.
 
+For macOS there is a drive image (.dmg) available from :
+
+  https://github.com/MusculoskeletalAtlasProject/mapclient/releases/
+
+Download and install the application.
+Before first use you will need to manually release the application from quarantine.
+To do this, open a Terminal window and type::
+
+  xattr -d com.apple.quarantine /Applications/MAP-Client.app
+
+The application can now be opened as normal, without an error message appearing.
 
 Install Using Pip
 -----------------
