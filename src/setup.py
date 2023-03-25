@@ -44,7 +44,7 @@ package_dependencies = [
     'psutil == 5.9.3'
 ]
 
-extras_require={
+extras_require = {
     'dev': [
         'PyInstaller',
     ]
