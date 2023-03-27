@@ -22,7 +22,7 @@ import re
 import sys
 
 from subprocess import Popen, PIPE, DEVNULL
-import PySide2 as RefMod
+import PySide6 as RefMod
 
 from mapclient.settings.definitions import PLUGINS_PACKAGE_NAME
 from mapclient.settings.general import get_configuration_file

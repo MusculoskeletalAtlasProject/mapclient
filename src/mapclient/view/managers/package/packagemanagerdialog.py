@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import os
 
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 from mapclient.view.managers.package.ui.ui_packagemanagerdialog import Ui_PackageManagerDialog
 
 

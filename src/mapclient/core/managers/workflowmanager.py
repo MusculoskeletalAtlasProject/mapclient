@@ -21,7 +21,7 @@ import os
 import logging
 from packaging import version
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 from mapclient.settings import info
 from mapclient.core.workflow.workflowscene import WorkflowScene
@@ -117,7 +117,7 @@ class WorkflowManager(object):
 
     def updateAvailableSteps(self):
         self._steps.reload()
-        self._filtered_steps.sort(QtCore.Qt.AscendingOrder)
+        self._filtered_steps.sort(1, QtCore.Qt.AscendingOrder)
 
     def undoStackIndexChanged(self, index):
         self._currentStateIndex = index

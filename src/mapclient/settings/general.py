@@ -25,7 +25,7 @@ import json
 import psutil
 from filelock import FileLock
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 from mapclient.core.exitcodes import LOG_FILE_LOCK_FAILED
 from mapclient.settings.definitions import INTERNAL_WORKFLOWS_DIR, PID_DATABASE_FILE_NAME

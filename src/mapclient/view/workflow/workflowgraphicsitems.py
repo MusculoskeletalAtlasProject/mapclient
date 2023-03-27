@@ -21,7 +21,7 @@ import os
 import math
 import weakref
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 
 from mapclient.core.annotations import PROVIDES_ANNOTATIONS, USES_ANNOTATIONS, ANNOTATION_BASE
 from mapclient.core.workflow.workflowscene import Connection
@@ -46,9 +46,7 @@ class ErrorItem(QtWidgets.QGraphicsItem):
         self._dest = weakref.ref(destNode)
         self._sourcePoint = QtCore.QPointF()
         self._destPoint = QtCore.QPointF()
-        self._pixmap = QtGui.QPixmap(':/workflow/images/cancel_256.png').scaled(16, 16,
-                                                                                aspectRatioMode=QtCore.Qt.KeepAspectRatio,
-                                                                                transformMode=QtCore.Qt.FastTransformation)
+        self._pixmap = QtGui.QPixmap(':/workflow/images/cancel_256.png').scaled(16, 16, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
         self._source().addArc(self)
         self._dest().addArc(self)
         self.setZValue(-1.5)
@@ -250,8 +248,7 @@ class Node(Item):
             icon = QtGui.QImage(':/workflow/images/default_step_icon.png')
 
         self._pixmap = QtGui.QPixmap.fromImage(icon) \
-            .scaled(self.Size, self.Size, aspectRatioMode=QtCore.Qt.KeepAspectRatio,
-                    transformMode=QtCore.Qt.FastTransformation)
+            .scaled(self.Size, self.Size, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
 
         self._step_port_items = []
         self._text = StepText(metastep.getStep().getName(), self)
@@ -261,16 +258,16 @@ class Node(Item):
 
         self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtWidgets.QGraphicsItem.ItemSendsGeometryChanges)
-        self.setCacheMode(self.DeviceCoordinateCache)
+        self.setCacheMode(self.CacheMode.DeviceCoordinateCache)
         self.setZValue(-1)
 
         self._contextMenu = QtWidgets.QMenu()
-        configureAction = QtWidgets.QAction('Configure', self._contextMenu)
+        configureAction = QtGui.QAction('Configure', self._contextMenu)
         configureAction.triggered.connect(self.configureMe)
-        annotateAction = QtWidgets.QAction('Annotate', self._contextMenu)
+        annotateAction = QtGui.QAction('Annotate', self._contextMenu)
         annotateAction.setEnabled(False)
         annotateAction.triggered.connect(self.annotateMe)
-        deleteAction = QtWidgets.QAction('Delete', self._contextMenu)
+        deleteAction = QtGui.QAction('Delete', self._contextMenu)
         deleteAction.triggered.connect(self._removeMe)
         self._contextMenu.addAction(configureAction)
         self._contextMenu.addAction(annotateAction)
@@ -407,7 +404,7 @@ class Node(Item):
     def annotateMe(self):
         dlg = AnnotationDialog(self._getStepLocation())
         dlg.setModal(True)
-        dlg.exec_()
+        dlg.exec()
 
     def showStepName(self, show):
         self._text.setVisible(show)
@@ -459,7 +456,7 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
         self._port = port
         self._connections = []
         self._pixmap = QtGui.QPixmap(':/workflow/images/icon-port.png')
-        # .scaled(11, 11, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        # .scaled(11, 11, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
 
     def paint(self, painter, option, widget):
         painter.drawPixmap(0, 0, self._pixmap)
@@ -589,7 +586,7 @@ class MercurialIcon(QtWidgets.QGraphicsItem):
     def __init__(self, *args, **kwargs):
         super(MercurialIcon, self).__init__(*args, **kwargs)
         self._hg_yellow = QtGui.QPixmap(':/workflow/images/modified_repo.png') \
-            .scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+            .scaled(24, 24, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
         self.setToolTip('The repository has been modified')
 
     def paint(self, painter, option, widget):
@@ -611,12 +608,8 @@ class ConfigureIcon(QtWidgets.QGraphicsItem):
     def __init__(self, *args, **kwargs):
         super(ConfigureIcon, self).__init__(*args, **kwargs)
         self._configured = False
-        self._configure_green = QtGui.QPixmap(':/workflow/images/configure_green.png').scaled(24, 24,
-                                                                                              aspectRatioMode=QtCore.Qt.KeepAspectRatio,
-                                                                                              transformMode=QtCore.Qt.FastTransformation)
-        self._configure_red = QtGui.QPixmap(':/workflow/images/configure_red.png').scaled(24, 24,
-                                                                                          aspectRatioMode=QtCore.Qt.KeepAspectRatio,
-                                                                                          transformMode=QtCore.Qt.FastTransformation)
+        self._configure_green = QtGui.QPixmap(':/workflow/images/configure_green.png').scaled(24, 24, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
+        self._configure_red = QtGui.QPixmap(':/workflow/images/configure_red.png').scaled(24, 24, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
         self.setToolTip('Configure the step')
 
     def setConfigured(self, state):

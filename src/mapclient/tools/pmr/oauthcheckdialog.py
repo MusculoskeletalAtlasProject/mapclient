@@ -18,7 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import logging
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
 from mapclient.tools.pmr.ui_oauthcheckdialog import Ui_OAuthCheckDialog
 

@@ -17,8 +17,8 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QDialog, QTabWidget, QWidget, QVBoxLayout, QLabel
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QDialog, QTabWidget, QWidget, QVBoxLayout, QLabel
 
 from mapclient.view.dialogs.about.ui.ui_creditsdialog import Ui_CreditsDialog
 from mapclient.settings import info

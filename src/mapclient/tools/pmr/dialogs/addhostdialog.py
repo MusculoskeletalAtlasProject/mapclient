@@ -17,9 +17,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
-from mapclient.tools.pmr.dialogs.ui_addhostdialog import Ui_AddHostDialog
+from mapclient.tools.pmr.ui.ui_addhostdialog import Ui_AddHostDialog
 
 
 class AddHostDialog(QtWidgets.QDialog):

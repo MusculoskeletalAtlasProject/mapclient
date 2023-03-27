@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import logging
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 from mapclient.core.managers.workflowmanager import WorkflowManager
 from mapclient.core.managers.undomanager import UndoManager

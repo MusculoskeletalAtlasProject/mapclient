@@ -19,9 +19,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import logging
 
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 
-from mapclient.tools.pmr.widgets.ui_searchwidget import Ui_SearchWidget
+from mapclient.tools.pmr.ui.ui_searchwidget import Ui_SearchWidget
 from mapclient.view.utils import handle_runtime_error, set_wait_cursor
 from mapclient.tools.pmr.pmrtool import PMRToolError, PMRTool
 from mapclient.core.utils import convertExceptionToMessage

@@ -3,7 +3,7 @@ Created on Jun 24, 2015
 
 @author: hsorby
 """
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 
 from mapclient.tools.mapicon.ui_mapicondialog import Ui_MAPIconDialog
 import os.path
@@ -38,7 +38,7 @@ class MAPIconDialog(QtWidgets.QDialog):
         icon_files = self._getIconFiles()
         if all(icon_files):
             image = self._constructImage(icon_files[0], icon_files[1])
-            self._ui.labelIconPicture.setPixmap(QtGui.QPixmap.fromImage(image).scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation))
+            self._ui.labelIconPicture.setPixmap(QtGui.QPixmap.fromImage(image).scaled(64, 64, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation))
 
     def _getIconFiles(self):
         return [self._ui.lineEditStepIcon.text(),

@@ -3,7 +3,7 @@ Created on Jul 1, 2015
 
 @author: hsorby
 """
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 
 from mapclient.view.dialogs.checkstatus.ui.ui_checkstatusdialog import Ui_CheckStatusDialog
 from mapclient.core.checks import WizardToolChecks, VirtualEnvChecks, VCSChecks

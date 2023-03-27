@@ -20,9 +20,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import logging
 import webbrowser
 
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 
-from mapclient.tools.pmr.ui_authoriseapplicationdialog import Ui_AuthoriseApplicationDialog
+from mapclient.tools.pmr.ui.ui_authoriseapplicationdialog import Ui_AuthoriseApplicationDialog
 
 from mapclient.tools.pmr.settings.general import PMR
 from mapclient.tools.pmr.core import TokenHelper

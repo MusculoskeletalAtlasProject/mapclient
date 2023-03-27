@@ -19,9 +19,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import re
 
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
-from mapclient.tools.annotation.ui_annotationdialog import Ui_AnnotationDialog
+from mapclient.tools.annotation.ui.ui_annotationdialog import Ui_AnnotationDialog
 from mapclient.tools.annotation.annotationtool import AnnotationTool
 
 

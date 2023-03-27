@@ -19,14 +19,14 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import logging
 
-from PySide2 import QtWidgets
+from PySide6 import QtGui
 
 from mapclient.view.workflow.workflowgraphicsitems import Node
 
 logger = logging.getLogger()
 
 
-class CommandRemove(QtWidgets.QUndoCommand):
+class CommandRemove(QtGui.QUndoCommand):
 
     def __init__(self, scene, selection):
         super(CommandRemove, self).__init__()
@@ -54,7 +54,7 @@ class CommandRemove(QtWidgets.QUndoCommand):
         self._scene.blockSignals(False)
 
 
-class CommandSelection(QtWidgets.QUndoCommand):
+class CommandSelection(QtGui.QUndoCommand):
     """
     We block signals  when setting the selection so that we
     don't end up in a recursive loop.
@@ -80,7 +80,7 @@ class CommandSelection(QtWidgets.QUndoCommand):
         self._scene.blockSignals(False)
 
 
-class CommandAdd(QtWidgets.QUndoCommand):
+class CommandAdd(QtGui.QUndoCommand):
 
     def __init__(self, scene, item):
         super(CommandAdd, self).__init__()
@@ -98,7 +98,7 @@ class CommandAdd(QtWidgets.QUndoCommand):
         self._scene.blockSignals(False)
 
 
-class CommandMove(QtWidgets.QUndoCommand):
+class CommandMove(QtGui.QUndoCommand):
 
     def __init__(self, node, posFrom, posTo):
         super(CommandMove, self).__init__()
@@ -113,7 +113,7 @@ class CommandMove(QtWidgets.QUndoCommand):
         self._node.setPos(self._from)
 
 
-class CommandConfigure(QtWidgets.QUndoCommand):
+class CommandConfigure(QtGui.QUndoCommand):
 
     def __init__(self, scene, node, new_config, old_config):
         super(CommandConfigure, self).__init__()
@@ -133,4 +133,3 @@ class CommandConfigure(QtWidgets.QUndoCommand):
         self._node.update()
 #        for item in self._scene.items():
 #            item.update()
-
