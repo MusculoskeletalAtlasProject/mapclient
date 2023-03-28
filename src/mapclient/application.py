@@ -105,13 +105,12 @@ def windows_main(app_args):
 
     logger.info('Setting toolbox settings for matplotlib and enthought to: qt')
 
-    splash.showMessage('Loading opencmiss.zinc ...', 10)
+    splash.showMessage('Loading cmlibs.zinc ...', 10)
     try:
-        from opencmiss.zinc.context import Context
-        Context("MAP")
-        logger.info('OpenCMISS-Zinc is available.')
+        import openciss.zinc.context
+        logger.info('Zinc is available.')
     except ImportError:
-        logger.warning(' *** OpenCMISS-Zinc is not available ***')
+        logger.warning(' *** Zinc is not available ***')
 
     splash.showMessage('Creating application ...', 20)
     from mapclient.core.mainapplication import MainApplication
