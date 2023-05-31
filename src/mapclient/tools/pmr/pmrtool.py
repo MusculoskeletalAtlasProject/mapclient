@@ -326,7 +326,7 @@ class PMRTool(object):
             remote_workspace_url=remote_workspace_url,
         )
 
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
 
         # Another caveat: that workspace is possibly private.  Acquire
         # temporary password.
@@ -351,7 +351,7 @@ class PMRTool(object):
         if not self.hasAccess():
             return
 
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
         cmd = workspace.cmd
         remote_workspace_url = cmd.read_remote(workspace)
         target = '/'.join([remote_workspace_url, 'rdf_indexer'])
@@ -390,7 +390,7 @@ class PMRTool(object):
     def hasDVCS(self, local_workspace_dir):
         git_dir = os.path.join(local_workspace_dir, '.git')
         if os.path.isdir(git_dir):
-            bob = get_cmd_by_name(self._git_implementation)
+            bob = get_cmd_by_name(self._git_implementation)()
             workspace = CmdWorkspace(local_workspace_dir, bob)
             return workspace.cmd is not None
         else:
@@ -398,7 +398,7 @@ class PMRTool(object):
 
 
     def commitFiles(self, local_workspace_dir, message, files):
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
         cmd = workspace.cmd
         if cmd is None:
             logger.info('skipping commit, no underlying repo detected')
@@ -414,7 +414,7 @@ class PMRTool(object):
         return cmd.commit(workspace, message)
 
     def pushToRemote(self, local_workspace_dir, remote_workspace_url=None):
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
         cmd = workspace.cmd
 
         if remote_workspace_url is None:
@@ -436,7 +436,7 @@ class PMRTool(object):
         return stdout, stderr
 
     def pullFromRemote(self, local_workspace_dir):
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
         cmd = workspace.cmd
 
         remote_workspace_url = cmd.read_remote(workspace)
