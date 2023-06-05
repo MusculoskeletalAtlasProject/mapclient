@@ -332,16 +332,16 @@ class PMRTool(object):
         # temporary password.
         creds = self.requestTemporaryPassword(remote_workspace_url)
         if creds:
-            result = workspace.cmd.pull(workspace,
+            stdout, stderr, return_code = workspace.cmd.pull(workspace,
                 username=creds['user'], password=creds['key'])
         else:
             # no credentials
             logger.info('not using credentials as none are detected')
-            result = workspace.cmd.pull(workspace)
+            stdout, stderr, return_code = workspace.cmd.pull(workspace)
 
         # TODO trap this result too?
         workspace.cmd.reset_to_remote(workspace)
-        return result
+        return return_code
 
     def addFileToIndexer(self, local_workspace_dir, workspace_file):
         """
@@ -407,7 +407,7 @@ class PMRTool(object):
         logger.info('Using `%s` for committing files.', cmd.__class__.__name__)
 
         for fn in files:
-            sout, serr = cmd.add(workspace, fn)
+            sout, serr, return_code = cmd.add(workspace, fn)
             # if serr has something we need to handle?
 
         # XXX committer will be a problem if unset in git.
@@ -422,16 +422,16 @@ class PMRTool(object):
         # Acquire temporary creds
         creds = self.requestTemporaryPassword(remote_workspace_url)
 
-        stdout, stderr = cmd.push(workspace,
+        stdout, stderr, return_code = cmd.push(workspace,
             username=creds['user'], password=creds['key'])
 
         if stdout:
             logger.info(stdout)
         if stderr:
-            logger.error(stderr)
-#             raise PMRToolError('Error pushing changes to PMR',
-#                 'The command line tool gave us this error message:\n\n' +
-#                     stderr)
+            if return_code:
+                logger.error(stderr)
+            else:
+                logger.info(stderr)
 
         return stdout, stderr
 
@@ -441,7 +441,7 @@ class PMRTool(object):
 
         remote_workspace_url = cmd.read_remote(workspace)
         creds = self.requestTemporaryPassword(remote_workspace_url)
-        stdout, stderr = cmd.pull(workspace,
+        stdout, stderr, return_code = cmd.pull(workspace,
             username=creds['user'], password=creds['key'])
 
         if stdout:
