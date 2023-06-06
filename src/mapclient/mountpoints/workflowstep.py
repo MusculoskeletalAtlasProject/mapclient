@@ -17,6 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
+import os
 import sys
 
 from mapclient.core import pluginframework
@@ -249,6 +250,19 @@ def _workflow_step_get_category(self):
     return self._category
 
 
+def _workflow_step_git_include(self):
+    return []
+
+
+def _workflow_step_create_git_ignore(self):
+    step_location = os.path.join(self._location, self.getIdentifier())
+    if os.path.exists(step_location):
+        with open(os.path.join(step_location, ".gitignore"), "w") as file:
+            file.write("*\n")
+            for expression in self.gitInclude():
+                file.write("!" + expression + "\n")
+
+
 attr_dict = {}
 attr_dict['__init__'] = _workflow_step_init
 attr_dict['setLocation'] = _workflow_step_setLocation
@@ -270,6 +284,8 @@ attr_dict['serialize'] = _workflow_step_serialize
 attr_dict['getSourceURI'] = _workflow_step_get_source_uri
 attr_dict['getIcon'] = _workflow_step_get_icon
 attr_dict['getCategory'] = _workflow_step_get_category
+attr_dict['gitInclude'] = _workflow_step_git_include
+attr_dict['createGitIgnore'] = _workflow_step_create_git_ignore
 
 WorkflowStepMountPoint = pluginframework.MetaPluginMountPoint('WorkflowStepMountPoint', (object,), attr_dict)
 

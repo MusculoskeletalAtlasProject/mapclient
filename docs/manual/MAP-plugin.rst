@@ -112,6 +112,7 @@ A Step Could
  * Implement the method 'setPortData(self, index, dataIn)', if it uses some information from another step.
  * Implement the method 'getPortData(self, index)', if it was providing some information to another step.
  * Implement the method 'execute(self)', if a step implements the 'execute(self)' method then it must call '_doneExecution()' when the work the step required to do is finished.
+ * Implement the method 'gitInclude(self)', if the step saves files in its workflow sub-directory that should be included in version control of the workflow.
  * Define a category using the '_category' attribute.  This attribute will add the step to the named category in the step box, or it will create the named category if it is not present.
  * Set a widget as the main widget for the MAP Client application.  Calling '_setCurrentWidget(step_widget)' with a widget passed as a parameter will set that widget to the main widget for the MAP Client application.
    The widget will be removed when '_doneExecution()' is called.
@@ -172,7 +173,14 @@ A step has a number of pre-defined methods, they are:
  * deserialize(self, string)
      Must be implemented in the plugin otherwise an exception is raised. 
  * serialize(self)
-     Must be implemented in the plugin otherwise an exception is raised. 
+     Must be implemented in the plugin otherwise an exception is raised.
+ * gitInclude(self)
+     This method is called by *createGitIgnore* to determine the files and file types to be included in the step's workflow sub-directory for
+     version control. *gitInclude* can be overridden by a plugin implementation to return a list of files, file-types or directories (e.g.,
+     ['point-cloud.exf', 'settings.json']).
+ * createGitIgnore(self)
+     Called automatically for each workflow step when the workflow is saved. This method creates a .gitignore file in the step's workflow
+     sub-directory that filters the step's workflow files that should be included in the version control of the workflow.
  * _setCurrentWidget(step_widget)
      Set widget 'step_widget' to the main widget for the framework.
  * _doneExecution()

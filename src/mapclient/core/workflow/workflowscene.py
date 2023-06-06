@@ -92,6 +92,7 @@ class WorkflowScene(object):
 
             identifier = metastep.getIdentifier() or metastep.getUniqueIdentifier()
             step = metastep.getStep()
+            step.createGitIgnore()
             step_config = step.serialize()
             if step_config:
                 with open(get_configuration_file(location, identifier), 'w') as f:
