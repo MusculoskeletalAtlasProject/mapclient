@@ -473,20 +473,28 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
     def wheelEvent(self, event):
         if event.modifiers() == QtCore.Qt.ControlModifier:
-            scale_factor = math.pow(2.0, -event.angleDelta().y() / 240.0)
-            # original_transformation_anchor = self.transformationAnchor()
-            # self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorViewCenter)
-            self.scale(scale_factor, scale_factor)
-            self._unscale_view(scale_factor)
-            # self.setTransformationAnchor(original_transformation_anchor)
+            self.zoom(event.angleDelta().y())
         else:
             super(WorkflowGraphicsView, self).wheelEvent(event)
 
     def zoomIn(self):
-        self.scale(1.2, 1.2)
+        self.zoom(-120)
 
     def zoomOut(self):
-        self.scale(1 / 1.2, 1 / 1.2)
+        self.zoom(120)
+
+    def zoom(self, delta):
+        scale_factor = math.pow(2.0, -delta / 240.0)
+        self.scale(scale_factor, scale_factor)
+        self._unscale_view(scale_factor)
+
+    def reset_zoom(self):
+        reverse_sf = 1 / self._graphics_scale_factor
+        self.scale(reverse_sf, reverse_sf)
+        self._unscale_view(reverse_sf)
+
+        self._graphics_scale_factor = 1.0
+        self.resetTransform()
 
     def _old_scale_view(self, scale_factor):
         factor = self.matrix().scale(scale_factor, scale_factor).mapRect(QtCore.QRectF(0, 0, 1, 1)).width()
