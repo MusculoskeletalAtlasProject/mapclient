@@ -35,6 +35,7 @@ class WorkflowScene(object):
 
     def __init__(self, manager):
         self._manager = manager
+        self._location = ''
         self._items = {}
         self._dependencyGraph = WorkflowDependencyGraph(self)
         self._main_window = None
@@ -50,6 +51,7 @@ class WorkflowScene(object):
         pass
 
     def updateWorkflowLocation(self, location):
+        self._location = location
         update_made = False
         for meta_item in self._items:
             if meta_item.Type == MetaStep.Type:
@@ -74,7 +76,6 @@ class WorkflowScene(object):
                 else:
                     connectionMap[item.source()] = [item]
 
-        location = self._manager.location()
         ws.beginGroup('view')
         for key in self._view_parameters:
             ws.setValue(key, self._view_parameters[key])
@@ -94,7 +95,7 @@ class WorkflowScene(object):
             step = metastep.getStep()
             step_config = step.serialize()
             if step_config:
-                with open(get_configuration_file(location, identifier), 'w') as f:
+                with open(get_configuration_file(self._location, identifier), 'w') as f:
                     f.write(step_config)
             ws.setArrayIndex(nodeIndex)
             source_uri = step.getSourceURI()
@@ -122,11 +123,10 @@ class WorkflowScene(object):
 
     def is_loadable(self, ws):
         loadable = True
-        location = self._manager.location()
         try:
             step_names = self._read_step_names(ws)
             for name in step_names:
-                step = workflowStepFactory(name, location)
+                step = workflowStepFactory(name, self._location)
 
         except ValueError:
             loadable = False
@@ -161,30 +161,8 @@ class WorkflowScene(object):
         step_names = self._read_step_names(ws)
         restrict_plugins(step_names)
 
-    def fit_workflow(self, graphics_view, graphics_scene):
-        """
-        Scales the workflow items to fit into the current window size. This method maintains the aspect ratio of the saved workflow.
-        """
-        view_size = graphics_view.size()
-        scene_size = graphics_scene.sceneRect()
-
-        # -70 from both to account for step item width. +22 to scene to account for scene border.
-        sf_x = (view_size.width() - 70) / (scene_size.width() - 48)
-        sf_y = (view_size.height() - 70) / (scene_size.height() - 48)
-
-        if sf_x != 0 or sf_y != 0:
-            for item in self.items():
-                if isinstance(item, MetaStep):
-                    x = sf_x * item.getPos().x()
-                    y = sf_y * item.getPos().y()
-                    item.setPos(QtCore.QPointF(x, y))
-
-            graphics_scene.setSceneRect(graphics_view.rect())
-            graphics_scene.updateModel()
-
     def doStepReport(self, ws):
         report = {}
-        location = self._manager.location()
         ws.beginGroup('nodes')
         node_count = ws.beginReadArray('nodelist')
         for i in range(node_count):
@@ -192,7 +170,7 @@ class WorkflowScene(object):
             name = ws.value('name')
 
             try:
-                step = workflowStepFactory(name, location)
+                step = workflowStepFactory(name, self._location)
                 report[name] = 'Found'
 
             except ValueError as e:
@@ -219,14 +197,25 @@ class WorkflowScene(object):
 
     def load_state(self, ws):
         self.clear()
-        location = self._manager.location()
         ws.beginGroup('view')
-        self._view_parameters = {
+        loaded_view_parameters = {
             'scale': float(ws.value('scale', '1.0')),
-            'rect': ws.value('rect'),
+            'rect': ws.value('rect', self._view_parameters['rect']),
             'transform': ws.value('transform')
         }
         ws.endGroup()
+
+        # Scale the WorkflowScene view-parameters:
+        current_rect = self._view_parameters['rect']
+        loaded_rect = loaded_view_parameters['rect']
+        scale_factor = loaded_view_parameters['scale']
+        if scale_factor != 1.0:
+            current_rect.setWidth(current_rect.width() / scale_factor)
+            current_rect.setHeight(current_rect.height() / scale_factor)
+        self._view_parameters = loaded_view_parameters
+
+        sf_x = current_rect.width() / loaded_rect.width()
+        sf_y = current_rect.height() / loaded_rect.height()
 
         ws.beginGroup('nodes')
         nodeCount = ws.beginReadArray('nodelist')
@@ -240,7 +229,11 @@ class WorkflowScene(object):
             identifier = ws.value('identifier')
             uniqueIdentifier = ws.value('unique_identifier', uuid.uuid1())
 
-            step = workflowStepFactory(name, location)
+            # Adjust the item positions according to the scale factors.
+            position.setX(position.x() * sf_x)
+            position.setY(position.y() * sf_y)
+
+            step = workflowStepFactory(name, self._location)
             step.setMainWindow(self._main_window)
             step.registerIdentifierOccursCount(self.identifierOccursCount)
             metastep = MetaStep(step)
@@ -253,7 +246,7 @@ class WorkflowScene(object):
 
             # Deserialize after adding the step to the scene, this is so
             # we can validate the step identifier
-            configuration = loadConfiguration(location, identifier)
+            configuration = loadConfiguration(self._location, identifier)
             step.deserialize(configuration)
             arcCount = ws.beginReadArray('connections')
             for j in range(arcCount):
@@ -275,9 +268,6 @@ class WorkflowScene(object):
 
     def setMainWindow(self, main_window):
         self._main_window = main_window
-
-    def manager(self):
-        return self._manager
 
     def canExecute(self):
         return self._dependencyGraph.can_execute()
