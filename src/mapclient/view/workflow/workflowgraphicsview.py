@@ -155,7 +155,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         copying and pasting steps within the MAP Client workflow area.
 
         When copying workflow items using the CTRL+Drag operation, you should specify a starting position. This argument is not necessary
-        (or relavant) when copying items with the CTRL+C shortcut.
+        (or relevant) when copying items with the CTRL+C shortcut.
         """
         data = QtCore.QByteArray()
         data_stream = QtCore.QDataStream(data, QtCore.QIODevice.WriteOnly)
@@ -500,6 +500,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
     def reposition_steps(self):
         scene_rect = self.sceneRect()
+        self._undoStack.beginMacro('Reposition Step(s)')
         for item in self.items():
             if isinstance(item, Node):
                 x = item.x()
@@ -510,7 +511,37 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
                     y = scene_rect.bottom() - 116
 
                 if x != item.x() or y != item.y():
-                    item.setPos(QtCore.QPointF(x, y))
+                    self._undoStack.push(CommandMove(item, item.pos(), QtCore.QPointF(x, y)))
+        self._undoStack.endMacro()
+        self.merge_macros()
+
+    def merge_macros(self):
+        # If the top-most macro is successfully merged, remove it from the undo stack.
+        merged_macro = self._merge_macros()
+        if merged_macro:
+            merged_macro.setObsolete(True)
+            self._undoStack.undo()
+
+    def _merge_macros(self):
+        # Attempt to merge the top-most macro on the undo stack into the previous macro.
+        try:
+            current_cmd = self._undoStack.command(self._undoStack.index() - 1)
+            previous_cmd = self._undoStack.command(self._undoStack.index() - 2)
+            if current_cmd and not current_cmd.childCount():
+                return current_cmd
+            if previous_cmd:
+                assert (current_cmd.text() == previous_cmd.text())
+                assert (current_cmd.childCount() == previous_cmd.childCount())
+                for i in range(previous_cmd.childCount()):
+                    assert (isinstance(current_cmd.child(i), CommandMove))
+                    assert (isinstance(previous_cmd.child(i), CommandMove))
+                    assert (previous_cmd.child(i).node() == current_cmd.child(i).node())
+                for i in range(previous_cmd.childCount()):
+                    previous_cmd.child(i).mergeWith(current_cmd.child(i))
+                return current_cmd
+
+        except AssertionError:
+            return None
 
     def view_all(self):
         bounding_rect = self.nodes_bounding_rect()
