@@ -23,6 +23,7 @@ def main(variant):
         '-n', f'MAP-Client{variant}',
         '--debug', 'noarchive',
         # '--windowed',
+        '--console',
         '--no-embed-manifest',
         '--noconfirm',
         '--hidden-import', 'scipy',
