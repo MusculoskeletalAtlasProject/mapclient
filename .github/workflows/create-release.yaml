@@ -10,33 +10,27 @@ jobs:
     name: create_release
     runs-on: ubuntu-20.04
     steps:
-      - name: Get the tag
-        id: get_tag
-        run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
       - name: Determine release properties
         shell: bash
         id: release_properties
         run: |
-          tag=${{ steps.get_tag.outputs.tag }}
+          tag=${GITHUB_REF#refs/tags/}
           OIFS=$IFS
           IFS='.' read -ra split <<< "$tag"
           IFS=$OIFS
           count=${#split[@]}
           echo "something $tag - $count."
           [[ ${#split[@]} -eq 4 ]] && pre_release=true || pre_release=false
-          [[ ${#split[@]} -eq 4 ]] && body="Pre-release version $tag." || body="Version $tag."
-          echo ::set-output name=PRE_RELEASE::$pre_release
-          echo ::set-output name=NAME::$tag
-          echo ::set-output name=BODY::$body
+          [[ ${#split[@]} -eq 4 ]] && body="Pre-release of version $tag." || body="Version $tag."
+          echo "PRE_RELEASE=$pre_release" >> $GITHUB_OUTPUT
+          echo "BODY=$body" >> $GITHUB_OUTPUT
       - name: create
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           draft: false
           prerelease: ${{ steps.release_properties.outputs.pre_release }}
-          release_name: ${{ steps.release_properties.outputs.name }}
-          tag_name: ${{ github.ref }}
           body: ${{ steps.release_properties.outputs.body }}
 
