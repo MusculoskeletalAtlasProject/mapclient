@@ -107,7 +107,7 @@ def windows_main(app_args):
 
     splash.showMessage('Loading cmlibs.zinc ...', 10)
     try:
-        import openciss.zinc.context
+        import cmlibs.zinc.context
         logger.info('Zinc is available.')
     except ImportError:
         logger.warning(' *** Zinc is not available ***')
