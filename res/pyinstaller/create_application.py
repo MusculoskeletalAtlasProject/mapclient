@@ -21,17 +21,15 @@ def main(variant):
     run_command = [
         '../../src/mapclient/application.py',
         '-n', f'MAP-Client{variant}',
-        # '--debug', 'noarchive',
-        '--windowed',
+        '--debug', 'noarchive',
+        # '--windowed',
         '--no-embed-manifest',
         '--noconfirm',
         '--hidden-import', 'scipy',
         '--hidden-import', 'scipy.interpolate',
         '--hidden-import', 'numpy',
         '--hidden-import', 'mapclientplugins',
-        # '--hidden-import', 'opencmiss.utils',
-        # '--hidden-import', 'opencmiss.zincwidgets',
-        '--hidden-import', 'opencmiss.zinc',
+        '--hidden-import', 'cmlibs.zinc',
         '--additional-hooks-dir=hooks',
     ]
 
