@@ -85,7 +85,7 @@ def main(variant):
             lines = f.readlines()
 
         for line in lines:
-            run_command.append(f'--paths={line}')
+            run_command.append(f'--paths={line.rstrip()}')
 
     print('Running command: ', run_command)
     PyInstaller.__main__.run(run_command)
