@@ -79,6 +79,14 @@ def main(variant):
         data = os.pathsep.join([internal_workflows_zip, '.'])
         run_command.append(f'--add-data={data}')
 
+    plugin_paths_file = os.path.join(os.getcwd(), 'mapclientplugins_paths.txt')
+    if os.path.isfile(plugin_paths_file):
+        with open(plugin_paths_file) as f:
+            lines = f.readlines()
+
+        for line in lines:
+            run_command.append(f'--paths={line}')
+
     print('Running command: ', run_command)
     PyInstaller.__main__.run(run_command)
 
