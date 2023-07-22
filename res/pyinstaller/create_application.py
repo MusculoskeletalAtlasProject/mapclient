@@ -21,7 +21,7 @@ def main(variant):
     run_command = [
         '../../src/mapclient/application.py',
         '-n', f'MAP-Client{variant}',
-        '--debug', 'noarchive',
+        # '--debug', 'noarchive',
         '--windowed',
         # '--console',
         '--no-embed-manifest',
