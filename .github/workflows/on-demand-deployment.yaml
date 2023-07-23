@@ -39,11 +39,11 @@ jobs:
             string(STRIP "${_PART}" _PART)
             if ("${_PART}" STREQUAL "[odd release with mapping tools]")
               message(STATUS "Require a MAP Client mapping tools variant.")
-              file(APPEND $ENV{GITHUB_OUTPUT} "include_mapping_tools=true")
+              file(APPEND $ENV{GITHUB_OUTPUT} "include_mapping_tools=true\n")
             endif()
             if ("${_PART}" STREQUAL "[odd release with installer]")
               message(STATUS "Require a MAP Client installer.")
-              file(APPEND $ENV{GITHUB_OUTPUT} "include_installer=true")
+              file(APPEND $ENV{GITHUB_OUTPUT} "include_installer=true\n")
             endif()
           endforeach()
       - name: set_matrix
