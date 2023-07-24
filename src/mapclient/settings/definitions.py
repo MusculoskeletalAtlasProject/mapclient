@@ -30,6 +30,7 @@ changing the string.
 OPTIONS_SETTINGS_TAG = 'Options'
 SHOW_STEP_NAMES = 'checkBoxShowStepNames'
 CLOSE_AFTER = 'doubleSpinBoxMessageBoxTimer'
+METRICS_PERMISSION = 'checkBoxMetricsPermission'
 DONT_CREATE_VIRTUAL_ENV = 'checkBoxDontCreateVirtualEnvironment'
 PYSIDE_UIC_EXE = 'lineEditPySideUIC'
 PYSIDE_RCC_EXE = 'lineEditPySideRCC'
@@ -65,3 +66,4 @@ AUTOLOAD_PREVIOUS_WORKFLOW = 'checkBoxAutoloadPreviousWorkflow'
 FROZEN_PROVENANCE_INFO_FILE = 'provenance_info.json'
 
 PID_DATABASE_FILE_NAME = 'pid_database.json'
+METRICS_FILE_NAME = 'metrics.json'

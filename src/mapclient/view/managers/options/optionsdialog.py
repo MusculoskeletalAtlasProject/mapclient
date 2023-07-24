@@ -147,6 +147,7 @@ class OptionsDialog(QtWidgets.QDialog):
         vcs_option = self._ui.lineEditGitExecutable.objectName()
         internal_directory_option = self._ui.lineEditInternalWorkflowDirectory.objectName()
         message_box_timer = self._ui.doubleSpinBoxMessageBoxTimer.objectName()
+        metrics_permission = self._ui.checkBoxMetricsPermission.objectName()
         if step_name_option in options:
             self._ui.checkBoxShowStepNames.setChecked(options[step_name_option])
         if check_tools_option in options:
@@ -167,6 +168,8 @@ class OptionsDialog(QtWidgets.QDialog):
             self._ui.lineEditInternalWorkflowDirectory.setText(options[internal_directory_option])
         if message_box_timer in options:
             self._ui.doubleSpinBoxMessageBoxTimer.setValue(options[message_box_timer])
+        if metrics_permission in options:
+            self._ui.checkBoxMetricsPermission.setChecked(options[metrics_permission])
 
         self._update_ui()
         self._test_tools()
@@ -181,7 +184,8 @@ class OptionsDialog(QtWidgets.QDialog):
                    self._ui.lineEditPySideUIC.objectName(): self._ui.lineEditPySideUIC.text(),
                    self._ui.lineEditGitExecutable.objectName(): self._ui.lineEditGitExecutable.text(),
                    self._ui.lineEditInternalWorkflowDirectory.objectName(): self._ui.lineEditInternalWorkflowDirectory.text(),
-                   self._ui.doubleSpinBoxMessageBoxTimer.objectName(): self._ui.doubleSpinBoxMessageBoxTimer.value()}
+                   self._ui.doubleSpinBoxMessageBoxTimer.objectName(): self._ui.doubleSpinBoxMessageBoxTimer.value(),
+                   self._ui.checkBoxMetricsPermission.objectName(): self._ui.checkBoxMetricsPermission.isChecked()}
 
         return options
 

@@ -28,7 +28,7 @@ from filelock import FileLock
 from PySide6 import QtCore
 
 from mapclient.core.exitcodes import LOG_FILE_LOCK_FAILED
-from mapclient.settings.definitions import INTERNAL_WORKFLOWS_DIR, PID_DATABASE_FILE_NAME
+from mapclient.settings.definitions import INTERNAL_WORKFLOWS_DIR, PID_DATABASE_FILE_NAME, METRICS_FILE_NAME
 
 from mapclient.settings.info import VERSION_STRING
 
@@ -65,6 +65,33 @@ def get_default_internal_workflow_dir():
 def get_virtualenv_site_packages_directory(virtualenv_dir):
     print('Confirm path on other OSes, so far only checked on Windows.')
     return os.path.join(virtualenv_dir, 'Lib', 'site-packages')
+
+
+def _get_metrics_directory():
+    return _get_app_directory('metrics')
+
+
+def _get_metrics_log_file():
+    return os.path.join(_get_metrics_directory(), METRICS_FILE_NAME)
+
+
+def write_metrics(session):
+    metrics_log_file = _get_metrics_log_file()
+
+    try:
+        lock = FileLock(metrics_log_file + ".lock", 3)
+        with lock:
+            with open(metrics_log_file, "w") as file:
+                file.write(session)
+
+    except TimeoutError:
+        sys.exit(LOG_FILE_LOCK_FAILED)
+
+
+def settings_file_exists():
+    settings = QtCore.QSettings()
+    file_name = settings.fileName()
+    return os.path.isfile(file_name)
 
 
 def get_log_directory():

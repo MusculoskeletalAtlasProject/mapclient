@@ -24,9 +24,11 @@ import traceback
 from mapclient.core.utils import convertExceptionToMessage, FileTypeObject
 from mapclient.core.workflow.workflowerror import WorkflowError
 from mapclient.core.workflow.workflowitems import Connection
+from mapclient.core.metrics import get_metrics_logger
 
 
 logger = logging.getLogger(__name__)
+metrics_logger = get_metrics_logger()
 
 
 def _node_is_destination(graph, node):
@@ -163,6 +165,7 @@ class WorkflowDependencyGraph(object):
         self._current += self._direction
         if self._current >= len(self._topological_order):
             self._current = -1
+            metrics_logger.workflow_executed()
             if callable(self._finished_callback):
                 self._finished_callback(True)
         elif self._current == -1:
@@ -199,10 +202,12 @@ class WorkflowDependencyGraph(object):
 
             try:
                 current_node.getStep().execute()
+                metrics_logger.plugin_executed(current_node.getStep().getName())
             except Exception as e:
                 self._current = -1
                 log_message = 'Exception caught while executing the workflow: ' + convertExceptionToMessage(e)
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 redirect_output = FileTypeObject()
                 traceback.print_exception(exc_type, exc_value, exc_traceback, file=redirect_output)
+                metrics_logger.error_occurred(current_node.getStep().getName(), exc_type)
                 raise WorkflowError(log_message + '\n\n' + ''.join(redirect_output.messages))

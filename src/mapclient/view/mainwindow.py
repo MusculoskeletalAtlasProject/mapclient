@@ -23,14 +23,16 @@ from PySide6 import QtWidgets, QtGui
 
 from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
 from mapclient.view.workflow.workflowwidget import WorkflowWidget
-from mapclient.settings.general import unrestrict_plugins
+from mapclient.settings.general import unrestrict_plugins, settings_file_exists
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
-from mapclient.settings.definitions import WIZARD_TOOL_STRING, \
+from mapclient.settings.definitions import WIZARD_TOOL_STRING, METRICS_PERMISSION, \
     PMR_TOOL_STRING, PYSIDE_RCC_EXE, USE_EXTERNAL_RCC, PYSIDE_UIC_EXE, USE_EXTERNAL_UIC, \
     PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION, USE_EXTERNAL_GIT
 from mapclient.view.utils import set_wait_cursor
+from mapclient.core.metrics import get_metrics_logger
 
 logger = logging.getLogger(__name__)
+metrics_logger = get_metrics_logger()
 
 ADMIN_MODE = False
 
@@ -217,6 +219,17 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         return self._model.doEnvironmentChecks()
 
+    def check_permissions(self):
+        if not settings_file_exists():
+            permission = self._request_metrics_permission()
+            self._model.optionsManager().setOption(METRICS_PERMISSION, permission)
+
+    def log_metrics(self):
+        om = self._model.optionsManager()
+        enabled = om.getOption(METRICS_PERMISSION)
+        if enabled:
+            metrics_logger.log_session()
+
     @staticmethod
     def setup_application():
         return False
@@ -305,6 +318,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def quit_application(self):
         self.confirm_close()
 
+        self.log_metrics()
         self._model.setSize(self.size())
         self._model.setPos(self.pos())
         self._model.writeSettings()
@@ -378,6 +392,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._maybe_restart_application()
 
         self._pluginManagerDlg = None
+
+    def _request_metrics_permission(self):
+        result = QtWidgets.QMessageBox.question(
+            self, 'Metrics Permission', 'Give the MAP-Client permission to record and send metrics/usage statistics?\t',
+            QtWidgets.QMessageBox.StandardButton(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No))
+        return True if result == QtWidgets.QMessageBox.StandardButton.Yes else False
 
     @set_wait_cursor
     def _plugin_manager_load_plugins(self):
