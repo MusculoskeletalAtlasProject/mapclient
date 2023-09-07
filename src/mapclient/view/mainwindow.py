@@ -93,6 +93,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_Options.setObjectName("action_Options")
         self._action_About = QtGui.QAction(self)
         self._action_About.setObjectName("action_About")
+        self._action_ReportIssue = QtGui.QAction(self)
+        self._action_ReportIssue.setObjectName("_action_ReportIssue")
         self._action_Quit = QtGui.QAction(self)
         self._action_Quit.setObjectName("action_Quit")
         self._action_PluginManager = QtGui.QAction(self)
@@ -114,6 +116,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._action_MAPIcon.setObjectName("actionMAPIcon")
 
         self._menu_Help.addAction(self._action_About)
+        self._menu_Help.addAction(self._action_ReportIssue)
         self._menu_View.addSeparator()
         self._menu_View.addAction(self._action_LogInformation)
         self._menu_View.addAction(self._action_Options)
@@ -145,6 +148,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_Workflow.setTitle(QtWidgets.QApplication.translate("MainWindow", "&Workflow", None, -1))
         self._menu_Tools.setTitle(QtWidgets.QApplication.translate("MainWindow", "&Tools", None, -1))
         self._action_About.setText(QtWidgets.QApplication.translate("MainWindow", "&About", None, -1))
+        self._action_ReportIssue.setText(QtWidgets.QApplication.translate("MainWindow", "&Report Issue", None, -1))
         self._action_Quit.setText(QtWidgets.QApplication.translate("MainWindow", "&Quit", None, -1))
         self._action_Quit.setStatusTip(QtWidgets.QApplication.translate("MainWindow", "Quit the application", None, -1))
         self._action_Quit.setShortcut(QtWidgets.QApplication.translate("MainWindow", "Ctrl+Q", None, -1))
@@ -197,6 +201,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _make_connections(self):
         self._action_Quit.triggered.connect(self.quit_application)
         self._action_About.triggered.connect(self.about)
+        self._action_ReportIssue.triggered.connect(self.report_issue)
         self._action_LogInformation.triggered.connect(self._show_log_information_dialog)
         self._action_Options.triggered.connect(self.show_options_dialog)
         self._action_PluginManager.triggered.connect(self._show_plugin_manager_dialog)
@@ -313,6 +318,12 @@ class MainWindow(QtWidgets.QMainWindow):
     def about(self):
         from mapclient.view.dialogs.about.aboutdialog import AboutDialog
         dlg = AboutDialog(self)
+        dlg.setModal(True)
+        dlg.exec()
+
+    def report_issue(self):
+        from mapclient.view.dialogs.reportissue.reportissuedialog import ReportIssueDialog
+        dlg = ReportIssueDialog(self)
         dlg.setModal(True)
         dlg.exec()
 
