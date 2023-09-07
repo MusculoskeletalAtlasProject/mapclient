@@ -118,7 +118,7 @@ class Ui_ReportIssueDialog(object):
 "", None))
         self.description_2.setText(QCoreApplication.translate("ReportIssueDialog", u"<p align=\"justify\" style=\"margin-left:20; margin-right:20;\">\n"
 "\n"
-"Alternatively, it is also possible to report an issue by email if you'd prefer. Please direct your messages to <i>support@sparc.science</i> for any issues or questions you have in regards to the MAP-Client.\n"
+"Alternatively, it is also possible to report an issue by email if you'd prefer. Please direct your messages to <i>mapping-tools-support@sparc.science</i> for any issues or questions you have in regards to the MAP-Client.\n"
 "\n"
 "<br/></p>\n"
 "\n"
