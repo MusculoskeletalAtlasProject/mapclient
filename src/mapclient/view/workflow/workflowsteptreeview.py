@@ -57,8 +57,8 @@ class WorkflowStepTreeView(QtWidgets.QTreeView):
     def mouseDoubleClickEvent(self, event):
         return event.accept()
 
-    def setFilterRegExp(self, reg_exp):
-        self.model().setFilterRegExp(reg_exp)
+    def setFilterRegularExpression(self, reg_exp):
+        self.model().setFilterRegularExpression(reg_exp)
 
     def _handleMousePress(self, index):
         self._leftMouseButton = QtWidgets.QApplication.mouseButtons() == QtCore.Qt.LeftButton
