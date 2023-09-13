@@ -66,4 +66,3 @@ AUTOLOAD_PREVIOUS_WORKFLOW = 'checkBoxAutoloadPreviousWorkflow'
 FROZEN_PROVENANCE_INFO_FILE = 'provenance_info.json'
 
 PID_DATABASE_FILE_NAME = 'pid_database.json'
-METRICS_FILE_NAME = 'metrics.json'

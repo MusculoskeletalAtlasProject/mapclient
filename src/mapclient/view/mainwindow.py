@@ -219,16 +219,15 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         return self._model.doEnvironmentChecks()
 
+    def start_metrics(self):
+        self.check_permissions()
+        metrics_logger.session_started()
+
     def check_permissions(self):
         if not settings_file_exists():
             permission = self._request_metrics_permission()
             self._model.optionsManager().setOption(METRICS_PERMISSION, permission)
-
-    def log_metrics(self):
-        om = self._model.optionsManager()
-        enabled = om.getOption(METRICS_PERMISSION)
-        if enabled:
-            metrics_logger.log_session()
+        self.apply_permission_settings()
 
     @staticmethod
     def setup_application():
@@ -318,7 +317,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def quit_application(self):
         self.confirm_close()
 
-        self.log_metrics()
+        metrics_logger.session_ended()
         self._model.setSize(self.size())
         self._model.setPos(self.pos())
         self._model.writeSettings()
@@ -354,6 +353,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
         self._action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
         self._workflowWidget.applyOptions()
+        self.apply_permission_settings()
+
+    def apply_permission_settings(self):
+        om = self._model.optionsManager()
+        metric_permission = om.getOption(METRICS_PERMISSION)
+        metrics_logger.set_permission(metric_permission)
 
     def _show_package_manager_dialog(self):
         from mapclient.view.managers.package.packagemanagerdialog import PackageManagerDialog
