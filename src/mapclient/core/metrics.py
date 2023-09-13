@@ -15,7 +15,7 @@ class MetricsLogger(object):
     def __init__(self):
         measurement_id = "G-HK7VTPRLWS"
         api_secret = "Pxec_lW6QZWuGxbAAZAKzg"
-        self._base_url = f"https://www.google-analytics.com/mp/collect?measurement_id=${measurement_id}&api_secret=${api_secret}"
+        self._base_url = f"https://www.google-analytics.com/mp/collect?measurement_id={measurement_id}&api_secret={api_secret}"
         # Debugging URL.
         # self._base_url = f"https://www.google-analytics.com/debug/mp/collect?measurement_id=${measurement_id}&api_secret=${api_secret}"
         self._client_id = str(uuid.uuid4())
