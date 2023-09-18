@@ -90,9 +90,8 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._undoStack.indexChanged.connect(self.undoStackIndexChanged)
 
     def _filter_text_changed(self, text):
-        reg_exp = QtCore.QRegExp(text, QtCore.Qt.CaseInsensitive)
-        #         self._workflowManager.getFilteredStepModel().setFilterRegExp(reg_exp)
-        self._ui.stepTreeView.setFilterRegExp(reg_exp)
+        reg_exp = QtCore.QRegularExpression(text, QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+        self._ui.stepTreeView.setFilterRegularExpression(reg_exp)
 
     def _update_ui(self):
         if hasattr(self, '_main_window'):
