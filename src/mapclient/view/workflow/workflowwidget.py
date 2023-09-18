@@ -632,10 +632,10 @@ class WorkflowWidget(QtWidgets.QWidget):
         #        menu_Open = QtGui.QMenu('&Open', menu_File)
 
         self.action_NewPMR = QtGui.QAction('PMR Workflow', menu_new)
-        self._set_action_properties(self.action_NewPMR, 'action_NewPMR', self.newpmr, 'Ctrl+N',
+        self._set_action_properties(self.action_NewPMR, 'action_NewPMR', self.newpmr, 'Ctrl+Shift+N',
                                     'Create a new PMR based Workflow')
         self.action_New = QtGui.QAction('Workflow', menu_new)
-        self._set_action_properties(self.action_New, 'action_New', self.new, 'Ctrl+Shift+N', 'Create a new Workflow')
+        self._set_action_properties(self.action_New, 'action_New', self.new, 'Ctrl+N', 'Create a new Workflow')
         self.action_Open = QtGui.QAction('&Open', menu_file)
         self._set_action_properties(self.action_Open, 'action_Open', self.open, 'Ctrl+O', 'Open an existing Workflow')
         self.action_Import = QtGui.QAction('I&mport', menu_file)
@@ -671,8 +671,8 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._set_action_properties(self.action_ZoomOut, 'action_ZoomOut', self.zoom_out, 'Ctrl+-',
                                     'Zoom out Workflow')
 
-        menu_new.insertAction(QtGui.QAction(self), self.action_NewPMR)
         menu_new.insertAction(QtGui.QAction(self), self.action_New)
+        menu_new.insertAction(QtGui.QAction(self), self.action_NewPMR)
 
         menu_file.insertMenu(last_file_menu_action, menu_new)
         menu_file.insertAction(last_file_menu_action, self.action_Open)
