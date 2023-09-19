@@ -288,7 +288,7 @@ class MainWindow(QtWidgets.QMainWindow):
         QtWidgets.QMessageBox.warning(self,
                                       'Change detected',
                                       f'A change in the {asker} has been detected, you may have to restart the appplication to see the effect.',
-                                      QtWidgets.QMessageBox.Ok)
+                                      QtWidgets.QMessageBox.StandardButton.Ok)
 
     def confirm_close(self):
         # Check to see if the Workflow is in a saved state.
@@ -296,8 +296,8 @@ class MainWindow(QtWidgets.QMainWindow):
             ret = QtWidgets.QMessageBox.warning(self,
                                                 'Unsaved Changes',
                                                 'You have unsaved changes, would you like to save these changes now?',
-                                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-            if ret == QtWidgets.QMessageBox.Yes:
+                                                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            if ret == QtWidgets.QMessageBox.StandardButton.Yes:
                 self._model.workflowManager().save()
 
         unrestrict_plugins()
