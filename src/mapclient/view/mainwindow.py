@@ -97,6 +97,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_About.setObjectName("action_About")
         self._action_Quit = QtGui.QAction(self)
         self._action_Quit.setObjectName("action_Quit")
+        self._action_PluginFinder = QtGui.QAction(self)
+        self._action_PluginFinder.setObjectName("action_PluginFinder")
         self._action_PluginManager = QtGui.QAction(self)
         self._action_PluginManager.setObjectName("action_PluginManager")
         self._action_PackageManager = QtGui.QAction(self)
@@ -121,6 +123,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_View.addAction(self._action_Options)
         self._menu_File.addSeparator()
         self._menu_File.addAction(self._action_Quit)
+        self._menu_Tools.addAction(self._action_PluginFinder)
         self._menu_Tools.addAction(self._action_PluginManager)
         self._menu_Tools.addAction(self._action_PackageManager)
         self._menu_Tools.addAction(self._action_PluginWizard)
@@ -159,6 +162,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_Options.setStatusTip(QtWidgets.QApplication.translate("MainWindow",
                                                                            "Change global application options",
                                                                            None, -1))
+        self._action_PluginFinder.setText(QtWidgets.QApplication.translate("MainWindow", "Plugin &Finder", None, -1))
         self._action_PluginManager.setText(QtWidgets.QApplication.translate("MainWindow", "Plugin &Manager", None, -1))
         self._action_PackageManager.setText(QtWidgets.QApplication.translate("MainWindow", "Package Ma&nager", None, -1))
         self._action_PMR.setText(QtWidgets.QApplication.translate("MainWindow", "&PMR", None, -1))
@@ -201,6 +205,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_About.triggered.connect(self.about)
         self._action_LogInformation.triggered.connect(self._show_log_information_dialog)
         self._action_Options.triggered.connect(self.show_options_dialog)
+        self._action_PluginFinder.triggered.connect(self._show_plugin_finder_dialog)
         self._action_PluginManager.triggered.connect(self._show_plugin_manager_dialog)
         self._action_PackageManager.triggered.connect(self._show_package_manager_dialog)
         self._action_PluginWizard.triggered.connect(self._show_plugin_wizard_dialog)
@@ -290,7 +295,7 @@ class MainWindow(QtWidgets.QMainWindow):
         QtWidgets.QMessageBox.warning(self,
                                       'Change detected',
                                       f'A change in the {asker} has been detected, you may have to restart the appplication to see the effect.',
-                                      QtWidgets.QMessageBox.Ok)
+                                      QtWidgets.QMessageBox.StandardButton.Ok)
 
     def confirm_close(self):
         # Check to see if the Workflow is in a saved state.
@@ -298,8 +303,8 @@ class MainWindow(QtWidgets.QMainWindow):
             ret = QtWidgets.QMessageBox.warning(self,
                                                 'Unsaved Changes',
                                                 'You have unsaved changes, would you like to save these changes now?',
-                                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-            if ret == QtWidgets.QMessageBox.Yes:
+                                                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            if ret == QtWidgets.QMessageBox.StandardButton.Yes:
                 self._model.workflowManager().save()
 
         unrestrict_plugins()
@@ -443,6 +448,13 @@ class MainWindow(QtWidgets.QMainWindow):
                     logger.info('Removing partially created skeleton step "{0}"'.format(package_directory))
                     import shutil
                     shutil.rmtree(package_directory)
+
+    def _show_plugin_finder_dialog(self):
+        from mapclient.tools.pluginfinder.pluginfinderdialog import PluginFinderDialog
+
+        dlg = PluginFinderDialog(self)
+        dlg.setModal(True)
+        dlg.exec_()
 
     def _show_rename_plugin_dialog(self):
         from mapclient.tools.renameplugin.renamedialog import RenameDialog

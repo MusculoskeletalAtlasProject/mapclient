@@ -67,11 +67,16 @@ def _determine_capabilities():
         for loader, module_name, is_pkg in pkgutil.walk_packages(mapclientplugins.__path__):
             if is_pkg:
                 package_name = PLUGINS_PACKAGE_NAME + '.' + module_name
-                module = import_module(package_name)
-                mapclientplugins_info[package_name] = {
-                    "version": module.__version__ if hasattr(module, '__version__') else "X.Y.Z",
-                    "location": module.__location__ if hasattr(module, '__location__') else "<plugin-location-not-set>",
-                }
+                try:
+                    module = import_module(package_name)
+                    mapclientplugins_info[package_name] = {
+                        "version": module.__version__ if hasattr(module, '__version__') else "X.Y.Z",
+                        "location": module.__location__ if hasattr(module, '__location__') else "<plugin-location-not-set>",
+                    }
+                except ModuleNotFoundError:
+                    pass
+                except ImportError:
+                    pass
 
     return {**output_info, **mapclientplugins_info}
 

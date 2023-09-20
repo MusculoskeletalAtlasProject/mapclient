@@ -20,6 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import os
 import re
 import sys
+from pathlib import Path
 
 from subprocess import Popen, PIPE, DEVNULL
 import PySide6 as RefMod
@@ -255,13 +256,15 @@ def find_file(filename, search_path):
 
 
 def qt_tool_wrapper(qt_tool, args, external=False):
+    pyside_dir = Path(RefMod.__file__).resolve().parent
     if external:
         exe = qt_tool
+    elif sys.platform != "win32":
+        exe = os.path.join(pyside_dir, "Qt", "libexec", qt_tool)
     else:
-        pyside_dir = os.path.dirname(RefMod.__file__)
         exe = os.path.join(pyside_dir, qt_tool)
 
-    cmd = [exe] + args
+    cmd = [os.fspath(exe)] + args
     proc = Popen(cmd, stdout=DEVNULL, stderr=PIPE)
     out, err = proc.communicate()
 

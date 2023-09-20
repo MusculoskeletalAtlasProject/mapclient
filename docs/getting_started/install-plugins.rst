@@ -39,8 +39,7 @@ On the repository page, click the green code button and download the source code
 If you are a developer, you can download the source code anyway you like.
 If you don't have git in your environment, you can simply click "Download Zip" to download the source code and unzip it.
 
-We recommend creating a mapclient_plugins folder to store and manage all plugins.
-So when you load plugins, you only need to add one directory location to add all the plugins in the sub folders to MAP Client. 
+You also can create your own plugins, the :ref:`MAP plugin wizard <MAP-plugin-wizard>` can help you generated a skeleton step.
 
 
 Load plugins
