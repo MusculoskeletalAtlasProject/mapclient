@@ -25,12 +25,26 @@ from pathlib import Path
 from subprocess import Popen, PIPE, DEVNULL
 import PySide6 as RefMod
 
-from mapclient.settings.definitions import PLUGINS_PACKAGE_NAME
+from mapclient.settings.definitions import APPLICATION_NAME, PLUGINS_PACKAGE_NAME
 from mapclient.settings.general import get_configuration_file
 
 
 def is_frozen():
     return getattr(sys, 'frozen', False)
+
+
+def is_mapping_tools():
+    variant = get_map_client_variant()
+    return variant == "mapping-tools"
+
+
+def get_map_client_variant():
+    application_name = os.path.basename(sys.executable)
+    pattern = r'{}-(.*).exe'.format(APPLICATION_NAME)
+    match = re.search(pattern, application_name)
+    variant = match.group(1) if match else ""
+
+    return variant
 
 
 def convertExceptionToMessage(e):

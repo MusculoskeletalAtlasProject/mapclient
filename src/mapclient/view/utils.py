@@ -23,6 +23,7 @@ from functools import wraps
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from mapclient.exceptions import ClientRuntimeError
+from mapclient.view.dialogs.error.errordialog import ErrorDialog
 
 logger = logging.getLogger(__name__)
 
@@ -99,5 +100,5 @@ def handle_runtime_error(f):
             return f(self, *a, **kw)
         except ClientRuntimeError as e:
             logger.error('{0}: {1}'.format(e.title, e.description))
-            QtWidgets.QMessageBox.critical(self, e.title, e.description)
+            ErrorDialog(e.title, e.description, self).exec()
     return do_runtime_error
