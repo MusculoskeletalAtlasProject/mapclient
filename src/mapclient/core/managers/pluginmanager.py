@@ -3,8 +3,6 @@ Created on May 19, 2015
 
 @author: hsorby
 """
-import io
-import json
 import os
 import sys
 import logging
@@ -16,19 +14,17 @@ import shutil
 import types
 import importlib
 
-from contextlib import redirect_stdout
-
-
 from mapclient.core.utils import which, FileTypeObject, grep, is_frozen, determineStepName, determineStepClassName
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     PLUGINS_PACKAGE_NAME, PLUGINS_PTH
 from mapclient.core.checks import getPipExecutable, getActivateScript
 
-from setuptools import sandbox
-
 from importlib import import_module
 
 from mapclient.settings.general import get_virtualenv_site_packages_directory
+
+os.environ["SETUPTOOLS_USE_DISTUTILS"] = "stdlib"
+from setuptools.build_meta import prepare_metadata_for_build_wheel
 
 logger = logging.getLogger(__name__)
 
@@ -191,28 +187,41 @@ class PluginManager(object):
         else:
             python_executable = sys.executable
 
-        if not is_frozen():
-            subprocess.Popen([python_executable, "-m", "pip", "install", str(uri)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
+        # TODO: Needs an update. We need to be able to differentiate plugins and packages (both can contain url links).
+        if str(uri).startswith("http"):
+            return
 
+        if is_frozen():
+            # TODO: The python_executable doesn't exist. Python is run from within the MAP-Client.exe...?
+            # subprocess.check_call([python_executable, '-m', 'pip', 'install', f'--target={sys._MEIPASS}', str(uri)])
+            # importlib.reload(pkg_resources)
+            pass
+
+        else:
+            # TODO: Needs an update. Dynamically installed modules are not available until Python is re-started.
+            subprocess.check_call([python_executable, '-m', 'pip', 'install', str(uri)])
             importlib.reload(pkg_resources)
 
-    def extractPluginDependencies(self, path):
+    def extractPluginDependencies(self, path, modname):
         setup_dir, step_dir = os.path.split(path)
         setup_py_file = os.path.join(setup_dir, 'setup.py')
         if os.path.exists(setup_py_file):
             current_dir = os.getcwd()
             os.chdir(setup_dir)
             try:
-                # Skip this for now and move to using packagemeta package instead.
-                dependencies_str = '[]'
-                # f = io.StringIO()
-                # with redirect_stdout(f):
-                #     sandbox.run_setup('setup.py', ['--install-requires'])
-                # dependencies_str = f.getvalue().rstrip()
-                # if "'" in dependencies_str:
-                #     dependencies_str = dependencies_str.replace("'", '"')
+                # Check the timestamps on the source and egg-info directories.
+                src_dir = os.path.join(path, modname)
+                egg_dir = os.path.join(path, "mapclientplugins." + modname + ".egg-info")
+                if (not os.path.exists(egg_dir)) or (os.path.getmtime(src_dir) > os.path.getmtime(egg_dir)):
+                    prepare_metadata_for_build_wheel(path)
 
-                dependencies = json.loads(dependencies_str)
+                # Get dependencies from egg.info directory.
+                dependencies = []
+                requirements_file = os.path.join(egg_dir, "requires.txt")
+                if os.path.exists(requirements_file):
+                    with open(requirements_file) as requirements:
+                        for line in requirements:
+                            dependencies.append(line.rstrip())
             finally:
                 os.chdir(current_dir)
 
@@ -266,7 +275,7 @@ class PluginManager(object):
                     if is_frozen() and not isinstance(module_finder, importlib.machinery.FileFinder):
                         plugin_dependencies = []
                     else:
-                        plugin_dependencies = self.extractPluginDependencies(module_finder.path)
+                        plugin_dependencies = self.extractPluginDependencies(module_finder.path, modname)
                     missing_dependencies = self._plugin_database.check_for_missing_dependencies(plugin_dependencies)
                     for dependency in missing_dependencies:
                         self.installPackage(dependency)
@@ -577,10 +586,15 @@ class PluginDatabase:
         for dependency in dependencies:
             if '@' in dependency:
                 index = dependency.find('@')
-                dependency_name = dependency[:index - 1]
-                dependency = dependency[index + 2:]
+                dependency_name = dependency[:index].rstrip()
+                dependency = dependency[index + 1:]
             else:
-                dependency_name = dependency
+                version_indices = [dependency.index(x) for x in ["<", "=", ">"] if x in dependency]
+                if version_indices:
+                    index = min(version_indices)
+                    dependency_name = dependency[:index].rstrip()
+                else:
+                    dependency_name = dependency
 
             if dependency_name.lower() not in installed:
                 missing_dependencies.append(dependency)
