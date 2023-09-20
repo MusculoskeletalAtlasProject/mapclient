@@ -58,9 +58,6 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         self.setCacheMode(QtWidgets.QGraphicsView.CacheBackground)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
 
-        grid_pic = QtGui.QPixmap(':/workflow/images/grid.png')
-        self._grid_brush = QtGui.QBrush(grid_pic)
-
         #        self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
         #        self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
 
@@ -158,7 +155,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         copying and pasting steps within the MAP Client workflow area.
 
         When copying workflow items using the CTRL+Drag operation, you should specify a starting position. This argument is not necessary
-        (or relavant) when copying items with the CTRL+C shortcut.
+        (or relevant) when copying items with the CTRL+C shortcut.
         """
         data = QtCore.QByteArray()
         data_stream = QtCore.QDataStream(data, QtCore.QIODevice.WriteOnly)
@@ -365,8 +362,25 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         if bottomShadow.intersects(rect) or bottomShadow.contains(rect):
             painter.fillRect(bottomShadow, QtCore.Qt.darkGray)
 
-        painter.setBrush(self._grid_brush)  # QtCore.Qt.NoBrush
-        painter.drawRect(sceneRect)
+        self._draw_grid(sceneRect, painter)
+
+    def _draw_grid(self, scene_rect, painter):
+        self.grid_pen = QtGui.QPen(QtGui.QColor("lightblue"))
+        painter.setPen(self.grid_pen)
+
+        top = int(scene_rect.y())
+        left = int(scene_rect.x())
+        bottom = int(scene_rect.y() + scene_rect.height())
+        right = int(scene_rect.x() + scene_rect.width())
+        step = 10
+
+        for y in range(top, bottom, step):
+            painter.drawLine(left, y, right, y)
+        for x in range(left, right, step):
+            painter.drawLine(x, top, x, bottom)
+
+        painter.setPen(QtGui.QPen(QtGui.QColor("black")))
+        painter.drawRect(scene_rect)
 
     def dropEvent(self, event):
         if event.mimeData().hasFormat("image/x-workflow-step(s)"):
@@ -448,6 +462,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
                 self._graphics_initialised = True
 
             scene.setSceneRect(10, 10, (view_rect.width() - 20) / self._graphics_scale_factor, (view_rect.height() - 20) / self._graphics_scale_factor)
+            self.reposition_steps()
 
     def _unscale_view(self, scale_factor):
         self._graphics_scale_factor *= scale_factor
@@ -459,28 +474,117 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
     def wheelEvent(self, event):
         if event.modifiers() == QtCore.Qt.ControlModifier:
-            scale_factor = math.pow(2.0, -event.angleDelta().y() / 240.0)
-            # original_transformation_anchor = self.transformationAnchor()
-            # self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorViewCenter)
-            self.scale(scale_factor, scale_factor)
-            self._unscale_view(scale_factor)
-            # self.setTransformationAnchor(original_transformation_anchor)
+            self.zoom(event.angleDelta().y())
         else:
             super(WorkflowGraphicsView, self).wheelEvent(event)
 
     def zoomIn(self):
-        self.scale(1.2, 1.2)
+        self.zoom(-120)
 
     def zoomOut(self):
-        self.scale(1 / 1.2, 1 / 1.2)
+        self.zoom(120)
 
-    def _old_scale_view(self, scale_factor):
-        factor = self.matrix().scale(scale_factor, scale_factor).mapRect(QtCore.QRectF(0, 0, 1, 1)).width()
-
-        if factor < 0.07 or factor > 100:
-            return
-
-        transformation_anchor = self.transformationAnchor()
-        self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
+    def zoom(self, delta):
+        scale_factor = math.pow(2.0, -delta / 240.0)
         self.scale(scale_factor, scale_factor)
-        self.setTransformationAnchor(transformation_anchor)
+        self._unscale_view(scale_factor)
+        self.view_all()
+
+    def reset_zoom(self):
+        reverse_sf = 1 / self._graphics_scale_factor
+        self.scale(reverse_sf, reverse_sf)
+        self._unscale_view(reverse_sf)
+
+        self._graphics_scale_factor = 1.0
+        self.resetTransform()
+
+    def reposition_steps(self):
+        scene_rect = self.sceneRect()
+        self._undoStack.beginMacro('Reposition Step(s)')
+        for item in self.items():
+            if isinstance(item, Node):
+                x = item.x()
+                if x > (scene_rect.right() - 116):
+                    x = scene_rect.right() - 116
+                y = item.y()
+                if y > (scene_rect.bottom() - 116):
+                    y = scene_rect.bottom() - 116
+
+                if x != item.x() or y != item.y():
+                    self._undoStack.push(CommandMove(item, item.pos(), QtCore.QPointF(x, y)))
+        self._undoStack.endMacro()
+        self.merge_macros()
+
+    def merge_macros(self):
+        # If the top-most macro is successfully merged, remove it from the undo stack.
+        merged_macro = self._merge_macros()
+        if merged_macro:
+            merged_macro.setObsolete(True)
+            self._undoStack.undo()
+
+    def _merge_macros(self):
+        # Attempt to merge the top-most macro on the undo stack into the previous macro.
+        try:
+            current_cmd = self._undoStack.command(self._undoStack.index() - 1)
+            previous_cmd = self._undoStack.command(self._undoStack.index() - 2)
+            if current_cmd and not current_cmd.childCount():
+                return current_cmd
+            if previous_cmd:
+                assert (current_cmd.text() == previous_cmd.text())
+                assert (current_cmd.childCount() == previous_cmd.childCount())
+                for i in range(previous_cmd.childCount()):
+                    assert (isinstance(current_cmd.child(i), CommandMove))
+                    assert (isinstance(previous_cmd.child(i), CommandMove))
+                    assert (previous_cmd.child(i).node() == current_cmd.child(i).node())
+                for i in range(previous_cmd.childCount()):
+                    previous_cmd.child(i).mergeWith(current_cmd.child(i))
+                return current_cmd
+
+        except AssertionError:
+            return None
+
+    def view_all(self):
+        bounding_rect = self.nodes_bounding_rect()
+        scene_rect = self.sceneRect()
+
+        # This includes 50px of whitespace on each side of the workflow items. Subtract 68 to account for step-icon width.
+        sf_x = 1
+        if (bounding_rect.right()) > (scene_rect.right() - 116):
+            sf_x = (scene_rect.right() - 116) / bounding_rect.right()
+        sf_y = 1
+        if bounding_rect.bottom() > (scene_rect.bottom() - 116):
+            sf_y = (scene_rect.bottom() - 116) / bounding_rect.bottom()
+
+        if sf_x != 1 or sf_y != 1:
+            self.scale_workflow(sf_x, sf_y)
+
+    def nodes_bounding_rect(self):
+        point_array = [[], []]
+        for item in self.items():
+            if isinstance(item, Node):
+                point_array[0].append(item.x())
+                point_array[1].append(item.y())
+
+        if point_array[0]:
+            return QtCore.QRectF(
+                QtCore.QPointF(min(point_array[0]), min(point_array[1])),
+                QtCore.QPointF(max(point_array[0]), max(point_array[1]))
+            )
+        else:
+            return QtCore.QRectF(0, 0, 0, 0)
+
+    def scale_workflow(self, sf_x, sf_y):
+        # Scale the workflow item positions. Add 12 to account for subtracting the view border before scaling.
+        self._undoStack.beginMacro('Move Step(s)')
+        for item in self.items():
+            if isinstance(item, Node):
+                x = item.x()
+                if sf_x != 1:
+                    x = ((x - 12) * sf_x) + 12
+                y = item.y()
+                if sf_y != 1:
+                    y = ((y - 12) * sf_y) + 12
+
+                if x != item.x() or y != item.y():
+                    self._undoStack.push(CommandMove(item, item.pos(), QtCore.QPointF(x, y)))
+        self._undoStack.endMacro()

@@ -67,6 +67,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def showEvent(self, event):
         self.resize(self._model.size())
         self.move(self._model.pos())
+        if self._model.is_maximized():
+            self.showMaximized()
 
     def _setup_menus(self):
         """
@@ -312,6 +314,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._model.setSize(self.size())
         self._model.setPos(self.pos())
+        self._model.set_maximized(self.isMaximized())
         self._model.writeSettings()
         QtGui.QGuiApplication.quit()
 

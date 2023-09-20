@@ -90,12 +90,9 @@ class WorkflowManager(object):
 
         return self._title
 
-    def updateLocation(self, location):
+    def set_location(self, location):
         self._location = location
         return self._scene.updateWorkflowLocation(location)
-
-    def setLocation(self, location):
-        self._location = location
 
     def location(self):
         return self._location
@@ -169,7 +166,7 @@ class WorkflowManager(object):
         if not os.path.exists(location):
             raise WorkflowError('Location %s does not exist.' % location)
 
-        self._location = location
+        self.set_location(location)
         wf = _get_workflow_configuration(location)
         wf.setValue('version', info.VERSION_STRING)
         self._scene.clear()
@@ -201,12 +198,6 @@ class WorkflowManager(object):
 
         return self._scene.is_restricted(wf)
 
-    def fit_workflow(self, graphics_view, graphics_scene):
-        """
-        Scales the workflow items to fit into the current window size. This method maintains the aspect ratio of the saved workflow.
-        """
-        self._scene.fit_workflow(graphics_view, graphics_scene)
-
     def load(self, location):
         """
         Open a workflow from the given location.
@@ -230,7 +221,7 @@ class WorkflowManager(object):
         if not _compatible_versions(workflow_version, application_version):
             pass  # should already have thrown an exception
 
-        self._location = location
+        self.set_location(location)
         if self._scene.is_loadable(wf):
             self._scene.restrict_plugins(wf)
             self._scene.load_state(wf)
@@ -296,7 +287,7 @@ class WorkflowManager(object):
         """
         Close the current workflow
         """
-        self._location = ''
+        self.set_location('')
         self._saveStateIndex = self._currentStateIndex = 0
 
     def isWorkflowOpen(self):
