@@ -17,7 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class HeaderDelegate(QtWidgets.QStyledItemDelegate):
@@ -142,7 +142,7 @@ class StepTree(QtWidgets.QTreeWidget):
             pixmap = QtGui.QPixmap()
             pixmap.convertFromImage(QtGui.QImage(':/workflow/images/default_step_icon.png'))
 
-        pixmap = pixmap.scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        pixmap = pixmap.scaled(64, 64, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
         hotspot = QtCore.QPoint(pixmap.width() / 2, pixmap.height() / 2)
 
         name = step.getName().encode('utf-8')  # bytearray(step.getName(), sys.stdout.encoding)
@@ -159,6 +159,6 @@ class StepTree(QtWidgets.QTreeWidget):
         drag.setHotSpot(hotspot)
         drag.setPixmap(pixmap)
 
-        drag.exec_(QtCore.Qt.MoveAction)
+        drag.exec(QtCore.Qt.MoveAction)
 
         return QtWidgets.QTreeWidget.mousePressEvent(self, event)

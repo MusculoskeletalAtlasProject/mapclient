@@ -1,1 +1,3 @@
-#__import__('pkg_resources').declare_namespace(__name__)
+from .settings.version import __version__
+
+version = __version__

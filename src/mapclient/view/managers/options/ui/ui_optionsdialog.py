@@ -3,15 +3,23 @@
 ################################################################################
 ## Form generated from reading UI file 'optionsdialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 5.15.2
+## Created by: Qt User Interface Compiler version 6.4.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide2.QtCore import *
-from PySide2.QtGui import *
-from PySide2.QtWidgets import *
-
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QAbstractButton, QApplication, QCheckBox, QDialog,
+    QDialogButtonBox, QDoubleSpinBox, QFormLayout, QGridLayout,
+    QGroupBox, QHBoxLayout, QLabel, QLineEdit,
+    QPlainTextEdit, QPushButton, QSizePolicy, QSpacerItem,
+    QTabWidget, QVBoxLayout, QWidget)
 
 class Ui_OptionsDialog(object):
     def setupUi(self, OptionsDialog):
@@ -68,6 +76,27 @@ class Ui_OptionsDialog(object):
 
 
         self.verticalLayout_4.addWidget(self.groupBoxInternalWorkflowDirectory)
+
+        self.groupBox_2 = QGroupBox(self.tabGeneral)
+        self.groupBox_2.setObjectName(u"groupBox_2")
+        self.horizontalLayout_2 = QHBoxLayout(self.groupBox_2)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.doubleSpinBoxMessageBoxTimer = QDoubleSpinBox(self.groupBox_2)
+        self.doubleSpinBoxMessageBoxTimer.setObjectName(u"doubleSpinBoxMessageBoxTimer")
+        self.doubleSpinBoxMessageBoxTimer.setMaximumSize(QSize(120, 16777215))
+        self.doubleSpinBoxMessageBoxTimer.setDecimals(3)
+        self.doubleSpinBoxMessageBoxTimer.setSingleStep(0.100000000000000)
+        self.doubleSpinBoxMessageBoxTimer.setValue(2.000000000000000)
+
+        self.horizontalLayout_2.addWidget(self.doubleSpinBoxMessageBoxTimer)
+
+        self.label = QLabel(self.groupBox_2)
+        self.label.setObjectName(u"label")
+
+        self.horizontalLayout_2.addWidget(self.label)
+
+
+        self.verticalLayout_4.addWidget(self.groupBox_2)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
@@ -232,6 +261,11 @@ class Ui_OptionsDialog(object):
         self.pushButtonInternalWorkflowDirectory.setToolTip(QCoreApplication.translate("OptionsDialog", u"Select the internal workflow directory.", None))
 #endif // QT_CONFIG(tooltip)
         self.pushButtonInternalWorkflowDirectory.setText(QCoreApplication.translate("OptionsDialog", u"...", None))
+        self.groupBox_2.setTitle(QCoreApplication.translate("OptionsDialog", u"Workflow notification display", None))
+#if QT_CONFIG(tooltip)
+        self.doubleSpinBoxMessageBoxTimer.setToolTip(QCoreApplication.translate("OptionsDialog", u"Setting a value of zero will disable the display of the notification.", None))
+#endif // QT_CONFIG(tooltip)
+        self.label.setText(QCoreApplication.translate("OptionsDialog", u"Auto close after (seconds)", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGeneral), QCoreApplication.translate("OptionsDialog", u"&General", None))
         self.groupBoxStepWizard.setTitle(QCoreApplication.translate("OptionsDialog", u"Step Wizard", None))
         self.checkBoxUseExternalPySideRCC.setText(QCoreApplication.translate("OptionsDialog", u"Use external PySide resource compiler (rcc)", None))

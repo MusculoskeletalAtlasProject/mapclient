@@ -25,7 +25,7 @@ import json
 import psutil
 from filelock import FileLock
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 from mapclient.core.exitcodes import LOG_FILE_LOCK_FAILED
 from mapclient.settings.definitions import INTERNAL_WORKFLOWS_DIR, PID_DATABASE_FILE_NAME
@@ -184,7 +184,6 @@ def get_restricted_plugins():
     return restricted_plugins
 
 
-# TODO: Add a list of known MAP plugins that need not be restricted (e.g., TRC Reader, etc).
 def restrict_plugins(plugins):
     """
     Takes a set of plugins as input. Adds this set to the MAP PID database file. This is so that other instances of the MAP Client

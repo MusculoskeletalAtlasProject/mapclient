@@ -17,7 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide2.QtWidgets import QDialog, QTableWidgetItem
+from PySide6.QtWidgets import QDialog, QTableWidgetItem
 
 from mapclient.view.dialogs.about.ui.ui_provenancedialog import Ui_ProvenanceDialog
 from mapclient.core.provenance import reproducibility_info

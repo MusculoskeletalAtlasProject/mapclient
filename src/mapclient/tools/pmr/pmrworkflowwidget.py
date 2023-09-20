@@ -19,9 +19,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import re
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
-from mapclient.tools.pmr.ui_pmrworkflowwidget import Ui_PMRWorkflowWidget
+from mapclient.tools.pmr.ui.ui_pmrworkflowwidget import Ui_PMRWorkflowWidget
 from mapclient.view.utils import handle_runtime_error, set_wait_cursor
 from mapclient.tools.pmr.pmrtool import PMRTool, search_domains, \
     workflow_search_string, ontological_search_string
@@ -132,7 +132,7 @@ class PMRWorkflowWidget(QtWidgets.QWidget):
         if link == 'mapclient.register':
             dlg = AuthoriseApplicationDialog(self)
             dlg.setModal(True)
-            dlg.exec_()
+            dlg.exec()
             self._updateUi()
         elif link == 'mapclient.deregister':
             self._pmrTool.deregister()

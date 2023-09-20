@@ -18,7 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 
-from PySide2.QtWidgets import QDialog
+from PySide6.QtWidgets import QDialog
 from mapclient.view.dialogs.about.ui.ui_licensedialog import Ui_LicenseDialog
 
 

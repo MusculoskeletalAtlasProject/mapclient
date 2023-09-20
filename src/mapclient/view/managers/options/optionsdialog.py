@@ -5,7 +5,7 @@ Created on Feb 25, 2015
 """
 import os.path
 
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
 from mapclient.view.managers.options.ui.ui_optionsdialog import Ui_OptionsDialog
 
@@ -146,6 +146,7 @@ class OptionsDialog(QtWidgets.QDialog):
         pysideuic_option = self._ui.lineEditPySideUIC.objectName()
         vcs_option = self._ui.lineEditGitExecutable.objectName()
         internal_directory_option = self._ui.lineEditInternalWorkflowDirectory.objectName()
+        message_box_timer = self._ui.doubleSpinBoxMessageBoxTimer.objectName()
         if step_name_option in options:
             self._ui.checkBoxShowStepNames.setChecked(options[step_name_option])
         if check_tools_option in options:
@@ -164,6 +165,8 @@ class OptionsDialog(QtWidgets.QDialog):
             self._ui.lineEditGitExecutable.setText(options[vcs_option])
         if internal_directory_option in options:
             self._ui.lineEditInternalWorkflowDirectory.setText(options[internal_directory_option])
+        if message_box_timer in options:
+            self._ui.doubleSpinBoxMessageBoxTimer.setValue(options[message_box_timer])
 
         self._update_ui()
         self._test_tools()
@@ -177,7 +180,8 @@ class OptionsDialog(QtWidgets.QDialog):
                    self._ui.lineEditPySideRCC.objectName(): self._ui.lineEditPySideRCC.text(),
                    self._ui.lineEditPySideUIC.objectName(): self._ui.lineEditPySideUIC.text(),
                    self._ui.lineEditGitExecutable.objectName(): self._ui.lineEditGitExecutable.text(),
-                   self._ui.lineEditInternalWorkflowDirectory.objectName(): self._ui.lineEditInternalWorkflowDirectory.text()}
+                   self._ui.lineEditInternalWorkflowDirectory.objectName(): self._ui.lineEditInternalWorkflowDirectory.text(),
+                   self._ui.doubleSpinBoxMessageBoxTimer.objectName(): self._ui.doubleSpinBoxMessageBoxTimer.value()}
 
         return options
 

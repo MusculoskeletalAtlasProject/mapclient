@@ -21,7 +21,7 @@ import logging
 import os
 import imp
 
-from PySide2.QtCore import QObject
+from PySide6.QtCore import QObject
 
 from mapclient.settings.definitions import MAIN_MODULE
 

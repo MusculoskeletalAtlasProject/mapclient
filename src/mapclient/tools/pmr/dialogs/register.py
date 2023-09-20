@@ -17,12 +17,12 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
 from mapclient.tools.pmr.settings.general import PMR
 from mapclient.tools.pmr.pmrtool import PMRTool
 from mapclient.tools.pmr.authoriseapplicationdialog import AuthoriseApplicationDialog
-from mapclient.tools.pmr.dialogs.ui_registerdialog import Ui_RegisterDialog
+from mapclient.tools.pmr.ui.ui_registerdialog import Ui_RegisterDialog
 
 
 class PMRRegisterDialog(QtWidgets.QDialog):
@@ -60,7 +60,7 @@ class PMRRegisterDialog(QtWidgets.QDialog):
     def _register(self):
         dlg = AuthoriseApplicationDialog(self)
         dlg.setModal(True)
-        dlg.exec_()
+        dlg.exec()
 
         self._updateUi()
 
