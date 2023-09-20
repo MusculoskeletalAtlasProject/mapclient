@@ -42,6 +42,7 @@ from mapclient.view.managers.plugins.pluginupdater import PluginUpdater
 from mapclient.tools.pmr.settings.general import PMR
 from mapclient.settings.general import get_virtualenv_directory
 from mapclient.core.workflow.workflowerror import WorkflowError
+from mapclient.core.workflow.workflowitems import MetaStep
 from mapclient.settings.definitions import SHOW_STEP_NAMES, CLOSE_AFTER, USE_EXTERNAL_GIT, PREVIOUS_WORKFLOW
 
 from mapclient.core.workflow.workflowitems import MetaStep
@@ -571,13 +572,24 @@ class WorkflowWidget(QtWidgets.QWidget):
         pmr_info = PMR()
         pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
         try:
-            workflow_files = [workflowDir + '/%s' % (DEFAULT_WORKFLOW_PROJECT_FILENAME),
-                              workflowDir + '/%s' % (DEFAULT_WORKFLOW_ANNOTATION_FILENAME)]
-            for f in os.listdir(workflowDir):
-                if f.endswith(".conf"):
-                    full_filename = os.path.join(workflowDir, f)
-                    if full_filename not in workflow_files:
-                        workflow_files.append(full_filename)
+            # If the user has added a .gitignore to the workflow root directory, let this automatically filter the files that are committed.
+            if os.path.isfile(os.path.join(workflowDir, ".gitignore")):
+                workflow_files = [workflowDir, ]
+            else:
+                workflow_files = [workflowDir + '/%s' % (DEFAULT_WORKFLOW_PROJECT_FILENAME),
+                                  workflowDir + '/%s' % (DEFAULT_WORKFLOW_ANNOTATION_FILENAME)]
+                for f in os.listdir(workflowDir):
+                    if f.endswith(".conf"):
+                        full_filename = os.path.join(workflowDir, f)
+                        if full_filename not in workflow_files:
+                            workflow_files.append(full_filename)
+
+                self._workflowManager.scene()
+                for item in self._workflowManager.scene().items():
+                    if item.Type == MetaStep.Type:
+                        step_directory = os.path.join(workflowDir, item.getIdentifier())
+                        if os.path.exists(step_directory):
+                            workflow_files.append(step_directory)
 
             pmr_tool.commitFiles(workflowDir, comment, workflow_files)
             #                 [workflowDir + '/%s' % (DEFAULT_WORKFLOW_PROJECT_FILENAME),
