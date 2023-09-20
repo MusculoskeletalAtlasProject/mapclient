@@ -727,10 +727,10 @@ class WorkflowWidget(QtWidgets.QWidget):
         self.action_Abort = QtGui.QAction('Abort', menu_workflow)
         self._set_action_properties(self.action_Abort, 'action_Abort', self._abort_workflow, '',
                                     'Abort Workflow')
-        self.action_Import_CFG = QtWidgets.QAction('Import Workflow Configuration', menu_workflow)
+        self.action_Import_CFG = QtGui.QAction('Import Workflow Configuration', menu_workflow)
         self._set_action_properties(self.action_Import_CFG, 'action_Import_CFG', self.import_cfg, '',
                                     'Import workflow configuration from file')
-        self.action_Export_CFG = QtWidgets.QAction('Export Workflow Configuration', menu_workflow)
+        self.action_Export_CFG = QtGui.QAction('Export Workflow Configuration', menu_workflow)
         self._set_action_properties(self.action_Export_CFG, 'action_Export_CFG', self.export_cfg, '',
                                     'Export workflow configuration to file')
 

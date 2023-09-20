@@ -3,7 +3,7 @@ import numpy
 import zipfile
 import tempfile
 
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 
 from mapclient.settings import version as app_version
 from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME
