@@ -89,7 +89,7 @@ def windows_main(app_args):
     # locale-aware number to string formatting
     locale.setlocale(locale.LC_ALL, '')
 
-    from PySide2 import QtWidgets
+    from PySide6 import QtWidgets
     from mapclient.splashscreen import SplashScreen
 
     app = QtWidgets.QApplication(sys.argv)
@@ -105,13 +105,12 @@ def windows_main(app_args):
 
     logger.info('Setting toolbox settings for matplotlib and enthought to: qt')
 
-    splash.showMessage('Loading opencmiss.zinc ...', 10)
+    splash.showMessage('Loading cmlibs.zinc ...', 10)
     try:
-        from opencmiss.zinc.context import Context
-        Context("MAP")
-        logger.info('OpenCMISS-Zinc is available.')
+        import cmlibs.zinc.context
+        logger.info('Zinc is available.')
     except ImportError:
-        logger.warning(' *** OpenCMISS-Zinc is not available ***')
+        logger.warning(' *** Zinc is not available ***')
 
     splash.showMessage('Creating application ...', 20)
     from mapclient.core.mainapplication import MainApplication
@@ -158,7 +157,7 @@ def windows_main(app_args):
 
     splash.showMessage('Ready ...', 100)
     splash.finish(window)
-    return app.exec_()
+    return app.exec()
 
 
 def _get_default_internal_workflow(om):
@@ -235,7 +234,7 @@ class ConsumeOutput(object):
 def sans_gui_main(app_args):
     locale.setlocale(locale.LC_ALL, '')
 
-    from PySide2 import QtWidgets
+    from PySide6 import QtWidgets
 
     app = QtWidgets.QApplication(sys.argv)
     logging.basicConfig(level='DEBUG')
@@ -282,7 +281,7 @@ def sans_gui_main(app_args):
 def main():
     parser = argparse.ArgumentParser(prog=info.APPLICATION_NAME)
     parser.add_argument("-x", "--execute", action="store_true", help="execute a workflow")
-    parser.add_argument("--headless", action="store_true",
+    parser.add_argument("-s", "--headless", action="store_true",
                         help="operate in headless mode, without a gui.  Requires a location of a workflow to be set")
     parser.add_argument("-w", "--workflow", help="location of workflow")
     args = parser.parse_args()

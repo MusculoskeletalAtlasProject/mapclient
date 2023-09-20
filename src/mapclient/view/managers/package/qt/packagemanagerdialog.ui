@@ -111,9 +111,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../widgets/qt/resources.qrc"/>
- </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

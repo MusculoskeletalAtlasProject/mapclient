@@ -22,9 +22,9 @@ import os
 import sys
 import collections
 
-from PySide2.QtGui import QCursor
-from PySide2.QtWidgets import QDialog, QMessageBox, QApplication, QFileDialog
-from PySide2.QtCore import Qt
+from PySide6.QtGui import QCursor
+from PySide6.QtWidgets import QDialog, QMessageBox, QApplication, QFileDialog
+from PySide6.QtCore import Qt
 
 from mapclient.view.managers.plugins.ui.ui_advanceddialog import Ui_AdvancedDialog
 from mapclient.view.managers.plugins.pluginupdater import PluginUpdater

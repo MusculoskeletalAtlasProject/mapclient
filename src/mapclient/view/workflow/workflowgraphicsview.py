@@ -20,7 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import math
 import logging
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflow.workflowscene import MetaStep
@@ -288,14 +288,14 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
                 pixmap = QtGui.QPixmap()
                 pixmap.convertFromImage(QtGui.QImage(':/workflow/images/default_step_icon.png'))
 
-        pixmap = pixmap.scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        pixmap = pixmap.scaled(64, 64, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
         hotspot = QtCore.QPoint(pixmap.width() / 2, pixmap.height() / 2)
 
         drag = QtGui.QDrag(self)
         drag.setMimeData(self.copy_steps(start_pos))
         drag.setHotSpot(hotspot)
         drag.setPixmap(pixmap)
-        drag.exec_(QtCore.Qt.MoveAction)
+        drag.exec(QtCore.Qt.MoveAction)
 
     def contextMenuEvent(self, event):
         item = self.itemAt(event.pos())
@@ -459,7 +459,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
     def wheelEvent(self, event):
         if event.modifiers() == QtCore.Qt.ControlModifier:
-            scale_factor = math.pow(2.0, -event.delta() / 240.0)
+            scale_factor = math.pow(2.0, -event.angleDelta().y() / 240.0)
             # original_transformation_anchor = self.transformationAnchor()
             # self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorViewCenter)
             self.scale(scale_factor, scale_factor)

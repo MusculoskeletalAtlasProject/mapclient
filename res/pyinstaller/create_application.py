@@ -3,7 +3,7 @@ import json
 import os
 import platform
 
-import PySide2 as RefMod
+import PySide6 as RefMod
 
 import PyInstaller.__main__
 
@@ -23,15 +23,14 @@ def main(variant):
         '-n', f'MAP-Client{variant}',
         # '--debug', 'noarchive',
         '--windowed',
+        # '--console',
         '--no-embed-manifest',
         '--noconfirm',
         '--hidden-import', 'scipy',
         '--hidden-import', 'scipy.interpolate',
         '--hidden-import', 'numpy',
         '--hidden-import', 'mapclientplugins',
-        # '--hidden-import', 'opencmiss.utils',
-        # '--hidden-import', 'opencmiss.zincwidgets',
-        '--hidden-import', 'opencmiss.zinc',
+        '--hidden-import', 'cmlibs.zinc',
         '--additional-hooks-dir=hooks',
     ]
 
@@ -52,8 +51,8 @@ def main(variant):
     pyside_dir = os.path.dirname(RefMod.__file__)
 
     if platform.system() == 'Darwin':
-        rcc_exe = os.path.join(pyside_dir, "rcc")
-        uic_exe = os.path.join(pyside_dir, "uic")
+        rcc_exe = os.path.join(pyside_dir, 'Qt', 'libexec', "rcc")
+        uic_exe = os.path.join(pyside_dir, 'Qt', 'libexec', "uic")
 
         macos_icon = os.path.join('..', 'macos', 'MAP-Client.icns')
         run_command.append(f'--icon={macos_icon}')
@@ -67,8 +66,8 @@ def main(variant):
     else:
         raise NotImplementedError("Platform is not supported for creating a MAP Client application.")
 
-    run_command.append(os.pathsep.join([f'--add-binary={rcc_exe}', 'PySide2/']))
-    run_command.append(os.pathsep.join([f'--add-binary={uic_exe}', 'PySide2/']))
+    run_command.append(os.pathsep.join([f'--add-binary={rcc_exe}', 'PySide6/']))
+    run_command.append(os.pathsep.join([f'--add-binary={uic_exe}', 'PySide6/']))
 
     externally_specified_internal_workflows_zip = os.environ.get('INTERNAL_WORKFLOWS_ZIP', '<not-a-file>')
     if os.path.isfile(externally_specified_internal_workflows_zip):
@@ -79,6 +78,14 @@ def main(variant):
     if os.path.isfile(internal_workflows_zip):
         data = os.pathsep.join([internal_workflows_zip, '.'])
         run_command.append(f'--add-data={data}')
+
+    plugin_paths_file = os.path.join(os.getcwd(), 'mapclientplugins_paths.txt')
+    if os.path.isfile(plugin_paths_file):
+        with open(plugin_paths_file) as f:
+            lines = f.readlines()
+
+        for line in lines:
+            run_command.append(f'--paths={line.rstrip()}')
 
     print('Running command: ', run_command)
     PyInstaller.__main__.run(run_command)

@@ -31,7 +31,7 @@ with open('README.rst') as f:
 
 # Define the list of requirements
 package_dependencies = [
-    'PySide2',
+    'PySide6',
     'rdflib',
     'virtualenv',
     'requests',
@@ -41,10 +41,10 @@ package_dependencies = [
     'pmr2.client >= 0.2',
     'packaging',
     'filelock',
-    'psutil'
+    'psutil == 5.9.3'
 ]
 
-extras_require={
+extras_require = {
     'dev': [
         'PyInstaller',
     ]
@@ -68,7 +68,7 @@ setup(
                        'model-viewer.png', 'morphometric.png', 'registration.png', 'segmentation.png', 'utility.png']},
     # py_modules=['mapclient.mapclient'],
     include_package_data=True,
-    entry_points={'console_scripts': ['mapclient=mapclient.application:main']},
+    entry_points={'gui_scripts': ['mapclient=mapclient.application:main']},
     install_requires=package_dependencies,
     extras_require=extras_require,
 )

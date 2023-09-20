@@ -150,7 +150,7 @@ Similarly for creating the resources there a couple of things to note:
 Having created the user interface part of the configuration dialog we need to add the Python code to handle the user interaction.  We will use composition of the user interface code rather than multiple-inheritance to combine the user interface code with the user interaction code.  Create a Python module 'configuredialog' in the 'zincmodelsourcestep/widgets' package.  In this module create a class that derives from QtGui.QDialog and sets up the user interface in the __init__ method.  The code should look like this::
 
 
-  from PySide2.QtWidgets import QDialog
+  from PySide6.QtWidgets import QDialog
   
   from zincmodelsourcestep.widgets.ui_configuredialog import Ui_ConfigureDialog
 

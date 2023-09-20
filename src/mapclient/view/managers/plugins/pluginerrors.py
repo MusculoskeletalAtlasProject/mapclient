@@ -18,7 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import os
-from PySide2.QtWidgets import QDialog, QMessageBox
+from PySide6.QtWidgets import QDialog, QMessageBox
 
 from mapclient.view.managers.plugins.advanceddialog import performPluginAnalysis, applyPluginUpdates
 from mapclient.view.managers.plugins.ui.ui_pluginerrors import Ui_PluginErrors

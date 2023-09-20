@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import logging
 
-from PySide2 import QtWidgets, QtGui
+from PySide6 import QtWidgets, QtGui
 
 from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
 from mapclient.view.workflow.workflowwidget import WorkflowWidget
@@ -87,32 +87,32 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_Workflow.setObjectName("menu_Workflow")
         self._menu_Tools = QtWidgets.QMenu(self._menu_bar)
         self._menu_Tools.setObjectName("menu_Tools")
-        self._action_LogInformation = QtWidgets.QAction(self)
+        self._action_LogInformation = QtGui.QAction(self)
         self._action_LogInformation.setObjectName("action_LogInformation")
-        self._action_Options = QtWidgets.QAction(self)
+        self._action_Options = QtGui.QAction(self)
         self._action_Options.setObjectName("action_Options")
-        self._action_About = QtWidgets.QAction(self)
+        self._action_About = QtGui.QAction(self)
         self._action_About.setObjectName("action_About")
-        self._action_Quit = QtWidgets.QAction(self)
+        self._action_Quit = QtGui.QAction(self)
         self._action_Quit.setObjectName("action_Quit")
-        self._action_PluginFinder = QtWidgets.QAction(self)
+        self._action_PluginFinder = QtGui.QAction(self)
         self._action_PluginFinder.setObjectName("action_PluginFinder")
-        self._action_PluginManager = QtWidgets.QAction(self)
+        self._action_PluginManager = QtGui.QAction(self)
         self._action_PluginManager.setObjectName("action_PluginManager")
-        self._action_PackageManager = QtWidgets.QAction(self)
+        self._action_PackageManager = QtGui.QAction(self)
         self._action_PackageManager.setObjectName("action_PackageManager")
-        self._action_PMR = QtWidgets.QAction(self)
+        self._action_PMR = QtGui.QAction(self)
         self._action_PMR.setObjectName("action_PMR")
-        self._action_RenamePlugin = QtWidgets.QAction(self)
+        self._action_RenamePlugin = QtGui.QAction(self)
         self._action_RenamePlugin.setObjectName("action_RenamePlugin")
-        self._action_UpdateWorkflow = QtWidgets.QAction(self)
+        self._action_UpdateWorkflow = QtGui.QAction(self)
         self._action_UpdateWorkflow.setObjectName("action_UpdateWorkflow")
-        self._action_Annotation = QtWidgets.QAction(self)
+        self._action_Annotation = QtGui.QAction(self)
         self._action_Annotation.setObjectName("action_Annotation")
-        self._action_PluginWizard = QtWidgets.QAction(self)
+        self._action_PluginWizard = QtGui.QAction(self)
         self._action_PluginWizard.setObjectName("action_PluginWizard")
         if ADMIN_MODE:
-            self._action_MAPIcon = QtWidgets.QAction(self)
+            self._action_MAPIcon = QtGui.QAction(self)
             self._action_MAPIcon.setObjectName("actionMAPIcon")
 
         self._menu_Help.addAction(self._action_About)
@@ -172,7 +172,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._action_MAPIcon.setText(QtWidgets.QApplication.translate("MainWindow", "MAP &Icon", None, -1))
 
     def _create_undo_action(self, parent):
-        self._action_Undo = QtWidgets.QAction('Undo', parent)
+        self._action_Undo = QtGui.QAction('Undo', parent)
         self._action_Undo.setShortcut(QtGui.QKeySequence('Ctrl+Z'))
         self._action_Undo.triggered.connect(self._model.undoManager().undo)
         stack = self._model.undoManager().currentStack()
@@ -184,7 +184,7 @@ class MainWindow(QtWidgets.QMainWindow):
         parent.addAction(self._action_Undo)
 
     def _create_redo_action(self, parent):
-        self._action_Redo = QtWidgets.QAction('Redo', parent)
+        self._action_Redo = QtGui.QAction('Redo', parent)
         self._action_Redo.setShortcut(QtGui.QKeySequence('Ctrl+Shift+Z'))
         self._action_Redo.triggered.connect(self._model.undoManager().redo)
         stack = self._model.undoManager().currentStack()
@@ -293,7 +293,7 @@ class MainWindow(QtWidgets.QMainWindow):
         QtWidgets.QMessageBox.warning(self,
                                       'Change detected',
                                       f'A change in the {asker} has been detected, you may have to restart the appplication to see the effect.',
-                                      QtWidgets.QMessageBox.Ok)
+                                      QtWidgets.QMessageBox.StandardButton.Ok)
 
     def confirm_close(self):
         # Check to see if the Workflow is in a saved state.
@@ -301,8 +301,8 @@ class MainWindow(QtWidgets.QMainWindow):
             ret = QtWidgets.QMessageBox.warning(self,
                                                 'Unsaved Changes',
                                                 'You have unsaved changes, would you like to save these changes now?',
-                                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-            if ret == QtWidgets.QMessageBox.Yes:
+                                                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            if ret == QtWidgets.QMessageBox.StandardButton.Yes:
                 self._model.workflowManager().save()
 
         unrestrict_plugins()
@@ -319,14 +319,14 @@ class MainWindow(QtWidgets.QMainWindow):
         from mapclient.view.dialogs.about.aboutdialog import AboutDialog
         dlg = AboutDialog(self)
         dlg.setModal(True)
-        dlg.exec_()
+        dlg.exec()
 
     def _show_log_information_dialog(self):
         from mapclient.view.dialogs.log.loginformation import LogInformation
         dlg = LogInformation(self)
         dlg.fillTable(self)
         dlg.setModal(True)
-        dlg.exec_()
+        dlg.exec()
 
     def show_options_dialog(self, current_tab=0):
         from mapclient.view.managers.options.optionsdialog import OptionsDialog
@@ -336,7 +336,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg = OptionsDialog(self)
         dlg.setCurrentTab(current_tab)
         dlg.load(options)
-        if dlg.exec_() == QtWidgets.QDialog.Accepted:
+        if dlg.exec():
             if dlg.isModified():
                 om.setOptions(dlg.save())
 
@@ -353,7 +353,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg = PackageManagerDialog(self)
         dlg.set_directories(pm.directories())
         dlg.setModal(True)
-        if dlg.exec_():
+        if dlg.exec():
             pm.set_directories(dlg.directories())
             if pm.is_modified():
                 pm.load()
@@ -374,7 +374,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg.reloadPlugins = self._plugin_manager_load_plugins
 
         dlg.setModal(True)
-        if dlg.exec_():
+        if dlg.exec():
             pm._ignoredPlugins = dlg._ignoredPlugins
             pm._doNotShowPluginErrors = dlg._do_not_show_plugin_errors
             pm._resourceFiles = dlg._resource_filenames
@@ -425,7 +425,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg.setPreviousIconLocation(om.getOption(PREVIOUS_PW_ICON_LOCATION))
 
         dlg.setModal(True)
-        if dlg.exec_() == dlg.Accepted:
+        if dlg.exec():
             om.setOption(PREVIOUS_PW_WRITE_STEP_LOCATION, dlg.getPreviousWriteStepLocation())
             om.setOption(PREVIOUS_PW_ICON_LOCATION, dlg.getPreviousIconLocation())
 

@@ -18,12 +18,12 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 
 from mapclient.view.utils import handle_runtime_error, set_wait_cursor
 from mapclient.exceptions import ClientRuntimeError
 
-from mapclient.tools.pmr.widgets.ui_settingswidget import Ui_SettingsWidget
+from mapclient.tools.pmr.ui.ui_settingswidget import Ui_SettingsWidget
 from mapclient.tools.pmr.dialogs.addhostdialog import AddHostDialog
 from mapclient.tools.pmr.pmrtool import PMRTool
 from mapclient.tools.pmr.settings.general import PMR
@@ -103,7 +103,7 @@ class SettingsWidget(QtWidgets.QWidget):
         dlg = AddHostDialog(self)
 
         dlg.setModal(True)
-        if dlg.exec_():
+        if dlg.exec():
             self.addHost(dlg.getHost())
 
     def _removeClicked(self):

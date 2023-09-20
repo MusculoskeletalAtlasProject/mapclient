@@ -1,5 +1,5 @@
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
 
 class MessageBox(QtWidgets.QMessageBox):
@@ -12,11 +12,11 @@ class MessageBox(QtWidgets.QMessageBox):
 
         Parameters
         ----------
-        icon: PySide2.QtWidgets.QMessageBox.Icon
+        icon: PySide6.QtWidgets.QMessageBox.Icon
         title: str
         text: str
-        buttons: PySide2.QtWidgets.QMessageBox.StandardButtons
-        parent: PySide2.QtWidgets.QWidget, optional
+        buttons: PySide6.QtWidgets.QMessageBox.StandardButtons
+        parent: PySide6.QtWidgets.QWidget, optional
         close_after: float, optional
         """
         super().__init__(icon, title, text, buttons, parent=parent)
@@ -26,4 +26,4 @@ class MessageBox(QtWidgets.QMessageBox):
     def exec_(self):
         # Only display the MessageBox if the close timer is greater than 0.
         if self._close_after > 0:
-            super().exec_()
+            super().exec()
