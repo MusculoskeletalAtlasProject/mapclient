@@ -20,14 +20,15 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import os
 import logging
 import shutil
+import glob
+import zipfile
 
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from requests.exceptions import HTTPError
 from mapclient.exceptions import ClientRuntimeError
 
-from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME, \
-    DEFAULT_WORKFLOW_ANNOTATION_FILENAME
+from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME, DEFAULT_WORKFLOW_ANNOTATION_FILENAME
 from mapclient.view.dialogs.selfclosing.messagebox import MessageBox
 
 from mapclient.view.utils import set_wait_cursor
@@ -42,6 +43,9 @@ from mapclient.tools.pmr.settings.general import PMR
 from mapclient.settings.general import get_virtualenv_directory
 from mapclient.core.workflow.workflowerror import WorkflowError
 from mapclient.settings.definitions import SHOW_STEP_NAMES, CLOSE_AFTER, USE_EXTERNAL_GIT, PREVIOUS_WORKFLOW
+
+from mapclient.core.workflow.workflowitems import MetaStep
+from mapclient.view.workflow.importconfigdialog import ImportConfigDialog
 
 logger = logging.getLogger(__name__)
 
@@ -119,6 +123,8 @@ class WorkflowWidget(QtWidgets.QWidget):
             # self.action_Continue.setEnabled(workflow_open and not widget_visible)
             self.action_Reverse.setEnabled(workflow_open and not widget_visible)
             self.action_Abort.setEnabled(workflow_open and not widget_visible)
+            self.action_Import_CFG.setEnabled(workflow_open and widget_visible)
+            self.action_Export_CFG.setEnabled(workflow_open and widget_visible)
             self.action_ZoomIn.setEnabled(widget_visible)
 
     def updateStepTree(self):
@@ -619,6 +625,48 @@ class WorkflowWidget(QtWidgets.QWidget):
     def zoom_out(self):
         self._ui.graphicsView.zoomOut()
 
+    def import_cfg(self):
+        m = self._main_window.model().workflowManager()
+        import_zip, _ = QtWidgets.QFileDialog.getOpenFileName(self._main_window, caption='Select Import File', dir=m.previousLocation(),
+                                                              filter="Data files(*.zip)")
+
+        if len(import_zip) > 0:
+            dlg = ImportConfigDialog(import_zip, self._graphicsScene, self)
+            dlg.setModal(True)
+            dlg.exec_()
+
+    def export_cfg(self):
+        self.save()
+
+        m = self._main_window.model().workflowManager()
+        workflow_dir = m.location()
+
+        if self._workflowManager.location():
+            workflow_name = os.path.basename(self._workflowManager.location())
+        else:
+            workflow_name = "workflow"
+        default_location = os.path.join(m.previousLocation(), f"{workflow_name}-config")
+        export_zip, _ = QtWidgets.QFileDialog.getSaveFileName(self._main_window, caption='Select Export File', dir=default_location,
+                                                              filter="Data files(*.zip)")
+
+        # Select only .proj and .conf files.
+        os.chdir(workflow_dir)
+        types = ('*.proj', '*.conf')
+        cfg_files = []
+        for files in types:
+            cfg_files.extend(glob.glob(files))
+
+        # Check the workflow-steps for additional config files.
+        for workflowitem in list(m.scene().items()):
+            if workflowitem.Type == MetaStep.Type:
+                cfg_files.extend(workflowitem.getStep().getAdditionalConfigFiles())
+
+        # Zip files and store in export destination.
+        if export_zip:
+            with zipfile.ZipFile(export_zip, mode="w") as archive:
+                for file in cfg_files:
+                    archive.write(file)
+
     def _create_menu_items(self):
         menu_file = self._main_window.get_menu_bar().findChild(QtWidgets.QMenu, 'menu_File')
         menu_workflow = self._main_window.get_menu_bar().findChild(QtWidgets.QMenu, 'menu_Workflow')
@@ -662,6 +710,12 @@ class WorkflowWidget(QtWidgets.QWidget):
         self.action_Abort = QtGui.QAction('Abort', menu_workflow)
         self._set_action_properties(self.action_Abort, 'action_Abort', self._abort_workflow, '',
                                     'Abort Workflow')
+        self.action_Import_CFG = QtWidgets.QAction('Import Workflow Configuration', menu_workflow)
+        self._set_action_properties(self.action_Import_CFG, 'action_Import_CFG', self.import_cfg, '',
+                                    'Import workflow configuration from file')
+        self.action_Export_CFG = QtWidgets.QAction('Export Workflow Configuration', menu_workflow)
+        self._set_action_properties(self.action_Export_CFG, 'action_Export_CFG', self.export_cfg, '',
+                                    'Export workflow configuration to file')
 
         self.action_ZoomIn = QtGui.QAction('Zoom In', menu_view)
         self._set_action_properties(self.action_ZoomIn, 'action_ZoomIn', self.zoom_in, 'Ctrl++',
@@ -693,3 +747,6 @@ class WorkflowWidget(QtWidgets.QWidget):
         # menu_workflow.addAction(self.action_Continue)
         menu_workflow.addAction(self.action_Reverse)
         menu_workflow.addAction(self.action_Abort)
+        menu_workflow.insertSeparator(last_view_menu_action)
+        menu_workflow.addAction(self.action_Import_CFG)
+        menu_workflow.addAction(self.action_Export_CFG)
