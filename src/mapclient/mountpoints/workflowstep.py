@@ -245,7 +245,7 @@ def _workflow_step_getName(self):
 def _workflow_step_get_icon(self):
     return self._icon
 
-
+  
 def _workflow_step_get_category(self):
     return self._category
 
@@ -274,6 +274,10 @@ def _workflow_step_create_git_ignore(self):
                 file.write("!" + expression + "\n")
 
 
+def _get_additional_config_files(self):
+    return []
+
+
 attr_dict = {}
 attr_dict['__init__'] = _workflow_step_init
 attr_dict['setLocation'] = _workflow_step_setLocation
@@ -297,6 +301,7 @@ attr_dict['getIcon'] = _workflow_step_get_icon
 attr_dict['getCategory'] = _workflow_step_get_category
 attr_dict['gitInclude'] = _workflow_step_git_include
 attr_dict['createGitIgnore'] = _workflow_step_create_git_ignore
+attr_dict['getAdditionalConfigFiles'] = _get_additional_config_files
 
 WorkflowStepMountPoint = pluginframework.MetaPluginMountPoint('WorkflowStepMountPoint', (object,), attr_dict)
 
