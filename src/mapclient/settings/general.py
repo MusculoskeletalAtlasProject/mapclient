@@ -190,7 +190,6 @@ def get_restricted_plugins():
     return restricted_plugins
 
 
-# TODO: Add a list of known MAP plugins that need not be restricted (e.g., TRC Reader, etc).
 def restrict_plugins(plugins):
     """
     Takes a set of plugins as input. Adds this set to the MAP PID database file. This is so that other instances of the MAP Client

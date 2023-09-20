@@ -25,6 +25,7 @@ for instance in a Qt ui file and here.  This is intended to make things easier t
 keep the strings the same, obviously it doesn't help with the side-effects of
 changing the string.
 """
+APPLICATION_NAME = "MAP-Client"
 
 # Options related strings
 OPTIONS_SETTINGS_TAG = 'Options'

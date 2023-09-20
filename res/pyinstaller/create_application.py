@@ -8,7 +8,7 @@ import PySide6 as RefMod
 import PyInstaller.__main__
 
 from mapclient.core.provenance import reproducibility_info
-from mapclient.settings.definitions import FROZEN_PROVENANCE_INFO_FILE
+from mapclient.settings.definitions import APPLICATION_NAME, FROZEN_PROVENANCE_INFO_FILE
 
 
 # Set Python optimisations on.
@@ -20,7 +20,7 @@ here = os.path.dirname(__file__)
 def main(variant):
     run_command = [
         '../../src/mapclient/application.py',
-        '-n', f'MAP-Client{variant}',
+        '-n', f'{APPLICATION_NAME}{variant}',
         # '--debug', 'noarchive',
         '--windowed',
         # '--console',

@@ -8,6 +8,9 @@
     <file>images/logo.png</file>
     <file>images/icon-arrow-right.png</file>
     <file>images/green_tick.png</file>
+    <file>images/download_icon.png</file>
+    <file>images/downloaded_icon.png</file>
+    <file>images/loading_icon.png</file>
   </qresource>
   <qresource prefix="workflow">
     <file>images/cancel_256.png</file>

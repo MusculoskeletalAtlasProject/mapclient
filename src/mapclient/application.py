@@ -282,7 +282,7 @@ def sans_gui_main(app_args):
 def main():
     parser = argparse.ArgumentParser(prog=info.APPLICATION_NAME)
     parser.add_argument("-x", "--execute", action="store_true", help="execute a workflow")
-    parser.add_argument("--headless", action="store_true",
+    parser.add_argument("-s", "--headless", action="store_true",
                         help="operate in headless mode, without a gui.  Requires a location of a workflow to be set")
     parser.add_argument("-w", "--workflow", help="location of workflow")
     args = parser.parse_args()

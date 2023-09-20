@@ -326,22 +326,22 @@ class PMRTool(object):
             remote_workspace_url=remote_workspace_url,
         )
 
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
 
         # Another caveat: that workspace is possibly private.  Acquire
         # temporary password.
         creds = self.requestTemporaryPassword(remote_workspace_url)
         if creds:
-            result = workspace.cmd.pull(workspace,
+            stdout, stderr, return_code = workspace.cmd.pull(workspace,
                 username=creds['user'], password=creds['key'])
         else:
             # no credentials
             logger.info('not using credentials as none are detected')
-            result = workspace.cmd.pull(workspace)
+            stdout, stderr, return_code = workspace.cmd.pull(workspace)
 
         # TODO trap this result too?
         workspace.cmd.reset_to_remote(workspace)
-        return result
+        return return_code
 
     def addFileToIndexer(self, local_workspace_dir, workspace_file):
         """
@@ -351,7 +351,7 @@ class PMRTool(object):
         if not self.hasAccess():
             return
 
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
         cmd = workspace.cmd
         remote_workspace_url = cmd.read_remote(workspace)
         target = '/'.join([remote_workspace_url, 'rdf_indexer'])
@@ -390,7 +390,7 @@ class PMRTool(object):
     def hasDVCS(self, local_workspace_dir):
         git_dir = os.path.join(local_workspace_dir, '.git')
         if os.path.isdir(git_dir):
-            bob = get_cmd_by_name(self._git_implementation)
+            bob = get_cmd_by_name(self._git_implementation)()
             workspace = CmdWorkspace(local_workspace_dir, bob)
             return workspace.cmd is not None
         else:
@@ -398,7 +398,7 @@ class PMRTool(object):
 
 
     def commitFiles(self, local_workspace_dir, message, files):
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
         cmd = workspace.cmd
         if cmd is None:
             logger.info('skipping commit, no underlying repo detected')
@@ -407,14 +407,14 @@ class PMRTool(object):
         logger.info('Using `%s` for committing files.', cmd.__class__.__name__)
 
         for fn in files:
-            sout, serr = cmd.add(workspace, fn)
+            sout, serr, return_code = cmd.add(workspace, fn)
             # if serr has something we need to handle?
 
         # XXX committer will be a problem if unset in git.
         return cmd.commit(workspace, message)
 
     def pushToRemote(self, local_workspace_dir, remote_workspace_url=None):
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
         cmd = workspace.cmd
 
         if remote_workspace_url is None:
@@ -422,26 +422,26 @@ class PMRTool(object):
         # Acquire temporary creds
         creds = self.requestTemporaryPassword(remote_workspace_url)
 
-        stdout, stderr = cmd.push(workspace,
+        stdout, stderr, return_code = cmd.push(workspace,
             username=creds['user'], password=creds['key'])
 
         if stdout:
             logger.info(stdout)
         if stderr:
-            logger.error(stderr)
-#             raise PMRToolError('Error pushing changes to PMR',
-#                 'The command line tool gave us this error message:\n\n' +
-#                     stderr)
+            if return_code:
+                logger.error(stderr)
+            else:
+                logger.info(stderr)
 
         return stdout, stderr
 
     def pullFromRemote(self, local_workspace_dir):
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation))
+        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
         cmd = workspace.cmd
 
         remote_workspace_url = cmd.read_remote(workspace)
         creds = self.requestTemporaryPassword(remote_workspace_url)
-        stdout, stderr = cmd.pull(workspace,
+        stdout, stderr, return_code = cmd.pull(workspace,
             username=creds['user'], password=creds['key'])
 
         if stdout:

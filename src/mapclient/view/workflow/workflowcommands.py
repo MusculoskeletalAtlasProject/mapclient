@@ -112,6 +112,23 @@ class CommandMove(QtGui.QUndoCommand):
     def undo(self):
         self._node.setPos(self._from)
 
+    def node(self):
+        return self._node
+
+    def to(self):
+        return self._to
+
+    def id(self):
+        return 1
+
+    def mergeWith(self, other):
+        if other.id() != self.id():
+            return False
+        if other.node() != self.node():
+            return False
+        self._to = other.to()
+        return True
+
 
 class CommandConfigure(QtGui.QUndoCommand):
 

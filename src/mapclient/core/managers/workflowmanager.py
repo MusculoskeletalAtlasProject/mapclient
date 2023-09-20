@@ -37,23 +37,23 @@ logger = logging.getLogger(__name__)
 _PREVIOUS_LOCATION_STRING = 'previousLocation'
 
 
-def _getWorkflowConfiguration(location):
-    return QtCore.QSettings(_getWorkflowConfigurationAbsoluteFilename(location), QtCore.QSettings.IniFormat)
+def _get_workflow_configuration(location):
+    return QtCore.QSettings(_get_workflow_configuration_absolute_filename(location), QtCore.QSettings.IniFormat)
 
 
-def _getWorkflowRequirements(location):
+def _get_workflow_requirements(location):
     return {}
 
 
-def _getWorkflowRequirementsAbsoluteFilename(location):
+def _get_workflow_requirements_absolute_filename(location):
     return os.path.join(location, info.DEFAULT_WORKFLOW_REQUIREMENTS_FILENAME)
 
 
-def _getWorkflowConfigurationAbsoluteFilename(location):
+def _get_workflow_configuration_absolute_filename(location):
     return os.path.join(location, info.DEFAULT_WORKFLOW_PROJECT_FILENAME)
 
 
-def _getWorkflowMetaAbsoluteFilename(location):
+def _get_workflow_meta_absolute_filename(location):
     return os.path.join(location, info.DEFAULT_WORKFLOW_ANNOTATION_FILENAME)
 
 
@@ -90,12 +90,9 @@ class WorkflowManager(object):
 
         return self._title
 
-    def updateLocation(self, location):
+    def set_location(self, location):
         self._location = location
         return self._scene.updateWorkflowLocation(location)
-
-    def setLocation(self, location):
-        self._location = location
 
     def location(self):
         return self._location
@@ -155,7 +152,7 @@ class WorkflowManager(object):
             pass
 
     def _checkRequirements(self):
-        requirements_file = _getWorkflowRequirementsAbsoluteFilename(self._location)
+        requirements_file = _get_workflow_requirements_absolute_filename(self._location)
 
     def new(self, location):
         """
@@ -169,8 +166,8 @@ class WorkflowManager(object):
         if not os.path.exists(location):
             raise WorkflowError('Location %s does not exist.' % location)
 
-        self._location = location
-        wf = _getWorkflowConfiguration(location)
+        self.set_location(location)
+        wf = _get_workflow_configuration(location)
         wf.setValue('version', info.VERSION_STRING)
         self._scene.clear()
 
@@ -185,7 +182,7 @@ class WorkflowManager(object):
         if not os.path.exists(location):
             return False
 
-        wf = _getWorkflowConfiguration(location)
+        wf = _get_workflow_configuration(location)
         if wf.contains('version'):
             return True
 
@@ -195,17 +192,11 @@ class WorkflowManager(object):
         if location is None or not os.path.exists(location) or not os.path.isdir(location):
             return False
 
-        wf = _getWorkflowConfiguration(location)
+        wf = _get_workflow_configuration(location)
         if not wf.contains('version'):
             return False
 
         return self._scene.is_restricted(wf)
-
-    def fit_workflow(self, graphics_view, graphics_scene):
-        """
-        Scales the workflow items to fit into the current window size. This method maintains the aspect ratio of the saved workflow.
-        """
-        self._scene.fit_workflow(graphics_view, graphics_scene)
 
     def load(self, location):
         """
@@ -221,7 +212,7 @@ class WorkflowManager(object):
         if os.path.isfile(location):
             location = os.path.dirname(location)
 
-        wf = _getWorkflowConfiguration(location)
+        wf = _get_workflow_configuration(location)
         if not wf.contains('version'):
             raise WorkflowError('The given Workflow configuration file is not valid.')
 
@@ -230,7 +221,7 @@ class WorkflowManager(object):
         if not _compatible_versions(workflow_version, application_version):
             pass  # should already have thrown an exception
 
-        self._location = location
+        self.set_location(location)
         if self._scene.is_loadable(wf):
             self._scene.restrict_plugins(wf)
             self._scene.load_state(wf)
@@ -270,7 +261,7 @@ class WorkflowManager(object):
         self._saveStateIndex = self._currentStateIndex = 0
 
     def save(self):
-        wf = _getWorkflowConfiguration(self._location)
+        wf = _get_workflow_configuration(self._location)
 
         if 'version' not in wf.allKeys():
             wf.setValue('version', info.VERSION_STRING)
@@ -281,7 +272,7 @@ class WorkflowManager(object):
 
         self._scene.saveState(wf)
         self._saveStateIndex = self._currentStateIndex
-        af = _getWorkflowMetaAbsoluteFilename(self._location)
+        af = _get_workflow_meta_absolute_filename(self._location)
 
         try:
             annotation = serializeWorkflowAnnotation().decode('utf-8')
@@ -296,7 +287,7 @@ class WorkflowManager(object):
         """
         Close the current workflow
         """
-        self._location = ''
+        self.set_location('')
         self._saveStateIndex = self._currentStateIndex = 0
 
     def isWorkflowOpen(self):
