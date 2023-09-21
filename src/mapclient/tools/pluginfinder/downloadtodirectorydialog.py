@@ -4,7 +4,7 @@ import zipfile
 import requests
 
 from posixpath import join
-from PySide2.QtWidgets import QDialog, QFileDialog, QMessageBox
+from PySide6.QtWidgets import QDialog, QFileDialog, QMessageBox
 
 from mapclient.tools.pluginfinder.ui.ui_downloadtodirectorydialog import Ui_DownloadToDirectoryDialog
 
