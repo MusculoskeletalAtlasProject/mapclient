@@ -64,6 +64,8 @@ class MAPPlugin:
 
 # This makes the MAPPlugin class compatible with workflowsteps.addStep().
 setattr(MAPPlugin, 'getName', MAPPlugin.get_name)
+setattr(MAPPlugin, 'getCategory', MAPPlugin.get_category)
+setattr(MAPPlugin, 'getIcon', lambda self: None)
 
 
 class PluginData(QtGui.QStandardItemModel):
