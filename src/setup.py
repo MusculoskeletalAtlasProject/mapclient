@@ -41,7 +41,8 @@ package_dependencies = [
     'pmr2.client >= 0.2',
     'packaging',
     'filelock',
-    'psutil == 5.9.3'
+    'psutil == 5.9.3',
+    'PyGithub'
 ]
 
 extras_require = {
