@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'advanceddialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.4.1
+## Created by: Qt User Interface Compiler version 6.5.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView, QApplication,
     QHBoxLayout, QLabel, QLineEdit, QListWidget,
     QListWidgetItem, QPushButton, QSizePolicy, QSpacerItem,
     QTabWidget, QVBoxLayout, QWidget)
-import resources_rc
+from . import resources_rc
 
 class Ui_AdvancedDialog(object):
     def setupUi(self, AdvancedDialog):
