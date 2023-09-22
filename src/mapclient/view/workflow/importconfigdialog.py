@@ -73,7 +73,7 @@ class ImportConfigDialog(QtWidgets.QDialog):
 
         # Generate list of choices for each workflow step
         for i in range(len(workflow_steps)):
-            self._step_map[i]["Imports"] = [None]
+            self._step_map[i]["Imports"] = ['']
             for j in range(len(import_steps)):
                 if workflow_steps[i]["Name"] == import_steps[j]["Name"]:
                     self._step_map[i]["Imports"].append(import_steps[j]["ID"])
