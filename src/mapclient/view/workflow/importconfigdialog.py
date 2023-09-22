@@ -23,16 +23,16 @@ class ImportConfigDialog(QtWidgets.QDialog):
 
         self._import_zip = import_zip
         self._graphics_scene = graphics_scene
-        self._workflow_manager = self._graphics_scene._workflow_scene._manager
-        self._undo_stack = self._graphics_scene._undoStack
+        self._workflow_scene = self._graphics_scene.workflowScene()
+        self._undo_stack = self._graphics_scene.getUndoStack()
 
         self._step_map = None
         self._setup_step_map()
         self._setup_grid_layout()
 
-        self._makeConnections()
+        self._make_connections()
 
-    def _makeConnections(self):
+    def _make_connections(self):
         self._ui.pushButtonImport.clicked.connect(self._import_clicked)
 
     def _setup_step_map(self):
@@ -52,10 +52,10 @@ class ImportConfigDialog(QtWidgets.QDialog):
             import_steps[i]["Name"] = import_proj.value('name')
 
         # Get workflow information.
-        node_count = len([_ for _ in self._workflow_manager.scene().items() if (_.Type == MetaStep.Type)])
+        node_count = len([_ for _ in self._workflow_scene.items() if (_.Type == MetaStep.Type)])
         workflow_steps = numpy.empty(shape=(node_count,), dtype=[("ID", "<U64"), ("Name", "<U64")])
         i = 0
-        for workflowitem in list(self._workflow_manager.scene().items()):
+        for workflowitem in list(self._workflow_scene.items()):
             if workflowitem.Type == MetaStep.Type:
                 workflow_steps[i]["ID"] = workflowitem.getIdentifier()
                 workflow_steps[i]["Name"] = workflowitem.getName()
@@ -63,17 +63,17 @@ class ImportConfigDialog(QtWidgets.QDialog):
 
         # Check for version compatibility.
         if import_version != app_version.__version__:
-            QtWidgets.QMessageBox.warning(self, 'Different Workflow Versions', f'The version of the imported workflow ({import_version})' \
-                                            f' does not match the version of the MAP Client ({app_version.__version__}).')
+            QtWidgets.QMessageBox.warning(self, 'Different Workflow Versions', f'The version of the imported workflow ({import_version})'
+                                          f' does not match the version of the MAP Client ({app_version.__version__}).')
 
         # Create a mapping between the current workflow steps and the steps being imported.
-        self._step_map = numpy.empty(shape=(node_count), dtype=[("ID", "<U64"), ("Name", "<U64"), ("Imports", object), ("Selected", "<U64")])
+        self._step_map = numpy.empty(shape=node_count, dtype=[("ID", "<U64"), ("Name", "<U64"), ("Imports", object), ("Selected", "<U64")])
         self._step_map["ID"] = workflow_steps["ID"]
         self._step_map["Name"] = workflow_steps["Name"]
 
         # Generate list of choices for each workflow step
         for i in range(len(workflow_steps)):
-            self._step_map[i]["Imports"] = [None]
+            self._step_map[i]["Imports"] = ['']
             for j in range(len(import_steps)):
                 if workflow_steps[i]["Name"] == import_steps[j]["Name"]:
                     self._step_map[i]["Imports"].append(import_steps[j]["ID"])
@@ -113,8 +113,8 @@ class ImportConfigDialog(QtWidgets.QDialog):
         node_dict = {}
         for node in self._graphics_scene.items():
             if hasattr(node, 'Type') and node.Type == Node.Type:
-                identifier = node._metastep.getIdentifier()
-                step = node._metastep.getStep()
+                identifier = node.metaItem().getIdentifier()
+                step = node.metaItem().getStep()
                 step_dict[identifier] = step
                 node_dict[identifier] = node
 

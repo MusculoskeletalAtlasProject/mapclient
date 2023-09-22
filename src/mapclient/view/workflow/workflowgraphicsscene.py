@@ -54,6 +54,9 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
     def setUndoStack(self, stack):
         self._undoStack = stack
 
+    def getUndoStack(self):
+        return self._undoStack
+
     def addItem(self, item):
         QtWidgets.QGraphicsScene.addItem(self, item)
         if hasattr(item, 'Type'):
