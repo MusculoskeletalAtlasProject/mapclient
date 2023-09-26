@@ -2,8 +2,8 @@ import os
 import json
 from packaging import version
 
-from PySide2 import QtCore, QtGui
-from PySide2.QtWidgets import QApplication, QStyle, QStyleOptionButton, QInputDialog, QLineEdit, QMessageBox, QTreeView
+from PySide6 import QtCore, QtGui
+from PySide6.QtWidgets import QApplication, QStyle, QStyleOptionButton, QInputDialog, QLineEdit, QMessageBox, QTreeView
 
 from mapclient.core.workflow.workflowsteps import addStep
 from mapclient.view.workflow.workflowsteptreeview import HeaderDelegate, WorkflowStepTreeView
@@ -64,6 +64,8 @@ class MAPPlugin:
 
 # This makes the MAPPlugin class compatible with workflowsteps.addStep().
 setattr(MAPPlugin, 'getName', MAPPlugin.get_name)
+setattr(MAPPlugin, 'getCategory', MAPPlugin.get_category)
+setattr(MAPPlugin, 'getIcon', lambda self: None)
 
 
 class PluginData(QtGui.QStandardItemModel):

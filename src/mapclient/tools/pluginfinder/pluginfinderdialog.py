@@ -6,8 +6,8 @@ Author: Timothy Salemink
 
 from packaging import version
 
-from PySide2 import QtCore, QtGui
-from PySide2.QtWidgets import QDialog, QLabel, QPushButton, QMessageBox
+from PySide6 import QtCore, QtGui
+from PySide6.QtWidgets import QDialog, QLabel, QPushButton, QMessageBox
 
 from mapclient.tools.pluginfinder.plugindata import get_plugin_database, PushButtonDelegate, PluginData
 from mapclient.core.workflow.workflowsteps import WorkflowStepsFilter
@@ -121,12 +121,12 @@ class PluginFinderDialog(QDialog):
         self._ui.lineEditFilter.textChanged.connect(self._filter_text_changed)
 
     def _filter_text_changed(self, text):
-        reg_exp = QtCore.QRegExp(text, QtCore.Qt.CaseInsensitive)
-        self._ui.stepTreeView.setFilterRegExp(reg_exp)
+        reg_exp = QtCore.QRegularExpression(text, QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+        self._ui.stepTreeView.setFilterRegularExpression(reg_exp)
 
     def _update_available_steps(self):
         self._plugin_data.reload()
-        self._filtered_plugins.sort(QtCore.Qt.AscendingOrder)
+        self._filtered_plugins.sort(1, QtCore.Qt.AscendingOrder)
 
     def _expand_step_tree(self):
         self._ui.stepTreeView.expandAll()
