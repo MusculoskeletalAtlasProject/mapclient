@@ -25,7 +25,7 @@ from PySide6 import QtWidgets, QtGui
 from mapclient import version
 from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
 from mapclient.view.workflow.workflowwidget import WorkflowWidget
-from mapclient.settings.general import unrestrict_plugins, settings_file_exists
+from mapclient.settings.general import unrestrict_plugins
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
 from mapclient.settings.definitions import WIZARD_TOOL_STRING, METRICS_PERMISSION, \
     PMR_TOOL_STRING, PYSIDE_RCC_EXE, USE_EXTERNAL_RCC, PYSIDE_UIC_EXE, USE_EXTERNAL_UIC, \
@@ -252,6 +252,7 @@ class MainWindow(QtWidgets.QMainWindow):
             om.setOption(METRICS_PERMISSION, permission)
             om.setOption(METRICS_PERMISSION_ATTAINED, permissions)
             metrics_logger.initial_permission_status(permission)
+            metrics_logger.report_location()
 
         self.apply_permission_settings()
 

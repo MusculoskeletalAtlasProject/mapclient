@@ -84,6 +84,14 @@ class MetricsLogger(object):
 
         self._log_event(event)
 
+    def report_location(self):
+        event = {
+            "name": "location",
+            "params": _geolocate(),
+        }
+
+        self._log_event(event)
+
     def _log_event(self, event):
         if self._permission:
             event_data = {
@@ -104,3 +112,21 @@ metrics_logger = MetricsLogger()
 
 def get_metrics_logger():
     return metrics_logger
+
+
+def _geolocate():
+    url = 'https://ipinfo.io/json'
+    response = requests.get(url)
+    if response.ok:
+        json_data = response.json()
+        location = {
+            'country': json_data.get('country', 'not-set'),
+            'city': json_data.get('city', 'not-set'),
+        }
+    else:
+        location = {
+            'country': 'unknown',
+            'city': 'unknown'
+        }
+
+    return location
