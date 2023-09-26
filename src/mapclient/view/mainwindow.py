@@ -234,10 +234,10 @@ class MainWindow(QtWidgets.QMainWindow):
         return self._model.doEnvironmentChecks()
 
     def start_metrics(self):
-        self.check_permissions()
+        self.initialise_metrics_logger()
         metrics_logger.session_started()
 
-    def check_permissions(self):
+    def initialise_metrics_logger(self):
         om = self._model.optionsManager()
 
         if not om.getOption(METRICS_CLIENT_ID):
@@ -433,7 +433,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _request_metrics_permission(self):
         result = QtWidgets.QMessageBox.question(
-            self, 'Metrics Permission', 'Give the MAP-Client permission to record and send metrics/usage statistics?\t',
+            self, 'Metrics Permission', 'Is it okay for the MAP-Client to send metrics/usage statistics to help us improve the tools actually used?\n (This option can be '
+                                        'enabled/disabled in the settings page at a later date if you change your mind.)',
             QtWidgets.QMessageBox.StandardButton(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No))
         return True if result == QtWidgets.QMessageBox.StandardButton.Yes else False
 
