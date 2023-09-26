@@ -310,7 +310,8 @@ class MainWindow(QtWidgets.QMainWindow):
         return self._ui.stackedWidget.currentWidget()
 
     def closeEvent(self, event):
-        self.quit_application()
+        if self.sender() is None:
+            self.quit_application()
 
     def _maybe_restart_application(self, asker='plugins'):
         QtWidgets.QMessageBox.warning(self,
@@ -338,7 +339,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._model.setPos(self.pos())
         self._model.set_maximized(self.isMaximized())
         self._model.writeSettings()
-        QtGui.QGuiApplication.quit()
+        QtWidgets.QApplication.quit()
 
     def about(self):
         from mapclient.view.dialogs.about.aboutdialog import AboutDialog
