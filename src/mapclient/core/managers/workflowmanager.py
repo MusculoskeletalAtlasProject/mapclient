@@ -23,6 +23,7 @@ from packaging import version
 
 from PySide6 import QtCore
 
+from mapclient.core.metrics import metrics_logger
 from mapclient.settings import info
 from mapclient.core.workflow.workflowscene import WorkflowScene
 from mapclient.core.workflow.workflowsteps import WorkflowSteps, \
@@ -126,6 +127,7 @@ class WorkflowManager(object):
         self._scene.register_finished_workflow_callback(callback)
 
     def execute(self):
+        metrics_logger.workflow_executed(self.title())
         self._scene.execute()
 
     def abort_execution(self):

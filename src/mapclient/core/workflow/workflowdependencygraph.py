@@ -165,7 +165,6 @@ class WorkflowDependencyGraph(object):
         self._current += self._direction
         if self._current >= len(self._topological_order):
             self._current = -1
-            metrics_logger.workflow_executed()
             if callable(self._finished_callback):
                 self._finished_callback(True)
         elif self._current == -1:

@@ -70,3 +70,4 @@ FROZEN_PROVENANCE_INFO_FILE = 'provenance_info.json'
 PID_DATABASE_FILE_NAME = 'pid_database.json'
 
 METRICS_PERMISSION_ATTAINED = 'metrics_permissions_db'
+METRICS_CLIENT_ID = 'metrics_client_id'

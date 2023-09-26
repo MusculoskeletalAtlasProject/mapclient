@@ -3,7 +3,6 @@ Created on July 21, 2023
 
 @author: tsalemink
 """
-import uuid
 import requests
 import logging
 
@@ -18,16 +17,31 @@ class MetricsLogger(object):
         self._base_url = f"https://www.google-analytics.com/mp/collect?measurement_id={measurement_id}&api_secret={api_secret}"
         # Debugging URL.
         # self._base_url = f"https://www.google-analytics.com/debug/mp/collect?measurement_id=${measurement_id}&api_secret=${api_secret}"
-        self._client_id = str(uuid.uuid4())
+        self._client_id = 'XXXXXXXX-YYYY-ZZZZ-WWWW-QQQQQQQQQQQQ'
 
         self._permission = False
 
     def set_permission(self, permission):
         self._permission = permission
 
+    def set_client_id(self, client_id):
+        self._client_id = client_id
+
+    def initial_permission_status(self, status):
+        event = {
+            "name": "permission_given",
+            "params": {
+                "value": status
+            }
+        }
+
+        self._permission = True
+        self._log_event(event)
+        self._permission = False
+
     def session_started(self):
         event = {
-           "name": "session_start",
+           "name": "session_begin",
         }
 
         self._log_event(event)
@@ -39,9 +53,12 @@ class MetricsLogger(object):
 
         self._log_event(event)
 
-    def workflow_executed(self):
+    def workflow_executed(self, title):
         event = {
             "name": "workflow_execution",
+            "params": {
+                "workflow_name": title
+            }
         }
 
         self._log_event(event)
@@ -78,8 +95,8 @@ class MetricsLogger(object):
 
             response = requests.post(self._base_url, json=event_data)
 
-            # TODO: REMOVE (testing).
-            logger.info(f"Event response: {response.status_code}")
+            if not response.ok:
+                logger.info(f"Event response: {event['name']} - {response.status_code}")
 
 
 metrics_logger = MetricsLogger()

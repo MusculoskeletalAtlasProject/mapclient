@@ -18,6 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import logging
+import uuid
 
 from PySide6 import QtWidgets, QtGui
 
@@ -28,7 +29,7 @@ from mapclient.settings.general import unrestrict_plugins, settings_file_exists
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
 from mapclient.settings.definitions import WIZARD_TOOL_STRING, METRICS_PERMISSION, \
     PMR_TOOL_STRING, PYSIDE_RCC_EXE, USE_EXTERNAL_RCC, PYSIDE_UIC_EXE, USE_EXTERNAL_UIC, \
-    PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION, USE_EXTERNAL_GIT, METRICS_PERMISSION_ATTAINED
+    PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION, USE_EXTERNAL_GIT, METRICS_PERMISSION_ATTAINED, METRICS_CLIENT_ID
 from mapclient.view.utils import set_wait_cursor
 from mapclient.core.metrics import get_metrics_logger
 
@@ -238,11 +239,20 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def check_permissions(self):
         om = self._model.optionsManager()
+
+        if not om.getOption(METRICS_CLIENT_ID):
+            om.setOption(METRICS_CLIENT_ID, str(uuid.uuid4()))
+
+        metrics_logger.set_client_id(om.getOption(METRICS_CLIENT_ID))
+
         permissions = om.getOption(METRICS_PERMISSION_ATTAINED)
         if version not in permissions:
             permissions[version] = True
-            om.setOption(METRICS_PERMISSION, self._request_metrics_permission())
+            permission = self._request_metrics_permission()
+            om.setOption(METRICS_PERMISSION, permission)
             om.setOption(METRICS_PERMISSION_ATTAINED, permissions)
+            metrics_logger.initial_permission_status(permission)
+
         self.apply_permission_settings()
 
     @staticmethod
@@ -381,8 +391,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def apply_permission_settings(self):
         om = self._model.optionsManager()
-        metric_permission = om.getOption(METRICS_PERMISSION)
-        metrics_logger.set_permission(metric_permission)
+        metrics_logger.set_permission(om.getOption(METRICS_PERMISSION))
 
     def _show_package_manager_dialog(self):
         from mapclient.view.managers.package.packagemanagerdialog import PackageManagerDialog
