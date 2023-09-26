@@ -62,8 +62,11 @@ INTERNAL_WORKFLOWS_DIR = 'MAPClient-Workflows'
 INTERNAL_WORKFLOWS_ZIP = 'internal_workflows.zip'
 INTERNAL_WORKFLOWS_AVAILABLE = 'internal_workflows_available'
 INTERNAL_WORKFLOW_DIR = 'lineEditInternalWorkflowDirectory'
+
 PREVIOUS_WORKFLOW = 'lineEditPreviousWorkflowDirectory'
 AUTOLOAD_PREVIOUS_WORKFLOW = 'checkBoxAutoloadPreviousWorkflow'
 FROZEN_PROVENANCE_INFO_FILE = 'provenance_info.json'
 
 PID_DATABASE_FILE_NAME = 'pid_database.json'
+
+METRICS_PERMISSION_ATTAINED = 'metrics_permissions_db'
