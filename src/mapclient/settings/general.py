@@ -67,6 +67,12 @@ def get_virtualenv_site_packages_directory(virtualenv_dir):
     return os.path.join(virtualenv_dir, 'Lib', 'site-packages')
 
 
+def settings_file_exists():
+    settings = QtCore.QSettings()
+    file_name = settings.fileName()
+    return os.path.isfile(file_name)
+
+
 def get_log_directory():
     return _get_app_directory('logs')
 

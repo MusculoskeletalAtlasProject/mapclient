@@ -18,19 +18,23 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import logging
+import uuid
 
 from PySide6 import QtWidgets, QtGui
 
+from mapclient import version
 from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
 from mapclient.view.workflow.workflowwidget import WorkflowWidget
-from mapclient.settings.general import unrestrict_plugins
+from mapclient.settings.general import unrestrict_plugins, settings_file_exists
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
-from mapclient.settings.definitions import WIZARD_TOOL_STRING, \
+from mapclient.settings.definitions import WIZARD_TOOL_STRING, METRICS_PERMISSION, \
     PMR_TOOL_STRING, PYSIDE_RCC_EXE, USE_EXTERNAL_RCC, PYSIDE_UIC_EXE, USE_EXTERNAL_UIC, \
-    PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION, USE_EXTERNAL_GIT
+    PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION, USE_EXTERNAL_GIT, METRICS_PERMISSION_ATTAINED, METRICS_CLIENT_ID
 from mapclient.view.utils import set_wait_cursor
+from mapclient.core.metrics import get_metrics_logger
 
 logger = logging.getLogger(__name__)
+metrics_logger = get_metrics_logger()
 
 ADMIN_MODE = False
 
@@ -229,6 +233,28 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         return self._model.doEnvironmentChecks()
 
+    def start_metrics(self):
+        self.initialise_metrics_logger()
+        metrics_logger.session_started()
+
+    def initialise_metrics_logger(self):
+        om = self._model.optionsManager()
+
+        if not om.getOption(METRICS_CLIENT_ID):
+            om.setOption(METRICS_CLIENT_ID, str(uuid.uuid4()))
+
+        metrics_logger.set_client_id(om.getOption(METRICS_CLIENT_ID))
+
+        permissions = om.getOption(METRICS_PERMISSION_ATTAINED)
+        if version not in permissions:
+            permissions[version] = True
+            permission = self._request_metrics_permission()
+            om.setOption(METRICS_PERMISSION, permission)
+            om.setOption(METRICS_PERMISSION_ATTAINED, permissions)
+            metrics_logger.initial_permission_status(permission)
+
+        self.apply_permission_settings()
+
     @staticmethod
     def setup_application():
         return False
@@ -294,7 +320,8 @@ class MainWindow(QtWidgets.QMainWindow):
         return self._ui.stackedWidget.currentWidget()
 
     def closeEvent(self, event):
-        self.quit_application()
+        if self.sender() is None:
+            self.quit_application()
 
     def _maybe_restart_application(self, asker='plugins'):
         QtWidgets.QMessageBox.warning(self,
@@ -317,11 +344,12 @@ class MainWindow(QtWidgets.QMainWindow):
     def quit_application(self):
         self.confirm_close()
 
+        metrics_logger.session_ended()
         self._model.setSize(self.size())
         self._model.setPos(self.pos())
         self._model.set_maximized(self.isMaximized())
         self._model.writeSettings()
-        QtGui.QGuiApplication.quit()
+        QtWidgets.QApplication.quit()
 
     def about(self):
         from mapclient.view.dialogs.about.aboutdialog import AboutDialog
@@ -359,6 +387,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
         self._action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
         self._workflowWidget.applyOptions()
+        self.apply_permission_settings()
+
+    def apply_permission_settings(self):
+        om = self._model.optionsManager()
+        metrics_logger.set_permission(om.getOption(METRICS_PERMISSION))
 
     def _show_package_manager_dialog(self):
         from mapclient.view.managers.package.packagemanagerdialog import PackageManagerDialog
@@ -397,6 +430,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._maybe_restart_application()
 
         self._pluginManagerDlg = None
+
+    def _request_metrics_permission(self):
+        result = QtWidgets.QMessageBox.question(
+            self, 'Metrics Permission', 'Is it okay for the MAP-Client to send metrics/usage statistics to help us improve the tools actually used?\n (This option can be '
+                                        'enabled/disabled in the settings page at a later date if you change your mind.)',
+            QtWidgets.QMessageBox.StandardButton(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No))
+        return True if result == QtWidgets.QMessageBox.StandardButton.Yes else False
 
     @set_wait_cursor
     def _plugin_manager_load_plugins(self):

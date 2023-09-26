@@ -148,6 +148,7 @@ def windows_main(app_args):
     elif app_args.workflow:
         logger.info(f"Not opening workflow '{app_args.workflow}', at least some required plugins are already in use.")
 
+    window.start_metrics()
     if app_args.execute:
         splash.showMessage('Executing workflow ...', 90)
         if wm.canExecute():

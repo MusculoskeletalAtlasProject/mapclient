@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'optionsdialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.4.1
+## Created by: Qt User Interface Compiler version 6.5.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -97,6 +97,18 @@ class Ui_OptionsDialog(object):
 
 
         self.verticalLayout_4.addWidget(self.groupBox_2)
+
+        self.groupBox_3 = QGroupBox(self.tabGeneral)
+        self.groupBox_3.setObjectName(u"groupBox_3")
+        self.verticalLayout_7 = QVBoxLayout(self.groupBox_3)
+        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
+        self.checkBoxMetricsPermission = QCheckBox(self.groupBox_3)
+        self.checkBoxMetricsPermission.setObjectName(u"checkBoxMetricsPermission")
+
+        self.verticalLayout_7.addWidget(self.checkBoxMetricsPermission)
+
+
+        self.verticalLayout_4.addWidget(self.groupBox_3)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
@@ -266,6 +278,8 @@ class Ui_OptionsDialog(object):
         self.doubleSpinBoxMessageBoxTimer.setToolTip(QCoreApplication.translate("OptionsDialog", u"Setting a value of zero will disable the display of the notification.", None))
 #endif // QT_CONFIG(tooltip)
         self.label.setText(QCoreApplication.translate("OptionsDialog", u"Auto close after (seconds)", None))
+        self.groupBox_3.setTitle(QCoreApplication.translate("OptionsDialog", u"Permissions", None))
+        self.checkBoxMetricsPermission.setText(QCoreApplication.translate("OptionsDialog", u"Allow the MAP-Client to log metrics/usage statistics", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGeneral), QCoreApplication.translate("OptionsDialog", u"&General", None))
         self.groupBoxStepWizard.setTitle(QCoreApplication.translate("OptionsDialog", u"Step Wizard", None))
         self.checkBoxUseExternalPySideRCC.setText(QCoreApplication.translate("OptionsDialog", u"Use external PySide resource compiler (rcc)", None))
