@@ -139,7 +139,7 @@ def which(cmd, mode=os.F_OK | os.X_OK, path=None):
     return None
 
 
-def loadConfiguration(location, identifier):
+def load_configuration(location, identifier):
     filename = get_configuration_file(location, identifier)
     configuration = '{}'
     try:

@@ -7,7 +7,7 @@ from PySide6 import QtCore, QtWidgets
 
 from mapclient.settings import version as app_version
 from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME
-from mapclient.core.utils import loadConfiguration
+from mapclient.core.utils import load_configuration
 from mapclient.core.workflow.workflowitems import MetaStep
 from mapclient.view.workflow.workflowgraphicsitems import Node
 from mapclient.view.workflow.ui.ui_importconfigdialog import Ui_ImportConfigDialog
@@ -129,7 +129,7 @@ class ImportConfigDialog(QtWidgets.QDialog):
 
                         self._graphics_scene.setConfigureNode(node_dict[identifier])
 
-                        configuration = loadConfiguration(temp_dir, identifier)
+                        configuration = load_configuration(temp_dir, identifier)
                         step_dict[identifier].deserialize(configuration)
 
                         for additional_cfg_file in step_dict[identifier].getAdditionalConfigFiles():

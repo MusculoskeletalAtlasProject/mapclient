@@ -24,7 +24,7 @@ from PySide6 import QtCore
 from mapclient.core.workflow.workflowdependencygraph import WorkflowDependencyGraph
 from mapclient.core.workflow.workflowitems import MetaStep, Connection
 from mapclient.mountpoints.workflowstep import workflowStepFactory
-from mapclient.core.utils import loadConfiguration
+from mapclient.core.utils import load_configuration
 from mapclient.settings.general import get_configuration_file, get_restricted_plugins, restrict_plugins
 
 
@@ -247,7 +247,7 @@ class WorkflowScene(object):
 
             # Deserialize after adding the step to the scene, this is so
             # we can validate the step identifier
-            configuration = loadConfiguration(self._location, identifier)
+            configuration = load_configuration(self._location, identifier)
             step.deserialize(configuration)
             arcCount = ws.beginReadArray('connections')
             for j in range(arcCount):
