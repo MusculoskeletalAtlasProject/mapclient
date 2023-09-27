@@ -25,7 +25,7 @@ from mapclient.core.workflow.workflowdependencygraph import WorkflowDependencyGr
 from mapclient.core.workflow.workflowitems import MetaStep, Connection
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.utils import load_configuration
-from mapclient.settings.general import get_configuration_file, get_restricted_plugins, restrict_plugins
+from mapclient.settings.general import get_configuration_file
 
 
 class WorkflowScene(object):
@@ -127,7 +127,7 @@ class WorkflowScene(object):
         try:
             step_names = self._read_step_names(ws)
             for name in step_names:
-                step = workflowStepFactory(name, self._location)
+                workflowStepFactory(name, self._location)
 
         except ValueError:
             loadable = False
@@ -149,18 +149,6 @@ class WorkflowScene(object):
         ws.endGroup()
 
         return step_names
-
-    def is_restricted(self, ws):
-        step_names = self._read_step_names(ws)
-        restricted_plugins = get_restricted_plugins()
-        if len(step_names & restricted_plugins) != 0:
-            return True
-
-        return False
-
-    def restrict_plugins(self, ws):
-        step_names = self._read_step_names(ws)
-        restrict_plugins(step_names)
 
     def doStepReport(self, ws):
         report = {}

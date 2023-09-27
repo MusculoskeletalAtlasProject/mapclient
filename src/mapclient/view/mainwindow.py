@@ -23,9 +23,9 @@ import uuid
 from PySide6 import QtWidgets, QtGui
 
 from mapclient import version
+from mapclient.settings.general import mark_workflow_ready_for_use
 from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
 from mapclient.view.workflow.workflowwidget import WorkflowWidget
-from mapclient.settings.general import unrestrict_plugins
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
 from mapclient.settings.definitions import WIZARD_TOOL_STRING, METRICS_PERMISSION, \
     PMR_TOOL_STRING, PYSIDE_RCC_EXE, USE_EXTERNAL_RCC, PYSIDE_UIC_EXE, USE_EXTERNAL_UIC, \
@@ -340,10 +340,10 @@ class MainWindow(QtWidgets.QMainWindow):
             if ret == QtWidgets.QMessageBox.StandardButton.Yes:
                 self._model.workflowManager().save()
 
-        unrestrict_plugins()
-
     def quit_application(self):
         self.confirm_close()
+
+        mark_workflow_ready_for_use()
 
         metrics_logger.session_ended()
         self._model.setSize(self.size())

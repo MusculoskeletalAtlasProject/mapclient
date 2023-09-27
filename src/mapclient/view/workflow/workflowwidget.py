@@ -323,17 +323,15 @@ class WorkflowWidget(QtWidgets.QWidget):
             # Remove the filename to get the directory.
             workflow_dir = os.path.dirname(workflow_conf)
 
-            override = QtWidgets.QMessageBox.StandardButton.Yes
             if wm.is_restricted(workflow_dir):
-                override = QtWidgets.QMessageBox.warning(
-                    self._main_window, 'Plugins Restricted',
-                    'One or more of the plugins required for this workflow are already in use by another instance of the MAP Client. '
-                    'Unpredictable behavior may result if you attempt to run both workflows at the same time. '
-                    'Are you sure you want to open this workflow?',
-                    QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No,
-                    QtWidgets.QMessageBox.StandardButton.No)
-
-            if override == QtWidgets.QMessageBox.StandardButton.Yes:
+                QtWidgets.QMessageBox.warning(
+                    self._main_window, 'Workflow in use',
+                    'Another instance of the MAP Client is already using this workflow and '
+                    'only one instance of a workflow may be opened at a time.'
+                    ' Please try opening a different workflow.',
+                    QtWidgets.QMessageBox.StandardButton.Ok,
+                    QtWidgets.QMessageBox.StandardButton.Ok)
+            else:
                 err = self.openWorkflow(workflow_dir)
                 if err:
                     QtWidgets.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + err)
