@@ -19,7 +19,7 @@ import importlib
 from contextlib import redirect_stdout
 
 
-from mapclient.core.utils import which, FileTypeObject, grep, is_frozen, determineStepName, determineStepClassName
+from mapclient.core.utils import which, FileTypeObject, grep, is_frozen, determine_step_name, determine_step_class_name
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     PLUGINS_PACKAGE_NAME, PLUGINS_PTH
 from mapclient.core.checks import getPipExecutable, getActivateScript
@@ -305,8 +305,8 @@ class PluginManager(object):
                     else:
                         self._plugin_error_directories[modname] = module_finder.path
                         step_file_dir = os.path.join(module_finder.path, modname, 'step.py')
-                        class_name = determineStepClassName(step_file_dir)
-                        step_name = determineStepName(step_file_dir, class_name)
+                        class_name = determine_step_class_name(step_file_dir)
+                        step_name = determine_step_name(step_file_dir, class_name)
                     self._plugin_error_names.append(step_name)
 
                     logger.warning('Plugin \'' + modname + '\' not loaded')

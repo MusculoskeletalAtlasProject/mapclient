@@ -191,7 +191,7 @@ def grep(path, regex, one_only=False, file_endswith=''):
     return res
 
 
-def determineStepName(step_name_file, class_name):
+def determine_step_name(step_name_file, class_name):
     r = r'[ \t]+super\(' + class_name + ', self\)\.__init__\(\'([^\']+)\', location\)'
     re_step_name = re.compile(r)
 
@@ -207,7 +207,7 @@ def determineStepName(step_name_file, class_name):
     return step_name
 
 
-def determineStepClassName(step_name_file):
+def determine_step_class_name(step_name_file):
     r = r'class[ \t]+([\w]+)\(\bWorkflowStepMountPoint\b\):'
     re_step_class = re.compile(r)
 
@@ -223,14 +223,14 @@ def determineStepClassName(step_name_file):
     return step_class_name
 
 
-def determinePackageName(plugin_dir, file_in_package):
+def determine_package_name(plugin_dir, file_in_package):
     plugin_package_path = os.path.join(plugin_dir, PLUGINS_PACKAGE_NAME)
     package_name = file_in_package.replace(plugin_package_path, '')
     package_name = package_name.split(os.path.sep)[0]
     return package_name
 
 
-def convertNameToPythonPackage(name):
+def convert_name_to_python_package(name):
     package_name = name.lower()
     package_name = package_name.replace(' ', '')
     return package_name + 'step'

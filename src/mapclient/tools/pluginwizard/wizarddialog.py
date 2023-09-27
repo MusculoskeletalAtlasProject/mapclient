@@ -25,7 +25,7 @@ import ast
 
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from mapclient.core.utils import convertNameToPythonPackage, is_frozen
+from mapclient.core.utils import convert_name_to_python_package, is_frozen
 from mapclient.tools.pluginwizard.skeleton import SkeletonOptions
 from mapclient.tools.pluginwizard.ui.ui_output import Ui_Output
 from mapclient.tools.pluginwizard.ui.ui_name import Ui_Name
@@ -209,7 +209,7 @@ class NameWizardPage(QtWidgets.QWizardPage):
 
     def _nameChanged(self):
         if not self._packageNameEdited:
-            package_name = convertNameToPythonPackage(self._ui.nameLineEdit.text())
+            package_name = convert_name_to_python_package(self._ui.nameLineEdit.text())
             self._ui.packageNameLineEdit.setText(package_name)
 
         self.completeChanged.emit()
