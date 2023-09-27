@@ -39,7 +39,7 @@ class WorkflowScene(object):
         self._items = {}
         self._dependencyGraph = WorkflowDependencyGraph(self)
         self._main_window = None
-        self._view_parameters = None
+        self._view_parameters = {'rect': QtCore.QRectF(0, 0, 1024, 880)}
 
     def getViewParameters(self):
         return self._view_parameters

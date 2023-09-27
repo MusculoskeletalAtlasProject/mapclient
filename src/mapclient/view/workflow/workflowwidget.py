@@ -314,8 +314,8 @@ class WorkflowWidget(QtWidgets.QWidget):
             filter=f"{primary_filter};;Any file (*.*)",
             selectedFilter=primary_filter,
             options=(
-                    QtWidgets.QFileDialog.DontResolveSymlinks |
-                    QtWidgets.QFileDialog.ReadOnly
+                    QtWidgets.QFileDialog.Option.DontResolveSymlinks |
+                    QtWidgets.QFileDialog.Option.ReadOnly
             )
         )[0]
 
@@ -323,17 +323,17 @@ class WorkflowWidget(QtWidgets.QWidget):
             # Remove the filename to get the directory.
             workflow_dir = os.path.dirname(workflow_conf)
 
-            override = QtWidgets.QMessageBox.Yes
+            override = QtWidgets.QMessageBox.StandardButton.Yes
             if wm.is_restricted(workflow_dir):
                 override = QtWidgets.QMessageBox.warning(
                     self._main_window, 'Plugins Restricted',
                     'One or more of the plugins required for this workflow are already in use by another instance of the MAP Client. '
                     'Unpredictable behavior may result if you attempt to run both workflows at the same time. '
                     'Are you sure you want to open this workflow?',
-                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-                    QtWidgets.QMessageBox.No)
+                    QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No,
+                    QtWidgets.QMessageBox.StandardButton.No)
 
-            if override == QtWidgets.QMessageBox.Yes:
+            if override == QtWidgets.QMessageBox.StandardButton.Yes:
                 err = self.openWorkflow(workflow_dir)
                 if err:
                     QtWidgets.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + err)
@@ -367,8 +367,8 @@ class WorkflowWidget(QtWidgets.QWidget):
     def installMissingPlugins(self, plugins):
         from mapclient.view.managers.plugins.pluginprogress import PluginProgress
         directory = QtWidgets.QFileDialog.getExistingDirectory(caption='Select Plugin Directory', dir='',
-                                                               options=QtWidgets.QFileDialog.ShowDirsOnly |
-                                                                       QtWidgets.QFileDialog.DontResolveSymlinks)
+                                                               options=QtWidgets.QFileDialog.Option.ShowDirsOnly |
+                                                                       QtWidgets.QFileDialog.Option.DontResolveSymlinks)
         if directory:
             pm = self._main_window.model().getPluginManager()
             pluginDirs = pm.directories()
@@ -490,12 +490,12 @@ class WorkflowWidget(QtWidgets.QWidget):
     def _load(self, workflow_dir):
         try:
             m = self._main_window.model().workflowManager()
-            self._ui.graphicsView.reset_zoom()
-            m.scene().setViewParameters(self._ui.graphicsView.getViewParameters())
+            # self._ui.graphicsView.reset_zoom()
+            # m.scene().setViewParameters(self._ui.graphicsView.getViewParameters())
             m.load(workflow_dir)
             m.setPreviousLocation(workflow_dir)
-            self._ui.graphicsView.setViewParameters(m.scene().getViewParameters())
-            self._graphicsScene.setSceneRect(self._ui.graphicsView.rect())
+            # self._ui.graphicsView.setViewParameters(m.scene().getViewParameters())
+            # self._graphicsScene.setSceneRect(self._ui.graphicsView.rect())
             self._graphicsScene.updateModel()
             self._ui.graphicsView.setLocation(workflow_dir)
             self._update_ui()
