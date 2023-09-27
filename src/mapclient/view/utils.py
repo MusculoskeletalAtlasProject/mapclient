@@ -102,3 +102,7 @@ def handle_runtime_error(f):
             logger.error('{0}: {1}'.format(e.title, e.description))
             ErrorDialog(e.title, e.description, self).exec()
     return do_runtime_error
+
+
+def is_light_mode():
+    return QtGui.QGuiApplication.styleHints().colorScheme() == QtCore.Qt.ColorScheme.Light

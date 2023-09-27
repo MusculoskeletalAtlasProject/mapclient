@@ -27,6 +27,7 @@ from mapclient.core.annotations import PROVIDES_ANNOTATIONS, USES_ANNOTATIONS, A
 from mapclient.core.workflow.workflowscene import Connection
 from mapclient.tools.annotation.annotationdialog import AnnotationDialog
 from mapclient.tools.pmr.pmrdvcshelper import repositoryIsUpToDate
+from mapclient.view.utils import is_light_mode
 
 
 def _define_tooltip_for_triples(triples):
@@ -205,7 +206,7 @@ class Arc(Item):
             painter.drawRoundedRect(self.boundingRect(), 5, 5)
         #            brush = QtGui.QBrush(QtCore.Qt.red)
 
-        brush_colour = QtCore.Qt.GlobalColor.black if QtGui.QStyleHints.colorScheme == QtCore.Qt.ColorScheme.Light else QtCore.Qt.GlobalColor.gray
+        brush_colour = QtCore.Qt.GlobalColor.black if is_light_mode() else QtCore.Qt.GlobalColor.gray
         brush = QtGui.QBrush(brush_colour)
         painter.setBrush(brush)
 

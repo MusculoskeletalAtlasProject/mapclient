@@ -24,6 +24,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflow.workflowscene import MetaStep
+from mapclient.view.utils import is_light_mode
 from mapclient.view.workflow.workflowcommands import CommandSelection, CommandRemove, CommandAdd, CommandMove
 from mapclient.view.workflow.workflowgraphicsitems import Node, Arc, ErrorItem, ArrowLine, StepPort
 
@@ -356,7 +357,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
     def drawBackground(self, painter, rect):
         # Shadow.
         sceneRect = self.sceneRect()
-        shadow_colour = QtCore.Qt.GlobalColor.darkGray if QtGui.QStyleHints.colorScheme == QtCore.Qt.ColorScheme.Light else QtCore.Qt.GlobalColor.gray
+        shadow_colour = QtCore.Qt.GlobalColor.darkGray if is_light_mode() else QtCore.Qt.GlobalColor.gray
         rightShadow = QtCore.QRectF(sceneRect.right(), sceneRect.top() + 5, 5, sceneRect.height())
         bottomShadow = QtCore.QRectF(sceneRect.left() + 5, sceneRect.bottom(), sceneRect.width(), 5)
         if rightShadow.intersects(rect) or rightShadow.contains(rect):
@@ -369,7 +370,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
     def _draw_grid(self, scene_rect, painter):
         purple = '#3D2645'
         french_blue = '#0075C4'
-        grid_colour = "lightblue" if QtGui.QStyleHints.colorScheme == QtCore.Qt.ColorScheme.Light else french_blue
+        grid_colour = "lightblue" if is_light_mode() else french_blue
         self.grid_pen = QtGui.QPen(QtGui.QColor(grid_colour))
         painter.setPen(self.grid_pen)
 
@@ -384,7 +385,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         for x in range(left, right, step):
             painter.drawLine(x, top, x, bottom)
 
-        rect_colour = QtGui.QColor("black") if QtGui.QStyleHints.colorScheme == QtCore.Qt.ColorScheme.Light else QtGui.QColor("white")
+        rect_colour = QtGui.QColor("black") if is_light_mode() else QtGui.QColor("white")
         painter.setPen(QtGui.QPen(rect_colour))
         painter.drawRect(scene_rect)
 
