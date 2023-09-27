@@ -52,7 +52,7 @@ def convert_exception_to_message(e):
     return string_e.replace('\n', ' ')
 
 
-def getSystemPipCandidates():
+def get_system_pip_candidates():
     """Return a list of strings with the candidates for the pip application
     for this environment.
     """
