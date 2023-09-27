@@ -1,3 +1,4 @@
+from urllib.parse import quote_plus
 
 from PySide6 import QtWidgets
 
@@ -39,6 +40,5 @@ class ErrorDialog(QtWidgets.QDialog):
         self.setLayout(layout)
 
     def _create_github_issue(self):
-        text = self._text.replace("\n", "%0A")
-        text = "<Describe steps to reproduce the error here>%0A%0A```%0A" + text + "```"
-        create_github_issue(text)
+        text = "<Describe steps to reproduce the error here>\n\n```\n" + self._text + "```"
+        create_github_issue(quote_plus(text))

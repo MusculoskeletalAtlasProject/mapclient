@@ -208,5 +208,5 @@ class WorkflowDependencyGraph(object):
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 redirect_output = FileTypeObject()
                 traceback.print_exception(exc_type, exc_value, exc_traceback, file=redirect_output)
-                metrics_logger.error_occurred(current_node.getStep().getName(), exc_type)
+                metrics_logger.error_occurred(current_node.getStep().getName(), str(exc_type))
                 raise WorkflowError(log_message + '\n\n' + ''.join(redirect_output.messages))
