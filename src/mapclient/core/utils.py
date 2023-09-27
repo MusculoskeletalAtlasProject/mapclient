@@ -47,13 +47,9 @@ def get_map_client_variant():
     return variant
 
 
-def convertExceptionToMessage(e):
+def convert_exception_to_message(e):
     string_e = str(e)
-    if '\n' in string_e:
-        message = string_e.replace('\n', ' ')
-    else:
-        message = string_e    
-    return message
+    return string_e.replace('\n', ' ')
 
 
 def getSystemPipCandidates():

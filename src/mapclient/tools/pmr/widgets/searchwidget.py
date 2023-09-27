@@ -24,7 +24,7 @@ from PySide6 import QtCore, QtWidgets
 from mapclient.tools.pmr.ui.ui_searchwidget import Ui_SearchWidget
 from mapclient.view.utils import handle_runtime_error, set_wait_cursor
 from mapclient.tools.pmr.pmrtool import PMRToolError, PMRTool
-from mapclient.core.utils import convertExceptionToMessage
+from mapclient.core.utils import convert_exception_to_message
 from mapclient.tools.annotation.annotationtool import AnnotationTool
 from mapclient.tools.pmr.settings.general import PMR
 
@@ -83,7 +83,7 @@ class SearchWidget(QtWidgets.QWidget):
                     item = QtWidgets.QListWidgetItem(r['target'], self._ui.searchResultsListWidget)
                 item.setData(QtCore.Qt.UserRole, r)
         except PMRToolError as e:
-            message = convertExceptionToMessage(e)
+            message = convert_exception_to_message(e)
             logger.warning('PMR Tool exception raised')
             logger.warning('Reason: {0}'.format(message))
 
