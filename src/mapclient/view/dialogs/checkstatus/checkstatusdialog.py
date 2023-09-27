@@ -6,7 +6,7 @@ Created on Jul 1, 2015
 from PySide6 import QtCore, QtWidgets
 
 from mapclient.view.dialogs.checkstatus.ui.ui_checkstatusdialog import Ui_CheckStatusDialog
-from mapclient.core.checks import WizardToolChecks, VirtualEnvChecks, VCSChecks
+from mapclient.core.checks import WizardToolChecks, VCSChecks
 from mapclient.view.syntaxhighlighter import SyntaxHighlighter
 from mapclient.settings.definitions import WIZARD_TOOL_STRING, \
     VIRTUAL_ENVIRONMENT_STRING, PMR_TOOL_STRING
@@ -29,10 +29,10 @@ class CheckStatusDialog(QtWidgets.QDialog):
 
     def showEvent(self, *args, **kwargs):
         print("running checks again.")
-        QtCore.QTimer.singleShot(0, self._runChecks)
+        QtCore.QTimer.singleShot(0, self._run_checks)
         return QtWidgets.QDialog.showEvent(self, *args, **kwargs)
 
-    def checkedOk(self, tool):
+    def checked_ok(self, tool):
         if tool == WIZARD_TOOL_STRING:
             return self._wizard_tool
         elif tool == VIRTUAL_ENVIRONMENT_STRING:
@@ -42,17 +42,15 @@ class CheckStatusDialog(QtWidgets.QDialog):
 
         return False
 
-    def _runChecks(self):
+    def _run_checks(self):
         options = self._options
-        checks_venv = VirtualEnvChecks(options)
-        self._venv = self._handleCheck(checks_venv, VIRTUAL_ENVIRONMENT_STRING)
         checks_wizard = WizardToolChecks(options)
-        self._wizard_tool = self._handleCheck(checks_wizard, WIZARD_TOOL_STRING)
+        self._wizard_tool = self._handle_check(checks_wizard, WIZARD_TOOL_STRING)
         checks_vcs = VCSChecks(options)
-        self._vcs = self._handleCheck(checks_vcs, PMR_TOOL_STRING)
+        self._vcs = self._handle_check(checks_vcs, PMR_TOOL_STRING)
         self._ui.labelCheckTitle.setText('All Checks Complete')
 
-    def _handleCheck(self, check, title):
+    def _handle_check(self, check, title):
         output = ''  # self._ui.plainTextEditScreen.document().toPlainText()
         result = check.doCheck()
         self._ui.labelCheckTitle.setText(title)
