@@ -27,6 +27,7 @@ from mapclient.core.annotations import PROVIDES_ANNOTATIONS, USES_ANNOTATIONS, A
 from mapclient.core.workflow.workflowscene import Connection
 from mapclient.tools.annotation.annotationdialog import AnnotationDialog
 from mapclient.tools.pmr.pmrdvcshelper import repositoryIsUpToDate
+from mapclient.view.utils import is_light_mode
 
 
 def _define_tooltip_for_triples(triples):
@@ -46,7 +47,7 @@ class ErrorItem(QtWidgets.QGraphicsItem):
         self._dest = weakref.ref(destNode)
         self._sourcePoint = QtCore.QPointF()
         self._destPoint = QtCore.QPointF()
-        self._pixmap = QtGui.QPixmap(':/workflow/images/cancel_256.png').scaled(16, 16, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
+        self._pixmap = QtGui.QPixmap(':/workflow/images/cancel_256.png').scaled(16, 16, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
         self._source().addArc(self)
         self._dest().addArc(self)
         self.setZValue(-1.5)
@@ -91,7 +92,7 @@ class ErrorItem(QtWidgets.QGraphicsItem):
         if line.length() == 0.0:
             return
 
-        painter.setPen(QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.DashLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
+        painter.setPen(QtGui.QPen(QtCore.Qt.GlobalColor.black, 1, QtCore.Qt.PenStyle.DashLine, QtCore.Qt.PenCapStyle.RoundCap, QtCore.Qt.PenJoinStyle.RoundJoin))
         painter.drawLine(line)
 
         painter.drawPixmap(midPoint.x() - 8, midPoint.y() - 8, self._pixmap)
@@ -105,7 +106,7 @@ class Item(QtWidgets.QGraphicsItem):
     def __init__(self):
         QtWidgets.QGraphicsItem.__init__(self)
 
-        self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable)
+        self.setFlag(QtWidgets.QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
 
     def setSelected(self, selected):
         QtWidgets.QGraphicsItem.setSelected(self, selected)
@@ -158,9 +159,9 @@ class Arc(Item):
             return
 
         sourceCentre = self._source().boundingRect().center()
-        destCentre = self._dest().boundingRect().center()
+        destinationCentre = self._dest().boundingRect().center()
         line = QtCore.QLineF(self.mapFromItem(self._source(), sourceCentre.x(), sourceCentre.y()),
-                             self.mapFromItem(self._dest(), destCentre.x(), destCentre.y()))
+                             self.mapFromItem(self._dest(), destinationCentre.x(), destinationCentre.y()))
         length = line.length()
 
         if length == 0.0:
@@ -200,12 +201,13 @@ class Arc(Item):
         if line.length() == 0.0:
             return
 
-        brush = QtGui.QBrush(QtCore.Qt.black)
-        if option.state & QtWidgets.QStyle.State_Selected:  # or self.selected:
-            painter.setBrush(QtCore.Qt.darkGray)
+        if option.state & QtWidgets.QStyle.StateFlag.State_Selected:  # or self.selected:
+            painter.setBrush(QtCore.Qt.GlobalColor.darkGray)
             painter.drawRoundedRect(self.boundingRect(), 5, 5)
         #            brush = QtGui.QBrush(QtCore.Qt.red)
 
+        brush_colour = QtCore.Qt.GlobalColor.black if is_light_mode() else QtCore.Qt.GlobalColor.gray
+        brush = QtGui.QBrush(brush_colour)
         painter.setBrush(brush)
 
         angle = math.acos(line.dx() / line.length())
@@ -214,20 +216,20 @@ class Arc(Item):
 
         # Draw the arrows if there's enough room.
         if line.dy() * line.dy() + line.dx() * line.dx() > 200 * self._arrowSize:
-            midPoint = (self._destPoint + self._sourcePoint) / 2
+            midPoint = QtCore.QPointF((self._destPoint + self._sourcePoint) / 2)
 
-            destArrowP1 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi / 3) * self._arrowSize,
-                                                    math.cos(angle - Arc.Pi / 3) * self._arrowSize)
-            destArrowP2 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize,
-                                                    math.cos(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize)
+            destination_arrow_p1 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi / 3) * self._arrowSize,
+                                                             math.cos(angle - Arc.Pi / 3) * self._arrowSize)
+            destination_arrow_p2 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize,
+                                                             math.cos(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize)
 
             self._arrow.clear()
             self._arrow.append(midPoint)
-            self._arrow.append(destArrowP1)
-            self._arrow.append(destArrowP2)
+            self._arrow.append(destination_arrow_p1)
+            self._arrow.append(destination_arrow_p2)
             painter.drawPolygon(self._arrow)
 
-        painter.setPen(QtGui.QPen(brush, 1, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
+        painter.setPen(QtGui.QPen(brush, 1, QtCore.Qt.PenStyle.SolidLine, QtCore.Qt.PenCapStyle.RoundCap, QtCore.Qt.PenJoinStyle.RoundJoin))
         # painter.setPen(QtGui.QPen(QtCore.Qt.SolidLine))
         painter.drawLine(line)
 
@@ -248,7 +250,7 @@ class Node(Item):
             icon = QtGui.QImage(':/workflow/images/default_step_icon.png')
 
         self._pixmap = QtGui.QPixmap.fromImage(icon) \
-            .scaled(self.Size, self.Size, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
+            .scaled(self.Size, self.Size, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
 
         self._step_port_items = []
         self._text = StepText(metastep.getStep().getName(), self)
@@ -256,8 +258,8 @@ class Node(Item):
 
         self._setToolTip()
 
-        self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable)
-        self.setFlag(QtWidgets.QGraphicsItem.ItemSendsGeometryChanges)
+        self.setFlag(QtWidgets.QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
+        self.setFlag(QtWidgets.QGraphicsItem.GraphicsItemFlag.ItemSendsGeometryChanges)
         self.setCacheMode(self.CacheMode.DeviceCoordinateCache)
         self.setZValue(-1)
 
@@ -430,7 +432,7 @@ class Node(Item):
     #                painter.drawPixmap(40, 40, self._configure_red)
 
     def itemChange(self, change, value):
-        if change == QtWidgets.QGraphicsItem.ItemPositionChange and self.scene():
+        if change == QtWidgets.QGraphicsItem.GraphicsItemChange.ItemPositionChange and self.scene():
             return self.scene().ensureItemInScene(self, value)
         elif change == QtWidgets.QGraphicsItem.ItemPositionHasChanged:
             for port_item in self._step_port_items:
@@ -452,7 +454,7 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
 
     def __init__(self, port, parent):
         super(StepPort, self).__init__(0, 0, 11, 11, parent=parent)
-        self.setBrush(QtCore.Qt.black)
+        self.setBrush(QtCore.Qt.GlobalColor.black)
         self._port = port
         self._connections = []
         self._pixmap = QtGui.QPixmap(':/workflow/images/icon-port.png')
@@ -512,7 +514,7 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
         self._connections = [weakarc for weakarc in self._connections if weakarc() != arc]
 
     def itemChange(self, change, value):
-        if change == QtWidgets.QGraphicsItem.ItemPositionHasChanged:
+        if change == QtWidgets.QGraphicsItem.GraphicsItemChange.ItemPositionHasChanged:
             self._removeDeadwood()
             for arc in self._connections:
                 arc().adjust()
@@ -525,7 +527,7 @@ class StepText(QtWidgets.QGraphicsTextItem):
 
     def __init__(self, *args):
         super().__init__(*args)
-        self._editable_flags = QtCore.Qt.TextEditable | QtCore.Qt.TextSelectableByMouse | QtCore.Qt.TextSelectableByKeyboard
+        self._editable_flags = QtCore.Qt.TextInteractionFlag.TextEditable | QtCore.Qt.TextInteractionFlag.TextSelectableByMouse | QtCore.Qt.TextInteractionFlag.TextSelectableByKeyboard
         self.setTextInteractionFlags(self._editable_flags)
         self._active_key = None
         self._make_connections()
@@ -545,24 +547,24 @@ class StepText(QtWidgets.QGraphicsTextItem):
 
     def mousePressEvent(self, event):
         modifiers = QtWidgets.QApplication.keyboardModifiers()
-        if modifiers == QtCore.Qt.NoModifier:
+        if modifiers == QtCore.Qt.KeyboardModifier.NoModifier:
             self.setTextInteractionFlags(self._editable_flags)
         else:
-            self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
+            self.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.NoTextInteraction)
         super().mousePressEvent(event)
 
     def keyPressEvent(self, event):
         self._active_key = event.key()
-        if self._active_key != QtCore.Qt.Key_Return and self._active_key != QtCore.Qt.Key_Enter:
+        if self._active_key != QtCore.Qt.Key.Key_Return and self._active_key != QtCore.Qt.Key.Key_Enter:
             super().keyPressEvent(event)
 
     def keyReleaseEvent(self, event):
         super().keyReleaseEvent(event)
         if self._active_key and self._active_key == event.key():
-            if self._active_key == QtCore.Qt.Key_Return or self._active_key == QtCore.Qt.Key_Enter:
+            if self._active_key == QtCore.Qt.Key.Key_Return or self._active_key == QtCore.Qt.Key.Key_Enter:
                 self._update_identifier()
                 self.clearFocus()
-                self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
+                self.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.NoTextInteraction)
 
         self._active_key = None
 
@@ -586,7 +588,7 @@ class MercurialIcon(QtWidgets.QGraphicsItem):
     def __init__(self, *args, **kwargs):
         super(MercurialIcon, self).__init__(*args, **kwargs)
         self._hg_yellow = QtGui.QPixmap(':/workflow/images/modified_repo.png') \
-            .scaled(24, 24, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
+            .scaled(24, 24, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
         self.setToolTip('The repository has been modified')
 
     def paint(self, painter, option, widget):
@@ -608,8 +610,8 @@ class ConfigureIcon(QtWidgets.QGraphicsItem):
     def __init__(self, *args, **kwargs):
         super(ConfigureIcon, self).__init__(*args, **kwargs)
         self._configured = False
-        self._configure_green = QtGui.QPixmap(':/workflow/images/configure_green.png').scaled(24, 24, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
-        self._configure_red = QtGui.QPixmap(':/workflow/images/configure_red.png').scaled(24, 24, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
+        self._configure_green = QtGui.QPixmap(':/workflow/images/configure_green.png').scaled(24, 24, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
+        self._configure_red = QtGui.QPixmap(':/workflow/images/configure_red.png').scaled(24, 24, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
         self.setToolTip('Configure the step')
 
     def setConfigured(self, state):
@@ -662,13 +664,13 @@ class ArrowLine(QtWidgets.QGraphicsLineItem):
             angle = Arc.TwoPi - angle
         # Draw the arrows if there's enough room.
         if line.dy() * line.dy() + line.dx() * line.dx() > 200 * self._arrowSize:
-            midPoint = (line.p1() + line.p2()) / 2
+            midPoint = QtCore.QPointF((line.p1() + line.p2()) / 2)
 
-            destArrowP1 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi / 3) * self._arrowSize,
-                                                    math.cos(angle - Arc.Pi / 3) * self._arrowSize)
-            destArrowP2 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize,
-                                                    math.cos(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize)
+            destination_arrow_p1 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi / 3) * self._arrowSize,
+                                                             math.cos(angle - Arc.Pi / 3) * self._arrowSize)
+            destination_arrow_p2 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize,
+                                                             math.cos(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize)
 
-            painter.setBrush(QtCore.Qt.black)
+            painter.setBrush(QtCore.Qt.GlobalColor.black)
             #        painter.drawPolygon(QtGui.QPolygonF([line.p1(), sourceArrowP1, sourceArrowP2]))
-            painter.drawPolygon(QtGui.QPolygonF([midPoint, destArrowP1, destArrowP2]))
+            painter.drawPolygon(QtGui.QPolygonF([midPoint, destination_arrow_p1, destination_arrow_p2]))

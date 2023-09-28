@@ -31,7 +31,7 @@ with open('README.rst') as f:
 
 # Define the list of requirements
 package_dependencies = [
-    'PySide6',
+    'PySide6 >= 6.5',
     'rdflib',
     'virtualenv',
     'requests',
