@@ -40,30 +40,30 @@ def create_default_image_icon(name):
         text_height = 0.2 * image.size().height()
         text_padding = 0.05 * image.size().height()
         rect = p.fontMetrics().boundingRect(0, 0, text_width, 0,
-                                            QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter | QtCore.Qt.TextWordWrap,
+                                            QtCore.Qt.AlignmentFlag.AlignCenter | QtCore.Qt.AlignmentFlag.AlignVCenter | QtCore.Qt.TextFlag.TextWordWrap,
                                             name)
         factor = text_height / rect.height()
-        f = p.font();
+        f = p.font()
         f.setPointSizeF(f.pointSizeF() * factor)
-        p.setFont(f);
+        p.setFont(f)
 
         # Updated text rect
         rect = p.fontMetrics().boundingRect(0, 0, text_width, 0,
-                                            QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter | QtCore.Qt.TextWordWrap,
+                                            QtCore.Qt.AlignmentFlag.AlignCenter | QtCore.Qt.AlignmentFlag.AlignVCenter | QtCore.Qt.TextFlag.TextWordWrap,
                                             name)
         # Draw the text with a background rectangle
         pen = QtGui.QPen()
         pen.setWidth(11)
-        pen.setColor(QtCore.Qt.black)
-        p.setPen(pen);
-        p.setBrush(QtCore.Qt.darkGray)
+        pen.setColor(QtCore.Qt.GlobalColor.black)
+        p.setPen(pen)
+        p.setBrush(QtCore.Qt.GlobalColor.darkGray)
 
         rect.moveTo((image.size().width() - rect.width()) / 2, (image.height() - rect.height()) / 2)
         background_rect = rect.adjusted(-text_padding, -text_padding, text_padding, text_padding)
 
         p.drawRoundedRect(background_rect, text_padding / 2, text_padding / 2)
-        p.setPen(QtCore.Qt.white);
-        p.drawText(rect, QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter | QtCore.Qt.TextWordWrap, name)
+        p.setPen(QtCore.Qt.GlobalColor.white)
+        p.drawText(rect, QtCore.Qt.AlignmentFlag.AlignCenter | QtCore.Qt.AlignmentFlag.AlignVCenter | QtCore.Qt.TextFlag.TextWordWrap, name)
 
     return image
 
@@ -77,7 +77,7 @@ def set_wait_cursor(f):
     @wraps(f)
     def do_wait_cursor(*a, **kw):
         try:
-            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
             return f(*a, **kw)
         except Exception:
             raise
