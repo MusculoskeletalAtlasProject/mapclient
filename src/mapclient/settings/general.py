@@ -27,7 +27,7 @@ from filelock import FileLock
 
 from PySide6 import QtCore
 
-from mapclient.core.exitcodes import LOG_FILE_LOCK_FAILED
+from mapclient.core.exitcodes import LOG_FILE_LOCK_FAILED, PID_FILE_LOCK_FAILED
 from mapclient.settings.definitions import INTERNAL_WORKFLOWS_DIR, PID_DATABASE_FILE_NAME
 
 from mapclient.settings.info import VERSION_STRING
@@ -160,53 +160,63 @@ def get_pid_database():
     return database
 
 
-def set_pid_database(database):
+def _lock_pid_database():
     database_file = _get_pid_database_file()
 
     try:
         lock = FileLock(database_file + ".lock", 3)
-        with lock:
-            with open(database_file, "w") as file:
-                file.write(json.dumps(database))
-
     except TimeoutError:
-        sys.exit(LOG_FILE_LOCK_FAILED)
+        sys.exit(PID_FILE_LOCK_FAILED)
+
+    return lock
 
 
-def get_restricted_plugins():
+def is_workflow_in_use(workflow_dir):
     """
-    Returns a set of MAP plugins names. This set identifies the plugins already in use by other instances of the MAP Client.
+    Tests if a workflow is currently marked as in use by another instance of MAP Client.
     """
     database = get_pid_database()
 
     current_pid = os.getpid()
-    restricted_plugins = set()
     for i in range(len(database)):
         if database[i][0] == current_pid:
             continue
 
-        restricted_plugins = restricted_plugins | set(database[i][1])
+        if database[i][1] == workflow_dir:
+            return True
 
-    return restricted_plugins
+    return False
 
 
-def restrict_plugins(plugins):
+def mark_workflow_in_use(workflow_dir):
     """
-    Takes a set of plugins as input. Adds this set to the MAP PID database file. This is so that other instances of the MAP Client
-    can see what plugins this instance is currently using.
+    Takes a workflow directory as input. Adds this set to the MAP PID database file. This is so that other instances of the MAP Client
+    can see what workflow this instance is currently using.
     """
-    database = get_pid_database()
+    lock = _lock_pid_database()
+    with lock:
+        if is_workflow_in_use(workflow_dir):
+            return False
 
-    current_pid = os.getpid()
-    for i in range(len(database)):
-        if database[i][0] == current_pid:
-            database[i][1] = list(plugins)
+        database = get_pid_database()
 
-    set_pid_database(database)
+        current_pid = os.getpid()
+        for i in range(len(database)):
+            if database[i][0] == current_pid:
+                if workflow_dir:
+                    database[i][1] = workflow_dir
+                else:
+                    del database[i]
+
+        database_file = _get_pid_database_file()
+        with open(database_file, "w") as file:
+            file.write(json.dumps(database))
+
+    return True
 
 
-def unrestrict_plugins():
-    restrict_plugins(set())
+def mark_workflow_ready_for_use():
+    mark_workflow_in_use('')
 
 
 def get_configuration_suffix():

@@ -146,7 +146,7 @@ def windows_main(app_args):
         logger.info(f"Opening workflow: {app_args.workflow}")
         window.open_workflow(app_args.workflow)
     elif app_args.workflow:
-        logger.info(f"Not opening workflow '{app_args.workflow}', at least some required plugins are already in use.")
+        logger.info(f"Not opening workflow '{app_args.workflow}', this workflow is already in use.")
 
     window.start_metrics()
     if app_args.execute:

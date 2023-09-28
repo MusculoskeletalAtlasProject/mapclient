@@ -6,8 +6,8 @@ import subprocess
 from PySide6 import QtCore, QtWidgets
 
 from mapclient.core.managers.pluginmanager import isMapClientPluginsDir
-from mapclient.core.utils import grep, determinePackageName, determineStepClassName, determineStepName, \
-    convertNameToPythonPackage, find_file, qt_tool_wrapper
+from mapclient.core.utils import grep, determine_package_name, determine_step_class_name, determine_step_name, \
+    convert_name_to_python_package, find_file, qt_tool_wrapper
 from mapclient.settings.definitions import PLUGINS_PACKAGE_NAME
 from mapclient.tools.renameplugin.ui.ui_renamedialog import Ui_RenameDialog
 
@@ -102,7 +102,7 @@ class RenameDialog(QtWidgets.QDialog):
 
     def _stepNameEdited(self):
         if not self._package_name_edited:
-            package_name = convertNameToPythonPackage(self._ui.lineEditRenameStepTo.text())
+            package_name = convert_name_to_python_package(self._ui.lineEditRenameStepTo.text())
             self._ui.lineEditRenamePackageTo.setText(package_name)
 
         self._setRenameButtonEnabled()
@@ -131,9 +131,9 @@ class RenameDialog(QtWidgets.QDialog):
             files = grep(step_dir, r'(from|import) mapclient.mountpoints.workflowstep',
                          one_only=True, file_endswith='.py')
             step_name_file, _ = files.popitem()
-            package_name = determinePackageName(target, step_name_file)
-            class_name = determineStepClassName(os.path.join(target, PLUGINS_PACKAGE_NAME, step_name_file))
-            step_name = determineStepName(os.path.join(target, PLUGINS_PACKAGE_NAME, step_name_file), class_name)
+            package_name = determine_package_name(target, step_name_file)
+            class_name = determine_step_class_name(os.path.join(target, PLUGINS_PACKAGE_NAME, step_name_file))
+            step_name = determine_step_name(os.path.join(target, PLUGINS_PACKAGE_NAME, step_name_file), class_name)
 
             self._ui.lineEditRenameStepFrom.setText(step_name)
             self._ui.lineEditRenamePackageFrom.setText(package_name)

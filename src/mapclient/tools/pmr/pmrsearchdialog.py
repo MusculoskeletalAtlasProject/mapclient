@@ -28,7 +28,7 @@ from mapclient.tools.pmr.ui_pmrsearchdialog import Ui_PMRSearchDialog
 
 from mapclient.view.utils import set_wait_cursor
 from mapclient.view.utils import handle_runtime_error
-from mapclient.core.utils import convertExceptionToMessage
+from mapclient.core.utils import convert_exception_to_message
 from mapclient.tools.pmr.settings.general import PMR
 
 logger = logging.getLogger(__name__)
@@ -87,7 +87,7 @@ class PMRSearchDialog(QtWidgets.QDialog):
                     item = QtWidgets.QListWidgetItem(r['target'], self._ui.searchResultsListWidget)
                 item.setData(QtCore.Qt.UserRole, r)
         except PMRToolError as e:
-            message = convertExceptionToMessage(e)
+            message = convert_exception_to_message(e)
             logger.warning('PMR Tool exception raised')
             logger.warning('Reason: {0}'.format(message))
 

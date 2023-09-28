@@ -28,7 +28,7 @@ from PySide6.QtCore import QObject, Signal
 
 from mapclient.view.managers.plugins.pluginprogress import PluginProgress
 from mapclient.view.ui.ui_progressdialog import Ui_ProgressDialog
-from mapclient.core.utils import convertExceptionToMessage
+from mapclient.core.utils import convert_exception_to_message
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ class InstallDependencies(PluginProgress):
             try:
                 subprocess.check_call([self._virt_env_dir + '\Scripts\python.exe', self._virt_env_dir + '\Scripts\pip.exe', 'uninstall', self._packages_to_install], shell=True)
             except Exception as e:
-                message = convertExceptionToMessage(e)
+                message = convert_exception_to_message(e)
                 logger.info('Could not uninstall "' + self._packages_to_install[i] + '" package.')
                 logger.info('Reason: ' + message)
 
@@ -95,7 +95,7 @@ class InstallDependencies(PluginProgress):
                 with open(logs_dir + 'package_install_report_' + package + '.log', 'w') as file_out:
                     subprocess.check_call([python_dir, pip_dir, 'install', package], shell=True, stdout=file_out, stderr=file_out)
             except Exception as e:
-                unsuccessful_installs[package] = convertExceptionToMessage(e)
+                unsuccessful_installs[package] = convert_exception_to_message(e)
                 logger.warning('"' + package + '" dependency could not be installed.')
                 logger.warning('Reason: ' + unsuccessful_installs[package])
             for i in range(0, 5):

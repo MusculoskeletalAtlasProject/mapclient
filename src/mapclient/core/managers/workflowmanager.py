@@ -31,7 +31,7 @@ from mapclient.core.workflow.workflowsteps import WorkflowSteps, \
 from mapclient.core.workflow.workflowerror import WorkflowError
 from mapclient.core.workflow.workflowrdf import serializeWorkflowAnnotation
 from mapclient.settings.general import get_configuration_file, \
-    DISPLAY_FULL_PATH, get_configuration
+    DISPLAY_FULL_PATH, get_configuration, is_workflow_in_use, mark_workflow_in_use, mark_workflow_ready_for_use
 
 logger = logging.getLogger(__name__)
 
@@ -190,7 +190,8 @@ class WorkflowManager(object):
 
         return False
 
-    def is_restricted(self, location):
+    @staticmethod
+    def is_restricted(location):
         if location is None or not os.path.exists(location) or not os.path.isdir(location):
             return False
 
@@ -198,7 +199,7 @@ class WorkflowManager(object):
         if not wf.contains('version'):
             return False
 
-        return self._scene.is_restricted(wf)
+        return is_workflow_in_use(location)
 
     def load(self, location):
         """
@@ -225,8 +226,11 @@ class WorkflowManager(object):
 
         self.set_location(location)
         if self._scene.is_loadable(wf):
-            self._scene.restrict_plugins(wf)
-            self._scene.load_state(wf)
+            if mark_workflow_in_use(location):
+                self._scene.load_state(wf)
+            else:
+                logger.warning('Workflow is already in use.')
+                raise WorkflowError('Workflow is already in use.')
         else:
             report = self._scene.doStepReport(wf)
             new_packages = False
@@ -246,8 +250,11 @@ class WorkflowManager(object):
                     self._parent.installPackage(reason)
 
             if self._scene.is_loadable(wf):
-                self._scene.restrict_plugins(wf)
-                self._scene.load_state(wf)
+                if mark_workflow_in_use(location):
+                    self._scene.load_state(wf)
+                else:
+                    logger.warning('Workflow is already in use.')
+                    raise WorkflowError('Workflow is already in use.')
             elif new_packages:
                 logger.warning('Unable to load workflow.  You may need to restart the application.')
                 raise WorkflowError('The given Workflow configuration file was not loaded. '
@@ -290,6 +297,7 @@ class WorkflowManager(object):
         Close the current workflow
         """
         self.set_location('')
+        mark_workflow_ready_for_use()
         self._saveStateIndex = self._currentStateIndex = 0
 
     def isWorkflowOpen(self):

@@ -21,7 +21,7 @@ import logging
 import sys
 import traceback
 
-from mapclient.core.utils import convertExceptionToMessage, FileTypeObject
+from mapclient.core.utils import convert_exception_to_message, FileTypeObject
 from mapclient.core.workflow.workflowerror import WorkflowError
 from mapclient.core.workflow.workflowitems import Connection
 from mapclient.core.metrics import get_metrics_logger
@@ -204,7 +204,7 @@ class WorkflowDependencyGraph(object):
                 metrics_logger.plugin_executed(current_node.getStep().getName())
             except Exception as e:
                 self._current = -1
-                log_message = 'Exception caught while executing the workflow: ' + convertExceptionToMessage(e)
+                log_message = 'Exception caught while executing the workflow: ' + convert_exception_to_message(e)
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 redirect_output = FileTypeObject()
                 traceback.print_exception(exc_type, exc_value, exc_traceback, file=redirect_output)
