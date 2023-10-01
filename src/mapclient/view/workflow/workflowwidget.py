@@ -700,6 +700,12 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._set_action_properties(self.action_New, 'action_New', self.new, 'Ctrl+N', 'Create a new Workflow')
         self.action_Open = QtGui.QAction('&Open', menu_file)
         self._set_action_properties(self.action_Open, 'action_Open', self.open, 'Ctrl+O', 'Open an existing Workflow')
+        self.action_Import_CFG = QtGui.QAction('Import Workflow Configuration', menu_workflow)
+        self._set_action_properties(self.action_Import_CFG, 'action_Import_CFG', self.import_cfg, '',
+                                    'Import workflow configuration from file')
+        self.action_Export_CFG = QtGui.QAction('Export Workflow Configuration', menu_workflow)
+        self._set_action_properties(self.action_Export_CFG, 'action_Export_CFG', self.export_cfg, '',
+                                    'Export workflow configuration to file')
         self.action_Import = QtGui.QAction('I&mport', menu_file)
         self._set_action_properties(self.action_Import, 'action_Import', self.importFromPMR, 'Ctrl+M',
                                     'Import existing Workflow from PMR')
@@ -725,12 +731,6 @@ class WorkflowWidget(QtWidgets.QWidget):
         self.action_Abort = QtGui.QAction('Abort', menu_workflow)
         self._set_action_properties(self.action_Abort, 'action_Abort', self._abort_workflow, '',
                                     'Abort Workflow')
-        self.action_Import_CFG = QtGui.QAction('Import Workflow Configuration', menu_workflow)
-        self._set_action_properties(self.action_Import_CFG, 'action_Import_CFG', self.import_cfg, '',
-                                    'Import workflow configuration from file')
-        self.action_Export_CFG = QtGui.QAction('Export Workflow Configuration', menu_workflow)
-        self._set_action_properties(self.action_Export_CFG, 'action_Export_CFG', self.export_cfg, '',
-                                    'Export workflow configuration to file')
 
         self.action_ZoomIn = QtGui.QAction('Zoom In', menu_view)
         self._set_action_properties(self.action_ZoomIn, 'action_ZoomIn', self.zoom_in, 'Ctrl++',
@@ -751,6 +751,9 @@ class WorkflowWidget(QtWidgets.QWidget):
         menu_file.insertAction(last_file_menu_action, self.action_Save)
         menu_file.insertAction(last_file_menu_action, self.action_SaveAs)
         menu_file.insertSeparator(last_file_menu_action)
+        menu_file.insertAction(last_file_menu_action, self.action_Import_CFG)
+        menu_file.insertAction(last_file_menu_action, self.action_Export_CFG)
+        menu_file.insertSeparator(last_file_menu_action)
         menu_file.insertAction(last_file_menu_action, self.action_Import)
         menu_file.insertAction(last_file_menu_action, self.action_Update)
         menu_file.insertSeparator(last_file_menu_action)
@@ -767,5 +770,3 @@ class WorkflowWidget(QtWidgets.QWidget):
         menu_workflow.addAction(self.action_Reverse)
         menu_workflow.addAction(self.action_Abort)
         menu_workflow.insertSeparator(last_view_menu_action)
-        menu_workflow.addAction(self.action_Import_CFG)
-        menu_workflow.addAction(self.action_Export_CFG)
