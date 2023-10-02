@@ -700,10 +700,10 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._set_action_properties(self.action_New, 'action_New', self.new, 'Ctrl+N', 'Create a new Workflow')
         self.action_Open = QtGui.QAction('&Open', menu_file)
         self._set_action_properties(self.action_Open, 'action_Open', self.open, 'Ctrl+O', 'Open an existing Workflow')
-        self.action_Import_CFG = QtGui.QAction('Import Workflow Configuration', menu_workflow)
+        self.action_Import_CFG = QtGui.QAction('Import Config', menu_workflow)
         self._set_action_properties(self.action_Import_CFG, 'action_Import_CFG', self.import_cfg, '',
                                     'Import workflow configuration from file')
-        self.action_Export_CFG = QtGui.QAction('Export Workflow Configuration', menu_workflow)
+        self.action_Export_CFG = QtGui.QAction('Export Config', menu_workflow)
         self._set_action_properties(self.action_Export_CFG, 'action_Export_CFG', self.export_cfg, '',
                                     'Export workflow configuration to file')
         self.action_Import = QtGui.QAction('I&mport', menu_file)
