@@ -508,7 +508,8 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
         return False
 
     def addArc(self, arc):
-        self._connections.append(weakref.ref(arc))
+        if not weakref.ref(arc) in self._connections:
+            self._connections.append(weakref.ref(arc))
 
     def removeArc(self, arc):
         self._connections = [weakarc for weakarc in self._connections if weakarc() != arc]
