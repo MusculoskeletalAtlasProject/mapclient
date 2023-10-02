@@ -60,7 +60,11 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
     def addItem(self, item):
         QtWidgets.QGraphicsScene.addItem(self, item)
         if hasattr(item, 'Type'):
-            if item.Type == Node.Type or item.Type == Arc.Type:
+            if item.Type == Node.Type:
+                self._workflow_scene.addItem(item.metaItem())
+            elif item.Type == Arc.Type:
+                item.sourceNode().addArc(item)
+                item.destinationNode().addArc(item)
                 self._workflow_scene.addItem(item.metaItem())
 
     def removeItem(self, item):
