@@ -558,7 +558,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         om = self._main_window.model().optionsManager()
         pmr_info = PMR()
         pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
-        if not pmr_tool.hasDVCS(workflowDir):
+        if not pmr_tool.is_pmr_workflow(workflowDir):
             # nothing to commit.
             return True
 
@@ -614,7 +614,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         pmr_info = PMR()
         pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
 
-        if not pmr_tool.hasDVCS(workflow_dir):
+        if not pmr_tool.is_pmr_workflow(workflow_dir):
             return
         try:
             pmr_tool.addFileToIndexer(workflow_dir, DEFAULT_WORKFLOW_ANNOTATION_FILENAME)

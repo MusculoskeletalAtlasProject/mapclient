@@ -124,6 +124,11 @@ class PMRTool(object):
     PROTOCOL = 'application/vnd.physiome.pmr2.json.0'
     UA = 'pmr.jsonclient.Client/0.2'
 
+    PMR_URLS = [
+        "https://models.physiomeproject.org/workspace",
+        "https://teaching.physiomeproject.org/workspace"
+    ]
+
     def __init__(self, pmr_info=None, use_external_git=False):
         self._termLookUpLimit = 32
         self.set_info(pmr_info)
@@ -387,15 +392,20 @@ class PMRTool(object):
         # Do the writing.
         cmd.write_remote(workspace)
 
-    def hasDVCS(self, local_workspace_dir):
+    def is_pmr_workflow(self, local_workspace_dir):
         git_dir = os.path.join(local_workspace_dir, '.git')
         if os.path.isdir(git_dir):
             bob = get_cmd_by_name(self._git_implementation)()
             workspace = CmdWorkspace(local_workspace_dir, bob)
-            return workspace.cmd is not None
+            if workspace.cmd is None:
+                return False
+
+            remote_workspace_url = workspace.cmd.read_remote(workspace)
+            url = remote_workspace_url[:remote_workspace_url.rfind('/')]
+            return url in self.PMR_URLS
+
         else:
             return False
-
 
     def commitFiles(self, local_workspace_dir, message, files):
         workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
