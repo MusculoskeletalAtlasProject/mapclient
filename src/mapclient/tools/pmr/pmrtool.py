@@ -25,6 +25,7 @@ import os.path
 from requests import HTTPError
 from requests import Session
 from requests_oauthlib import OAuth1Session
+from urllib.parse import urlparse
 
 from pmr2.wfctrl.core import get_cmd_by_name
 from pmr2.wfctrl.core import CmdWorkspace
@@ -387,15 +388,22 @@ class PMRTool(object):
         # Do the writing.
         cmd.write_remote(workspace)
 
-    def hasDVCS(self, local_workspace_dir):
+    def is_pmr_workflow(self, local_workspace_dir):
         git_dir = os.path.join(local_workspace_dir, '.git')
         if os.path.isdir(git_dir):
             bob = get_cmd_by_name(self._git_implementation)()
             workspace = CmdWorkspace(local_workspace_dir, bob)
-            return workspace.cmd is not None
-        else:
-            return False
+            if workspace.cmd is None:
+                return False
 
+            remote_workspace_url = workspace.cmd.read_remote(workspace)
+            url_parsed = urlparse(remote_workspace_url)
+            for host_domain in self._pmr_info.hosts():
+                host_parsed = urlparse(host_domain)
+                if url_parsed.netloc == host_parsed.netloc:
+                    return True
+
+        return False
 
     def commitFiles(self, local_workspace_dir, message, files):
         workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
