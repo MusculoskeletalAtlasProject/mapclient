@@ -25,6 +25,7 @@ import os.path
 from requests import HTTPError
 from requests import Session
 from requests_oauthlib import OAuth1Session
+from urllib.parse import urlparse
 
 from pmr2.wfctrl.core import get_cmd_by_name
 from pmr2.wfctrl.core import CmdWorkspace
@@ -123,11 +124,6 @@ class PMRTool(object):
 
     PROTOCOL = 'application/vnd.physiome.pmr2.json.0'
     UA = 'pmr.jsonclient.Client/0.2'
-
-    PMR_URLS = [
-        "https://models.physiomeproject.org/workspace",
-        "https://teaching.physiomeproject.org/workspace"
-    ]
 
     def __init__(self, pmr_info=None, use_external_git=False):
         self._termLookUpLimit = 32
@@ -401,11 +397,13 @@ class PMRTool(object):
                 return False
 
             remote_workspace_url = workspace.cmd.read_remote(workspace)
-            url = remote_workspace_url[:remote_workspace_url.rfind('/')]
-            return url in self.PMR_URLS
+            url_parsed = urlparse(remote_workspace_url)
+            for host_domain in self._pmr_info.hosts():
+                host_parsed = urlparse(host_domain)
+                if url_parsed.netloc == host_parsed.netloc:
+                    return True
 
-        else:
-            return False
+        return False
 
     def commitFiles(self, local_workspace_dir, message, files):
         workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
