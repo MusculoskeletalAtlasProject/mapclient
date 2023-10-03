@@ -32,7 +32,6 @@ class WorkspaceWidget(QtWidgets.QWidget):
         import_layout.addStretch(1)
 
         self._update_button = QtWidgets.QPushButton("Update")
-        self._update_button.setEnabled(False)
         update_layout = QtWidgets.QHBoxLayout()
         update_layout.addWidget(self._update_button)
         update_layout.addStretch(1)

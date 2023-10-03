@@ -20,6 +20,8 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
 from PySide6 import QtCore
 
+from mapclient.tools.pmr.core import DEFAULT_SITE_URL, TEACHING_SITE_URL
+
 # Credentials follows:
 #
 # Key    OP8AKmDIlH7OkHaPWNbnb-zf
@@ -38,7 +40,6 @@ from PySide6 import QtCore
 
 class PMR(object):
 
-    DEFAULT_PMR_IPADDRESS = 'http://teaching.physiomeproject.org'
     DEFAULT_CONSUMER_PUBLIC_TOKEN = 'OP8AKmDIlH7OkHaPWNbnb-zf'
     DEFAULT_CONSUMER_SECRET_TOKEN = 'QQcKMnyCjjb7JNDHA-Lwdu7p'
 
@@ -50,10 +51,10 @@ class PMR(object):
         settings = QtCore.QSettings()
         settings.beginGroup('PMR')
         # pmr_host?  this is a domain name...
-        self._active_host = settings.value('active-pmr-website', self.DEFAULT_PMR_IPADDRESS)
+        self._active_host = settings.value('active-pmr-website', TEACHING_SITE_URL)
         self._consumer_public_token = settings.value('consumer-public-token', self.DEFAULT_CONSUMER_PUBLIC_TOKEN)
         self._consumer_secret_token = settings.value('consumer-secret-token', self.DEFAULT_CONSUMER_SECRET_TOKEN)
-        
+
         size = settings.beginReadArray('instances')
         for i in range(size):
             settings.setArrayIndex(i)
@@ -64,6 +65,8 @@ class PMR(object):
         settings.endArray()
         
         settings.endGroup()
+        if size == 0:
+            self.addHost(DEFAULT_SITE_URL)
         self.addHost(self._active_host)
 
     def writeSettings(self):
