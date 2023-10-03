@@ -19,6 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 from PySide6 import QtWidgets
 
+from mapclient.tools.pmr.widgets.workspacewidget import WorkspaceWidget
 from mapclient.tools.pmr.settings.general import PMR
 from mapclient.tools.pmr.pmrtool import PMRTool
 from mapclient.tools.pmr.authoriseapplicationdialog import AuthoriseApplicationDialog
@@ -27,10 +28,13 @@ from mapclient.tools.pmr.ui.ui_registerdialog import Ui_RegisterDialog
 
 class PMRRegisterDialog(QtWidgets.QDialog):
 
-    def __init__(self, external_git, parent=None):
+    def __init__(self, external_git, workflow_widget, parent=None):
         super(PMRRegisterDialog, self).__init__(parent)
         self._ui = Ui_RegisterDialog()
         self._ui.setupUi(self)
+
+        self._workspace_widget = WorkspaceWidget(workflow_widget)
+        self._ui.workspaceTab.layout().addWidget(self._workspace_widget)
 
         pmr_info = PMR()
         self._pmr_tool = PMRTool(pmr_info, external_git)

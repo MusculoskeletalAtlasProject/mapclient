@@ -161,6 +161,12 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="workspaceTab">
+      <attribute name="title">
+       <string>Workspace</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_6"/>
+     </widget>
     </widget>
    </item>
    <item>

@@ -17,25 +17,26 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
+import os.path
+
 from PySide6 import QtWidgets, QtCore
 
-from mapclient.settings.definitions import USE_EXTERNAL_GIT
-from mapclient.view.ui.ui_importworkflowdialog import Ui_ImportWorkflowDialog
+from mapclient.tools.pmr.ui.ui_importworkflowdialog import Ui_ImportWorkflowDialog
 from mapclient.tools.pmr.pmrworkflowwidget import PMRWorkflowWidget
 from mapclient.tools.pmr.pmrtool import workflow_search_string
-import os.path
 
 
 class ImportWorkflowDialog(QtWidgets.QDialog):
 
-    def __init__(self, previousLocation, parent=None):
+    def __init__(self, previous_location, use_external_git, parent=None):
         super(ImportWorkflowDialog, self).__init__(parent)
         self._ui = Ui_ImportWorkflowDialog()
         self._ui.setupUi(self)
+
+        self._previousLocation = previous_location
+        self._use_external_git = use_external_git
+
         self._setupPMRWidget()
-
-        self._previousLocation = previousLocation
-
         self._makeConnections()
 
     def _makeConnections(self):
@@ -48,9 +49,7 @@ class ImportWorkflowDialog(QtWidgets.QDialog):
         return QtWidgets.QDialog.keyPressEvent(self, event)
 
     def _setupPMRWidget(self):
-        om = self.parent().model().optionsManager()
-        use_external_git = om.getOption(USE_EXTERNAL_GIT)
-        self._pmr_widget = PMRWorkflowWidget(use_external_git, self)
+        self._pmr_widget = PMRWorkflowWidget(self._use_external_git, self)
         self._pmr_widget.setExport(False)
         self._pmr_widget.setImport(False)
         self._pmr_widget.setSearchDomain(workflow_search_string)
@@ -88,7 +87,7 @@ class ImportWorkflowDialog(QtWidgets.QDialog):
                                        " or the destination directory '%s' does not exist. " % (workspace_url, destination_dir))
 
     def _setDestination(self):
-        workflowDir = QtWidgets.QFileDialog.getExistingDirectory(self, caption='Select Workflow Directory', directory=self._previousLocation)
+        workflowDir = QtWidgets.QFileDialog.getExistingDirectory(self, caption='Select Workflow Directory', dir=self._previousLocation)
         if workflowDir:
             self._ui.lineEditLocation.setText(workflowDir)
 

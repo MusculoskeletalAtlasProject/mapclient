@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'registerdialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.4.1
+## Created by: Qt User Interface Compiler version 6.5.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -121,6 +121,11 @@ class Ui_RegisterDialog(object):
         self.horizontalLayout_5.addWidget(self.settingsWidget)
 
         self.tabWidget.addTab(self.settingsTab, "")
+        self.workspaceTab = QWidget()
+        self.workspaceTab.setObjectName(u"workspaceTab")
+        self.verticalLayout_6 = QVBoxLayout(self.workspaceTab)
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.tabWidget.addTab(self.workspaceTab, "")
 
         self.verticalLayout.addWidget(self.tabWidget)
 
@@ -150,5 +155,6 @@ class Ui_RegisterDialog(object):
         self.pushButtonDeregister.setText(QCoreApplication.translate("RegisterDialog", u"&Deregister", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.registerTab), QCoreApplication.translate("RegisterDialog", u"Register", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.settingsTab), QCoreApplication.translate("RegisterDialog", u"Settings", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.workspaceTab), QCoreApplication.translate("RegisterDialog", u"Workspace", None))
     # retranslateUi
 
