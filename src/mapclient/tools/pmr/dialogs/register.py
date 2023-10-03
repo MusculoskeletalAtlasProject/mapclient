@@ -19,7 +19,6 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 from PySide6 import QtWidgets
 
-from mapclient.settings.definitions import USE_EXTERNAL_GIT
 from mapclient.tools.pmr.widgets.workspacewidget import WorkspaceWidget
 from mapclient.tools.pmr.settings.general import PMR
 from mapclient.tools.pmr.pmrtool import PMRTool
@@ -29,7 +28,7 @@ from mapclient.tools.pmr.ui.ui_registerdialog import Ui_RegisterDialog
 
 class PMRRegisterDialog(QtWidgets.QDialog):
 
-    def __init__(self, workflow_widget, parent=None):
+    def __init__(self, external_git, workflow_widget, parent=None):
         super(PMRRegisterDialog, self).__init__(parent)
         self._ui = Ui_RegisterDialog()
         self._ui.setupUi(self)
@@ -38,8 +37,7 @@ class PMRRegisterDialog(QtWidgets.QDialog):
         self._ui.workspaceTab.layout().addWidget(self._workspace_widget)
 
         pmr_info = PMR()
-        om = workflow_widget.model().optionsManager()
-        self._pmr_tool = PMRTool(pmr_info, om.getOption(USE_EXTERNAL_GIT))
+        self._pmr_tool = PMRTool(pmr_info, external_git)
 
         self._makeConnections()
 
