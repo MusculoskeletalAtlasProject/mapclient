@@ -530,7 +530,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _show_pmr_tool(self):
         om = self._model.optionsManager()
         from mapclient.tools.pmr.dialogs.register import PMRRegisterDialog
-        dlg = PMRRegisterDialog(om.getOption(USE_EXTERNAL_GIT), self)
+        dlg = PMRRegisterDialog(om.getOption(USE_EXTERNAL_GIT), self._workflowWidget, self)
         dlg.setModal(True)
         dlg.exec_()
 

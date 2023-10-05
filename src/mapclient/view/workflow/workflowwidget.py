@@ -37,7 +37,6 @@ from mapclient.view.utils import handle_runtime_error
 from mapclient.view.workflow.ui.ui_workflowwidget import Ui_WorkflowWidget
 from mapclient.view.workflow.workflowgraphicsscene import WorkflowGraphicsScene
 from mapclient.tools.pmr.pmrtool import PMRTool
-from mapclient.view.importworkflowdialog import ImportWorkflowDialog
 from mapclient.view.managers.plugins.pluginupdater import PluginUpdater
 from mapclient.tools.pmr.settings.general import PMR
 from mapclient.settings.general import get_virtualenv_directory
@@ -94,6 +93,9 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._ui.executeButton.clicked.connect(self.executeWorkflow)
         self._undoStack.indexChanged.connect(self.undoStackIndexChanged)
 
+    def model(self):
+        return self._main_window.model()
+
     def _filter_text_changed(self, text):
         reg_exp = QtCore.QRegularExpression(text, QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
         self._ui.stepTreeView.setFilterRegularExpression(reg_exp)
@@ -115,8 +117,6 @@ class WorkflowWidget(QtWidgets.QWidget):
             self.action_Save.setEnabled(wfm.isModified() and widget_visible)
             self.action_SaveAs.setEnabled(widget_visible)
             self._action_annotation.setEnabled(workflow_open and widget_visible)
-            self.action_Import.setEnabled(widget_visible)
-            self.action_Update.setEnabled(workflow_tracked)
             self.action_New.setEnabled(widget_visible)
             self.action_NewPMR.setEnabled(widget_visible)
             self.action_Open.setEnabled(widget_visible)
@@ -442,47 +442,6 @@ class WorkflowWidget(QtWidgets.QWidget):
             self._main_window._show_plugin_errors_dialog()
             self.updateStepTree()
 
-    def importFromPMR(self):
-        m = self._main_window.model().workflowManager()
-        dlg = ImportWorkflowDialog(m.previousLocation(), self._main_window)
-        if dlg.exec():
-            destination_dir = dlg.destinationDir()
-            workspace_url = dlg.workspaceUrl()
-            if os.path.exists(destination_dir) and workspace_url:
-                try:
-                    self._cloneFromPMR(workspace_url, destination_dir)
-                    logger.info('Perform workflow checks on import ...')
-                    self.performWorkflowChecks(destination_dir)
-                    self._load(destination_dir)
-                except (ValueError, WorkflowError) as e:
-                    logger.error('Invalid Workflow.  ' + str(e))
-                    QtWidgets.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + str(e))
-
-    def updateFromPMR(self):
-        self._updateFromPMR()
-
-    @handle_runtime_error
-    @set_wait_cursor
-    def _updateFromPMR(self):
-        m = self._main_window.model().workflowManager()
-        om = self._main_window.model().optionsManager()
-        pmr_info = PMR()
-        pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
-
-        pmr_tool.pullFromRemote(m.location())
-
-    @handle_runtime_error
-    @set_wait_cursor
-    def _cloneFromPMR(self, workspace_url, workflowDir):
-        om = self._main_window.model().optionsManager()
-        pmr_info = PMR()
-        pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
-
-        pmr_tool.cloneWorkspace(
-            remote_workspace_url=workspace_url,
-            local_workspace_dir=workflowDir,
-        )
-
     @handle_runtime_error
     @set_wait_cursor
     def _load(self, workflow_dir):
@@ -554,7 +513,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         om = self._main_window.model().optionsManager()
         pmr_info = PMR()
         pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
-        if not pmr_tool.hasDVCS(workflowDir):
+        if not pmr_tool.is_pmr_workflow(workflowDir):
             # nothing to commit.
             return True
 
@@ -610,7 +569,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         pmr_info = PMR()
         pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
 
-        if not pmr_tool.hasDVCS(workflow_dir):
+        if not pmr_tool.is_pmr_workflow(workflow_dir):
             return
         try:
             pmr_tool.addFileToIndexer(workflow_dir, DEFAULT_WORKFLOW_ANNOTATION_FILENAME)
@@ -696,12 +655,12 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._set_action_properties(self.action_New, 'action_New', self.new, 'Ctrl+N', 'Create a new Workflow')
         self.action_Open = QtGui.QAction('&Open', menu_file)
         self._set_action_properties(self.action_Open, 'action_Open', self.open, 'Ctrl+O', 'Open an existing Workflow')
-        self.action_Import = QtGui.QAction('I&mport', menu_file)
-        self._set_action_properties(self.action_Import, 'action_Import', self.importFromPMR, 'Ctrl+M',
-                                    'Import existing Workflow from PMR')
-        self.action_Update = QtGui.QAction('&Update', menu_file)
-        self._set_action_properties(self.action_Update, 'action_Update', self.updateFromPMR, 'Ctrl+U',
-                                    'update existing PMR Workflow')
+        self.action_Import_CFG = QtGui.QAction('Import Config', menu_workflow)
+        self._set_action_properties(self.action_Import_CFG, 'action_Import_CFG', self.import_cfg, '',
+                                    'Import workflow configuration from file')
+        self.action_Export_CFG = QtGui.QAction('Export Config', menu_workflow)
+        self._set_action_properties(self.action_Export_CFG, 'action_Export_CFG', self.export_cfg, '',
+                                    'Export workflow configuration to file')
         self.action_Close = QtGui.QAction('&Close', menu_file)
         self._set_action_properties(self.action_Close, 'action_Close', self.close, 'Ctrl+W', 'Close open Workflow')
         self.action_Save = QtGui.QAction('&Save', menu_file)
@@ -721,12 +680,6 @@ class WorkflowWidget(QtWidgets.QWidget):
         self.action_Abort = QtGui.QAction('Abort', menu_workflow)
         self._set_action_properties(self.action_Abort, 'action_Abort', self._abort_workflow, '',
                                     'Abort Workflow')
-        self.action_Import_CFG = QtGui.QAction('Import Workflow Configuration', menu_workflow)
-        self._set_action_properties(self.action_Import_CFG, 'action_Import_CFG', self.import_cfg, '',
-                                    'Import workflow configuration from file')
-        self.action_Export_CFG = QtGui.QAction('Export Workflow Configuration', menu_workflow)
-        self._set_action_properties(self.action_Export_CFG, 'action_Export_CFG', self.export_cfg, '',
-                                    'Export workflow configuration to file')
 
         self.action_ZoomIn = QtGui.QAction('Zoom In', menu_view)
         self._set_action_properties(self.action_ZoomIn, 'action_ZoomIn', self.zoom_in, 'Ctrl++',
@@ -747,8 +700,8 @@ class WorkflowWidget(QtWidgets.QWidget):
         menu_file.insertAction(last_file_menu_action, self.action_Save)
         menu_file.insertAction(last_file_menu_action, self.action_SaveAs)
         menu_file.insertSeparator(last_file_menu_action)
-        menu_file.insertAction(last_file_menu_action, self.action_Import)
-        menu_file.insertAction(last_file_menu_action, self.action_Update)
+        menu_file.insertAction(last_file_menu_action, self.action_Import_CFG)
+        menu_file.insertAction(last_file_menu_action, self.action_Export_CFG)
         menu_file.insertSeparator(last_file_menu_action)
         menu_file.insertAction(last_file_menu_action, self.action_Close)
         menu_file.insertSeparator(last_file_menu_action)
@@ -762,6 +715,3 @@ class WorkflowWidget(QtWidgets.QWidget):
         # menu_workflow.addAction(self.action_Continue)
         menu_workflow.addAction(self.action_Reverse)
         menu_workflow.addAction(self.action_Abort)
-        menu_workflow.insertSeparator(last_view_menu_action)
-        menu_workflow.addAction(self.action_Import_CFG)
-        menu_workflow.addAction(self.action_Export_CFG)

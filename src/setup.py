@@ -42,7 +42,8 @@ package_dependencies = [
     'packaging',
     'filelock',
     'psutil == 5.9.3',
-    'PyGithub'
+    'PyGithub',
+    'numpy',
 ]
 
 extras_require = {

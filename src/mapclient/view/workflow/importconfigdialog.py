@@ -129,7 +129,7 @@ class ImportConfigDialog(QtWidgets.QDialog):
 
                         self._graphics_scene.setConfigureNode(node_dict[identifier])
 
-                        configuration = load_configuration(temp_dir, identifier)
+                        configuration = load_configuration(temp_dir, current_text)
                         step_dict[identifier].deserialize(configuration)
 
                         for additional_cfg_file in step_dict[identifier].getAdditionalConfigFiles():
