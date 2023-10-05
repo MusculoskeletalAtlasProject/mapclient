@@ -28,22 +28,22 @@ import os.path
 
 class ImportWorkflowDialog(QtWidgets.QDialog):
 
-    def __init__(self, previousLocation, parent=None):
+    def __init__(self, previous_location, parent=None):
         super(ImportWorkflowDialog, self).__init__(parent)
         self._ui = Ui_ImportWorkflowDialog()
         self._ui.setupUi(self)
         self._setupPMRWidget()
 
-        self._previousLocation = previousLocation
+        self._previousLocation = previous_location
 
-        self._makeConnections()
+        self._make_connections()
 
-    def _makeConnections(self):
-        self._ui.lineEditLocation.returnPressed.connect(self._setDestination)
-        self._ui.pushButtonLocation.clicked.connect(self._setDestination)
+    def _make_connections(self):
+        self._ui.lineEditLocation.returnPressed.connect(self._set_destination)
+        self._ui.pushButtonLocation.clicked.connect(self._set_destination)
 
     def keyPressEvent(self, event):
-        if event.key() == QtCore.Qt.Key_Return:
+        if event.key() == QtCore.Qt.Key.Key_Return:
             return True
         return QtWidgets.QDialog.keyPressEvent(self, event)
 
@@ -84,12 +84,10 @@ class ImportWorkflowDialog(QtWidgets.QDialog):
         if os.path.exists(destination_dir) and workspace_url:
             return QtWidgets.QDialog.accept(self, *args, **kwargs)
         else:
-            QtWidgets.QMessageBox.critical(self, 'Error Caught', "Invalid Import Settings.  Either the workspace url '%s' was not set" \
-                                       " or the destination directory '%s' does not exist. " % (workspace_url, destination_dir))
+            QtWidgets.QMessageBox.critical(self, 'Error Caught', f"Invalid Import Settings.  Either the workspace url '{workspace_url}' was not set"
+                                                                 f" or the destination directory '{destination_dir}' does not exist. ")
 
-    def _setDestination(self):
-        workflowDir = QtWidgets.QFileDialog.getExistingDirectory(self, caption='Select Workflow Directory', directory=self._previousLocation)
+    def _set_destination(self):
+        workflowDir = QtWidgets.QFileDialog.getExistingDirectory(self, caption='Select Workflow Directory', dir=self._previousLocation)
         if workflowDir:
             self._ui.lineEditLocation.setText(workflowDir)
-
-

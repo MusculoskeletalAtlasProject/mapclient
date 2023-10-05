@@ -18,6 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import logging
+import re
 
 from functools import wraps
 from PySide6 import QtCore, QtGui, QtWidgets
@@ -26,6 +27,10 @@ from mapclient.exceptions import ClientRuntimeError
 from mapclient.view.dialogs.error.errordialog import ErrorDialog
 
 logger = logging.getLogger(__name__)
+
+
+rx_success = re.compile('Success: ')
+rx_failure = re.compile('Failure: ')
 
 
 def create_default_image_icon(name):
@@ -106,3 +111,22 @@ def handle_runtime_error(f):
 
 def is_light_mode():
     return QtGui.QGuiApplication.styleHints().colorScheme() == QtCore.Qt.ColorScheme.Light
+
+
+class SyntaxHighlighter(QtGui.QSyntaxHighlighter):
+
+    def highlightBlock(self, text):
+        format_success = QtGui.QTextCharFormat()
+        format_success.setForeground(QtCore.Qt.GlobalColor.darkGreen)
+        format_failure = QtGui.QTextCharFormat()
+        format_failure.setForeground(QtCore.Qt.GlobalColor.darkRed)
+
+        it = rx_success.finditer(text)
+        for match in it:
+            span = match.span()
+            self.setFormat(match.pos, span[1] - span[0], format_success)
+
+        it = rx_failure.finditer(text)
+        for match in it:
+            span = match.span()
+            self.setFormat(match.pos, span[1] - span[0], format_failure)

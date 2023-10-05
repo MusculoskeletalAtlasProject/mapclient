@@ -488,12 +488,8 @@ class WorkflowWidget(QtWidgets.QWidget):
     def _load(self, workflow_dir):
         try:
             m = self._main_window.model().workflowManager()
-            # self._ui.graphicsView.reset_zoom()
-            # m.scene().setViewParameters(self._ui.graphicsView.getViewParameters())
             m.load(workflow_dir)
             m.setPreviousLocation(workflow_dir)
-            # self._ui.graphicsView.setViewParameters(m.scene().getViewParameters())
-            # self._graphicsScene.setSceneRect(self._ui.graphicsView.rect())
             self._graphicsScene.updateModel()
             self._ui.graphicsView.setLocation(workflow_dir)
             self._update_ui()
