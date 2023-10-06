@@ -340,7 +340,6 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             if self._selectionStartPos:
                 diff = event.pos() - self._selectionStartPos
                 if diff.x() != 0 and diff.y() != 0:
-                    print("mouse move steps.")
                     self._undoStack.beginMacro('Move Step(s)')
                     for item in self.scene().selectedItems():
                         if item.type() == Node.Type:
