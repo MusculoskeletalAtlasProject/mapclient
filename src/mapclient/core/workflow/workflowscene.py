@@ -23,7 +23,6 @@ from PySide6 import QtCore
 
 from mapclient.core.workflow.workflowdependencygraph import WorkflowDependencyGraph
 from mapclient.core.workflow.workflowitems import MetaStep, Connection
-from mapclient.core.workflow.workflowutils import convert_to_parameterised_position, revert_parameterised_position
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.utils import load_configuration
 from mapclient.settings.general import get_configuration_file
@@ -31,7 +30,7 @@ from mapclient.settings.general import get_configuration_file
 
 class WorkflowScene(object):
     """
-    This is the authoratative model for the workflow scene.
+    This is the authoritative model for the workflow scene.
     """
 
     def __init__(self, manager):
@@ -83,8 +82,6 @@ class WorkflowScene(object):
             ws.setValue(key, self._view_parameters[key])
         ws.endGroup()
 
-        rect = self._view_parameters['rect']
-
         ws.remove('nodes')
         ws.beginGroup('nodes')
         ws.beginWriteArray('nodelist')
@@ -107,9 +104,7 @@ class WorkflowScene(object):
             if source_uri is not None:
                 ws.setValue('source_uri', source_uri)
             ws.setValue('name', step.getName())
-            new_position = convert_to_parameterised_position(rect, metastep.getPos())
-            ws.setValue('position', new_position)
-            ws.setValue('parameterised_position', True)
+            ws.setValue('position', metastep.getPos())
             ws.setValue('selected', metastep.getSelected())
             ws.setValue('identifier', identifier)
             ws.setValue('unique_identifier', metastep.getUniqueIdentifier())
@@ -190,7 +185,7 @@ class WorkflowScene(object):
 
         return report
 
-    def load_state(self, ws):
+    def load_state(self, ws, scene_rect):
         self.clear()
         ws.beginGroup('view')
         loaded_view_parameters = {
@@ -201,7 +196,7 @@ class WorkflowScene(object):
         ws.endGroup()
 
         # Scale the WorkflowScene view-parameters:
-        current_rect = self._view_parameters['rect'] if self._view_parameters else loaded_view_parameters['rect']
+        current_rect = scene_rect
         loaded_rect = loaded_view_parameters['rect']
 
         scale_factor = loaded_view_parameters['scale']
@@ -226,9 +221,8 @@ class WorkflowScene(object):
             uniqueIdentifier = ws.value('unique_identifier', uuid.uuid1())
 
             # Adjust the item positions according to the scale factors.
-            parameterised = ws.value('parameterised_position', False)
-            if parameterised:
-                position = revert_parameterised_position(loaded_rect, position)
+            position.setX(position.x() * sf_x)
+            position.setY(position.y() * sf_y)
 
             step = workflowStepFactory(name, self._location)
             step.setMainWindow(self._main_window)

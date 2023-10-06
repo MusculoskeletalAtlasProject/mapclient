@@ -201,10 +201,11 @@ class WorkflowManager(object):
 
         return is_workflow_in_use(location)
 
-    def load(self, location):
+    def load(self, location, scene_rect=QtCore.QPointF(0, 0)):
         """
         Open a workflow from the given location.
         :param location:
+        :param scene_rect: Rectangle of the scene rect to load the workflow into.
         """
         if location is None:
             raise WorkflowError('No location given to open Workflow.')
@@ -227,7 +228,7 @@ class WorkflowManager(object):
         self.set_location(location)
         if self._scene.is_loadable(wf):
             if mark_workflow_in_use(location):
-                self._scene.load_state(wf)
+                self._scene.load_state(wf, scene_rect)
             else:
                 logger.warning('Workflow is already in use.')
                 raise WorkflowError('Workflow is already in use.')
@@ -251,7 +252,7 @@ class WorkflowManager(object):
 
             if self._scene.is_loadable(wf):
                 if mark_workflow_in_use(location):
-                    self._scene.load_state(wf)
+                    self._scene.load_state(wf, scene_rect)
                 else:
                     logger.warning('Workflow is already in use.')
                     raise WorkflowError('Workflow is already in use.')

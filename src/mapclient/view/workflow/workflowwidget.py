@@ -447,7 +447,7 @@ class WorkflowWidget(QtWidgets.QWidget):
     def _load(self, workflow_dir):
         try:
             m = self._main_window.model().workflowManager()
-            m.load(workflow_dir)
+            m.load(workflow_dir, self._graphicsScene.sceneRect())
             m.setPreviousLocation(workflow_dir)
             self._graphicsScene.updateModel()
             self._ui.graphicsView.setLocation(workflow_dir)

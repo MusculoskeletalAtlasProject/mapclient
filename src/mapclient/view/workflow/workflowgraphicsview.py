@@ -44,7 +44,6 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         self._errorIcon = None
 
         self._main_window = None
-        self._graphics_shown = False
         self._graphics_initialised = False
         self._graphics_scale_factor = 1.0
         self._margin = 10
@@ -456,29 +455,23 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         else:
             event.ignore()
 
-    def showEvent(self, event):
-        self._graphics_shown = True
-
     def resizeEvent(self, event):
         QtWidgets.QGraphicsView.resizeEvent(self, event)
-        if self._graphics_shown:
 
-            scene = self.scene()
-            event_size = event.size()
-            view_rect = QtCore.QRectF(0, 0, event_size.width(), event_size.height())
-            if not self._graphics_initialised:
-                scene.setReady()
-                self._graphics_initialised = True
+        scene = self.scene()
+        event_size = event.size()
+        view_rect = QtCore.QRectF(0, 0, event_size.width(), event_size.height())
+        if not self._graphics_initialised:
+            scene.setReady()
+            self._graphics_initialised = True
 
-            old_rect = scene.sceneRect()
-            print(self._margin / self._graphics_scale_factor)
-            scene.setSceneRect(
-                self._margin / self._graphics_scale_factor,
-                self._margin / self._graphics_scale_factor,
-                (view_rect.width() - 2 * self._margin) / self._graphics_scale_factor,
-                (view_rect.height() - 2 * self._margin) / self._graphics_scale_factor
-            )
-            self._reposition_steps(old_rect)
+        scene.setSceneRect(
+            self._margin / self._graphics_scale_factor,
+            self._margin / self._graphics_scale_factor,
+            (view_rect.width() - 2 * self._margin) / self._graphics_scale_factor,
+            (view_rect.height() - 2 * self._margin) / self._graphics_scale_factor
+        )
+        self._reposition_steps()
 
     def _unscale_view(self, scale_factor):
         self._graphics_scale_factor *= scale_factor
@@ -501,53 +494,26 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         self._zoom(120)
 
     def _zoom(self, delta):
-        old_rect = self.sceneRect()
-        print("rect 1:", old_rect)
         scale_factor = math.pow(2.0, -delta / 240.0)
         self.scale(scale_factor, scale_factor)
-        print("rect 2:", self.sceneRect())
         self._unscale_view(scale_factor)
-        self._reposition_steps(old_rect)
-        print("rect 3:", self.sceneRect())
+        self._reposition_steps()
 
     def reset_zoom(self):
-        old_rect = self.sceneRect()
-        print("rect 1:", self.sceneRect())
         reverse_sf = 1 / self._graphics_scale_factor
         self.scale(reverse_sf, reverse_sf)
-        print("rect 2:", self.sceneRect())
         self._unscale_view(reverse_sf)
-        self._reposition_steps(old_rect)
-        print("rect 3:", self.sceneRect())
+        self._reposition_steps()
 
         self._graphics_scale_factor = 1.0
         self.resetTransform()
-        print("rect 4:", self.sceneRect())
 
-    def _reposition_steps(self, old_rect):
+    def _reposition_steps(self):
         scene_rect = self.sceneRect()
-        # self._undoStack.beginMacro('Reposition Step(s)')
-        count = 0
         for item in self.items():
             if isinstance(item, Node):
-                parameterised_position = convert_to_parameterised_position(old_rect, item.pos())
-                new_position = revert_parameterised_position(scene_rect, parameterised_position)
-
-                item.setPos(new_position)
-                if count == 1:
-                    print(new_position)
-
-                count += 1
-                # if x > (scene_rect.right() - 116):
-                #     x = scene_rect.right() - 116
-                # y = item.y()
-                # if y > (scene_rect.bottom() - 116):
-                #     y = scene_rect.bottom() - 116
-                #
-                # if x != item.x() or y != item.y():
-                #     self._undoStack.push(CommandMove(item, item.pos(), QtCore.QPointF(x, y)))
-        # self._undoStack.endMacro()
-        # self.merge_macros()
+                new_position = revert_parameterised_position(scene_rect, item.parameterised_pos())
+                item.setPos(new_position, False)
 
     def merge_macros(self):
         # If the top-most macro is successfully merged, remove it from the undo stack.

@@ -25,6 +25,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 from mapclient.core.annotations import PROVIDES_ANNOTATIONS, USES_ANNOTATIONS, ANNOTATION_BASE
 from mapclient.core.workflow.workflowscene import Connection
+from mapclient.core.workflow.workflowutils import convert_to_parameterised_position
 from mapclient.tools.annotation.annotationdialog import AnnotationDialog
 from mapclient.tools.pmr.pmrdvcshelper import repositoryIsUpToDate
 from mapclient.view.utils import is_light_mode
@@ -253,6 +254,7 @@ class Node(Item):
             .scaled(self.Size, self.Size, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
 
         self._step_port_items = []
+        self._parameterised_pos = QtCore.QPointF(0, 0)
         self._text = StepText(metastep.getStep().getName(), self)
         self._updateTextIcon()
 
@@ -366,7 +368,7 @@ class Node(Item):
         """
         :TODO: Update this for setting/saving output/input for step to repository
         """
-        if self._metastep._step.getIdentifier():
+        if self._metastep.getStep().getIdentifier():
             if repositoryIsUpToDate(self._getStepLocation()):
                 self._modified_item.hide()
             else:
@@ -374,9 +376,18 @@ class Node(Item):
         else:
             self._modified_item.hide()
 
-    def setPos(self, pos):
+    def setPos(self, pos, modify_parameterised=True):
         super(Node, self).setPos(pos)
-        self.scene().workflowScene().setItemPos(self._metastep, pos)
+        scene = self.scene()
+        if modify_parameterised:
+            self._parameterised_pos = convert_to_parameterised_position(scene.sceneRect(), pos)
+        self._metastep.setPos(pos)
+
+    def set_parameterised_pos(self, parameterised_pos):
+        self._parameterised_pos = parameterised_pos
+
+    def parameterised_pos(self):
+        return self._parameterised_pos
 
     def type(self):
         return Node.Type
