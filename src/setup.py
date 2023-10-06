@@ -37,7 +37,7 @@ package_dependencies = [
     'requests',
     'python-dateutil',
     'dulwich',
-    'pmr2.wfctrl',
+    'pmr2.wfctrl >= 0.5.0',
     'pmr2.client >= 0.2',
     'packaging',
     'filelock',

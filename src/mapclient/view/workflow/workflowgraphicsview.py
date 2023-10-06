@@ -22,6 +22,7 @@ import logging
 
 from PySide6 import QtCore, QtWidgets, QtGui
 
+from mapclient.core.workflow.workflowutils import convert_to_parameterised_position, revert_parameterised_position
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflow.workflowscene import MetaStep
 from mapclient.view.utils import is_light_mode
@@ -46,6 +47,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         self._graphics_shown = False
         self._graphics_initialised = False
         self._graphics_scale_factor = 1.0
+        self._margin = 10
 
         self._undoStack = None
         self._location = ''
@@ -192,7 +194,6 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         mime_data.setData('image/x-workflow-step(s)', data)
         return mime_data
 
-    # TODO: Paste the arrows as well.
     def paste_steps(self, stream, event_position=None):
         """
         This takes a stream of workflow items and pastes them to the workflow. See copy_steps for details on generating this stream.
@@ -340,6 +341,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             if self._selectionStartPos:
                 diff = event.pos() - self._selectionStartPos
                 if diff.x() != 0 and diff.y() != 0:
+                    print("mouse move steps.")
                     self._undoStack.beginMacro('Move Step(s)')
                     for item in self.scene().selectedItems():
                         if item.type() == Node.Type:
@@ -468,14 +470,15 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
                 scene.setReady()
                 self._graphics_initialised = True
 
-            margin = 10
+            old_rect = scene.sceneRect()
+            print(self._margin / self._graphics_scale_factor)
             scene.setSceneRect(
-                margin / self._graphics_scale_factor,
-                margin / self._graphics_scale_factor,
-                (view_rect.width() - 2 * margin) / self._graphics_scale_factor,
-                (view_rect.height() - 2 * margin) / self._graphics_scale_factor
+                self._margin / self._graphics_scale_factor,
+                self._margin / self._graphics_scale_factor,
+                (view_rect.width() - 2 * self._margin) / self._graphics_scale_factor,
+                (view_rect.height() - 2 * self._margin) / self._graphics_scale_factor
             )
-            self.reposition_steps()
+            self._reposition_steps(old_rect)
 
     def _unscale_view(self, scale_factor):
         self._graphics_scale_factor *= scale_factor
@@ -487,46 +490,64 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
     def wheelEvent(self, event):
         if event.modifiers() == QtCore.Qt.KeyboardModifier.ControlModifier:
-            self.zoom(event.angleDelta().y())
+            self._zoom(event.angleDelta().y())
         else:
             super(WorkflowGraphicsView, self).wheelEvent(event)
 
-    def zoomIn(self):
-        self.zoom(-120)
+    def zoom_in(self):
+        self._zoom(-120)
 
-    def zoomOut(self):
-        self.zoom(120)
+    def zoom_out(self):
+        self._zoom(120)
 
-    def zoom(self, delta):
+    def _zoom(self, delta):
+        old_rect = self.sceneRect()
+        print("rect 1:", old_rect)
         scale_factor = math.pow(2.0, -delta / 240.0)
         self.scale(scale_factor, scale_factor)
+        print("rect 2:", self.sceneRect())
         self._unscale_view(scale_factor)
-        self.view_all()
+        self._reposition_steps(old_rect)
+        print("rect 3:", self.sceneRect())
 
     def reset_zoom(self):
+        old_rect = self.sceneRect()
+        print("rect 1:", self.sceneRect())
         reverse_sf = 1 / self._graphics_scale_factor
         self.scale(reverse_sf, reverse_sf)
+        print("rect 2:", self.sceneRect())
         self._unscale_view(reverse_sf)
+        self._reposition_steps(old_rect)
+        print("rect 3:", self.sceneRect())
 
         self._graphics_scale_factor = 1.0
         self.resetTransform()
+        print("rect 4:", self.sceneRect())
 
-    def reposition_steps(self):
+    def _reposition_steps(self, old_rect):
         scene_rect = self.sceneRect()
-        self._undoStack.beginMacro('Reposition Step(s)')
+        # self._undoStack.beginMacro('Reposition Step(s)')
+        count = 0
         for item in self.items():
             if isinstance(item, Node):
-                x = item.x()
-                if x > (scene_rect.right() - 116):
-                    x = scene_rect.right() - 116
-                y = item.y()
-                if y > (scene_rect.bottom() - 116):
-                    y = scene_rect.bottom() - 116
+                parameterised_position = convert_to_parameterised_position(old_rect, item.pos())
+                new_position = revert_parameterised_position(scene_rect, parameterised_position)
 
-                if x != item.x() or y != item.y():
-                    self._undoStack.push(CommandMove(item, item.pos(), QtCore.QPointF(x, y)))
-        self._undoStack.endMacro()
-        self.merge_macros()
+                item.setPos(new_position)
+                if count == 1:
+                    print(new_position)
+
+                count += 1
+                # if x > (scene_rect.right() - 116):
+                #     x = scene_rect.right() - 116
+                # y = item.y()
+                # if y > (scene_rect.bottom() - 116):
+                #     y = scene_rect.bottom() - 116
+                #
+                # if x != item.x() or y != item.y():
+                #     self._undoStack.push(CommandMove(item, item.pos(), QtCore.QPointF(x, y)))
+        # self._undoStack.endMacro()
+        # self.merge_macros()
 
     def merge_macros(self):
         # If the top-most macro is successfully merged, remove it from the undo stack.
@@ -587,16 +608,16 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             return QtCore.QRectF(0, 0, 0, 0)
 
     def scale_workflow(self, sf_x, sf_y):
-        # Scale the workflow item positions. Add 12 to account for subtracting the view border before scaling.
+        # Scale the workflow item positions. Add self._margin to account for subtracting the view border before scaling.
         self._undoStack.beginMacro('Move Step(s)')
         for item in self.items():
             if isinstance(item, Node):
                 x = item.x()
                 if sf_x != 1:
-                    x = ((x - 12) * sf_x) + 12
+                    x = ((x - self._margin) * sf_x) + self._margin
                 y = item.y()
                 if sf_y != 1:
-                    y = ((y - 12) * sf_y) + 12
+                    y = ((y - self._margin) * sf_y) + self._margin
 
                 if x != item.x() or y != item.y():
                     self._undoStack.push(CommandMove(item, item.pos(), QtCore.QPointF(x, y)))

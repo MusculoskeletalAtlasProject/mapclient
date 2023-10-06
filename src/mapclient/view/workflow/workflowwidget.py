@@ -587,10 +587,10 @@ class WorkflowWidget(QtWidgets.QWidget):
         action.setStatusTip(statustip)
 
     def zoom_in(self):
-        self._ui.graphicsView.zoomIn()
+        self._ui.graphicsView.zoom_in()
 
     def zoom_out(self):
-        self._ui.graphicsView.zoomOut()
+        self._ui.graphicsView.zoom_out()
 
     def reset_zoom(self):
         self._ui.graphicsView.reset_zoom()
