@@ -7,7 +7,7 @@ from PySide6 import QtCore, QtWidgets
 
 from mapclient.view.dialogs.checkstatus.ui.ui_checkstatusdialog import Ui_CheckStatusDialog
 from mapclient.core.checks import WizardToolChecks, VCSChecks
-from mapclient.view.syntaxhighlighter import SyntaxHighlighter
+from mapclient.view.utils import SyntaxHighlighter
 from mapclient.settings.definitions import WIZARD_TOOL_STRING, \
     VIRTUAL_ENVIRONMENT_STRING, PMR_TOOL_STRING
 
