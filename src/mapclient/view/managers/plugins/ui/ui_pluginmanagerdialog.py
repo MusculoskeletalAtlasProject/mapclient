@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'pluginmanagerdialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.4.1
+## Created by: Qt User Interface Compiler version 6.5.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialog, QDialogBu
     QGroupBox, QHBoxLayout, QLabel, QListWidget,
     QListWidgetItem, QPushButton, QSizePolicy, QSpacerItem,
     QVBoxLayout, QWidget)
+from . import resources_rc
 
 class Ui_PluginManagerDialog(object):
     def setupUi(self, PluginManagerDialog):
@@ -87,6 +88,7 @@ class Ui_PluginManagerDialog(object):
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.advancedButton = QPushButton(PluginManagerDialog)
         self.advancedButton.setObjectName(u"advancedButton")
+        self.advancedButton.setEnabled(False)
         self.advancedButton.setMinimumSize(QSize(90, 0))
 
         self.horizontalLayout_2.addWidget(self.advancedButton)
