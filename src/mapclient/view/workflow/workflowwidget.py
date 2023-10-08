@@ -447,7 +447,7 @@ class WorkflowWidget(QtWidgets.QWidget):
     def _load(self, workflow_dir):
         try:
             m = self._main_window.model().workflowManager()
-            m.load(workflow_dir)
+            m.load(workflow_dir, self._graphicsScene.sceneRect())
             m.setPreviousLocation(workflow_dir)
             self._graphicsScene.updateModel()
             self._ui.graphicsView.setLocation(workflow_dir)
@@ -587,10 +587,10 @@ class WorkflowWidget(QtWidgets.QWidget):
         action.setStatusTip(statustip)
 
     def zoom_in(self):
-        self._ui.graphicsView.zoomIn()
+        self._ui.graphicsView.zoom_in()
 
     def zoom_out(self):
-        self._ui.graphicsView.zoomOut()
+        self._ui.graphicsView.zoom_out()
 
     def reset_zoom(self):
         self._ui.graphicsView.reset_zoom()

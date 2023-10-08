@@ -25,6 +25,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 from mapclient.core.annotations import PROVIDES_ANNOTATIONS, USES_ANNOTATIONS, ANNOTATION_BASE
 from mapclient.core.workflow.workflowscene import Connection
+from mapclient.core.workflow.workflowutils import convert_to_parameterised_position
 from mapclient.tools.annotation.annotationdialog import AnnotationDialog
 from mapclient.tools.pmr.pmrdvcshelper import repositoryIsUpToDate
 from mapclient.view.utils import is_light_mode
@@ -244,6 +245,7 @@ class Node(Item):
     def __init__(self, metastep):
         Item.__init__(self)
 
+        self._margin = 2.0
         self._metastep = metastep
         icon = self._metastep.getStep().getIcon()
         if not icon:
@@ -253,6 +255,7 @@ class Node(Item):
             .scaled(self.Size, self.Size, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
 
         self._step_port_items = []
+        self._parameterised_pos = QtCore.QPointF(0, 0)
         self._text = StepText(metastep.getStep().getName(), self)
         self._updateTextIcon()
 
@@ -366,7 +369,7 @@ class Node(Item):
         """
         :TODO: Update this for setting/saving output/input for step to repository
         """
-        if self._metastep._step.getIdentifier():
+        if self._metastep.getStep().getIdentifier():
             if repositoryIsUpToDate(self._getStepLocation()):
                 self._modified_item.hide()
             else:
@@ -374,9 +377,18 @@ class Node(Item):
         else:
             self._modified_item.hide()
 
-    def setPos(self, pos):
+    def setPos(self, pos, modify_parameterised=True):
         super(Node, self).setPos(pos)
-        self.scene().workflowScene().setItemPos(self._metastep, pos)
+        scene = self.scene()
+        if modify_parameterised:
+            self._parameterised_pos = convert_to_parameterised_position(scene.sceneRect(), pos, self.offset())
+        self._metastep.setPos(pos)
+
+    def set_parameterised_pos(self, parameterised_pos):
+        self._parameterised_pos = parameterised_pos
+
+    def parameterised_pos(self):
+        return self._parameterised_pos
 
     def type(self):
         return Node.Type
@@ -414,15 +426,17 @@ class Node(Item):
     def metaItem(self):
         return self._metastep
 
+    def offset(self):
+        return QtCore.QPointF(self._pixmap.width(), self._pixmap.height())
+
     def boundingRect(self):
-        adjust = 2.0
-        return QtCore.QRectF(-adjust, -adjust,
-                             self._pixmap.width() + 2 * adjust,
-                             self._pixmap.height() + 2 * adjust)
+        return QtCore.QRectF(-self._margin, -self._margin,
+                             self._pixmap.width() + 2 * self._margin,
+                             self._pixmap.height() + 2 * self._margin)
 
     def paint(self, painter, option, widget):
-        if option.state & QtWidgets.QStyle.State_Selected:  # or self.selected:
-            painter.setBrush(QtCore.Qt.darkGray)
+        if option.state & QtWidgets.QStyle.StateFlag.State_Selected:  # or self.selected:
+            painter.setBrush(QtCore.Qt.GlobalColor.darkGray)
             painter.drawRoundedRect(self.boundingRect(), 5, 5)
 
         #            super(Node, self).paint(painter, option, widget)
@@ -433,8 +447,8 @@ class Node(Item):
 
     def itemChange(self, change, value):
         if change == QtWidgets.QGraphicsItem.GraphicsItemChange.ItemPositionChange and self.scene():
-            return self.scene().ensureItemInScene(self, value)
-        elif change == QtWidgets.QGraphicsItem.ItemPositionHasChanged:
+            return self.scene().ensure_item_in_scene(self, value)
+        elif change == QtWidgets.QGraphicsItem.GraphicsItemChange.ItemPositionHasChanged:
             for port_item in self._step_port_items:
                 port_item.itemChange(change, value)
 

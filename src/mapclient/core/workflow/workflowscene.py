@@ -30,7 +30,7 @@ from mapclient.settings.general import get_configuration_file
 
 class WorkflowScene(object):
     """
-    This is the authoratative model for the workflow scene.
+    This is the authoritative model for the workflow scene.
     """
 
     def __init__(self, manager):
@@ -39,7 +39,8 @@ class WorkflowScene(object):
         self._items = {}
         self._dependencyGraph = WorkflowDependencyGraph(self)
         self._main_window = None
-        self._view_parameters = {'rect': QtCore.QRectF(0, 0, 1024, 880)}
+        self._default_view_rect = QtCore.QRectF(0, 0, 1024, 880)
+        self._view_parameters = None
 
     def getViewParameters(self):
         return self._view_parameters
@@ -184,19 +185,20 @@ class WorkflowScene(object):
 
         return report
 
-    def load_state(self, ws):
+    def load_state(self, ws, scene_rect):
         self.clear()
         ws.beginGroup('view')
         loaded_view_parameters = {
             'scale': float(ws.value('scale', '1.0')),
-            'rect': ws.value('rect', self._view_parameters['rect']),
+            'rect': ws.value('rect', self._default_view_rect),
             'transform': ws.value('transform')
         }
         ws.endGroup()
 
         # Scale the WorkflowScene view-parameters:
-        current_rect = self._view_parameters['rect']
+        current_rect = scene_rect
         loaded_rect = loaded_view_parameters['rect']
+
         scale_factor = loaded_view_parameters['scale']
         if scale_factor != 1.0:
             current_rect.setWidth(current_rect.width() / scale_factor)
