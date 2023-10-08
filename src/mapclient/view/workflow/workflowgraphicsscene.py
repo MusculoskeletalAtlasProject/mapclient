@@ -77,7 +77,7 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
                 item.destinationNode().removeArc(item)
                 self._workflow_scene.removeItem(item.metaItem())
 
-    def updateModel(self):
+    def update_model(self):
         """
         Clears the QGraphicScene and re-populates it with what is currently
         in the WorkflowScene.
@@ -188,5 +188,3 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
 
     def identifierOccursCount(self, identifier):
         return self.parent().identifierOccursCount(identifier)
-
-

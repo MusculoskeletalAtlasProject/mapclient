@@ -296,7 +296,7 @@ class WorkflowWidget(QtWidgets.QWidget):
 
         self._undoStack.clear()
         self._ui.graphicsView.setLocation(workflow_dir)
-        self._graphicsScene.updateModel()
+        self._graphicsScene.update_model()
         self._update_ui()
 
     def newpmr(self):
@@ -449,7 +449,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             m = self._main_window.model().workflowManager()
             m.load(workflow_dir, self._graphicsScene.sceneRect())
             m.setPreviousLocation(workflow_dir)
-            self._graphicsScene.updateModel()
+            self._graphicsScene.update_model()
             self._ui.graphicsView.setLocation(workflow_dir)
             self._update_ui()
         except:
@@ -494,7 +494,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         workflow_dir = m.location()
         if m.set_location(workflow_dir):
             self._ui.graphicsView.setLocation(workflow_dir)
-            self._graphicsScene.updateModel()
+            self._graphicsScene.update_model()
 
     def _setLocation(self):
         location_set = False
@@ -504,7 +504,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             m.setPreviousLocation(workflow_dir)
             m.set_location(workflow_dir)
             self._ui.graphicsView.setLocation(workflow_dir)
-            self._graphicsScene.updateModel()
+            self._graphicsScene.update_model()
             location_set = True
 
         return location_set
