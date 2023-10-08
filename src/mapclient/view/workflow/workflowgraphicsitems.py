@@ -245,6 +245,7 @@ class Node(Item):
     def __init__(self, metastep):
         Item.__init__(self)
 
+        self._margin = 2.0
         self._metastep = metastep
         icon = self._metastep.getStep().getIcon()
         if not icon:
@@ -380,7 +381,7 @@ class Node(Item):
         super(Node, self).setPos(pos)
         scene = self.scene()
         if modify_parameterised:
-            self._parameterised_pos = convert_to_parameterised_position(scene.sceneRect(), pos)
+            self._parameterised_pos = convert_to_parameterised_position(scene.sceneRect(), pos, self.offset())
         self._metastep.setPos(pos)
 
     def set_parameterised_pos(self, parameterised_pos):
@@ -425,15 +426,17 @@ class Node(Item):
     def metaItem(self):
         return self._metastep
 
+    def offset(self):
+        return QtCore.QPointF(self._pixmap.width(), self._pixmap.height())
+
     def boundingRect(self):
-        adjust = 2.0
-        return QtCore.QRectF(-adjust, -adjust,
-                             self._pixmap.width() + 2 * adjust,
-                             self._pixmap.height() + 2 * adjust)
+        return QtCore.QRectF(-self._margin, -self._margin,
+                             self._pixmap.width() + 2 * self._margin,
+                             self._pixmap.height() + 2 * self._margin)
 
     def paint(self, painter, option, widget):
-        if option.state & QtWidgets.QStyle.State_Selected:  # or self.selected:
-            painter.setBrush(QtCore.Qt.darkGray)
+        if option.state & QtWidgets.QStyle.StateFlag.State_Selected:  # or self.selected:
+            painter.setBrush(QtCore.Qt.GlobalColor.darkGray)
             painter.drawRoundedRect(self.boundingRect(), 5, 5)
 
         #            super(Node, self).paint(painter, option, widget)
@@ -444,8 +447,8 @@ class Node(Item):
 
     def itemChange(self, change, value):
         if change == QtWidgets.QGraphicsItem.GraphicsItemChange.ItemPositionChange and self.scene():
-            return self.scene().ensureItemInScene(self, value)
-        elif change == QtWidgets.QGraphicsItem.ItemPositionHasChanged:
+            return self.scene().ensure_item_in_scene(self, value)
+        elif change == QtWidgets.QGraphicsItem.GraphicsItemChange.ItemPositionHasChanged:
             for port_item in self._step_port_items:
                 port_item.itemChange(change, value)
 

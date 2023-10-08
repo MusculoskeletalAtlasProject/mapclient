@@ -101,10 +101,12 @@ class MetricsLogger(object):
                 ]
             }
 
-            response = requests.post(self._base_url, json=event_data)
-
-            if not response.ok:
-                logger.info(f"Event response: {event['name']} - {response.status_code}")
+            try:
+                response = requests.post(self._base_url, json=event_data)
+                if not response.ok:
+                    logger.info(f"Event response: {event['name']} - {response.status_code}")
+            except requests.ConnectionError:
+                logger.info(f"Event logging failed: {event['name']}")
 
 
 metrics_logger = MetricsLogger()

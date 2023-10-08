@@ -22,7 +22,7 @@ import logging
 
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from mapclient.core.workflow.workflowutils import convert_to_parameterised_position, revert_parameterised_position
+from mapclient.core.workflow.workflowutils import revert_parameterised_position
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflow.workflowscene import MetaStep
 from mapclient.view.utils import is_light_mode
@@ -245,7 +245,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
                 node = self.create_node(scene, name)
 
                 self._undoStack.push(CommandAdd(scene, node))
-                self._undoStack.push(CommandMove(node, position, scene.ensureItemInScene(node, position)))
+                self._undoStack.push(CommandMove(node, position, scene.ensure_item_in_scene(node, position)))
 
                 node.setSelected(True)
 
@@ -511,7 +511,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         scene_rect = self.sceneRect()
         for item in self.items():
             if isinstance(item, Node):
-                new_position = revert_parameterised_position(scene_rect, item.parameterised_pos())
+                new_position = revert_parameterised_position(scene_rect, item.parameterised_pos(), item.offset())
                 item.setPos(new_position, False)
 
     def merge_macros(self):

@@ -119,30 +119,31 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
 
         self._previousSelection = self.selectedItems()
 
-    def ensureItemInScene(self, item, newPos):
+    def ensure_item_in_scene(self, item, new_pos):
         if self._is_ready:
             bRect = item.boundingRect()
-            xp1 = bRect.x() + newPos.x()
-            yp1 = bRect.y() + newPos.y()
-            xp2 = bRect.x() + bRect.width() + newPos.x()
-            yp2 = bRect.y() + bRect.height() + newPos.y()
+            xp1 = bRect.x() + new_pos.x()
+            yp1 = bRect.y() + new_pos.y()
+            xp2 = xp1 + bRect.width()
+            yp2 = yp1 + bRect.height()
             bRect.setCoords(xp1, yp1, xp2, yp2)
+            offset = item.offset()
             rect = self.sceneRect()
             if not rect.contains(bRect):
-                x1 = max(bRect.left(), rect.left()) + 2.0  # plus bounding rectangle adjust
-                x2 = min(bRect.x() + bRect.width(), rect.x() + rect.width()) - bRect.width() + 2.0
-                y1 = max(bRect.top(), rect.top()) + 2.0  # plus bounding rectangle adjust
-                y2 = min(bRect.bottom(), rect.bottom()) - bRect.height() + 2.0
-                if newPos.x() != x1:
-                    newPos.setX(x1)
-                elif newPos.x() != x2:
-                    newPos.setX(x2)
-                if newPos.y() != y1:
-                    newPos.setY(y1)
-                elif newPos.y() != y2:
-                    newPos.setY(y2)
+                x1 = max(bRect.left(), rect.left())
+                y1 = max(bRect.top(), rect.top())
+                x2 = min(bRect.right(), rect.right()) - offset.x()
+                y2 = min(bRect.bottom(), rect.bottom()) - offset.y()
+                if new_pos.x() <= x1:
+                    new_pos.setX(x1)
+                elif new_pos.x() >= x2:
+                    new_pos.setX(x2)
+                if new_pos.y() <= y1:
+                    new_pos.setY(y1)
+                elif new_pos.y() >= y2:
+                    new_pos.setY(y2)
 
-        return newPos
+        return new_pos
 
     def clear(self):
         QtWidgets.QGraphicsScene.clear(self)
