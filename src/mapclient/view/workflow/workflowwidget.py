@@ -459,6 +459,10 @@ class WorkflowWidget(QtWidgets.QWidget):
         om = self._main_window.model().optionsManager()
         om.setOption(PREVIOUS_WORKFLOW, workflow_dir)
 
+    def reload(self):
+        m = self._main_window.model().workflowManager()
+        self._load(m.location())
+
     def close(self):
         self._main_window.confirm_close()
         m = self._main_window.model().workflowManager()
