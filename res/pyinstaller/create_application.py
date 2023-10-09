@@ -24,7 +24,6 @@ def main(variant):
         # '--debug', 'noarchive',
         '--windowed',
         # '--console',
-        '--no-embed-manifest',
         '--noconfirm',
         '--hidden-import', 'scipy',
         '--hidden-import', 'scipy.interpolate',
