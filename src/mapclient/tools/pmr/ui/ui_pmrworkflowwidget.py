@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'pmrworkflowwidget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.4.1
+## Created by: Qt User Interface Compiler version 6.5.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -81,6 +81,7 @@ class Ui_PMRWorkflowWidget(object):
 
         self.lineEditWorkspace = QLineEdit(self.groupBox)
         self.lineEditWorkspace.setObjectName(u"lineEditWorkspace")
+        self.lineEditWorkspace.setReadOnly(True)
 
         self.horizontalLayout.addWidget(self.lineEditWorkspace)
 

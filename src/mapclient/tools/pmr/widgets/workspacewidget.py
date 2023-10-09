@@ -65,6 +65,7 @@ class WorkspaceWidget(QtWidgets.QWidget):
 
     def update_from_pmr(self):
         self._update_from_pmr()
+        self._workflow_widget.reload()
 
     @handle_runtime_error
     @set_wait_cursor
