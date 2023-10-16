@@ -305,8 +305,10 @@ class PMRTool(object):
         # r = session.get(target, allow_redirects=False)
 
         # For now, just post
-        r = session.post(target,
-            data=make_form_request('add',
+        r = session.post(
+            target,
+            data=make_form_request(
+                'add',
                 title=title,
                 description=description,
                 storage=storage,
