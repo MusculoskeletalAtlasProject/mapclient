@@ -11,6 +11,7 @@ _UA = 'pmr.jsonclient.Client/0.2'
 
 _DEFAULT_SCOPE = '{0}/scope/collection,{0}/scope/search,{0}/scope/workspace_full'
 
+
 def std_headers():
     h = {'Accept': _PROTOCOL,
          'Content-Type': _PROTOCOL,
@@ -35,8 +36,8 @@ class Client(object):
         self._scope = _DEFAULT_SCOPE.format(self._site)
         self.mismatched_content = None
         
-    def hasAccess(self):
-        return self._credential.hasAccess()
+    def has_access(self):
+        return self._credential.has_access()
     
     def clearAccess(self):
         self._credential.clearAccess()
@@ -49,7 +50,7 @@ class Client(object):
         """
         url = '%s/search' % self._site
         headers = std_headers()
-        if self.hasAccess():
+        if self.has_access():
             headers.update(self._credential.getAuthorization('POST', url))
             
         data = {'SearchableText': text, 'portal_type': 'Workspace'}
@@ -59,7 +60,7 @@ class Client(object):
     
     def addWorkspace(self, title=None, description=None):
         url = '%s/workspace/+/addWorkspace' % self._site
-        if not self.hasAccess():
+        if not self.has_access():
             return ''
         
         headers = std_headers()
@@ -94,7 +95,7 @@ class Client(object):
         secret = response_dict.get('oauth_token_secret', ['']).pop()
         self._credential.setAccess(key, secret)
         
-    def authorizationUrl(self, key):
+    def authorization_url(self, key):
         return '%s/%s?oauth_token=%s' % (self._site, OAuthCredential._AUTHORIZE_TOKEN, key)
     
     def setSite(self, site):
@@ -160,9 +161,7 @@ class Method(object):
         return errors
 
     def post(self, action, fields):
-        data = {}
-        data['actions'] = {action: '1'}
-        data['fields'] = fields
+        data = {'actions': {action: '1'}, 'fields': fields}
         result = self.context.getResponse(self.url, data)
         self.__init__(self.context, self.context.lasturl, result)
         return result

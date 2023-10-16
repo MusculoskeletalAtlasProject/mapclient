@@ -65,7 +65,7 @@ class PMRWorkflowWidget(QtWidgets.QWidget):
         self._updateUi()
 
     def _updateUi(self):
-        if self._pmrTool.hasAccess():
+        if self._pmrTool.has_access():
             self._ui.labelLink.setText('<a href="mapclient.deregister">deregister</a>')
         else:
             self._ui.labelLink.setText('<a href="mapclient.register">register</a>')

@@ -46,9 +46,9 @@ class PMRRegisterDialog(QtWidgets.QDialog):
     def _updateUi(self):
         pmr_info = PMR()
         self._pmr_tool.set_info(pmr_info)
-        if self._pmr_tool.isActive():
+        if self._pmr_tool.is_active():
             self._ui.pushButtonRegister.setEnabled(True)
-            if self._pmr_tool.hasAccess():
+            if self._pmr_tool.has_access():
                 self._ui.stackedWidgetRegister.setCurrentIndex(1)
             else:
                 self._ui.stackedWidgetRegister.setCurrentIndex(0)

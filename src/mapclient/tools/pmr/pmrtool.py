@@ -139,7 +139,7 @@ class PMRTool(object):
 
     def make_session(self):
 
-        if self.hasAccess():
+        if self.has_access():
             kwargs = self._pmr_info.get_session_kwargs()
             session = OAuth1Session(**kwargs)
         else:
@@ -153,10 +153,10 @@ class PMRTool(object):
         })
         return session
 
-    def hasAccess(self):
+    def has_access(self):
         return self._pmr_info.has_access()
 
-    def isActive(self):
+    def is_active(self):
         return True if self._pmr_info.activeHost() else False
 
     def deregister(self):
@@ -188,7 +188,6 @@ class PMRTool(object):
                 data=data,
             )
         r.raise_for_status()
-        print(r.json())
         return r.json()
 
     def search(self, text, search_type=plain_text_search_string):
@@ -201,7 +200,7 @@ class PMRTool(object):
             return self._search(text, search_type)
         except HTTPError as e:
             msg_403 = 'The configured PMR server may have disallowed searching.'
-            if self.hasAccess():
+            if self.has_access():
                 msg_403 = (
                     'Access credentials are no longer valid.  Please '
                     'deregister and register the application to renew access '
@@ -223,28 +222,30 @@ class PMRTool(object):
         except Exception as e:
             raise PMRToolError('Unexpected exception', str(e))
 
-    def _getObjectInfo(self, target_url):
+    def _get_object_info(self, target_url):
         session = self.make_session()
         r = session.get(target_url)
         r.raise_for_status()
         return r.json()
 
-    def getObjectInfo(self, target_url):
+    def get_object_info(self, target_url):
         try:
-            return self._getObjectInfo(target_url)
+            return self._get_object_info(target_url)
         except HTTPError as e:
-            raise PMRToolError('Remote server error',
+            raise PMRToolError(
+                'Remote server error',
                 'Server responded with an error message and MAP Client is '
                 'unable to continue the action.')
         except JSONDecodeError:
-            raise PMRToolError('Unexpected Server Response',
+            raise PMRToolError(
+                'Unexpected Server Response',
                 'The server returned an unexpected response that MAP Client '
                 'cannot process.')
         except Exception as e:
             raise PMRToolError('Unexpected exception', str(e))
 
-    def requestTemporaryPassword(self, workspace_url):
-        if not self.hasAccess():
+    def request_temporary_password(self, workspace_url):
+        if not self.has_access():
             return None
 
         session = self.make_session()
@@ -255,8 +256,8 @@ class PMRTool(object):
         r.raise_for_status()
         return r.json()
 
-    def authorizationUrl(self, key):
-        return self._client.authorizationUrl(key)
+    def authorization_url(self, key):
+        return self._client.authorization_url(key)
 
     def getDashboard(self):
         session = self.make_session()
@@ -332,7 +333,7 @@ class PMRTool(object):
 
         # Another caveat: that workspace is possibly private.  Acquire
         # temporary password.
-        creds = self.requestTemporaryPassword(remote_workspace_url)
+        creds = self.request_temporary_password(remote_workspace_url)
         if creds:
             stdout, stderr, return_code = workspace.cmd.pull(workspace,
                 username=creds['user'], password=creds['key'])
@@ -350,7 +351,7 @@ class PMRTool(object):
         Add the given workspace file in the remote workspace to the
         indexer for ontological searching.
         """
-        if not self.hasAccess():
+        if not self.has_access():
             return
 
         workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
@@ -374,10 +375,11 @@ class PMRTool(object):
         # links a non-pmr workspace dir to a remote workspace url.
         # prereq is that the remote must be new.
 
-        workspace_obj = self.getObjectInfo(remote_workspace_url)
+        workspace_obj = self.get_object_info(remote_workspace_url)
         cmd_cls = get_cmd_by_name(self._git_implementation)
         if cmd_cls is None:
-            raise PMRToolError('Remote storage format unsupported',
+            raise PMRToolError(
+                'Remote storage format unsupported',
                 'The remote storage `%(storage)s` is not one of the ones that '
                 'the MAP Client currently supports.' % workspace_obj)
 
@@ -408,7 +410,7 @@ class PMRTool(object):
 
         return False
 
-    def commitFiles(self, local_workspace_dir, message, files):
+    def commit_files(self, local_workspace_dir, message, files):
         workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
         cmd = workspace.cmd
         if cmd is None:
@@ -431,7 +433,7 @@ class PMRTool(object):
         if remote_workspace_url is None:
             remote_workspace_url = cmd.read_remote(workspace)
         # Acquire temporary creds
-        creds = self.requestTemporaryPassword(remote_workspace_url)
+        creds = self.request_temporary_password(remote_workspace_url)
 
         stdout, stderr, return_code = cmd.push(workspace, username=creds['user'], password=creds['key'])
 
@@ -450,7 +452,7 @@ class PMRTool(object):
         cmd = workspace.cmd
 
         remote_workspace_url = cmd.read_remote(workspace)
-        creds = self.requestTemporaryPassword(remote_workspace_url)
+        creds = self.request_temporary_password(remote_workspace_url)
         stdout, stderr, return_code = cmd.pull(workspace, username=creds['user'], password=creds['key'])
 
         if stdout:

@@ -53,7 +53,7 @@ class PMRSearchDialog(QtWidgets.QDialog):
         self._updateUi()
 
     def _updateUi(self):
-        if self._pmrTool.hasAccess():
+        if self._pmrTool.has_access():
             self._ui.loginStackedWidget.setCurrentIndex(1)
         else:
             self._ui.loginStackedWidget.setCurrentIndex(0)

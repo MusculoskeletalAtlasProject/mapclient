@@ -281,7 +281,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         if pmr:
             pmr_info = PMR()
             pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
-            if pmr_tool.hasAccess():
+            if pmr_tool.has_access():
                 dir_name = os.path.basename(workflow_dir)
                 try:
                     repourl = pmr_tool.addWorkspace('Workflow: ' + dir_name, None)
@@ -550,9 +550,7 @@ class WorkflowWidget(QtWidgets.QWidget):
                         if os.path.exists(step_directory):
                             workflow_files.append(step_directory)
 
-            pmr_tool.commitFiles(workflowDir, comment, workflow_files)
-            #                 [workflowDir + '/%s' % (DEFAULT_WORKFLOW_PROJECT_FILENAME),
-            #                  workflowDir + '/%s' % (DEFAULT_WORKFLOW_ANNOTATION_FILENAME)])  # XXX make/use file tracker
+            pmr_tool.commit_files(workflowDir, comment, workflow_files)
             if not commit_local:
                 pmr_tool.pushToRemote(workflowDir)
             committed_changes = True
