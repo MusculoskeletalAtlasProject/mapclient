@@ -126,6 +126,7 @@ class PMRTool(object):
     UA = 'pmr.jsonclient.Client/0.2'
 
     def __init__(self, pmr_info=None, use_external_git=False):
+        self._client = None
         self._termLookUpLimit = 32
         self.set_info(pmr_info)
         self.set_use_external_git(use_external_git)
@@ -356,7 +357,9 @@ class PMRTool(object):
         cmd = workspace.cmd
         remote_workspace_url = cmd.read_remote(workspace)
         target = '/'.join([remote_workspace_url, 'rdf_indexer'])
-#         {u'fields': {u'paths': {u'items': None, u'error': None, u'description': u'Paths that will be indexed as RDF.', u'value': u'', u'klass': u'textarea-widget list-field'}}, u'actions': {u'apply': {u'title': u'Apply'}, u'export_rdf': {u'title': u'Apply Changes and Export To RDF Store'}}}
+        # {u'fields': {u'paths': {u'items': None, u'error': None, u'description': u'Paths that will be indexed as RDF.',
+        #  u'value': u'', u'klass': u'textarea-widget list-field'}}, u'actions': {u'apply': {u'title': u'Apply'},
+        #  u'export_rdf': {u'title': u'Apply Changes and Export To RDF Store'}}}
         session = self.make_session()
         r = session.post(target,
             data=make_form_request('export_rdf',
@@ -415,7 +418,7 @@ class PMRTool(object):
         logger.info('Using `%s` for committing files.', cmd.__class__.__name__)
 
         for fn in files:
-            sout, serr, return_code = cmd.add(workspace, fn)
+            cmd.add(workspace, fn)
             # if serr has something we need to handle?
 
         # XXX committer will be a problem if unset in git.
@@ -430,8 +433,7 @@ class PMRTool(object):
         # Acquire temporary creds
         creds = self.requestTemporaryPassword(remote_workspace_url)
 
-        stdout, stderr, return_code = cmd.push(workspace,
-            username=creds['user'], password=creds['key'])
+        stdout, stderr, return_code = cmd.push(workspace, username=creds['user'], password=creds['key'])
 
         if stdout:
             logger.info(stdout)
@@ -449,8 +451,7 @@ class PMRTool(object):
 
         remote_workspace_url = cmd.read_remote(workspace)
         creds = self.requestTemporaryPassword(remote_workspace_url)
-        stdout, stderr, return_code = cmd.pull(workspace,
-            username=creds['user'], password=creds['key'])
+        stdout, stderr, return_code = cmd.pull(workspace, username=creds['user'], password=creds['key'])
 
         if stdout:
             logger.info(stdout)
@@ -458,4 +459,3 @@ class PMRTool(object):
             logger.info(stderr)
 
         return stdout, stderr
-
