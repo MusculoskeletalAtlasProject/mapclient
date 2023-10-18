@@ -27,21 +27,26 @@ class MetricsLogger(object):
     def set_client_id(self, client_id):
         self._client_id = client_id
 
-    def initial_permission_status(self, status):
-        event = {
-            "name": "permission_given",
-            "params": {
-                "value": status
-            }
-        }
+    def report_permission_status(self, status):
+        events = [
+            {
+                "name": "permission_given",
+                "params": {
+                    "value": status
+                }
+            },
+            {
+                "name": "location",
+                "params": _geolocate(),
+            }]
 
         self._permission = True
-        self._log_event(event)
+        self._log_event(events)
         self._permission = False
 
     def session_started(self):
         event = {
-           "name": "session_begin",
+            "name": "session_begin",
         }
 
         self._log_event(event)
@@ -84,29 +89,23 @@ class MetricsLogger(object):
 
         self._log_event(event)
 
-    def report_location(self):
-        event = {
-            "name": "location",
-            "params": _geolocate(),
-        }
-
-        self._log_event(event)
-
-    def _log_event(self, event):
+    def _log_event(self, events):
         if self._permission:
+            if not isinstance(events, list):
+                events = [events]
             event_data = {
                 "client_id": self._client_id,
-                "events": [
-                    event
-                ]
+                "events": events,
             }
 
             try:
                 response = requests.post(self._base_url, json=event_data)
                 if not response.ok:
-                    logger.info(f"Event response: {event['name']} - {response.status_code}")
+                    for event in events:
+                        logger.info(f"Event response: {event['name']} - {response.status_code}")
             except requests.ConnectionError:
-                logger.info(f"Event logging failed: {event['name']}")
+                for event in events:
+                    logger.info(f"Event logging failed: {event['name']}")
 
 
 metrics_logger = MetricsLogger()

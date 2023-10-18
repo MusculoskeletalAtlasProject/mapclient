@@ -251,8 +251,7 @@ class MainWindow(QtWidgets.QMainWindow):
             permission = self._request_metrics_permission()
             om.setOption(METRICS_PERMISSION, permission)
             om.setOption(METRICS_PERMISSION_ATTAINED, permissions)
-            metrics_logger.initial_permission_status(permission)
-            metrics_logger.report_location()
+            metrics_logger.report_permission_status(permission)
 
         self.apply_permission_settings()
 

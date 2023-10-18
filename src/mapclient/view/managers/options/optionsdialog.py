@@ -7,12 +7,17 @@ import os.path
 
 from PySide6 import QtWidgets
 
+from mapclient.core.metrics import metrics_logger
 from mapclient.view.managers.options.ui.ui_optionsdialog import Ui_OptionsDialog
 
 from mapclient.core.checks import WizardToolChecks, VCSChecks
 from mapclient.view.utils import SyntaxHighlighter
 from mapclient.settings.definitions import VIRTUAL_ENVIRONMENT_STRING, \
     WIZARD_TOOL_STRING, PMR_TOOL_STRING, INTERNAL_WORKFLOWS_AVAILABLE
+
+
+def _metrics_permission_clicked(value):
+    metrics_logger.report_permission_status(value)
 
 
 class OptionsDialog(QtWidgets.QDialog):
@@ -47,6 +52,7 @@ class OptionsDialog(QtWidgets.QDialog):
         self._ui.checkBoxUseExternalPySideRCC.clicked.connect(self._use_external_star_clicked)
         self._ui.checkBoxUseExternalPySideUIC.clicked.connect(self._use_external_star_clicked)
         self._ui.pushButtonInternalWorkflowDirectory.clicked.connect(self._internal_workflow_directory_button_clicked)
+        self._ui.checkBoxMetricsPermission.clicked.connect(_metrics_permission_clicked)
 
     def _update_ui(self):
         self._ui.lineEditGitExecutable.setEnabled(self._ui.checkBoxUseExternalGit.isChecked())
