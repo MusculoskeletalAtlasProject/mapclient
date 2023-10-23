@@ -85,7 +85,7 @@ class ErrorItem(QtWidgets.QGraphicsItem):
         self._sourcePoint = line.p1() + arcOffset
         self._destPoint = line.p2() - arcOffset
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, option, widget=None):
         midPoint = (self._destPoint + self._sourcePoint) / 2
         # Draw the line itself.
         line = QtCore.QLineF(self._sourcePoint, self._destPoint)
@@ -93,7 +93,8 @@ class ErrorItem(QtWidgets.QGraphicsItem):
         if line.length() == 0.0:
             return
 
-        painter.setPen(QtGui.QPen(QtCore.Qt.GlobalColor.black, 1, QtCore.Qt.PenStyle.DashLine, QtCore.Qt.PenCapStyle.RoundCap, QtCore.Qt.PenJoinStyle.RoundJoin))
+        brush_colour = QtCore.Qt.GlobalColor.black if is_light_mode() else QtCore.Qt.GlobalColor.gray
+        painter.setPen(QtGui.QPen(brush_colour, 1, QtCore.Qt.PenStyle.DashLine, QtCore.Qt.PenCapStyle.RoundCap, QtCore.Qt.PenJoinStyle.RoundJoin))
         painter.drawLine(line)
 
         painter.drawPixmap(midPoint.x() - 8, midPoint.y() - 8, self._pixmap)
@@ -192,7 +193,7 @@ class Arc(Item):
 
         return sceneRect
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, option, widget=None):
         if not self._source() or not self._dest():
             return
 
@@ -434,7 +435,7 @@ class Node(Item):
                              self._pixmap.width() + 2 * self._margin,
                              self._pixmap.height() + 2 * self._margin)
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, option, widget=None):
         if option.state & QtWidgets.QStyle.StateFlag.State_Selected:  # or self.selected:
             painter.setBrush(QtCore.Qt.GlobalColor.darkGray)
             painter.drawRoundedRect(self.boundingRect(), 5, 5)
@@ -474,7 +475,7 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
         self._pixmap = QtGui.QPixmap(':/workflow/images/icon-port.png')
         # .scaled(11, 11, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, option, widget=None):
         painter.drawPixmap(0, 0, self._pixmap)
 
     def type(self):
@@ -591,7 +592,7 @@ class StepText(QtWidgets.QGraphicsTextItem):
     def setText(self, text):
         self.setPlainText(text)
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, option, widget=None):
         painter.eraseRect(self.boundingRect())
         # painter.setBrush(QtCore.Qt.white)
         painter.drawRoundedRect(self.boundingRect(), 5, 5)
@@ -606,7 +607,7 @@ class MercurialIcon(QtWidgets.QGraphicsItem):
             .scaled(24, 24, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
         self.setToolTip('The repository has been modified')
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, option, widget=None):
         painter.drawPixmap(0, 0, self._hg_yellow)
 
     def boundingRect(self):
@@ -632,7 +633,7 @@ class ConfigureIcon(QtWidgets.QGraphicsItem):
     def setConfigured(self, state):
         self._configured = state
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, option, widget=None):
         pixmap = self._configure_red
         if self._configured:
             pixmap = self._configure_green
@@ -666,7 +667,7 @@ class ArrowLine(QtWidgets.QGraphicsLineItem):
                                            line.p2().y() - line.p1().y())).normalized().adjusted(-extra, -extra, extra,
                                                                                                  extra)
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, option, widget=None):
         super(ArrowLine, self).paint(painter, option, widget)
 
         line = self.line()
@@ -686,6 +687,7 @@ class ArrowLine(QtWidgets.QGraphicsLineItem):
             destination_arrow_p2 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize,
                                                              math.cos(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize)
 
-            painter.setBrush(QtCore.Qt.GlobalColor.black)
+            brush_colour = QtCore.Qt.GlobalColor.black if is_light_mode() else QtCore.Qt.GlobalColor.gray
+            painter.setBrush(brush_colour)
             #        painter.drawPolygon(QtGui.QPolygonF([line.p1(), sourceArrowP1, sourceArrowP2]))
             painter.drawPolygon(QtGui.QPolygonF([midPoint, destination_arrow_p1, destination_arrow_p2]))
