@@ -107,8 +107,8 @@ class Item(QtWidgets.QGraphicsItem):
 
     def __init__(self):
         QtWidgets.QGraphicsItem.__init__(self)
-
         self.setFlag(QtWidgets.QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
+        self._brush_colour = QtCore.Qt.GlobalColor.black if is_light_mode() else QtCore.Qt.GlobalColor.gray
 
     def setSelected(self, selected):
         QtWidgets.QGraphicsItem.setSelected(self, selected)
@@ -206,10 +206,8 @@ class Arc(Item):
         if option.state & QtWidgets.QStyle.StateFlag.State_Selected:  # or self.selected:
             painter.setBrush(QtCore.Qt.GlobalColor.darkGray)
             painter.drawRoundedRect(self.boundingRect(), 5, 5)
-        #            brush = QtGui.QBrush(QtCore.Qt.red)
 
-        brush_colour = QtCore.Qt.GlobalColor.black if is_light_mode() else QtCore.Qt.GlobalColor.gray
-        brush = QtGui.QBrush(brush_colour)
+        brush = QtGui.QBrush(self._brush_colour)
         painter.setBrush(brush)
 
         angle = math.acos(line.dx() / line.length())
@@ -469,7 +467,6 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
 
     def __init__(self, port, parent):
         super(StepPort, self).__init__(0, 0, 11, 11, parent=parent)
-        self.setBrush(QtCore.Qt.GlobalColor.black)
         self._port = port
         self._connections = []
         self._pixmap = QtGui.QPixmap(':/workflow/images/icon-port.png')
@@ -657,6 +654,8 @@ class ArrowLine(QtWidgets.QGraphicsLineItem):
         super(ArrowLine, self).__init__(*args, **kwargs)
         self._arrowSize = 10.0
         self.setZValue(-2.0)
+        self._brush_colour = QtCore.Qt.GlobalColor.black if is_light_mode() else QtCore.Qt.GlobalColor.gray
+        self.setPen(QtGui.QPen(self._brush_colour, 1, QtCore.Qt.PenStyle.SolidLine, QtCore.Qt.PenCapStyle.RoundCap, QtCore.Qt.PenJoinStyle.RoundJoin))
 
     def boundingRect(self):
         penWidth = 1
@@ -687,7 +686,5 @@ class ArrowLine(QtWidgets.QGraphicsLineItem):
             destination_arrow_p2 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize,
                                                              math.cos(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize)
 
-            brush_colour = QtCore.Qt.GlobalColor.black if is_light_mode() else QtCore.Qt.GlobalColor.gray
-            painter.setBrush(brush_colour)
-            #        painter.drawPolygon(QtGui.QPolygonF([line.p1(), sourceArrowP1, sourceArrowP2]))
+            painter.setBrush(self._brush_colour)
             painter.drawPolygon(QtGui.QPolygonF([midPoint, destination_arrow_p1, destination_arrow_p2]))
