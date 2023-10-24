@@ -53,9 +53,9 @@ class AuthoriseApplicationDialog(QtWidgets.QDialog):
         if event.type() == QtCore.QEvent.ShowToParent:
             answer = QtWidgets.QMessageBox.question(self, 'Permission Required',
                                                     'Can the MAP Client access PMR on your behalf?',
-                                                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-                                                    QtWidgets.QMessageBox.Yes)
-            if answer == QtWidgets.QMessageBox.No:
+                                                    QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No,
+                                                    QtWidgets.QMessageBox.StandardButton.Yes)
+            if answer == QtWidgets.QMessageBox.StandardButton.No:
                 self.reject()
             else:
                 self._show_pmr()
