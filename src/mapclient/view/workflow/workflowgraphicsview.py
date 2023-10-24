@@ -54,6 +54,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
         self._connectLine = None
         self._connectSourceNode = None
+        self._connectPotentialTarget = None
 
         self._selectionStartPos = None
 
@@ -309,6 +310,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         elif item and item.type() == StepPort.Type:
             centre = item.boundingRect().center()
             self._connectSourceNode = item
+
             self._connectLine = ArrowLine(QtCore.QLineF(item.mapToScene(centre),
                                                         self.mapToScene(event.pos())))
             self.scene().addItem(self._connectLine)
@@ -319,6 +321,15 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
     def mouseMoveEvent(self, event):
         if self._connectLine:
             newLine = QtCore.QLineF(self._connectLine.line().p1(), self.mapToScene(event.pos()))
+            item = self.scene().itemAt(self.mapToScene(event.pos()), QtGui.QTransform())
+            if item and item.type() == StepPort.Type:
+                if self._connectSourceNode != item:
+                    self._connectPotentialTarget = item
+                    item.highlight(True)
+            elif self._connectPotentialTarget:
+                self._connectPotentialTarget.highlight(False)
+                self._connectPotentialTarget = None
+
             self._connectLine.setLine(newLine)
         else:
             QtWidgets.QGraphicsView.mouseMoveEvent(self, event)
@@ -333,8 +344,12 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             if item and item.type() == StepPort.Type:
                 self.connectNodes(self._connectSourceNode, item)
             self.scene().removeItem(self._connectLine)
+            if self._connectPotentialTarget:
+                self._connectPotentialTarget.highlight(False)
+
             self._connectLine = None
             self._connectSourceNode = None
+            self._connectPotentialTarget = None
         else:
             QtWidgets.QGraphicsView.mouseReleaseEvent(self, event)
             if self._selectionStartPos:

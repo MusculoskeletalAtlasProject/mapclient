@@ -470,10 +470,27 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
         self._port = port
         self._connections = []
         self._pixmap = QtGui.QPixmap(':/workflow/images/icon-port.png')
+        self.setAcceptHoverEvents(True)
+        self._highlight = False
         # .scaled(11, 11, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
+
+    def hoverEnterEvent(self, event):
+        self._highlight = True
+        self.update()
+
+    def hoverLeaveEvent(self, event):
+        self._highlight = False
+        self.update()
+
+    def highlight(self, state):
+        self._highlight = state
+        self.update()
 
     def paint(self, painter, option, widget=None):
         painter.drawPixmap(0, 0, self._pixmap)
+        if self._highlight:
+            painter.setPen(QtCore.Qt.GlobalColor.yellow)
+            painter.drawRoundedRect(self.boundingRect(), 5, 5)
 
     def type(self):
         return StepPort.Type
