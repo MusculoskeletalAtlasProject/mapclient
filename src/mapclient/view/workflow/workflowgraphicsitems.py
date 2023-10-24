@@ -126,9 +126,11 @@ class Arc(Item):
 
     def __init__(self, sourceNode, destNode):
         Item.__init__(self)
+        self.setAcceptHoverEvents(True)
 
         self._arrowSize = 10.0
         self._arrow = QtGui.QPolygonF()
+        self._highlight = False
 
         self._connection = Connection(sourceNode.parentItem()._metastep, sourceNode.portIndex(),
                                       destNode.parentItem()._metastep, destNode.portIndex())
@@ -146,6 +148,14 @@ class Arc(Item):
 
     def type(self):
         return Arc.Type
+
+    def hoverEnterEvent(self, event):
+        self._highlight = True
+        self.update()
+
+    def hoverLeaveEvent(self, event):
+        self._highlight = False
+        self.update()
 
     def metaItem(self):
         return self._connection
@@ -227,6 +237,8 @@ class Arc(Item):
             self._arrow.append(midPoint)
             self._arrow.append(destination_arrow_p1)
             self._arrow.append(destination_arrow_p2)
+            if self._highlight:
+                painter.setPen(QtGui.QPen(QtCore.Qt.GlobalColor.yellow, 2))
             painter.drawPolygon(self._arrow)
 
         painter.setPen(QtGui.QPen(brush, 1, QtCore.Qt.PenStyle.SolidLine, QtCore.Qt.PenCapStyle.RoundCap, QtCore.Qt.PenJoinStyle.RoundJoin))
@@ -466,12 +478,12 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
     Type = QtWidgets.QGraphicsItem.UserType + 3
 
     def __init__(self, port, parent):
-        super(StepPort, self).__init__(0, 0, 11, 11, parent=parent)
+        super().__init__(0, 0, 11, 11, parent=parent)
         self._port = port
         self._connections = []
-        self._pixmap = QtGui.QPixmap(':/workflow/images/icon-port.png')
         self.setAcceptHoverEvents(True)
         self._highlight = False
+        self._pixmap = QtGui.QPixmap(':/workflow/images/icon-port.png')
         # .scaled(11, 11, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
 
     def hoverEnterEvent(self, event):
@@ -482,10 +494,6 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
         self._highlight = False
         self.update()
 
-    def highlight(self, state):
-        self._highlight = state
-        self.update()
-
     def paint(self, painter, option, widget=None):
         painter.drawPixmap(0, 0, self._pixmap)
         if self._highlight:
@@ -494,6 +502,10 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
 
     def type(self):
         return StepPort.Type
+
+    def highlight(self, state):
+        self._highlight = state
+        self.update()
 
     def connections(self):
         return self._connections
@@ -620,6 +632,7 @@ class MercurialIcon(QtWidgets.QGraphicsItem):
         self._hg_yellow = QtGui.QPixmap(':/workflow/images/modified_repo.png') \
             .scaled(24, 24, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
         self.setToolTip('The repository has been modified')
+        self._highlight = False
 
     def paint(self, painter, option, widget=None):
         painter.drawPixmap(0, 0, self._hg_yellow)
@@ -639,6 +652,8 @@ class ConfigureIcon(QtWidgets.QGraphicsItem):
 
     def __init__(self, *args, **kwargs):
         super(ConfigureIcon, self).__init__(*args, **kwargs)
+        self.setAcceptHoverEvents(True)
+        self._highlight = False
         self._configured = False
         self._configure_green = QtGui.QPixmap(':/workflow/images/configure_green.png').scaled(24, 24, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
         self._configure_red = QtGui.QPixmap(':/workflow/images/configure_red.png').scaled(24, 24, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
@@ -647,12 +662,23 @@ class ConfigureIcon(QtWidgets.QGraphicsItem):
     def setConfigured(self, state):
         self._configured = state
 
+    def hoverEnterEvent(self, event):
+        self._highlight = True
+        self.update()
+
+    def hoverLeaveEvent(self, event):
+        self._highlight = False
+        self.update()
+
     def paint(self, painter, option, widget=None):
         pixmap = self._configure_red
         if self._configured:
             pixmap = self._configure_green
 
         painter.drawPixmap(0, 0, pixmap)
+        if self._highlight:
+            painter.setPen(QtCore.Qt.GlobalColor.yellow)
+            painter.drawRoundedRect(self.boundingRect(), 12, 12)
 
     def boundingRect(self):
         return QtCore.QRectF(0, 0, 24, 24)

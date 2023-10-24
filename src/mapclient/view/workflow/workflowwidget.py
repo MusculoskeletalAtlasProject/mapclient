@@ -241,13 +241,10 @@ class WorkflowWidget(QtWidgets.QWidget):
 
         if m.exists(workflowDir):
             # Check to make sure user wishes to overwrite existing workflow.
-            ret = QtWidgets.QMessageBox.warning(self,
-                                                'Replace Existing Workflow',
-                                                'A Workflow already exists at this location.  '
-                                                'Do you want to replace this Workflow?',
-                                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-            # (QtGui.QMessageBox.Warning, '')
-            if ret == QtWidgets.QMessageBox.No:
+            ret = QtWidgets.QMessageBox.warning(
+                self, 'Replace Existing Workflow', 'A Workflow already exists at this location.  Do you want to replace this Workflow?',
+                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            if ret == QtWidgets.QMessageBox.StandardButton.No:
                 # user abort
                 return ''
             else:
