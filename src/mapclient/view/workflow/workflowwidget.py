@@ -597,7 +597,7 @@ class WorkflowWidget(QtWidgets.QWidget):
     def import_cfg(self):
         m = self._main_window.model().workflowManager()
         import_zip, _ = QtWidgets.QFileDialog.getOpenFileName(self._main_window, caption='Select Import File', dir=m.previousLocation(),
-                                                              filter="Data files(*.zip)")
+                                                              filter=f"Data files(*.zip);MAP Client Project file({DEFAULT_WORKFLOW_PROJECT_FILENAME})")
 
         if len(import_zip) > 0:
             dlg = ImportConfigDialog(import_zip, self._graphicsScene, self)
@@ -626,9 +626,9 @@ class WorkflowWidget(QtWidgets.QWidget):
             cfg_files.extend(glob.glob(files))
 
         # Check the workflow-steps for additional config files.
-        for workflowitem in list(m.scene().items()):
-            if workflowitem.Type == MetaStep.Type:
-                cfg_files.extend(workflowitem.getStep().getAdditionalConfigFiles())
+        for workflow_item in list(m.scene().items()):
+            if workflow_item.Type == MetaStep.Type:
+                cfg_files.extend(workflow_item.getStep().getAdditionalConfigFiles())
 
         # Zip files and store in export destination.
         if export_zip:

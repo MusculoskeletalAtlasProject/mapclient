@@ -83,7 +83,7 @@ class ImportWorkflowDialog(QtWidgets.QDialog):
         if os.path.exists(destination_dir) and workspace_url:
             return QtWidgets.QDialog.accept(self, *args, **kwargs)
         else:
-            QtWidgets.QMessageBox.critical(self, 'Error Caught', f"Invalid Import Settings.  Either the workspace url '{workspace_url}' was not set"
+            QtWidgets.QMessageBox.critical(self, 'Error Caught', f"Invalid Import Workflow Settings.  Either the workspace url '{workspace_url}' was not set"
                                                                  f" or the destination directory '{destination_dir}' does not exist. ")
 
     def _set_destination(self):
