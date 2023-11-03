@@ -625,10 +625,14 @@ class WorkflowWidget(QtWidgets.QWidget):
         for files in types:
             cfg_files.extend(glob.glob(files))
 
+        def _workflow_relative_path(filename):
+            return os.path.relpath(filename, workflow_dir)
+
         # Check the workflow-steps for additional config files.
         for workflow_item in list(m.scene().items()):
             if workflow_item.Type == MetaStep.Type:
-                cfg_files.extend(workflow_item.getStep().getAdditionalConfigFiles())
+                additional_config_files = workflow_item.getStep().getAdditionalConfigFiles()
+                cfg_files.extend([_workflow_relative_path(file) for file in additional_config_files])
 
         # Zip files and store in export destination.
         if export_zip:

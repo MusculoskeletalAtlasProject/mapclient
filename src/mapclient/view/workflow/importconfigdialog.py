@@ -1,4 +1,6 @@
 import os
+import shutil
+
 import numpy
 import zipfile
 import tempfile
@@ -6,8 +8,7 @@ import tempfile
 from PySide6 import QtCore, QtWidgets
 from packaging import version
 
-from mapclient.settings import version as app_version, info
-from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME
+from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME, VERSION_STRING
 from mapclient.core.utils import load_configuration
 from mapclient.core.workflow.workflowitems import MetaStep
 from mapclient.view.workflow.workflowgraphicsitems import Node
@@ -28,8 +29,11 @@ class ImportConfigDialog(QtWidgets.QDialog):
         self._undo_stack = self._graphics_scene.getUndoStack()
 
         self._step_map = None
-        self._setup_step_map()
-        self._setup_grid_layout()
+        if self._check_compatibility():
+            self._setup_step_map()
+            self._setup_grid_layout()
+        else:
+            self._ui.pushButtonImport.setEnabled(False)
 
         self._make_connections()
 
@@ -89,15 +93,20 @@ class ImportConfigDialog(QtWidgets.QDialog):
             # If the lists of step names match, assign a one-to-one mapping of step indices.
             self._step_map["Selected"] = import_steps["ID"]
 
-    def _setup_step_map(self):
+    def _check_compatibility(self):
         import_proj = self._import_settings()
-
         # Check for version compatibility.
         import_version = version.parse(import_proj.value('version'))
-        application_version = version.parse(info.VERSION_STRING)
-        if _compatible_versions(import_version, application_version):
+        application_version = version.parse(VERSION_STRING)
+        if not _compatible_versions(import_version, application_version):
             QtWidgets.QMessageBox.warning(self, 'Different Workflow Versions', f'The version of the imported workflow ({import_version})'
                                           f' is not compatible with this version of the MAP Client ({application_version}).')
+            return False
+
+        return True
+
+    def _setup_step_map(self):
+        import_proj = self._import_settings()
 
         node_count = len([_ for _ in self._workflow_scene.items() if (_.Type == MetaStep.Type)])
         import_steps = self._determine_import_steps(import_proj)
@@ -128,21 +137,51 @@ class ImportConfigDialog(QtWidgets.QDialog):
 
             grid_layout.addWidget(combo_box, i + 1, 2)
 
-    def _do_import(self, configuration_dir, node_dict, step_dict):
+    def _do_import(self, configuration_dir, node_dict):
         self._undo_stack.beginMacro('Import Configurations')
         for row_index in range(len(self._step_map)):
             current_text = self._step_map[row_index]["Selected"]
             if current_text != '':
                 identifier = self._step_map[row_index]["ID"]
+                node = node_dict[identifier]
 
-                self._graphics_scene.setConfigureNode(node_dict[identifier])
+                self._graphics_scene.setConfigureNode(node)
 
                 configuration = load_configuration(configuration_dir, current_text)
-                step_dict[identifier].deserialize(configuration)
+                meta_step = node.metaItem()
+                step = meta_step.getStep()
+                current_step_location = step.getLocation()
+                step.setLocation(configuration_dir)
+                step.deserialize(configuration)
 
-                for additional_cfg_file in step_dict[identifier].getAdditionalConfigFiles():
-                    # TODO: Load any additional configuration files.
-                    print('have not loaded additional cfg file.', additional_cfg_file)
+                # print(f'{current_text} ==> {identifier}')
+                # print('current location:', current_step_location)
+                # print('source step location:', step.getLocation())
+                for additional_cfg_file in step.getAdditionalConfigFiles():
+                    target_cfg_dir = os.path.dirname(additional_cfg_file)
+                    if os.path.isabs(additional_cfg_file):
+                        relative_dir = os.path.relpath(configuration_dir, target_cfg_dir)
+                        source_cfg_file = additional_cfg_file
+                    else:
+                        source_cfg_file = os.path.join(configuration_dir, additional_cfg_file)
+                        relative_dir = target_cfg_dir
+
+                    source_basename = os.path.basename(additional_cfg_file)
+                    source_workflow_relative_cfg = os.path.join(relative_dir, source_basename)
+
+                    target_cfg_file = os.path.realpath(os.path.join(current_step_location, source_workflow_relative_cfg))
+                    # print('reported cfg file.', additional_cfg_file)
+                    # print('source cfg file.', source_cfg_file)
+                    # print('target cfg file.', target_cfg_file)
+                    # print('is file:', os.path.isfile(source_cfg_file))
+                    if os.path.isfile(source_cfg_file):
+                        required_path = os.path.join(current_step_location, relative_dir)
+                        if not os.path.exists(required_path):
+                            os.makedirs(required_path)
+                        shutil.copyfile(source_cfg_file, target_cfg_file)
+
+                step.setLocation(current_step_location)
+                self._workflow_scene.changeIdentifier(meta_step)
 
                 # This method adds the change in configuration to the undo-redo stack.
                 self._graphics_scene.stepConfigured()
@@ -152,26 +191,33 @@ class ImportConfigDialog(QtWidgets.QDialog):
         self._update_step_map()
 
         # Import the new configurations into the workflow steps.
-        step_dict = {}
         node_dict = {}
         for node in self._graphics_scene.items():
             if hasattr(node, 'Type') and node.Type == Node.Type:
                 identifier = node.metaItem().getIdentifier()
-                step = node.metaItem().getStep()
-                step_dict[identifier] = step
                 node_dict[identifier] = node
 
         if zipfile.is_zipfile(self._import_source):
             with zipfile.ZipFile(self._import_source, mode="r") as archive:
                 with tempfile.TemporaryDirectory() as temp_dir:
                     archive.extractall(temp_dir)
-                    self._do_import(temp_dir, node_dict, step_dict)
+                    self._do_import(temp_dir, node_dict)
         else:
-            self._do_import(self._import_source, node_dict, step_dict)
+            self._do_import(os.path.dirname(self._import_source), node_dict)
 
         QtWidgets.QMessageBox.information(self, "Configurations Imported",
                                           "The selected configurations have been successfully imported.")
 
 
+def _matches_major_minor_version(test_version, target_version):
+    return test_version.major == target_version.major and test_version.minor == target_version.minor
+
+
 def _compatible_versions(import_settings_version, application_version):
+    if _matches_major_minor_version(import_settings_version, version.Version("0.20.0")) and import_settings_version <= application_version:
+        return True
+
+    if _matches_major_minor_version(import_settings_version, version.Version("0.19.0")) and import_settings_version <= application_version:
+        return True
+
     return False

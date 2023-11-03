@@ -65,6 +65,11 @@ class WorkflowScene(object):
 
         return update_made
 
+    def changeIdentifier(self, meta_step):
+        if meta_step.getIdentifier() and meta_step.getStepIdentifier():
+            self._manager.changeIdentifier(meta_step.getIdentifier(), meta_step.getStepIdentifier())
+        meta_step.syncIdentifier()
+
     def saveState(self, ws):
         connectionMap = {}
         stepList = []
@@ -88,9 +93,7 @@ class WorkflowScene(object):
         nodeIndex = 0
         for metastep in stepList:
             if metastep.hasIdentifierChanged():
-                if metastep.getIdentifier() and metastep.getStepIdentifier():
-                    self._manager.changeIdentifier(metastep.getIdentifier(), metastep.getStepIdentifier())
-                metastep.syncIdentifier()
+                self.changeIdentifier(metastep)
 
             identifier = metastep.getIdentifier() or metastep.getUniqueIdentifier()
             step = metastep.getStep()
