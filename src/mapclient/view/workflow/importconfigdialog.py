@@ -163,8 +163,8 @@ class ImportConfigDialog(QtWidgets.QDialog):
                         relative_dir = os.path.relpath(configuration_dir, target_cfg_dir)
                         source_cfg_file = additional_cfg_file
                     else:
-                        source_cfg_file = os.path.join(configuration_dir, additional_cfg_file)
                         relative_dir = target_cfg_dir
+                        source_cfg_file = os.path.join(configuration_dir, additional_cfg_file)
 
                     source_basename = os.path.basename(additional_cfg_file)
                     source_workflow_relative_cfg = os.path.join(relative_dir, source_basename)
