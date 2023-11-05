@@ -19,6 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import os
 import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -148,6 +149,27 @@ def load_configuration(location, identifier):
     except Exception:
         pass
     return configuration
+
+
+def copy_step_additional_config_files(step, source_configuration_dir, target_configuration_dir):
+    for additional_cfg_file in step.getAdditionalConfigFiles():
+        source_cfg_dir = os.path.dirname(additional_cfg_file)
+        if os.path.isabs(additional_cfg_file):
+            relative_dir = os.path.relpath(source_configuration_dir, source_cfg_dir)
+            source_cfg_file = additional_cfg_file
+        else:
+            relative_dir = source_cfg_dir
+            source_cfg_file = os.path.join(source_configuration_dir, additional_cfg_file)
+
+        source_basename = os.path.basename(additional_cfg_file)
+        source_workflow_relative_cfg = os.path.join(relative_dir, source_basename)
+
+        target_cfg_file = os.path.realpath(os.path.join(target_configuration_dir, source_workflow_relative_cfg))
+        if os.path.isfile(source_cfg_file):
+            required_path = os.path.join(target_configuration_dir, relative_dir)
+            if not os.path.exists(required_path):
+                os.makedirs(required_path)
+            shutil.copyfile(source_cfg_file, target_cfg_file)
 
 
 class FileTypeObject(object):

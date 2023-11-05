@@ -9,7 +9,7 @@ from PySide6 import QtCore, QtWidgets
 from packaging import version
 
 from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME, VERSION_STRING
-from mapclient.core.utils import load_configuration
+from mapclient.core.utils import load_configuration, copy_step_additional_config_files
 from mapclient.core.workflow.workflowitems import MetaStep
 from mapclient.view.workflow.workflowgraphicsitems import Node
 from mapclient.view.workflow.ui.ui_importconfigdialog import Ui_ImportConfigDialog
@@ -153,33 +153,7 @@ class ImportConfigDialog(QtWidgets.QDialog):
                 current_step_location = step.getLocation()
                 step.setLocation(configuration_dir)
                 step.deserialize(configuration)
-
-                # print(f'{current_text} ==> {identifier}')
-                # print('current location:', current_step_location)
-                # print('source step location:', step.getLocation())
-                for additional_cfg_file in step.getAdditionalConfigFiles():
-                    target_cfg_dir = os.path.dirname(additional_cfg_file)
-                    if os.path.isabs(additional_cfg_file):
-                        relative_dir = os.path.relpath(configuration_dir, target_cfg_dir)
-                        source_cfg_file = additional_cfg_file
-                    else:
-                        relative_dir = target_cfg_dir
-                        source_cfg_file = os.path.join(configuration_dir, additional_cfg_file)
-
-                    source_basename = os.path.basename(additional_cfg_file)
-                    source_workflow_relative_cfg = os.path.join(relative_dir, source_basename)
-
-                    target_cfg_file = os.path.realpath(os.path.join(current_step_location, source_workflow_relative_cfg))
-                    # print('reported cfg file.', additional_cfg_file)
-                    # print('source cfg file.', source_cfg_file)
-                    # print('target cfg file.', target_cfg_file)
-                    # print('is file:', os.path.isfile(source_cfg_file))
-                    if os.path.isfile(source_cfg_file):
-                        required_path = os.path.join(current_step_location, relative_dir)
-                        if not os.path.exists(required_path):
-                            os.makedirs(required_path)
-                        shutil.copyfile(source_cfg_file, target_cfg_file)
-
+                copy_step_additional_config_files(step, configuration_dir, current_step_location)
                 step.setLocation(current_step_location)
                 self._workflow_scene.changeIdentifier(meta_step)
 

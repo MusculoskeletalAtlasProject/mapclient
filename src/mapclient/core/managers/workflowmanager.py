@@ -39,7 +39,7 @@ _PREVIOUS_LOCATION_STRING = 'previousLocation'
 
 
 def _get_workflow_configuration(location):
-    return QtCore.QSettings(_get_workflow_configuration_absolute_filename(location), QtCore.QSettings.IniFormat)
+    return QtCore.QSettings(_get_workflow_configuration_absolute_filename(location), QtCore.QSettings.Format.IniFormat)
 
 
 def _get_workflow_requirements(location):
@@ -115,7 +115,7 @@ class WorkflowManager(object):
 
     def updateAvailableSteps(self):
         self._steps.reload()
-        self._filtered_steps.sort(1, QtCore.Qt.AscendingOrder)
+        self._filtered_steps.sort(1, QtCore.Qt.SortOrder.AscendingOrder)
 
     def undoStackIndexChanged(self, index):
         self._currentStateIndex = index
@@ -156,21 +156,47 @@ class WorkflowManager(object):
     def _checkRequirements(self):
         requirements_file = _get_workflow_requirements_absolute_filename(self._location)
 
+    @staticmethod
+    def _check_workflow_location(location):
+        if location is None:
+            raise WorkflowError('No location given to create new Workflow.')
+
+        if not os.path.exists(location):
+            raise WorkflowError(f'Location {location} does not exist.')
+
+        if not os.path.isdir(location):
+            raise WorkflowError(f'Location {location} is not a directory.')
+
+        wf = _get_workflow_configuration(location)
+        if wf.contains('version'):
+            workflow_version = wf.value('version')
+            if version.parse(workflow_version) > version.parse('0.20.0'):
+                if wf.value('id') != info.DEFAULT_WORKFLOW_PROJECT_IDENTIFIER:
+                    raise WorkflowError(f'Location {location} does not have a valid workflow configuration file.')
+        else:
+            raise WorkflowError(f'Location {location} does not have a valid workflow configuration file.')
+
+    def load_workflow_virtually(self, location):
+        self._check_workflow_location(location)
+
+        return _get_workflow_configuration(location)
+
+    @staticmethod
+    def create_empty_workflow(location):
+        wf = _get_workflow_configuration(location)
+        wf.setValue('version', info.VERSION_STRING)
+        wf.setValue('id', info.DEFAULT_WORKFLOW_PROJECT_IDENTIFIER)
+        return wf
+
     def new(self, location):
         """
         Create a new workflow at the given location.  The location is a directory, it must exist
         it will not be created.  A file is created in the directory at 'location' which holds
         information describing the workflow.
         """
-        if location is None:
-            raise WorkflowError('No location given to create new Workflow.')
-
-        if not os.path.exists(location):
-            raise WorkflowError('Location %s does not exist.' % location)
-
+        self._check_workflow_location(location)
         self.set_location(location)
-        wf = _get_workflow_configuration(location)
-        wf.setValue('version', info.VERSION_STRING)
+        self.create_empty_workflow(location)
         self._scene.clear()
 
     def exists(self, location):
@@ -178,25 +204,18 @@ class WorkflowManager(object):
         Determines whether a workflow exists in the given location.
         Returns True if a valid workflow exists, False otherwise.
         """
-        if location is None:
+        try:
+            self._check_workflow_location(location)
+        except WorkflowError:
             return False
 
-        if not os.path.exists(location):
-            return False
-
-        wf = _get_workflow_configuration(location)
-        if wf.contains('version'):
-            return True
-
-        return False
+        return True
 
     @staticmethod
     def is_restricted(location):
-        if location is None or not os.path.exists(location) or not os.path.isdir(location):
-            return False
-
-        wf = _get_workflow_configuration(location)
-        if not wf.contains('version'):
+        try:
+            WorkflowManager._check_workflow_location(location)
+        except WorkflowError:
             return False
 
         return is_workflow_in_use(location)
@@ -207,18 +226,12 @@ class WorkflowManager(object):
         :param location:
         :param scene_rect: Rectangle of the scene rect to load the workflow into.
         """
-        if location is None:
-            raise WorkflowError('No location given to open Workflow.')
-
-        if not os.path.exists(location):
-            raise WorkflowError('Given location %s does not exist' % location)
-
         if os.path.isfile(location):
             location = os.path.dirname(location)
 
+        self._check_workflow_location(location)
+
         wf = _get_workflow_configuration(location)
-        if not wf.contains('version'):
-            raise WorkflowError('The given Workflow configuration file is not valid.')
 
         workflow_version = version.parse(wf.value('version'))
         application_version = version.parse(info.VERSION_STRING)

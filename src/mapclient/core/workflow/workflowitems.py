@@ -40,7 +40,7 @@ class MetaStep(Item):
     def __init__(self, step):
         Item.__init__(self)
         self._step = step
-        self._pos = QtCore.QPointF(0, 0)
+        self._pos = QtCore.QPointF(10, 10)
         self._uid = str(uuid.uuid1())
         self._id = step.getIdentifier()
 

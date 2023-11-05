@@ -22,6 +22,7 @@ import uuid
 from PySide6 import QtCore
 
 from mapclient.core.workflow.workflowdependencygraph import WorkflowDependencyGraph
+from mapclient.core.workflow.workflowerror import WorkflowError
 from mapclient.core.workflow.workflowitems import MetaStep, Connection
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.utils import load_configuration
@@ -153,6 +154,61 @@ class WorkflowScene(object):
         ws.endGroup()
 
         return step_names
+
+    def create_from(self, ws, name_identifiers, location):
+        """
+        Create a workflow from the given names at the given location.
+        Returns a list of
+
+        :param ws: Workflow settings object.
+        :param name_identifiers: List of tuples consisting of step names and associated identifiers.
+        :param location: Location of the workflow on the local disk.
+        :return: List of steps.
+        """
+        steps = []
+        try:
+            ws.beginGroup('nodes')
+            ws.beginWriteArray('nodelist')
+            for i, name_identifier in enumerate(name_identifiers):
+                ws.setArrayIndex(i)
+                step = workflowStepFactory(name_identifier[0], location)
+                step.setIdentifier(name_identifier[1])
+                meta_step = MetaStep(step)
+                ws.setValue('name', step.getName())
+                ws.setValue('position', meta_step.getPos())
+                ws.setValue('selected', meta_step.getSelected())
+                ws.setValue('identifier', meta_step.getIdentifier())
+                ws.setValue('unique_identifier', meta_step.getUniqueIdentifier())
+                steps.append(step)
+
+            ws.endArray()
+            ws.endGroup()
+
+        except ValueError:
+            names = [name_identifier[0] for name_identifier in name_identifiers]
+            raise WorkflowError(f'Could not create workflow from names: {names}')
+
+        return steps
+
+    @staticmethod
+    def get_step_name_from_identifier(ws, target_identifier):
+        ws.beginGroup('nodes')
+        step_name = ''
+        node_count = ws.beginReadArray('nodelist')
+        i = 0
+        while i < node_count and not step_name:
+            ws.setArrayIndex(i)
+            name = ws.value('name')
+            identifier = ws.value('identifier')
+            if identifier == target_identifier:
+                step_name = name
+
+            i += 1
+
+        ws.endArray()
+        ws.endGroup()
+
+        return step_name
 
     def doStepReport(self, ws):
         report = {}
