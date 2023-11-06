@@ -82,7 +82,9 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
         Clears the QGraphicScene and re-populates it with what is currently
         in the WorkflowScene.
         """
+        self.blockSignals(True)
         QtWidgets.QGraphicsScene.clear(self)
+        self.blockSignals(False)
         meta_steps = {}
         connections = []
         for workflowitem in list(self._workflow_scene.items()):
@@ -93,13 +95,16 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
                 workflowitem.getStep().registerDoneExecution(self.doneExecution)
                 workflowitem.getStep().registerOnExecuteEntry(self.setCurrentWidget, self.setWidgetUndoRedoStack)
                 workflowitem.getStep().registerIdentifierOccursCount(self.identifierOccursCount)
+
                 # Put the node into the scene straight away so that the items scene will
                 # be valid when we set the position.
                 QtWidgets.QGraphicsScene.addItem(self, node)
+
                 self.blockSignals(True)
                 node.setPos(workflowitem.getPos())
                 node.setSelected(workflowitem.getSelected())
                 self.blockSignals(False)
+
                 meta_steps[workflowitem] = node
             elif workflowitem.Type == Connection.Type:
                 connections.append(workflowitem)

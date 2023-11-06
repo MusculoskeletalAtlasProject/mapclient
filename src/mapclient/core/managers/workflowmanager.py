@@ -86,6 +86,7 @@ class WorkflowManager(object):
                 self._title = self._title + ' - ' + self._location
             else:
                 self._title = self._title + ' - ' + os.path.basename(self._location)
+
         if self._saveStateIndex != self._currentStateIndex:
             self._title = self._title + ' *'
 

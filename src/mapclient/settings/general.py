@@ -96,7 +96,8 @@ def get_log_location():
         with lock:
             try:
                 with open(database_file, "r") as file:
-                    database = json.loads(file.read())
+                    database = json.load(file)
+
             except IOError:
                 database = []
 
@@ -210,7 +211,7 @@ def mark_workflow_in_use(workflow_dir):
 
         database_file = _get_pid_database_file()
         with open(database_file, "w") as file:
-            file.write(json.dumps(database))
+            json.dump(database, file)
 
     return True
 
