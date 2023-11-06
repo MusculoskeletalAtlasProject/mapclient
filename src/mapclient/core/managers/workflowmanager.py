@@ -158,7 +158,7 @@ class WorkflowManager(object):
         requirements_file = _get_workflow_requirements_absolute_filename(self._location)
 
     @staticmethod
-    def _check_workflow_location(location):
+    def _check_workflow_location(location, new=False):
         if location is None:
             raise WorkflowError('No location given to create new Workflow.')
 
@@ -175,7 +175,8 @@ class WorkflowManager(object):
                 if wf.value('id') != info.DEFAULT_WORKFLOW_PROJECT_IDENTIFIER:
                     raise WorkflowError(f'Location {location} does not have a valid workflow configuration file.')
         else:
-            raise WorkflowError(f'Location {location} does not have a valid workflow configuration file.')
+            if not new:
+                raise WorkflowError(f'Location {location} does not have a valid workflow configuration file.')
 
     def load_workflow_virtually(self, location):
         self._check_workflow_location(location)
@@ -195,7 +196,7 @@ class WorkflowManager(object):
         it will not be created.  A file is created in the directory at 'location' which holds
         information describing the workflow.
         """
-        self._check_workflow_location(location)
+        self._check_workflow_location(location, new=True)
         self.set_location(location)
         self.create_empty_workflow(location)
         self._scene.clear()
