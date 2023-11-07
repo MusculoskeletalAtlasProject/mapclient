@@ -24,9 +24,9 @@ def _strip_pip_list_output(output_stream):
             output[parts[0]] = {'version': parts[1]}
             if len(parts) > 2:
                 if parts[0] == 'mapclient' and os.path.isdir(parts[2]):
-                    output[parts[0]]['location'] = _describe_tag(parts[2])
+                    output[parts[0]]['location'] = describe_tag(parts[2])
                 elif os.path.isdir(parts[2]):
-                    output[parts[0]]['location'] = f'locally-acquired-{_describe_tag(parts[2])}'
+                    output[parts[0]]['location'] = f'locally-acquired-{describe_tag(parts[2])}'
                 else:
                     output[parts[0]]['location'] = parts[2]
             else:
@@ -35,11 +35,11 @@ def _strip_pip_list_output(output_stream):
     return output
 
 
-def _describe_tag(src_dir):
+def describe_tag(src_dir, check_parent=True):
     git_repo = None
     if os.path.isdir(os.path.join(src_dir, ".git")):
         git_repo = src_dir
-    elif os.path.isdir(os.path.join(src_dir, "..", ".git")):
+    elif check_parent and os.path.isdir(os.path.join(src_dir, "..", ".git")):
         git_repo = os.path.join(src_dir, "..")
 
     if git_repo is None:
@@ -83,7 +83,7 @@ def _determine_capabilities():
         mapclient_info = package_info['mapclient']
         del package_info['mapclient']
 
-    return {'mapclient': mapclient_info, 'plugins': mapclientplugins_info, 'packages': package_info}
+    return {'version': '0.1.0', 'id': 'map-client-provenance-record', 'mapclient': mapclient_info, 'plugins': mapclientplugins_info, 'packages': package_info}
 
 
 def reproducibility_info():
