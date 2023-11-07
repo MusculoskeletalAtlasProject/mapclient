@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'workflowwidget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.4.1
+## Created by: Qt User Interface Compiler version 6.5.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -39,6 +39,7 @@ class Ui_WorkflowWidget(object):
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.lineEditFilter = QLineEdit(self.layoutWidget_2)
         self.lineEditFilter.setObjectName(u"lineEditFilter")
+        self.lineEditFilter.setClearButtonEnabled(True)
 
         self.verticalLayout_2.addWidget(self.lineEditFilter)
 
