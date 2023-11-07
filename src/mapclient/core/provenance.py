@@ -60,7 +60,7 @@ def _determine_capabilities():
 
     result = subprocess.run([python_executable, "-m", "pip", "list"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
 
-    output_info = _strip_pip_list_output(result.stdout)
+    package_info = _strip_pip_list_output(result.stdout)
 
     mapclientplugins_info = {}
     if mapclientplugins_present:
@@ -78,7 +78,12 @@ def _determine_capabilities():
                 except ImportError:
                     pass
 
-    return {**output_info, **mapclientplugins_info}
+    mapclient_info = {'version': 'unknown', 'location': 'unknown'}
+    if 'mapclient' in package_info:
+        mapclient_info = package_info['mapclient']
+        del package_info['mapclient']
+
+    return {'mapclient': mapclient_info, 'plugins': mapclientplugins_info, 'packages': package_info}
 
 
 def reproducibility_info():
