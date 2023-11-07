@@ -597,7 +597,7 @@ class WorkflowWidget(QtWidgets.QWidget):
     def import_cfg(self):
         m = self._main_window.model().workflowManager()
         import_source, _ = QtWidgets.QFileDialog.getOpenFileName(self._main_window, caption='Select Import File', dir=m.previousLocation(),
-                                                                 filter=f"Data files(*.zip);MAP Client Project file({DEFAULT_WORKFLOW_PROJECT_FILENAME})")
+                                                                 filter=f"MAP Client Project file({DEFAULT_WORKFLOW_PROJECT_FILENAME} *.zip)")
 
         if len(import_source) > 0:
             dlg = ImportConfigDialog(import_source, self._graphicsScene, self)
