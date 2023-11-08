@@ -30,7 +30,7 @@ def _strip_pip_list_output(output_stream):
                 else:
                     output[parts[0]]['location'] = parts[2]
             else:
-                output[parts[0]]['location'] = 'pypi'
+                output[parts[0]]['location'] = 'PyPI'
 
     return output
 
@@ -80,14 +80,16 @@ def _determine_capabilities():
 
     package_info = _strip_pip_list_output(result.stdout)
 
-    mapclientplugins_info = {}
+    plugin_names = []
+    mapclient_plugins_info = {}
     if mapclientplugins_present:
         for loader, module_name, is_pkg in pkgutil.walk_packages(mapclientplugins.__path__):
             if is_pkg:
                 package_name = PLUGINS_PACKAGE_NAME + '.' + module_name
                 try:
+                    plugin_names.append(package_name)
                     module = import_module(package_name)
-                    mapclientplugins_info[package_name] = {
+                    mapclient_plugins_info[package_name] = {
                         "version": module.__version__ if hasattr(module, '__version__') else "X.Y.Z",
                         "location": module.__location__ if hasattr(module, '__location__') else "<plugin-location-not-set>",
                     }
@@ -99,9 +101,12 @@ def _determine_capabilities():
     mapclient_info = {'version': 'unknown', 'location': 'unknown'}
     if 'mapclient' in package_info:
         mapclient_info = package_info['mapclient']
-        del package_info['mapclient']
 
-    return {'version': '0.1.0', 'id': 'map-client-provenance-record', 'mapclient': mapclient_info, 'plugins': mapclientplugins_info, 'packages': package_info}
+    for key in ['mapclient'] + plugin_names:
+        if key in package_info:
+            del package_info[key]
+
+    return {'version': '0.1.0', 'id': 'map-client-provenance-record', 'mapclient': mapclient_info, 'plugins': mapclient_plugins_info, 'packages': package_info}
 
 
 def reproducibility_info():

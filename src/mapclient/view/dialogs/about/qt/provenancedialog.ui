@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>475</width>
-    <height>356</height>
+    <width>575</width>
+    <height>556</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,13 +36,46 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QTableWidget" name="tableWidget">
-        <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
+       <widget class="QGroupBox" name="groupBoxMAPClient">
+        <property name="title">
+         <string>MAP Client provenance</string>
         </property>
-        <property name="sortingEnabled">
-         <bool>true</bool>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QTableWidget" name="tableWidgetMAPClient">
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+           <property name="sortingEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBoxPlugin">
+        <property name="title">
+         <string>Plugin provenance</string>
         </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QTableWidget" name="tableWidgetPlugin"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBoxPackage">
+        <property name="title">
+         <string>Package provenance</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QTableWidget" name="tableWidgetPackage"/>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
