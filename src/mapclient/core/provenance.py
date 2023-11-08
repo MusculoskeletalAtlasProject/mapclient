@@ -35,12 +35,30 @@ def _strip_pip_list_output(output_stream):
     return output
 
 
-def describe_tag(src_dir, check_parent=True):
+def _determine_git_repo(src_dir, check_parent=True):
     git_repo = None
     if os.path.isdir(os.path.join(src_dir, ".git")):
         git_repo = src_dir
     elif check_parent and os.path.isdir(os.path.join(src_dir, "..", ".git")):
         git_repo = os.path.join(src_dir, "..")
+
+    return git_repo
+
+
+def remote_locations(src_dir):
+    git_repo = _determine_git_repo(src_dir, False)
+
+    if git_repo is None:
+        return "&&&&&&"
+
+    with dulwich.porcelain.open_repo_closing(git_repo) as r:
+        remote_repo_info = dulwich.porcelain.get_remote_repo(r)
+
+    return remote_repo_info[1]
+
+
+def describe_tag(src_dir, check_parent=True):
+    git_repo = _determine_git_repo(src_dir, check_parent)
 
     if git_repo is None:
         return "******"
