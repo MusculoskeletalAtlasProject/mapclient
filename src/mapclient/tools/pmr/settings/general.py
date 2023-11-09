@@ -45,9 +45,13 @@ class PMR(object):
 
     def __init__(self):
         self._instances = {}
-        self.readSettings()
+        self._active_host = None
+        self._consumer_public_token = None
+        self._consumer_secret_token = None
 
-    def readSettings(self):
+        self.read_settings()
+
+    def read_settings(self):
         settings = QtCore.QSettings()
         settings.beginGroup('PMR')
         # pmr_host?  this is a domain name...
@@ -69,7 +73,7 @@ class PMR(object):
             self.addHost(DEFAULT_SITE_URL)
         self.addHost(self._active_host)
 
-    def writeSettings(self):
+    def write_settings(self):
         settings = QtCore.QSettings()
         settings.beginGroup('PMR')
         
@@ -100,9 +104,9 @@ class PMR(object):
         elif not uri:
             self._active_host = None
             status = True
-            
+
         if status:
-            self.writeSettings()
+            self.write_settings()
         
         return status
     
@@ -113,7 +117,7 @@ class PMR(object):
         status = False
         if host not in self._instances and host:
             self._instances[host] = {'user-public-token': None, 'user-secret-token': None}
-            self.writeSettings()
+            self.write_settings()
             status = True
             
         return status
@@ -131,7 +135,7 @@ class PMR(object):
             if self._active_host == host:
                 self._active_host = None
                 
-            self.writeSettings()
+            self.write_settings()
             status = True
             
         return status
@@ -146,7 +150,7 @@ class PMR(object):
         if self._active_host is not None:
             self._instances[self._active_host]['user-public-token'] = oauth_token
             self._instances[self._active_host]['user-secret-token'] = oauth_token_secret
-            self.writeSettings()
+            self.write_settings()
 
     def has_access(self):
         """
