@@ -128,7 +128,9 @@ class PMRTool(object):
     def __init__(self, pmr_info=None, use_external_git=False):
         self._client = None
         self._termLookUpLimit = 32
-        self.set_info(pmr_info)
+        self._pmr_info = pmr_info
+        self._git_implementation = None
+
         self.set_use_external_git(use_external_git)
 
     def set_info(self, info):
@@ -209,13 +211,15 @@ class PMRTool(object):
             if e.response.status_code == 403:
                 raise PMRToolError('Permission Error', msg_403)
             else:
-                raise PMRToolError('Web Service Error',
+                raise PMRToolError(
+                    'Web Service Error',
                     'The PMR search service may be misconfigured and/or '
                     'is unavailable at this moment.  Please check '
                     'configuration settings and try again.'
                 )
         except JSONDecodeError:
-            raise PMRToolError('Unexpected Server Response',
+            raise PMRToolError(
+                'Unexpected Server Response',
                 'The server returned an unexpected response and MAP Client is '
                 'unable to proceed.'
             )
@@ -337,8 +341,8 @@ class PMRTool(object):
         # temporary password.
         creds = self.request_temporary_password(remote_workspace_url)
         if creds:
-            stdout, stderr, return_code = workspace.cmd.pull(workspace,
-                username=creds['user'], password=creds['key'])
+            stdout, stderr, return_code = workspace.cmd.clone(
+                workspace, username=creds['user'], password=creds['key'])
         else:
             # no credentials
             logger.info('not using credentials as none are detected')
@@ -454,6 +458,7 @@ class PMRTool(object):
         cmd = workspace.cmd
 
         remote_workspace_url = cmd.read_remote(workspace)
+
         creds = self.request_temporary_password(remote_workspace_url)
         stdout, stderr, return_code = cmd.pull(workspace, username=creds['user'], password=creds['key'])
 
