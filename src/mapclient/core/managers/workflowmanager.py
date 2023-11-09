@@ -222,7 +222,7 @@ class WorkflowManager(object):
 
         return is_workflow_in_use(location)
 
-    def load(self, location, scene_rect=QtCore.QPointF(0, 0)):
+    def load(self, location, scene_rect=QtCore.QRectF(0, 0, 640, 480)):
         """
         Open a workflow from the given location.
         :param location:
