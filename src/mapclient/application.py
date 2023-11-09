@@ -252,6 +252,14 @@ def sans_gui_main(app_args):
     model = MainApplication()
     model.readSettings()
 
+    class FacadeMainWindow:
+
+        def __init__(self, _model):
+            self._model = _model
+
+        def model(self):
+            return self._model
+
     wm = model.workflowManager()
     pm = model.pluginManager()
     pam = model.package_manager()
@@ -263,6 +271,7 @@ def sans_gui_main(app_args):
     _prepare_internal_workflows(om)
 
     try:
+        wm.scene().setMainWindow(FacadeMainWindow(model))
         wm.load(app_args.workflow)
     except:
         logger.error('Not a valid workflow location: "{0}"'.format(app_args.workflow))
