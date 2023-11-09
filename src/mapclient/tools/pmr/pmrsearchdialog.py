@@ -48,24 +48,24 @@ class PMRSearchDialog(QtWidgets.QDialog):
         self._pmrTool = PMRTool(pmr_info)
         self._annotationTool = AnnotationTool()
 
-        self._makeConnections()
+        self._make_connections()
 
-        self._updateUi()
+        self._update_ui()
 
-    def _updateUi(self):
+    def _update_ui(self):
         if self._pmrTool.has_access():
             self._ui.loginStackedWidget.setCurrentIndex(1)
         else:
             self._ui.loginStackedWidget.setCurrentIndex(0)
 
-    def _makeConnections(self):
-        self._ui.searchButton.clicked.connect(self._searchClicked)
+    def _make_connections(self):
+        self._ui.searchButton.clicked.connect(self._search_clicked)
         self._ui.registerLabel.linkActivated.connect(self.register)
         self._ui.deregisterLabel.linkActivated.connect(self.deregister)
 
     @handle_runtime_error
     @set_wait_cursor
-    def _searchClicked(self):
+    def _search_clicked(self):
         # Set pmrlib to go
         self._ui.searchResultsListWidget.clear()
 
@@ -85,7 +85,7 @@ class PMRSearchDialog(QtWidgets.QDialog):
                     item = QtWidgets.QListWidgetItem(r['title'], self._ui.searchResultsListWidget)
                 else:
                     item = QtWidgets.QListWidgetItem(r['target'], self._ui.searchResultsListWidget)
-                item.setData(QtCore.Qt.UserRole, r)
+                item.setData(QtCore.Qt.ItemDataRole.UserRole, r)
         except PMRToolError as e:
             message = convert_exception_to_message(e)
             logger.warning('PMR Tool exception raised')
@@ -94,7 +94,7 @@ class PMRSearchDialog(QtWidgets.QDialog):
     def getSelectedWorkspace(self):
         items = self._ui.searchResultsListWidget.selectedItems()
         for item in items:
-            return item.data(QtCore.Qt.UserRole)
+            return item.data(QtCore.Qt.ItemDataRole.UserRole)
 
     def register(self, link):
         if link != 'mapclient.register':
@@ -104,8 +104,8 @@ class PMRSearchDialog(QtWidgets.QDialog):
         dlg.setModal(True)
         dlg.exec()
 
-        self._updateUi()
+        self._update_ui()
 
     def deregister(self):
         self._pmrTool.deregister()
-        self._updateUi()
+        self._update_ui()
