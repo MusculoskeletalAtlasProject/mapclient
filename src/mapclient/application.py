@@ -245,6 +245,9 @@ def sans_gui_main(app_args):
     old_stdout = sys.stdout
     sys.stdout = ConsumeOutput()
     #     sys.stdout = redirectstdout = ConsumeOutput()
+
+    log_path = get_log_location()
+    initialise_logger(log_path)
     program_header()
     sys.stdout = old_stdout
 
