@@ -231,10 +231,8 @@ class WorkflowManager(object):
         if os.path.isfile(location):
             location = os.path.dirname(location)
 
-        logger.error('check workflow location.')
         self._check_workflow_location(location)
 
-        logger.error('checked workflow location.')
         wf = _get_workflow_configuration(location)
 
         workflow_version = version.parse(wf.value('version'))
@@ -245,9 +243,7 @@ class WorkflowManager(object):
         self.set_location(location)
         if self._scene.is_loadable(wf):
             if mark_workflow_in_use(location):
-                logger.error('load state')
                 self._scene.load_state(wf, scene_rect)
-                logger.error('loaded state')
             else:
                 logger.warning('Workflow is already in use.')
                 raise WorkflowError('Workflow is already in use.')
