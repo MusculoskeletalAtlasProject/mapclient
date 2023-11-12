@@ -273,8 +273,9 @@ def sans_gui_main(app_args):
     try:
         wm.scene().setMainWindow(FacadeMainWindow(model))
         wm.load(app_args.workflow)
-    except:
+    except Exception as e:
         logger.error('Not a valid workflow location: "{0}"'.format(app_args.workflow))
+        logger.error(f'error: {e}')
         sys.exit(INVALID_WORKFLOW_LOCATION_GIVEN)
 
     wm.registerDoneExecutionForAll(wm.execute)
