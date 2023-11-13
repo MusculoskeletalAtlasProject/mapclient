@@ -208,7 +208,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._main_window.set_current_undo_redo_stack(stack)
 
     def new(self, pmr=False):
-        workflowDir = self._getWorkflowDir()
+        workflowDir = self._get_workflow_dir()
         if workflowDir:
             self._createNewWorkflow(workflowDir, pmr)
 
@@ -225,21 +225,22 @@ class WorkflowWidget(QtWidgets.QWidget):
         else:
             self._reset_workflow_direction()
 
-    def _getWorkflowDir(self):
+    def _get_workflow_dir(self):
         m = self._main_window.model().workflowManager()
-        workflowDir = QtWidgets.QFileDialog.getExistingDirectory(self._main_window, caption='Select Workflow Directory', dir=m.previousLocation())
-        if workflowDir is None:
+        workflow_dir = QtWidgets.QFileDialog.getExistingDirectory(self._main_window, caption='Select Workflow Directory', dir=m.previousLocation())
+        if workflow_dir is None:
             # user abort
             return ''
 
-        class ProblemClass(object):
+        class ProblemClass:
             mk_workflow_dir = False
             rm_tree_success = True
 
-            def rm_tree_unsuccessful(self, _one, _two, _three):
-                self.rm_tree_success = False
+            @staticmethod
+            def rm_tree_unsuccessful(_one, _two, _three):
+                ProblemClass.rm_tree_success = False
 
-        if m.exists(workflowDir):
+        if m.exists(workflow_dir):
             # Check to make sure user wishes to overwrite existing workflow.
             ret = QtWidgets.QMessageBox.warning(
                 self, 'Replace Existing Workflow', 'A Workflow already exists at this location.  Do you want to replace this Workflow?',
@@ -249,15 +250,15 @@ class WorkflowWidget(QtWidgets.QWidget):
                 return ''
             else:
                 # Delete contents of directory
-                shutil.rmtree(workflowDir, onerror=ProblemClass.rm_tree_unsuccessful)
+                shutil.rmtree(onerror=ProblemClass.rm_tree_unsuccessful)
                 ProblemClass.mk_workflow_dir = True
 
         # got dir, continue
         if ProblemClass.rm_tree_success:
             if ProblemClass.mk_workflow_dir:
-                os.mkdir(workflowDir)
+                os.mkdir(workflow_dir)
 
-            return workflowDir
+            return workflow_dir
         else:
             QtWidgets.QMessageBox.warning(self,
                                           'Replace Existing Workflow',
@@ -500,7 +501,7 @@ class WorkflowWidget(QtWidgets.QWidget):
     def _setLocation(self):
         location_set = False
         m = self._main_window.model().workflowManager()
-        workflow_dir = self._getWorkflowDir()
+        workflow_dir = self._get_workflow_dir()
         if workflow_dir:
             m.setPreviousLocation(workflow_dir)
             m.set_location(workflow_dir)
