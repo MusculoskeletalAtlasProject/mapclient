@@ -155,28 +155,21 @@ def load_configuration(location, identifier):
 
 
 def copy_step_additional_config_files(step, source_configuration_dir, target_configuration_dir):
-    logger.warning('additional config files:')
-    logger.warning(get_steps_additional_config_files(step))
-    for additional_cfg_file in step.getAdditionalConfigFiles():
-        logger.warning('additional cfg file:', additional_cfg_file)
+    logger.info(f'Copying additional cfg files for: {step.getName()}')
+    for additional_cfg_file in get_steps_additional_config_files(step):
+        logger.info(f' - Additional cfg file reported: {additional_cfg_file}')
         source_cfg_dir = os.path.dirname(additional_cfg_file)
-        if os.path.isabs(additional_cfg_file):
-            relative_dir = os.path.relpath(source_configuration_dir, source_cfg_dir)
-            source_cfg_file = additional_cfg_file
-        else:
-            relative_dir = source_cfg_dir
-            source_cfg_file = os.path.join(source_configuration_dir, additional_cfg_file)
+        source_cfg_file = os.path.join(source_configuration_dir, additional_cfg_file)
 
         source_basename = os.path.basename(additional_cfg_file)
-        source_workflow_relative_cfg = os.path.join(relative_dir, source_basename)
+        source_workflow_relative_cfg = os.path.join(source_cfg_dir, source_basename)
 
         target_cfg_file = os.path.realpath(os.path.join(target_configuration_dir, source_workflow_relative_cfg))
-        logger.warning('source:', source_cfg_file, os.path.isfile(source_cfg_file))
-        logger.warning('target:', target_cfg_file)
         if os.path.isfile(source_cfg_file):
-            required_path = os.path.join(target_configuration_dir, relative_dir)
+            required_path = os.path.join(target_configuration_dir, source_cfg_dir)
             if not os.path.exists(required_path):
                 os.makedirs(required_path)
+            logger.info(f' - Copying cfg file: {source_cfg_file} -> {target_cfg_file}')
             shutil.copyfile(source_cfg_file, target_cfg_file)
 
 
@@ -185,11 +178,12 @@ def get_steps_additional_config_files(step):
     workflow_dir = step.getLocation()
 
     def _workflow_relative_path(filename):
-        return os.path.relpath(filename, workflow_dir)
+        if os.path.isabs(filename):
+            return os.path.relpath(filename, workflow_dir)
+
+        return filename
 
     additional_config_files = step.getAdditionalConfigFiles()
-    logger.warning('get additional config files', additional_config_files)
-    logger.warning([_workflow_relative_path(file) for file in additional_config_files])
     return [_workflow_relative_path(file) for file in additional_config_files]
 
 
