@@ -17,6 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
+import logging
 import os
 import re
 import shutil
@@ -28,6 +29,8 @@ import PySide6 as RefMod
 
 from mapclient.settings.definitions import APPLICATION_NAME, PLUGINS_PACKAGE_NAME
 from mapclient.settings.general import get_configuration_file
+
+logger = logging.getLogger(__name__)
 
 
 def is_frozen():
@@ -152,7 +155,9 @@ def load_configuration(location, identifier):
 
 
 def copy_step_additional_config_files(step, source_configuration_dir, target_configuration_dir):
+    logger.warning('additional config files:')
     for additional_cfg_file in step.getAdditionalConfigFiles():
+        logger.warning('additional cfg file:', additional_cfg_file)
         source_cfg_dir = os.path.dirname(additional_cfg_file)
         if os.path.isabs(additional_cfg_file):
             relative_dir = os.path.relpath(source_configuration_dir, source_cfg_dir)
@@ -165,6 +170,8 @@ def copy_step_additional_config_files(step, source_configuration_dir, target_con
         source_workflow_relative_cfg = os.path.join(relative_dir, source_basename)
 
         target_cfg_file = os.path.realpath(os.path.join(target_configuration_dir, source_workflow_relative_cfg))
+        logger.warning('source:', source_cfg_file, os.path.isfile(source_cfg_file))
+        logger.warning('target:', target_cfg_file)
         if os.path.isfile(source_cfg_file):
             required_path = os.path.join(target_configuration_dir, relative_dir)
             if not os.path.exists(required_path):
