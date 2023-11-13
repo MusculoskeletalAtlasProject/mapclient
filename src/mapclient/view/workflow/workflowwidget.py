@@ -26,6 +26,8 @@ import zipfile
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from requests.exceptions import HTTPError
+
+from mapclient.core.utils import get_steps_additional_config_files
 from mapclient.exceptions import ClientRuntimeError
 
 from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME, DEFAULT_WORKFLOW_ANNOTATION_FILENAME
@@ -544,9 +546,7 @@ class WorkflowWidget(QtWidgets.QWidget):
                 self._workflowManager.scene()
                 for item in self._workflowManager.scene().items():
                     if item.Type == MetaStep.Type:
-                        step_directory = os.path.join(workflowDir, item.getIdentifier())
-                        if os.path.exists(step_directory):
-                            workflow_files.append(step_directory)
+                        workflow_files.extend(get_steps_additional_config_files(item.getStep()))
 
             pmr_tool.commit_files(workflowDir, comment, workflow_files)
             if not commit_local:

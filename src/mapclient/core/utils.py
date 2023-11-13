@@ -156,6 +156,7 @@ def load_configuration(location, identifier):
 
 def copy_step_additional_config_files(step, source_configuration_dir, target_configuration_dir):
     logger.warning('additional config files:')
+    logger.warning(get_steps_additional_config_files(step))
     for additional_cfg_file in step.getAdditionalConfigFiles():
         logger.warning('additional cfg file:', additional_cfg_file)
         source_cfg_dir = os.path.dirname(additional_cfg_file)
@@ -177,6 +178,19 @@ def copy_step_additional_config_files(step, source_configuration_dir, target_con
             if not os.path.exists(required_path):
                 os.makedirs(required_path)
             shutil.copyfile(source_cfg_file, target_cfg_file)
+
+
+def get_steps_additional_config_files(step):
+
+    workflow_dir = step.getLocation()
+
+    def _workflow_relative_path(filename):
+        return os.path.relpath(filename, workflow_dir)
+
+    additional_config_files = step.getAdditionalConfigFiles()
+    logger.warning('get additional config files', additional_config_files)
+    logger.warning([_workflow_relative_path(file) for file in additional_config_files])
+    return [_workflow_relative_path(file) for file in additional_config_files]
 
 
 class FileTypeObject(object):
