@@ -64,8 +64,11 @@ class WorkspaceWidget(QtWidgets.QWidget):
                     QtWidgets.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + str(e))
 
     def update_from_pmr(self):
-        self._update_from_pmr()
-        self._workflow_widget.reload()
+        if self._update_from_pmr():
+            self._workflow_widget.reload()
+        else:
+            logger.error('Attempt to update workflow failed.')
+            QtWidgets.QMessageBox.warning(self, 'Invalid workflow', 'This workflow cannot be updated.')
 
     @handle_runtime_error
     @set_wait_cursor
@@ -74,8 +77,12 @@ class WorkspaceWidget(QtWidgets.QWidget):
         om = self._workflow_widget.model().optionsManager()
         pmr_info = PMR()
         pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
+        workflow_dir = m.location()
+        if pmr_tool.is_pmr_workflow(workflow_dir):
+            pmr_tool.pullFromRemote(workflow_dir)
+            return True
 
-        pmr_tool.pullFromRemote(m.location())
+        return False
 
     @handle_runtime_error
     @set_wait_cursor
