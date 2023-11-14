@@ -266,7 +266,7 @@ class WorkflowWidget(QtWidgets.QWidget):
                                           'Replace Existing Workflow',
                                           'Could not remove existing workflow,'
                                           'New workflow not created.',
-                                          QtWidgets.QMessageBox.Ok)
+                                          QtWidgets.QMessageBox.StandardButton.Ok)
 
         return ''
 
@@ -477,7 +477,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         if location_set:
             self._updateLocation()
         else:
-            location_set = self._setLocation()
+            location_set = self._set_location()
         if location_set:
             m.scene().setViewParameters(self._ui.graphicsView.getViewParameters())
             m.save()
@@ -489,9 +489,14 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._update_ui()
 
     def saveAs(self):
-        location_set = self._setLocation()
+        wm = self._main_window.model().workflowManager()
+        workflow_dir = wm.location()
+        location_set = self._set_location()
         if location_set:
             self.save()
+            src_git_dir = os.path.join(workflow_dir, '.git')
+            if os.path.isdir(src_git_dir):
+                shutil.copytree(src_git_dir, wm.location(), dirs_exist_ok=True)
 
     def _updateLocation(self):
         m = self._main_window.model().workflowManager()
@@ -500,7 +505,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             self._ui.graphicsView.setLocation(workflow_dir)
             self._graphicsScene.update_model()
 
-    def _setLocation(self):
+    def _set_location(self):
         location_set = False
         m = self._main_window.model().workflowManager()
         workflow_dir = self._get_workflow_dir()
