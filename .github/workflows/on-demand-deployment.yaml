@@ -95,7 +95,7 @@ jobs:
             version="${{ needs.setup.outputs.tag }}"
             echo "__version__ = '${version:1}'" > src/mapclient/settings/version.py
           else
-            url="https://pypi.org/legacy/"
+            url="https://upload.pypi.org/legacy/"
           fi
           echo "url: $url"
           echo pypi-url=$url >> $GITHUB_OUTPUT
@@ -110,7 +110,7 @@ jobs:
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ steps.target-url.outputs.pypi-url == 'https://pypi.org/legacy/' && secrets.PYPI_API_TOKEN || secrets.TEST_PYPI_API_TOKEN }}
+          password: ${{ steps.target-url.outputs.pypi-url == 'https://upload.pypi.org/legacy/' && secrets.PYPI_API_TOKEN || secrets.TEST_PYPI_API_TOKEN }}
           repository-url: ${{ steps.target-url.outputs.pypi-url }}
           packages-dir: src/dist/
           skip-existing: true
