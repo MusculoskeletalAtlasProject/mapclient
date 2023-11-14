@@ -93,7 +93,7 @@ jobs:
           if [ '${{ github.event.release.prerelease }}' = 'true' ]; then
             url="https://test.pypi.org/legacy/"
             version="${{ needs.setup.outputs.tag }}"
-            echo "__version__ = '${version:1}'\n" > src/mapclient/settings/version.py
+            echo "__version__ = '${version:1}'" > src/mapclient/settings/version.py
           else
             url="https://pypi.org/legacy/"
           fi
