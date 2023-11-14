@@ -506,6 +506,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg = PluginFinderDialog(self)
         dlg.setModal(True)
         dlg.exec_()
+        self._plugin_manager_load_plugins()
 
     def _show_rename_plugin_dialog(self):
         from mapclient.tools.renameplugin.renamedialog import RenameDialog
