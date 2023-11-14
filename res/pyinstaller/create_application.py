@@ -28,8 +28,6 @@ def main(variant):
         '--hidden-import', 'scipy',
         '--hidden-import', 'scipy.interpolate',
         '--hidden-import', 'numpy',
-        '--hidden-import', 'mapclientplugins',
-        '--hidden-import', 'cmlibs.zinc',
         '--additional-hooks-dir=hooks',
     ]
 
