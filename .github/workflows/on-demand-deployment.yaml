@@ -64,13 +64,14 @@ jobs:
           fi
           if [ "${#matrixElements[@]}" -eq "0" ]; then
             echo run-installer=false >> $GITHUB_OUTPUT
+            echo run-packaging=false >> $GITHUB_OUTPUT
           else
-            echo run-installer=false >> $GITHUB_OUTPUT
+            echo run-installer=true >> $GITHUB_OUTPUT
+            echo run-packaging=true >> $GITHUB_OUTPUT
           fi
           content=`join_by ,  ${matrixElements[@]}`
           echo "{\"include\":[$content]}"
           echo "matrix={\"include\":[$content]}" >> $GITHUB_OUTPUT
-          echo run-packaging=true >> $GITHUB_OUTPUT
 
   pypipackage:
     needs: setup
@@ -92,7 +93,6 @@ jobs:
           if [ '${{ github.event.release.prerelease }}' = 'true' ]; then
             url="https://test.pypi.org/legacy/"
             version="${{ needs.setup.outputs.tag }}"
-            echo "__version__ = '${version:1}'\n"
             echo "__version__ = '${version:1}'\n" > src/mapclient/settings/version.py
           else
             url="https://pypi.org/legacy/"
