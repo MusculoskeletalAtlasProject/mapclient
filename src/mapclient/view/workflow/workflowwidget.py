@@ -496,7 +496,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             self.save()
             src_git_dir = os.path.join(workflow_dir, '.git')
             if os.path.isdir(src_git_dir):
-                shutil.copytree(src_git_dir, wm.location(), dirs_exist_ok=True)
+                shutil.copytree(src_git_dir, os.path.join(wm.location(), '.git'), dirs_exist_ok=True)
 
     def _updateLocation(self):
         m = self._main_window.model().workflowManager()
