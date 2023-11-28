@@ -31,20 +31,28 @@ class WorkspaceWidget(QtWidgets.QWidget):
         import_layout.addWidget(self._import_button)
         import_layout.addStretch(1)
 
-        self._update_button = QtWidgets.QPushButton("Update")
-        update_layout = QtWidgets.QHBoxLayout()
-        update_layout.addWidget(self._update_button)
-        update_layout.addStretch(1)
+        self._pull_button = QtWidgets.QPushButton("Pull")
+        pull_layout = QtWidgets.QHBoxLayout()
+        pull_layout.addWidget(self._pull_button)
+        pull_layout.addStretch(1)
+
+        self._push_button = QtWidgets.QPushButton("Push")
+        push_layout = QtWidgets.QHBoxLayout()
+        push_layout.addWidget(self._push_button)
+        push_layout.addStretch(1)
 
         layout = QtWidgets.QVBoxLayout()
         layout.addLayout(import_layout)
-        layout.addLayout(update_layout)
+        layout.addSpacing(20)
+        layout.addLayout(pull_layout)
+        layout.addLayout(push_layout)
         layout.addStretch(1)
         self.setLayout(layout)
 
     def _make_connections(self):
         self._import_button.clicked.connect(self.import_from_pmr)
-        self._update_button.clicked.connect(self.update_from_pmr)
+        self._pull_button.clicked.connect(self.pull_from_pmr)
+        self._push_button.clicked.connect(self.push_to_pmr)
 
     def import_from_pmr(self):
         m = self._workflow_widget.model().workflowManager()
@@ -63,16 +71,24 @@ class WorkspaceWidget(QtWidgets.QWidget):
                     logger.error('Invalid Workflow.  ' + str(e))
                     QtWidgets.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + str(e))
 
-    def update_from_pmr(self):
-        if self._update_from_pmr():
+    def pull_from_pmr(self):
+        if self._pull_from_pmr():
             self._workflow_widget.reload()
+            logger.info('Workflow successfully pulled from PMR.')
         else:
             logger.error('Attempt to update workflow failed.')
             QtWidgets.QMessageBox.warning(self, 'Invalid workflow', 'This workflow cannot be updated.')
 
+    def push_to_pmr(self):
+        if self._push_to_pmr():
+            logger.info('Workflow successfully pushed to PMR.')
+        else:
+            logger.error('Attempt to push workflow failed.')
+            QtWidgets.QMessageBox.warning(self, 'Invalid workflow', 'This workflow cannot be pushed to PMR.')
+
     @handle_runtime_error
     @set_wait_cursor
-    def _update_from_pmr(self):
+    def _pull_from_pmr(self):
         m = self._workflow_widget.model().workflowManager()
         om = self._workflow_widget.model().optionsManager()
         pmr_info = PMR()
@@ -80,6 +96,20 @@ class WorkspaceWidget(QtWidgets.QWidget):
         workflow_dir = m.location()
         if pmr_tool.is_pmr_workflow(workflow_dir):
             pmr_tool.pullFromRemote(workflow_dir)
+            return True
+
+        return False
+
+    @handle_runtime_error
+    @set_wait_cursor
+    def _push_to_pmr(self):
+        m = self._workflow_widget.model().workflowManager()
+        om = self._workflow_widget.model().optionsManager()
+        pmr_info = PMR()
+        pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
+        workflow_dir = m.location()
+        if pmr_tool.is_pmr_workflow(workflow_dir):
+            pmr_tool.pushToRemote(workflow_dir)
             return True
 
         return False
