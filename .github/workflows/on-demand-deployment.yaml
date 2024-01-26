@@ -127,6 +127,12 @@ jobs:
         if: runner.os == 'macOS'
         shell: bash
         run: brew install create-dmg
+      - name: Import Certificates (macOS)
+        uses: apple-actions/import-codesign-certs@v2
+        if: ${{ runner.os == 'macOS' }}
+        with:
+          p12-file-base64: ${{ secrets.APPLE_DEV_APP_CERT }}
+          p12-password: ${{ secrets.APPLE_DEV_APP_CERT_PASSWORD }}
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
