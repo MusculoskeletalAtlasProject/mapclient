@@ -24,44 +24,41 @@ jobs:
         id: get-release-name
         shell: bash
         run: |
-          tag=${GITHUB_REF#refs/tags/}
+          tag=${{ steps.get-tag.outputs.tag }}
           bare_tag=${tag/v/}
           IFS='.' read -ra bare_tag_parts <<< "$bare_tag"
           name="${bare_tag_parts[0]}.${bare_tag_parts[1]}.${bare_tag_parts[2]}"
           echo "Setting name as: ${name}"
           echo "name=$name" >> $GITHUB_OUTPUT
       - name: Determine required assets
-        id: req-assets
+        id: set-variants
         shell: cmake -P {0}
         run: |
           set(RELEASE_BODY "${{ github.event.release.body }}")
 
           string(REPLACE "\n" ";" _PARTS "${RELEASE_BODY}")
 
+          set(VARIANTS)
           foreach(_PART ${_PARTS})
             string(STRIP "${_PART}" _PART)
-            if ("${_PART}" STREQUAL "[odd release with mapping tools]")
-              message(STATUS "Require a MAP Client mapping tools variant.")
-              file(APPEND $ENV{GITHUB_OUTPUT} "include_mapping_tools=true\n")
-            endif()
-            if ("${_PART}" STREQUAL "[odd release with installer]")
-              message(STATUS "Require a MAP Client installer.")
-              file(APPEND $ENV{GITHUB_OUTPUT} "include_installer=true\n")
+            string(REGEX MATCH "\\[odd release ([A-Za-z0-9-]+)\\]" _MATCHED_OUTPUT "${_PART}")
+            if (_MATCHED_OUTPUT)
+              set(VARIANTS "${VARIANTS} ${CMAKE_MATCH_1}")
             endif()
           endforeach()
+        
+          message(STATUS "variants=\"${VARIANTS}\"")
+          file(APPEND $ENV{GITHUB_OUTPUT} "variants=\"${VARIANTS}\"")
       - name: set_matrix
         id: set-matrix
+        shell: bash
         run: |
-          function join_by { local IFS="$1"; shift; echo "$*"; }
           matrixElements=()
-          if [ "${{ steps.req-assets.outputs.include_installer }}" == "true" ]; then
-            matrixElements+=('{"os":"windows-2019","variant":"mapclient","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
-            matrixElements+=('{"os":"macos-11","variant":"mapclient","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
-          fi
-          if [ "${{ steps.req-assets.outputs.include_mapping_tools }}" == "true" ]; then
-            matrixElements+=('{"os":"windows-2019","variant":"mapping-tools","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
-            matrixElements+=('{"os":"macos-11","variant":"mapping-tools","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
-          fi
+          variants=${{ steps.set-variants.outputs.variants }}
+          for v in $variants; do
+            matrixElements+=('{"os":"windows-2019","variant":"'$v'","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
+            matrixElements+=('{"os":"macos-11","variant":"'$v'","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
+          done
           if [ "${#matrixElements[@]}" -eq "0" ]; then
             echo run-installer=false >> $GITHUB_OUTPUT
             echo run-packaging=false >> $GITHUB_OUTPUT
@@ -69,6 +66,8 @@ jobs:
             echo run-installer=true >> $GITHUB_OUTPUT
             echo run-packaging=true >> $GITHUB_OUTPUT
           fi
+
+          function join_by { local IFS="$1"; shift; echo "$*"; }
           content=`join_by ,  ${matrixElements[@]}`
           echo "{\"include\":[$content]}"
           echo "matrix={\"include\":[$content]}" >> $GITHUB_OUTPUT
@@ -123,16 +122,21 @@ jobs:
     strategy:
       matrix: ${{fromJson(needs.setup.outputs.matrix)}}
     steps:
-      - name: Install create-dmg
+      - name: Install create-dmg (macOS)
         if: runner.os == 'macOS'
         shell: bash
         run: brew install create-dmg
       - name: Import Certificates (macOS)
         uses: apple-actions/import-codesign-certs@v2
-        if: ${{ runner.os == 'macOS' }}
+        if: runner.os == 'macOS'
         with:
           p12-file-base64: ${{ secrets.APPLE_DEV_APP_CERT }}
           p12-password: ${{ secrets.APPLE_DEV_APP_CERT_PASSWORD }}
+      - name: Install dotnet tool (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          dotnet tool install --global AzureSignTool
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -147,12 +151,11 @@ jobs:
         with:
           repository: hsorby/mapclientreleasescripts
           path: scripts
-          ref: v0.20.0
-      - name: Create installer asset
-        id: create-installer
+      - name: Setup Python virtual environment
+        id: python-environment
         shell: bash
         run: |
-          echo "Creating installer asset"
+          echo "Creating application asset"
           python -m venv venv
           if [ "$RUNNER_OS" == "macOS" ]; then
             python_exe=$GITHUB_WORKSPACE/venv/bin/python
@@ -166,45 +169,104 @@ jobs:
             echo "$RUNNER_OS not supported"
             exit 1
           fi
+          
+          python_exe=${python_exe//\\//}
+          echo "python_exe=$python_exe"
+          echo "python_exe=$python_exe" >> $GITHUB_OUTPUT
+          pip_exe=${pip_exe//\\//}
+          echo "pip_exe=$pip_exe"
+          echo "pip_exe=$pip_exe" >> $GITHUB_OUTPUT
+
+      - name: Create application asset
+        id: create-application
+        shell: bash
+        run: |
+          echo "Creating application asset"
+          
+          if [ "${{ matrix.variant }}" == "standard" ]; then
+            variant=
+          else
+            variant="-${{ matrix.variant }}"
+          fi
+          
           cd $GITHUB_WORKSPACE
           cd scripts
           # ${{ steps.get_tag.outputs.tag }}
 
           # Manually install PyInstaller rather than use the dev install requires from setup.py.
-          $pip_exe install pyinstaller
+          ${{ steps.python-environment.outputs.pip_exe }} install pyinstaller
 
-          if [ "${{ matrix.variant }}" == "mapclient" ]; then
-            $python_exe prepare_mapclient_release.py -l $GITHUB_WORKSPACE/mapclient ${{ matrix.tag }}
-            variant=
-          elif [ "${{ matrix.variant }}" == "mapping-tools" ]; then
-            $python_exe prepare_mapclient_release.py ${{ matrix.tag }} -l $GITHUB_WORKSPACE/mapclient -v mapping-tools -p plugin_listing.txt -w workflow_listing.txt
-            variant="-${{ matrix.variant }}"
-          else
-            echo "Variant not supported"
-            exit 2
-          fi
+          git fetch
+          git switch ${{ matrix.variant }}
+          git log -1 --oneline
+          ${{ steps.python-environment.outputs.python_exe }} create_mapclient_application.py -v "${{ matrix.variant }}" -l $GITHUB_WORKSPACE/mapclient ${{ matrix.tag }}
 
           if [ "$RUNNER_OS" == "macOS" ]; then
-            #echo "Have to find out how to modify a finder window in headless mode with AppleScript."
-            #echo "Asset not ready for $RUNNER_OS"
+            asset="${GITHUB_WORKSPACE}/mapclient/res/pyinstaller/dist/MAP-Client${variant}.app"
+          fi
+          
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            asset="${GITHUB_WORKSPACE}/mapclient/res/pyinstaller/dist/MAP-Client${variant}/MAP-Client${variant}.exe"
+            asset=${asset//\\//}
+          fi
+          
+          echo "file=$asset" >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
+
+      - name: Codesign application (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          AzureSignTool sign -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ secrets.AZURE_CERT_NAME }} -tr http://timestamp.acs.microsoft.com -v ${{ steps.create-application.outputs.file }}
+
+      - name: Codesign application (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          codesign --force -s "${{ secrets.APPLE_DEV_ID_APPLICATION}}" -v "${{ steps.create-application.outputs.file }}" --deep --strict --options=runtime --timestamp
+
+      - name: Create installer asset
+        id: create-installer
+        shell: bash
+        run: |
+          echo "Creating installer asset"
+
+          if [ "${{ matrix.variant }}" == "standard" ]; then
+            variant=
+          else
+            variant="-${{ matrix.variant }}"
+          fi
+
+          cd $GITHUB_WORKSPACE
+          cd scripts
+          
+          ${{ steps.python-environment.outputs.python_exe }} create_mapclient_installer.py -v "${{ matrix.variant }}" -l $GITHUB_WORKSPACE/mapclient ${{ matrix.tag }}
+
+          if [ "$RUNNER_OS" == "macOS" ]; then
             asset=$GITHUB_WORKSPACE/mapclient/res/macos/MAP-Client${variant}-${{ matrix.release-name }}.dmg
           elif [ "$RUNNER_OS" == "Windows" ]; then
-            ls -lh $GITHUB_WORKSPACE/mapclient/package
             asset=$GITHUB_WORKSPACE/mapclient/package/MAP-Client${variant}-${{ matrix.release-name }}.exe
             asset=${asset//\\//}
           else
             echo "$RUNNER_OS not supported"
             exit 1
           fi
+          
           echo $asset
           echo "file=$asset" >> $GITHUB_OUTPUT
-          echo "Upload it ..."
-      - name: Code sign Windows asset
+
+      - name: Codesign installer (Windows)
         if: runner.os == 'Windows'
         shell: bash
         run: |
-          dotnet tool install --global AzureSignTool
           AzureSignTool sign -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ secrets.AZURE_CERT_NAME }} -tr http://timestamp.acs.microsoft.com -v ${{ steps.create-installer.outputs.file }}
+
+      - name: Notarize and Staple installer (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          codesign -s "${{ secrets.APPLE_DEV_ID_APPLICATION}}" --timestamp --force "${{ steps.create-installer.outputs.file }}"
+          xcrun notarytool submit "${{ steps.create-installer.outputs.file }}" --apple-id ${{ secrets.APPLE_NOTARIZATION_USERNAME }} --password ${{ secrets.APPLE_NOTARIZATION_PASSWORD }} --team-id ${{ secrets.APPLE_DEV_TEAM_ID }} --wait
+          xcrun stapler staple "${{ steps.create-installer.outputs.file }}"
+
       - name: Upload asset
         uses: softprops/action-gh-release@v1
         with:
