@@ -263,7 +263,7 @@ jobs:
       - name: Notarize and Staple installer (macOS)
         if: runner.os == 'macOS'
         run: |
-          codesign -s "${{ secrets.APPLE_DEV_ID_APPLICATION}}" --timestamp --force "${{ steps.create-installer.outputs.file }}"
+          #codesign -s "${{ secrets.APPLE_DEV_ID_APPLICATION}}" --timestamp --force "${{ steps.create-installer.outputs.file }}"
           xcrun notarytool submit "${{ steps.create-installer.outputs.file }}" --apple-id ${{ secrets.APPLE_NOTARIZATION_USERNAME }} --password ${{ secrets.APPLE_NOTARIZATION_PASSWORD }} --team-id ${{ secrets.APPLE_DEV_TEAM_ID }} --wait
           xcrun stapler staple "${{ steps.create-installer.outputs.file }}"
 
