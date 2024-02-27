@@ -11,7 +11,10 @@ jobs:
     steps:
       - name: save secret to file
         run: | 
+          base64 /?
           echo -n EV_CERTIFICATE_PFX_BASE64 | base64 -d -o ./ev_certificate.pfk
+          ls
+
         env:
           EV_CERTIFICATE_PFX_BASE64: ${{ secrets.WIN_EV_CERTIFICATE_PFX_BASE64 }}
       - name: Sign application
