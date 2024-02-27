@@ -23,11 +23,15 @@ jobs:
           echo "=========="
           dir "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\"
           echo "=========="
+          dir "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x86"
+          echo "=========="
+          dir "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64"
+          echo "=========="
 
       - name: save secret to file
         shell: bash
         run: | 
-          echo $EV_CERTIFICATE_PFX_BASE64 | base64 -d -o ./ev_certificate.pfx
+          echo $EV_CERTIFICATE_PFX_BASE64 | base64 -d - > ./ev_certificate.pfx
           ls -l
 
         env:
