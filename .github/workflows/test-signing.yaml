@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: save secret to file
         run: | 
-          base64 /?
+          base64 --help
           echo -n EV_CERTIFICATE_PFX_BASE64 | base64 -d -o ./ev_certificate.pfk
           ls
 
