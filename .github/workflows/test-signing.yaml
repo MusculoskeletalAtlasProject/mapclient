@@ -45,7 +45,7 @@ jobs:
       - name: Sign application
         shell: cmd
         run: |
-          "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x86\signtool" sign /d "MAP Client - mapping tools" /tr http://rfc3161timestamp.globalsign.com/advanced /td SHA256 MAP-Client-0.20.1.exe
+          "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x86\signtool" sign /d "MAP Client - mapping tools" /tr http://rfc3161timestamp.globalsign.com/advanced /td SHA256 /f ev_certificate.pfx MAP-Client-0.20.1.exe
 
       - name: Clean up
         shell: bash
