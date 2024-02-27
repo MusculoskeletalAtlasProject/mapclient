@@ -1,4 +1,4 @@
-name: create-release
+name: test-win-signing
 
 on:
   push
@@ -12,7 +12,7 @@ jobs:
       - name: save secret to file
         run: | 
           base64 --help
-          echo -n EV_CERTIFICATE_PFX_BASE64 | base64 -d -o ./ev_certificate.pfk
+          echo -n EV_CERTIFICATE_PFX_BASE64 | base64 -d ./ev_certificate.pfk
           ls
 
         env:
