@@ -6,7 +6,7 @@ on:
 jobs:
   test_sign:
     if: github.repository == 'MusculoskeletalAtlasProject/mapclient'
-    name: create_release
+    name: Test sign executable
     runs-on: windows-2019
     steps:
       - name: save secret to file
@@ -21,7 +21,7 @@ jobs:
       - name: Sign application
         shell: bash
         run: |
-          powershell -Command "(new-object net.webclient).DownloadString('https://github.com/MusculoskeletalAtlasProject/mapclient/releases/download/v0.20.1.rc2/MAP-Client-0.20.1.exe')"
+          powershell -Command "(new-object net.webclient).DownloadString('https://github.com/MusculoskeletalAtlasProject/mapclient/releases/download/v0.20.1.rc2/MAP-Client-0.20.1.exe')" > MAP-Client-0.20.1.exe
           ls
           Signtool sign /?
       - name: Clean up
