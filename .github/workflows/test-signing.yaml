@@ -25,6 +25,6 @@ jobs:
           ls
           Signtool sign /?
       - name: Clean up
-          shell: bash
-          run: |
-            rm ev_certificate.pfx.base64 ev_certificate.pfx
+        shell: bash
+        run: |
+          rm ev_certificate.pfx.base64 ev_certificate.pfx
