@@ -9,20 +9,24 @@ jobs:
     name: Test sign executable
     runs-on: windows-2019
     steps:
+      - name: list stuff
+        shell: cmd
+        run: |
+          echo "=========="
+          dir "C:\Program Files (x86)\"
+          echo "=========="
+          dir "C:\Program Files (x86)\Windows Kits\"
+          echo "=========="
+          dir "C:\Program Files (x86)\Windows Kits\10\"
+          echo "=========="
+          dir "C:\Program Files (x86)\Windows Kits\10\bin\"
+          echo "=========="
+          dir "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\"
+          echo "=========="
+
       - name: save secret to file
         shell: bash
         run: | 
-          echo "=========="
-          ls "C:\Program Files (x86)\"
-          echo "=========="
-          ls "C:\Program Files (x86)\Windows Kits\"
-          echo "=========="
-          ls "C:\Program Files (x86)\Windows Kits\10\"
-          echo "=========="
-          ls "C:\Program Files (x86)\Windows Kits\10\bin\"
-          echo "=========="
-          ls "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\"
-          echo "=========="
           echo $EV_CERTIFICATE_PFX_BASE64 | base64 -d -o ./ev_certificate.pfx
           ls -l
 
@@ -34,6 +38,7 @@ jobs:
           powershell -Command "(new-object net.webclient).DownloadString('https://github.com/MusculoskeletalAtlasProject/mapclient/releases/download/v0.20.1.rc2/MAP-Client-0.20.1.exe')" > MAP-Client-0.20.1.exe
           ls -l
           Signtool sign /?
+
       - name: Clean up
         shell: bash
         run: |
