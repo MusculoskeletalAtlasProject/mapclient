@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: save secret to file
         run: | 
-          echo EV_CERTIFICATE_PFX_BASE64 > ev_certificate.pfx.base64
+          echo $EV_CERTIFICATE_PFX_BASE64 > ev_certificate.pfx.base64
           cat ev_certificate.pfx.base64
           base64 -d ev_certificate.pfx.base64 > ./ev_certificate.pfx
           ls
