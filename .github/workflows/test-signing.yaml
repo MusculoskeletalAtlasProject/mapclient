@@ -31,7 +31,7 @@ jobs:
       - name: save secret to file
         shell: bash
         run: | 
-          echo $EV_CERTIFICATE_PFX_BASE64 | base64 -d - > ./ev_certificate.pfx
+          echo -n $EV_CERTIFICATE_PFX_BASE64 | base64 -d - > ./ev_certificate.pfx
           ls -l
 
         env:
