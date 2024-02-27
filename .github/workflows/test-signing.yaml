@@ -36,12 +36,16 @@ jobs:
 
         env:
           EV_CERTIFICATE_PFX_BASE64: ${{ secrets.WIN_EV_CERTIFICATE_PFX_BASE64 }}
-      - name: Sign application
+      - name: Get application
         shell: bash
         run: |
           powershell -Command "(new-object net.webclient).DownloadString('https://github.com/MusculoskeletalAtlasProject/mapclient/releases/download/v0.20.1.rc2/MAP-Client-0.20.1.exe')" > MAP-Client-0.20.1.exe
           ls -l
-          Signtool sign /?
+
+      - name: Sign application
+        shell: cmd
+        run: |
+          "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x86\signtool" sign /?
 
       - name: Clean up
         shell: bash
