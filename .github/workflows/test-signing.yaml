@@ -12,7 +12,8 @@ jobs:
       - name: save secret to file
         run: | 
           base64 --help
-          echo -n EV_CERTIFICATE_PFX_BASE64 | base64 -d - > ./ev_certificate.pfk
+          echo -n EV_CERTIFICATE_PFX_BASE64 > ev_certificate.pfx.base64
+          base64 -d ev_certificate.pfx.base64 > ./ev_certificate.pfx
           ls
 
         env:
@@ -23,3 +24,7 @@ jobs:
           powershell -Command "(new-object net.webclient).DownloadString('https://github.com/MusculoskeletalAtlasProject/mapclient/releases/download/v0.20.1.rc2/MAP-Client-0.20.1.exe')"
           ls
           Signtool sign /?
+      - name: Clean up
+          shell: bash
+          run: |
+            rm ev_certificate.pfx.base64 ev_certificate.pfx
