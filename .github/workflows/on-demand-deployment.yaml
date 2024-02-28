@@ -132,11 +132,14 @@ jobs:
         with:
           p12-file-base64: ${{ secrets.APPLE_DEV_APP_CERT }}
           p12-password: ${{ secrets.APPLE_DEV_APP_CERT_PASSWORD }}
-      - name: Install dotnet tool (Windows)
+      - name: Save secret to file (Windows)
         if: runner.os == 'Windows'
+        env:
+          EV_CERTIFICATE_PFX_BASE64: ${{ secrets.WIN_EV_CERTIFICATE_PFX_BASE64 }}
         shell: bash
         run: |
-          dotnet tool install --global AzureSignTool
+          echo -n $EV_CERTIFICATE_PFX_BASE64 | base64 -d - > ./ev_certificate.pfx
+          #dotnet tool install --global AzureSignTool
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -215,9 +218,10 @@ jobs:
 
       - name: Codesign application (Windows)
         if: runner.os == 'Windows'
-        shell: bash
+        shell: cmd
         run: |
-          AzureSignTool sign -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ secrets.AZURE_CERT_NAME }} -tr http://timestamp.acs.microsoft.com -v ${{ steps.create-application.outputs.file }}
+          # AzureSignTool sign -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ secrets.AZURE_CERT_NAME }} -tr http://timestamp.acs.microsoft.com -v ${{ steps.create-application.outputs.file }}
+          "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x86\signtool" sign /d "MAP Client - mapping tools" /tr http://rfc3161timestamp.globalsign.com/advanced /fd SHA256 /td SHA256 /f ev_certificate.pfx ${{ steps.create-application.outputs.file }}
 
       - name: Codesign application (macOS)
         if: runner.os == 'macOS'
@@ -256,9 +260,10 @@ jobs:
 
       - name: Codesign installer (Windows)
         if: runner.os == 'Windows'
-        shell: bash
+        shell: cmd
         run: |
-          AzureSignTool sign -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ secrets.AZURE_CERT_NAME }} -tr http://timestamp.acs.microsoft.com -v ${{ steps.create-installer.outputs.file }}
+          "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x86\signtool" sign /d "MAP Client - mapping tools" /tr http://rfc3161timestamp.globalsign.com/advanced /fd SHA256 /td SHA256 /f ev_certificate.pfx ${{ steps.create-installer.outputs.file }}
+          #AzureSignTool sign -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ secrets.AZURE_CERT_NAME }} -tr http://timestamp.acs.microsoft.com -v ${{ steps.create-installer.outputs.file }}
 
       - name: Notarize and Staple installer (macOS)
         if: runner.os == 'macOS'
