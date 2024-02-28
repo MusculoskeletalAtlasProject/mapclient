@@ -1,0 +1,22 @@
+name: create-release
+
+on:
+  push
+
+jobs:
+  test_sign:
+    if: github.repository == 'MusculoskeletalAtlasProject/mapclient'
+    name: create_release
+    runs-on: windows-2019
+    steps:
+      - name: save secret to file
+        run: | 
+          echo -n EV_CERTIFICATE_PFX_BASE64 | base64 -d -o ./ev_certificate.pfk
+        env:
+          EV_CERTIFICATE_PFX_BASE64: ${{ secrets.WIN_EV_CERTIFICATE_PFX_BASE64 }}
+      - name: Sign application
+        shell: bash
+        run: |
+          powershell -Command "(new-object net.webclient).DownloadString('https://github.com/MusculoskeletalAtlasProject/mapclient/releases/download/v0.20.1.rc2/MAP-Client-0.20.1.exe')"
+          ls
+          Signtool sign /?
