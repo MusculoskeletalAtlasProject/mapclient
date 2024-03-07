@@ -23,7 +23,7 @@ import traceback
 
 from mapclient.core.utils import convert_exception_to_message, FileTypeObject
 from mapclient.core.workflow.workflowerror import WorkflowError
-from mapclient.core.workflow.workflowitems import Connection
+from mapclient.core.workflow.workflowitems import Connection, MetaStep
 from mapclient.core.metrics import get_metrics_logger
 
 
@@ -129,6 +129,15 @@ class WorkflowDependencyGraph(object):
 
         return graph
 
+    def _solo_node(self):
+        scene_items = list(self._scene.items())
+        if len(scene_items) == 1:
+            scene_item = scene_items[0]
+            if scene_item.Type == MetaStep.Type:
+                return scene_item
+
+        return None
+
     def _connections_for_nodes(self, source, destination):
         connections = []
         for item in list(self._scene.items()):
@@ -151,7 +160,13 @@ class WorkflowDependencyGraph(object):
 
         self._topological_order = _determine_topological_order(self._dependency_graph, starting_set)
 
+        solo_node = self._solo_node()
+        if solo_node:
+            self._dependency_graph = {solo_node: []}
+            self._topological_order = [solo_node]
+
         configured = [metastep for metastep in self._topological_order if metastep.getStep().isConfigured()]
+
         can = len(configured) == len(self._topological_order) and len(self._topological_order) >= 0
         return can and self._current == -1
 
