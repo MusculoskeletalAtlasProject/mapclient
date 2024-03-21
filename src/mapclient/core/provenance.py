@@ -5,8 +5,10 @@ import subprocess
 import sys
 
 from importlib import import_module
+from io import StringIO
 
 import dulwich.porcelain
+from dulwich.repo import Repo
 
 from mapclient.core.utils import is_frozen
 from mapclient.settings.definitions import PLUGINS_PACKAGE_NAME, FROZEN_PROVENANCE_INFO_FILE
@@ -62,6 +64,14 @@ def describe_tag(src_dir, check_parent=True):
 
     if git_repo is None:
         return "******"
+
+    r = Repo(git_repo)
+    try:
+        r.head()
+    except KeyError:
+        return "<no-commits-repo>"
+    finally:
+        r.close()
 
     return dulwich.porcelain.describe(git_repo)
 
