@@ -171,8 +171,15 @@ class WorkflowWidget(QtWidgets.QWidget):
         if wfm.isModified():
             errors.append('The workflow has not been saved.')
 
-        if not wfm.canExecute():
+        status = wfm.canExecute()
+        if status == 1:
             errors.append('Not all steps in the workflow have been successfully configured.')
+        elif status == 2:
+            errors.append('The workflow is empty.')
+        elif status == 3:
+            errors.append('The workflow has multiple steps but no connections.')
+        elif status == 4:
+            errors.append('The workflow is currently running.')
 
         if errors:
             errors_str = '\n'.join(
