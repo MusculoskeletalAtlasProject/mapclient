@@ -151,7 +151,7 @@ def windows_main(app_args):
     window.start_metrics()
     if app_args.execute:
         splash.showMessage('Executing workflow ...', 90)
-        if wm.canExecute():
+        if wm.canExecute() == 0:
             window.execute()
         else:
             logger.error('Could not execute workflow.')
@@ -282,7 +282,7 @@ def sans_gui_main(app_args):
 
     wm.registerDoneExecutionForAll(wm.execute)
 
-    if wm.canExecute():
+    if wm.canExecute() == 0:
         wm.execute()
     else:
         logger.error('Could not execute workflow.')

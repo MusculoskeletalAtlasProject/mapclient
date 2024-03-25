@@ -160,15 +160,24 @@ class WorkflowDependencyGraph(object):
 
         self._topological_order = _determine_topological_order(self._dependency_graph, starting_set)
 
+        items_count = len(self._scene.items())
         solo_node = self._solo_node()
         if solo_node:
             self._dependency_graph = {solo_node: []}
             self._topological_order = [solo_node]
 
-        configured = [metastep for metastep in self._topological_order if metastep.getStep().isConfigured()]
+        configured = [metastep.getStep().isConfigured() for metastep in self._topological_order]
 
-        can = len(configured) == len(self._topological_order) and len(self._topological_order) >= 0
-        return can and self._current == -1
+        if not all(configured):
+            return 1
+        elif items_count == 0:
+            return 2
+        elif items_count > 1 and len(self._topological_order) == 0:
+            return 3
+        elif self._current != -1:
+            return 4
+
+        return 0
 
     def abort(self):
         self._current = -1
