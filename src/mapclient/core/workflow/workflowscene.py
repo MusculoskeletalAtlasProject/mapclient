@@ -345,6 +345,25 @@ class WorkflowScene(object):
     def items(self):
         return list(self._items.keys())
 
+    def step_list(self, by='identifier'):
+        steps = []
+        for item in self._items:
+            if item.Type == MetaStep.Type:
+                if by == 'identifier':
+                    steps.append(item.getIdentifier())
+                elif by == 'name':
+                    steps.append(item.getName())
+
+        return list(set(steps)) if by == 'name' else steps
+
+    def matching_identifiers(self, name):
+        identifiers = []
+        for item in self._items:
+            if item.Type == MetaStep.Type and item.getName() == name:
+                identifiers.append(item.getIdentifier())
+
+        return identifiers
+
     def addItem(self, item):
         self._items[item] = item
 
