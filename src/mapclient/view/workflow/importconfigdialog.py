@@ -29,11 +29,8 @@ class ImportConfigDialog(QtWidgets.QDialog):
         self._undo_stack = self._graphics_scene.getUndoStack()
 
         self._step_map = None
-        if self._check_compatibility():
-            self._setup_step_map()
-            self._setup_grid_layout()
-        else:
-            self._ui.pushButtonImport.setEnabled(False)
+        self._setup_step_map()
+        self._setup_grid_layout()
 
         self._make_connections()
 
@@ -93,14 +90,14 @@ class ImportConfigDialog(QtWidgets.QDialog):
             # If the lists of step names match, assign a one-to-one mapping of step indices.
             self._step_map["Selected"] = import_steps["ID"]
 
-    def _check_compatibility(self):
+    def is_compatible(self):
         import_proj = self._import_settings()
         # Check for version compatibility.
         import_version = version.parse(import_proj.value('version'))
         application_version = version.parse(VERSION_STRING)
         if not _compatible_versions(import_version, application_version):
             QtWidgets.QMessageBox.warning(self, 'Different Workflow Versions', f'The version of the imported workflow ({import_version})'
-                                          f' is not compatible with this version of the MAP Client ({application_version}).')
+                                                                               f' is not compatible with this version of the MAP Client ({application_version}).')
             return False
 
         return True
@@ -183,15 +180,12 @@ class ImportConfigDialog(QtWidgets.QDialog):
                                           "The selected configurations have been successfully imported.")
 
 
-def _matches_major_minor_version(test_version, target_version):
-    return test_version.major == target_version.major and test_version.minor == target_version.minor
-
-
 def _compatible_versions(import_settings_version, application_version):
-    if _matches_major_minor_version(import_settings_version, version.Version("0.20.0")) and import_settings_version <= application_version:
-        return True
+    if import_settings_version < version.Version("0.19.0"):
+        return False
 
-    if _matches_major_minor_version(import_settings_version, version.Version("0.19.0")) and import_settings_version <= application_version:
-        return True
+    significant_import_settings_version = version.Version(f"{import_settings_version.major}.{import_settings_version.minor}")
+    if significant_import_settings_version > application_version:
+        return False
 
-    return False
+    return True

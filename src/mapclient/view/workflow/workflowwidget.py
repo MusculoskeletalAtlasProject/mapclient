@@ -614,8 +614,9 @@ class WorkflowWidget(QtWidgets.QWidget):
 
         if len(import_source) > 0:
             dlg = ImportConfigDialog(import_source, self._graphicsScene, self)
-            dlg.setModal(True)
-            dlg.exec_()
+            if dlg.is_compatible():
+                dlg.setModal(True)
+                dlg.exec()
 
     def export_cfg(self):
         self.save()
