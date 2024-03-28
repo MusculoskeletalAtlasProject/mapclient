@@ -297,7 +297,7 @@ def main():
     parser.add_argument("-s", "--headless", action="store_true",
                         help="operate in headless mode, without a gui.  Requires a location of a workflow to be set")
     parser.add_argument("-w", "--workflow", help="location of workflow")
-    args = parser.parse_args()
+    args = parser.parse_args(sys.argv[1:])
 
     if args.headless and args.workflow is None:
         parser.print_help()
