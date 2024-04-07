@@ -47,9 +47,12 @@ def main(variant):
 
     pyside_dir = os.path.dirname(RefMod.__file__)
 
+    pyside_resource_tool_dir = ['PySide6']
     if platform.system() == 'Darwin':
         rcc_exe = os.path.join(pyside_dir, 'Qt', 'libexec', "rcc")
         uic_exe = os.path.join(pyside_dir, 'Qt', 'libexec', "uic")
+
+        pyside_resource_tool_dir.extend(['Qt', 'libexec'])
 
         macos_icon = os.path.join('..', 'macos', 'MAP-Client.icns')
         run_command.append(f'--icon={macos_icon}')
@@ -63,8 +66,8 @@ def main(variant):
     else:
         raise NotImplementedError("Platform is not supported for creating a MAP Client application.")
 
-    run_command.append(os.pathsep.join([f'--add-binary={rcc_exe}', 'PySide6/']))
-    run_command.append(os.pathsep.join([f'--add-binary={uic_exe}', 'PySide6/']))
+    run_command.append(os.pathsep.join([f'--add-binary={rcc_exe}', os.path.join(*pyside_resource_tool_dir, '')]))
+    run_command.append(os.pathsep.join([f'--add-binary={uic_exe}', os.path.join(*pyside_resource_tool_dir, '')]))
 
     externally_specified_internal_workflows_zip = os.environ.get('INTERNAL_WORKFLOWS_ZIP', '<not-a-file>')
     if os.path.isfile(externally_specified_internal_workflows_zip):
