@@ -43,7 +43,6 @@ from mapclient.view.managers.plugins.pluginupdater import PluginUpdater
 from mapclient.tools.pmr.settings.general import PMR
 from mapclient.settings.general import get_virtualenv_directory
 from mapclient.core.workflow.workflowerror import WorkflowError
-from mapclient.core.workflow.workflowitems import MetaStep
 from mapclient.settings.definitions import SHOW_STEP_NAMES, CLOSE_AFTER, USE_EXTERNAL_GIT, PREVIOUS_WORKFLOW
 
 from mapclient.core.workflow.workflowitems import MetaStep
@@ -113,6 +112,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             widget_visible = self.isVisible()
 
             workflow_open = wfm.isWorkflowOpen()
+            workflow_has_steps = wfm.isWorkflowPopulated()
             workflow_tracked = wfm.isWorkflowTracked()
             self.action_Close.setEnabled(workflow_open and widget_visible)
             self.setEnabled(workflow_open and widget_visible)
@@ -126,8 +126,8 @@ class WorkflowWidget(QtWidgets.QWidget):
             # self.action_Continue.setEnabled(workflow_open and not widget_visible)
             self.action_Reverse.setEnabled(workflow_open and not widget_visible)
             self.action_Abort.setEnabled(workflow_open and not widget_visible)
-            self.action_Import_CFG.setEnabled(workflow_open and widget_visible)
-            self.action_Export_CFG.setEnabled(workflow_open and widget_visible)
+            self.action_Import_CFG.setEnabled(workflow_open and widget_visible and workflow_has_steps)
+            self.action_Export_CFG.setEnabled(workflow_open and widget_visible and workflow_has_steps)
             self.action_ZoomIn.setEnabled(widget_visible)
 
     def updateStepTree(self):

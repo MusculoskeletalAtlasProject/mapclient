@@ -345,6 +345,13 @@ class WorkflowScene(object):
     def items(self):
         return list(self._items.keys())
 
+    def has_steps(self):
+        for item in self._items:
+            if item.Type == MetaStep.Type:
+                return True
+
+        return False
+
     def step_list(self, by='identifier'):
         steps = []
         for item in self._items:

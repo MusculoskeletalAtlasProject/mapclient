@@ -319,6 +319,9 @@ class WorkflowManager(object):
     def isWorkflowOpen(self):
         return True  # not self._location == None
 
+    def isWorkflowPopulated(self):
+        return self._scene.has_steps()
+
     def isWorkflowTracked(self):
         markers = ['.git', '.hg']
         for marker in markers:
