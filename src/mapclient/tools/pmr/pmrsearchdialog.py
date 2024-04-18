@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import logging
 
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 
 from mapclient.tools.annotation.annotationtool import AnnotationTool
 from mapclient.tools.pmr.pmrtool import PMRTool, PMRToolError
@@ -28,7 +28,7 @@ from mapclient.tools.pmr.ui_pmrsearchdialog import Ui_PMRSearchDialog
 
 from mapclient.view.utils import set_wait_cursor
 from mapclient.view.utils import handle_runtime_error
-from mapclient.core.utils import convertExceptionToMessage
+from mapclient.core.utils import convert_exception_to_message
 from mapclient.tools.pmr.settings.general import PMR
 
 logger = logging.getLogger(__name__)
@@ -48,24 +48,24 @@ class PMRSearchDialog(QtWidgets.QDialog):
         self._pmrTool = PMRTool(pmr_info)
         self._annotationTool = AnnotationTool()
 
-        self._makeConnections()
+        self._make_connections()
 
-        self._updateUi()
+        self._update_ui()
 
-    def _updateUi(self):
-        if self._pmrTool.hasAccess():
+    def _update_ui(self):
+        if self._pmrTool.has_access():
             self._ui.loginStackedWidget.setCurrentIndex(1)
         else:
             self._ui.loginStackedWidget.setCurrentIndex(0)
 
-    def _makeConnections(self):
-        self._ui.searchButton.clicked.connect(self._searchClicked)
+    def _make_connections(self):
+        self._ui.searchButton.clicked.connect(self._search_clicked)
         self._ui.registerLabel.linkActivated.connect(self.register)
         self._ui.deregisterLabel.linkActivated.connect(self.deregister)
 
     @handle_runtime_error
     @set_wait_cursor
-    def _searchClicked(self):
+    def _search_clicked(self):
         # Set pmrlib to go
         self._ui.searchResultsListWidget.clear()
 
@@ -85,16 +85,16 @@ class PMRSearchDialog(QtWidgets.QDialog):
                     item = QtWidgets.QListWidgetItem(r['title'], self._ui.searchResultsListWidget)
                 else:
                     item = QtWidgets.QListWidgetItem(r['target'], self._ui.searchResultsListWidget)
-                item.setData(QtCore.Qt.UserRole, r)
+                item.setData(QtCore.Qt.ItemDataRole.UserRole, r)
         except PMRToolError as e:
-            message = convertExceptionToMessage(e)
+            message = convert_exception_to_message(e)
             logger.warning('PMR Tool exception raised')
             logger.warning('Reason: {0}'.format(message))
 
     def getSelectedWorkspace(self):
         items = self._ui.searchResultsListWidget.selectedItems()
         for item in items:
-            return item.data(QtCore.Qt.UserRole)
+            return item.data(QtCore.Qt.ItemDataRole.UserRole)
 
     def register(self, link):
         if link != 'mapclient.register':
@@ -102,10 +102,10 @@ class PMRSearchDialog(QtWidgets.QDialog):
 
         dlg = AuthoriseApplicationDialog(self)
         dlg.setModal(True)
-        dlg.exec_()
+        dlg.exec()
 
-        self._updateUi()
+        self._update_ui()
 
     def deregister(self):
         self._pmrTool.deregister()
-        self._updateUi()
+        self._update_ui()

@@ -20,10 +20,12 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import math
 import logging
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 
+from mapclient.core.workflow.workflowutils import revert_parameterised_position
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflow.workflowscene import MetaStep
+from mapclient.view.utils import is_light_mode
 from mapclient.view.workflow.workflowcommands import CommandSelection, CommandRemove, CommandAdd, CommandMove
 from mapclient.view.workflow.workflowgraphicsitems import Node, Arc, ErrorItem, ArrowLine, StepPort
 
@@ -42,9 +44,9 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         self._errorIcon = None
 
         self._main_window = None
-        self._graphics_shown = False
         self._graphics_initialised = False
         self._graphics_scale_factor = 1.0
+        self._margin = 10
 
         self._undoStack = None
         self._location = ''
@@ -52,17 +54,15 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
         self._connectLine = None
         self._connectSourceNode = None
+        self._connectPotentialTarget = None
 
         self._selectionStartPos = None
 
-        self.setCacheMode(QtWidgets.QGraphicsView.CacheBackground)
-        self.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.setCacheMode(QtWidgets.QGraphicsView.CacheModeFlag.CacheBackground)
+        self.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
 
-        grid_pic = QtGui.QPixmap(':/workflow/images/grid.png')
-        self._grid_brush = QtGui.QBrush(grid_pic)
-
-        #        self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
-        #        self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
+        # self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
+        # self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
 
         self.setAcceptDrops(True)
 
@@ -131,7 +131,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
 
     def keyPressEvent(self, event):
         QtWidgets.QGraphicsView.keyPressEvent(self, event)
-        if event.key() == QtCore.Qt.Key_Backspace or event.key() == QtCore.Qt.Key_Delete:
+        if event.key() == QtCore.Qt.Key.Key_Backspace or event.key() == QtCore.Qt.Key.Key_Delete:
 
             if self.scene().focusItem():
                 return
@@ -139,14 +139,14 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             command = CommandRemove(self.scene(), self.scene().selectedItems())
             self._undoStack.push(command)
             event.accept()
-        elif event.matches(QtGui.QKeySequence.Copy):
+        elif event.matches(QtGui.QKeySequence.StandardKey.Copy):
             mime_data = self.copy_steps()
             QtWidgets.QApplication.clipboard().setMimeData(mime_data)
             event.accept()
-        elif event.matches(QtGui.QKeySequence.Paste):
+        elif event.matches(QtGui.QKeySequence.StandardKey.Paste):
             if QtWidgets.QApplication.clipboard().mimeData().hasFormat('image/x-workflow-step(s)'):
                 data = QtWidgets.QApplication.clipboard().mimeData().data("image/x-workflow-step(s)")
-                stream = QtCore.QDataStream(data, QtCore.QIODevice.ReadOnly)
+                stream = QtCore.QDataStream(data, QtCore.QIODevice.OpenModeFlag.ReadOnly)
                 self.paste_steps(stream)
                 event.accept()
         else:
@@ -158,15 +158,15 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         copying and pasting steps within the MAP Client workflow area.
 
         When copying workflow items using the CTRL+Drag operation, you should specify a starting position. This argument is not necessary
-        (or relavant) when copying items with the CTRL+C shortcut.
+        (or relevant) when copying items with the CTRL+C shortcut.
         """
         data = QtCore.QByteArray()
-        data_stream = QtCore.QDataStream(data, QtCore.QIODevice.WriteOnly)
+        data_stream = QtCore.QDataStream(data, QtCore.QIODevice.OpenModeFlag.WriteOnly)
 
         # The first part of the data_stream now gives the number of steps to be copied/pasted.
         data_stream.writeUInt32(len(self.scene().selectedItems()))
         data_stream << start_pos
-        data_stream << QtCore.QPoint(0, 0)      # Hotspot
+        data_stream << QtCore.QPoint(0, 0)  # Hotspot
 
         for item in self.scene().selectedItems():
             if item.type() == Node.Type:
@@ -194,12 +194,11 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         mime_data.setData('image/x-workflow-step(s)', data)
         return mime_data
 
-    # TODO: Paste the arrows aswell.
     def paste_steps(self, stream, event_position=None):
         """
         This takes a stream of workflow items and pastes them to the workflow. See copy_steps for details on generating this stream.
 
-        The optional parameter (event_position) can be used to specify where to paste the copied steps. This argument is not relavant
+        The optional parameter (event_position) can be used to specify where to paste the copied steps. This argument is not relevant
         when pasting workflow items using the CRTL+V shortcut, as this event has no position. In the future we may want to update the
         CTRL+V action to consider the last workflow position the user clicked and use this to generate an event_position argument.
         """
@@ -217,6 +216,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         stream >> start_pos
         stream >> hotspot
 
+        offset = None
         if event_position:
             offset = event_position - start_pos
 
@@ -246,7 +246,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
                 node = self.create_node(scene, name)
 
                 self._undoStack.push(CommandAdd(scene, node))
-                self._undoStack.push(CommandMove(node, position, scene.ensureItemInScene(node, position)))
+                self._undoStack.push(CommandMove(node, position, scene.ensure_item_in_scene(node, position)))
 
                 node.setSelected(True)
 
@@ -288,14 +288,14 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
                 pixmap = QtGui.QPixmap()
                 pixmap.convertFromImage(QtGui.QImage(':/workflow/images/default_step_icon.png'))
 
-        pixmap = pixmap.scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        pixmap = pixmap.scaled(64, 64, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
         hotspot = QtCore.QPoint(pixmap.width() / 2, pixmap.height() / 2)
 
         drag = QtGui.QDrag(self)
         drag.setMimeData(self.copy_steps(start_pos))
         drag.setHotSpot(hotspot)
         drag.setPixmap(pixmap)
-        drag.exec_(QtCore.Qt.MoveAction)
+        drag.exec(QtCore.Qt.DropAction.MoveAction)
 
     def contextMenuEvent(self, event):
         item = self.itemAt(event.pos())
@@ -305,11 +305,12 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
     def mousePressEvent(self, event):
         self._selectionStartPos = None
         item = self.scene().itemAt(self.mapToScene(event.pos()), QtGui.QTransform())
-        if event.button() == QtCore.Qt.RightButton:
+        if event.button() == QtCore.Qt.MouseButton.RightButton:
             event.ignore()
         elif item and item.type() == StepPort.Type:
             centre = item.boundingRect().center()
             self._connectSourceNode = item
+
             self._connectLine = ArrowLine(QtCore.QLineF(item.mapToScene(centre),
                                                         self.mapToScene(event.pos())))
             self.scene().addItem(self._connectLine)
@@ -320,6 +321,15 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
     def mouseMoveEvent(self, event):
         if self._connectLine:
             newLine = QtCore.QLineF(self._connectLine.line().p1(), self.mapToScene(event.pos()))
+            item = self.scene().itemAt(self.mapToScene(event.pos()), QtGui.QTransform())
+            if item and item.type() == StepPort.Type:
+                if self._connectSourceNode != item:
+                    self._connectPotentialTarget = item
+                    item.highlight(True)
+            elif self._connectPotentialTarget:
+                self._connectPotentialTarget.highlight(False)
+                self._connectPotentialTarget = None
+
             self._connectLine.setLine(newLine)
         else:
             QtWidgets.QGraphicsView.mouseMoveEvent(self, event)
@@ -334,8 +344,12 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             if item and item.type() == StepPort.Type:
                 self.connectNodes(self._connectSourceNode, item)
             self.scene().removeItem(self._connectLine)
+            if self._connectPotentialTarget:
+                self._connectPotentialTarget.highlight(False)
+
             self._connectLine = None
             self._connectSourceNode = None
+            self._connectPotentialTarget = None
         else:
             QtWidgets.QGraphicsView.mouseReleaseEvent(self, event)
             if self._selectionStartPos:
@@ -352,26 +366,48 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         del self._errorIcon
 
     def changeEvent(self, event):
-        if event.type() == QtCore.QEvent.EnabledChange:
+        if event.type() == QtCore.QEvent.Type.EnabledChange:
             self.invalidateScene(self.sceneRect())
 
     def drawBackground(self, painter, rect):
         # Shadow.
         sceneRect = self.sceneRect()
+        shadow_colour = QtCore.Qt.GlobalColor.darkGray if is_light_mode() else QtCore.Qt.GlobalColor.gray
         rightShadow = QtCore.QRectF(sceneRect.right(), sceneRect.top() + 5, 5, sceneRect.height())
         bottomShadow = QtCore.QRectF(sceneRect.left() + 5, sceneRect.bottom(), sceneRect.width(), 5)
         if rightShadow.intersects(rect) or rightShadow.contains(rect):
-            painter.fillRect(rightShadow, QtCore.Qt.darkGray)
+            painter.fillRect(rightShadow, shadow_colour)
         if bottomShadow.intersects(rect) or bottomShadow.contains(rect):
-            painter.fillRect(bottomShadow, QtCore.Qt.darkGray)
+            painter.fillRect(bottomShadow, shadow_colour)
 
-        painter.setBrush(self._grid_brush)  # QtCore.Qt.NoBrush
-        painter.drawRect(sceneRect)
+        self._draw_grid(sceneRect, painter)
+
+    def _draw_grid(self, scene_rect, painter):
+        purple = '#3D2645'
+        french_blue = '#0075C4'
+        grid_colour = "lightblue" if is_light_mode() else french_blue
+        self.grid_pen = QtGui.QPen(QtGui.QColor(grid_colour))
+        painter.setPen(self.grid_pen)
+
+        top = int(scene_rect.y())
+        left = int(scene_rect.x())
+        bottom = int(scene_rect.y() + scene_rect.height())
+        right = int(scene_rect.x() + scene_rect.width())
+        step = 10
+
+        for y in range(top, bottom, step):
+            painter.drawLine(left, y, right, y)
+        for x in range(left, right, step):
+            painter.drawLine(x, top, x, bottom)
+
+        rect_colour = QtGui.QColor("black") if is_light_mode() else QtGui.QColor("white")
+        painter.setPen(QtGui.QPen(rect_colour))
+        painter.drawRect(scene_rect)
 
     def dropEvent(self, event):
         if event.mimeData().hasFormat("image/x-workflow-step(s)"):
             piece_data = event.mimeData().data("image/x-workflow-step(s)")
-            stream = QtCore.QDataStream(piece_data, QtCore.QIODevice.ReadOnly)
+            stream = QtCore.QDataStream(piece_data, QtCore.QIODevice.OpenModeFlag.ReadOnly)
             self.paste_steps(stream, event.pos())
             event.accept()
         else:
@@ -419,7 +455,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
     def dragMoveEvent(self, event):
         QtWidgets.QGraphicsView.dragMoveEvent(self, event)
         if event.mimeData().hasFormat("image/x-workflow-step(s)"):
-            event.setDropAction(QtCore.Qt.MoveAction)
+            event.setDropAction(QtCore.Qt.DropAction.MoveAction)
             event.accept()
         else:
             event.ignore()
@@ -433,21 +469,23 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         else:
             event.ignore()
 
-    def showEvent(self, event):
-        self._graphics_shown = True
-
     def resizeEvent(self, event):
         QtWidgets.QGraphicsView.resizeEvent(self, event)
-        if self._graphics_shown:
 
-            scene = self.scene()
-            event_size = event.size()
-            view_rect = QtCore.QRectF(0, 0, event_size.width(), event_size.height())
-            if not self._graphics_initialised:
-                scene.setReady()
-                self._graphics_initialised = True
+        scene = self.scene()
+        event_size = event.size()
+        view_rect = QtCore.QRectF(0, 0, event_size.width(), event_size.height())
+        if not self._graphics_initialised:
+            scene.setReady()
+            self._graphics_initialised = True
 
-            scene.setSceneRect(10, 10, (view_rect.width() - 20) / self._graphics_scale_factor, (view_rect.height() - 20) / self._graphics_scale_factor)
+        scene.setSceneRect(
+            self._margin / self._graphics_scale_factor,
+            self._margin / self._graphics_scale_factor,
+            (view_rect.width() - 2 * self._margin) / self._graphics_scale_factor,
+            (view_rect.height() - 2 * self._margin) / self._graphics_scale_factor
+        )
+        self._reposition_steps()
 
     def _unscale_view(self, scale_factor):
         self._graphics_scale_factor *= scale_factor
@@ -458,29 +496,109 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         scene.setSceneRect(rect)
 
     def wheelEvent(self, event):
-        if event.modifiers() == QtCore.Qt.ControlModifier:
-            scale_factor = math.pow(2.0, -event.delta() / 240.0)
-            # original_transformation_anchor = self.transformationAnchor()
-            # self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorViewCenter)
-            self.scale(scale_factor, scale_factor)
-            self._unscale_view(scale_factor)
-            # self.setTransformationAnchor(original_transformation_anchor)
+        if event.modifiers() == QtCore.Qt.KeyboardModifier.ControlModifier:
+            self._zoom(event.angleDelta().y())
         else:
             super(WorkflowGraphicsView, self).wheelEvent(event)
 
-    def zoomIn(self):
-        self.scale(1.2, 1.2)
+    def zoom_in(self):
+        self._zoom(-120)
 
-    def zoomOut(self):
-        self.scale(1 / 1.2, 1 / 1.2)
+    def zoom_out(self):
+        self._zoom(120)
 
-    def _old_scale_view(self, scale_factor):
-        factor = self.matrix().scale(scale_factor, scale_factor).mapRect(QtCore.QRectF(0, 0, 1, 1)).width()
-
-        if factor < 0.07 or factor > 100:
-            return
-
-        transformation_anchor = self.transformationAnchor()
-        self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
+    def _zoom(self, delta):
+        scale_factor = math.pow(2.0, -delta / 240.0)
         self.scale(scale_factor, scale_factor)
-        self.setTransformationAnchor(transformation_anchor)
+        self._unscale_view(scale_factor)
+        self._reposition_steps()
+
+    def reset_zoom(self):
+        reverse_sf = 1 / self._graphics_scale_factor
+        self.scale(reverse_sf, reverse_sf)
+        self._unscale_view(reverse_sf)
+        self._reposition_steps()
+
+        self._graphics_scale_factor = 1.0
+        self.resetTransform()
+
+    def _reposition_steps(self):
+        scene_rect = self.sceneRect()
+        for item in self.items():
+            if isinstance(item, Node):
+                new_position = revert_parameterised_position(scene_rect, item.parameterised_pos(), item.offset())
+                item.setPos(new_position, False)
+
+    def merge_macros(self):
+        # If the top-most macro is successfully merged, remove it from the undo stack.
+        merged_macro = self._merge_macros()
+        if merged_macro:
+            merged_macro.setObsolete(True)
+            self._undoStack.undo()
+
+    def _merge_macros(self):
+        # Attempt to merge the top-most macro on the undo stack into the previous macro.
+        try:
+            current_cmd = self._undoStack.command(self._undoStack.index() - 1)
+            previous_cmd = self._undoStack.command(self._undoStack.index() - 2)
+            if current_cmd and not current_cmd.childCount():
+                return current_cmd
+            if previous_cmd:
+                assert (current_cmd.text() == previous_cmd.text())
+                assert (current_cmd.childCount() == previous_cmd.childCount())
+                for i in range(previous_cmd.childCount()):
+                    assert (isinstance(current_cmd.child(i), CommandMove))
+                    assert (isinstance(previous_cmd.child(i), CommandMove))
+                    assert (previous_cmd.child(i).node() == current_cmd.child(i).node())
+                for i in range(previous_cmd.childCount()):
+                    previous_cmd.child(i).mergeWith(current_cmd.child(i))
+                return current_cmd
+
+        except AssertionError:
+            return None
+
+    def view_all(self):
+        bounding_rect = self.nodes_bounding_rect()
+        scene_rect = self.sceneRect()
+
+        # This includes 50px of whitespace on each side of the workflow items. Subtract 68 to account for step-icon width.
+        sf_x = 1
+        if (bounding_rect.right()) > (scene_rect.right() - 116):
+            sf_x = (scene_rect.right() - 116) / bounding_rect.right()
+        sf_y = 1
+        if bounding_rect.bottom() > (scene_rect.bottom() - 116):
+            sf_y = (scene_rect.bottom() - 116) / bounding_rect.bottom()
+
+        if sf_x != 1 or sf_y != 1:
+            self.scale_workflow(sf_x, sf_y)
+
+    def nodes_bounding_rect(self):
+        point_array = [[], []]
+        for item in self.items():
+            if isinstance(item, Node):
+                point_array[0].append(item.x())
+                point_array[1].append(item.y())
+
+        if point_array[0]:
+            return QtCore.QRectF(
+                QtCore.QPointF(min(point_array[0]), min(point_array[1])),
+                QtCore.QPointF(max(point_array[0]), max(point_array[1]))
+            )
+        else:
+            return QtCore.QRectF(0, 0, 0, 0)
+
+    def scale_workflow(self, sf_x, sf_y):
+        # Scale the workflow item positions. Add self._margin to account for subtracting the view border before scaling.
+        self._undoStack.beginMacro('Move Step(s)')
+        for item in self.items():
+            if isinstance(item, Node):
+                x = item.x()
+                if sf_x != 1:
+                    x = ((x - self._margin) * sf_x) + self._margin
+                y = item.y()
+                if sf_y != 1:
+                    y = ((y - self._margin) * sf_y) + self._margin
+
+                if x != item.x() or y != item.y():
+                    self._undoStack.push(CommandMove(item, item.pos(), QtCore.QPointF(x, y)))
+        self._undoStack.endMacro()

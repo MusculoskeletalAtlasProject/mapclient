@@ -18,7 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import os
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 from mapclient.view.managers.plugins.ui.ui_pluginmanagerdialog import Ui_PluginManagerDialog
 
 
@@ -51,7 +51,7 @@ class PluginManagerDialog(QtWidgets.QDialog):
         from mapclient.view.managers.plugins.advanceddialog import AdvancedDialog
         dlg = AdvancedDialog(self._ignoredPlugins, self._do_not_show_plugin_errors, self._resource_filenames, self._updaterSettings)
         dlg.setModal(True)
-        if dlg.exec_():
+        if dlg.exec():
             self._ignoredPlugins = dlg._ignoredPlugins
             self._do_not_show_plugin_errors = dlg._doNotShowErrors
             self._resource_filenames = dlg._resourceFiles

@@ -6,8 +6,8 @@ import os
 
 from packaging import version
 
-from PySide2.QtCore import QSettings
-from PySide2.QtWidgets import QDialog, QFileDialog, QMessageBox
+from PySide6.QtCore import QSettings
+from PySide6.QtWidgets import QDialog, QFileDialog, QMessageBox
 
 from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME, DEFAULT_WORKFLOW_ANNOTATION_FILENAME, DEFAULT_WORKFLOW_REQUIREMENTS_FILENAME
 from mapclient.tools.updateworkflow.ui.ui_updateworkflowdialog import Ui_UpdateWorkflowDialog

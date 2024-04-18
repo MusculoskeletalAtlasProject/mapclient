@@ -25,10 +25,13 @@ for instance in a Qt ui file and here.  This is intended to make things easier t
 keep the strings the same, obviously it doesn't help with the side-effects of
 changing the string.
 """
+APPLICATION_NAME = "MAP-Client"
 
 # Options related strings
 OPTIONS_SETTINGS_TAG = 'Options'
 SHOW_STEP_NAMES = 'checkBoxShowStepNames'
+CLOSE_AFTER = 'doubleSpinBoxMessageBoxTimer'
+METRICS_PERMISSION = 'checkBoxMetricsPermission'
 DONT_CREATE_VIRTUAL_ENV = 'checkBoxDontCreateVirtualEnvironment'
 PYSIDE_UIC_EXE = 'lineEditPySideUIC'
 PYSIDE_RCC_EXE = 'lineEditPySideRCC'
@@ -59,8 +62,12 @@ INTERNAL_WORKFLOWS_DIR = 'MAPClient-Workflows'
 INTERNAL_WORKFLOWS_ZIP = 'internal_workflows.zip'
 INTERNAL_WORKFLOWS_AVAILABLE = 'internal_workflows_available'
 INTERNAL_WORKFLOW_DIR = 'lineEditInternalWorkflowDirectory'
+
 PREVIOUS_WORKFLOW = 'lineEditPreviousWorkflowDirectory'
 AUTOLOAD_PREVIOUS_WORKFLOW = 'checkBoxAutoloadPreviousWorkflow'
 FROZEN_PROVENANCE_INFO_FILE = 'provenance_info.json'
 
 PID_DATABASE_FILE_NAME = 'pid_database.json'
+
+METRICS_PERMISSION_ATTAINED = 'metrics_permissions_db'
+METRICS_CLIENT_ID = 'metrics_client_id'

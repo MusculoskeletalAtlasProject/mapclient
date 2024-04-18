@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 from dateutil.parser import parse
 
-from PySide2.QtWidgets import QDialog, QTableWidgetItem, QLabel
+from PySide6.QtWidgets import QDialog, QTableWidgetItem, QLabel
 
 from mapclient.view.dialogs.log.ui.ui_loginformation import Ui_LogInformation
 from mapclient.settings.general import get_log_location
@@ -68,13 +68,13 @@ class LogInformation(QDialog):
                 text = self._ui.information_table.item(row, column).text()
             log_details.append(text)
         dlg.fillTable(log_details)
-        dlg.exec_()
+        dlg.exec()
 
     def loadLogSession(self):
         from mapclient.view.dialogs.log.loadlogsession import LoadLogSession
         dlg = LoadLogSession(self)
         dlg.setModal(True)
-        if dlg.exec_():
+        if dlg.exec():
             log_file = dlg.getLogSession()
             logs = self.loadSession(log_file)
             if logs:

@@ -10,6 +10,7 @@ MAP Features Demonstration
 .. _physiome: http://physiomeproject.org/zinclibrary
 .. _project downloads: https://github.com/MusculoskeletalAtlasProject/mapclient/releases
 .. _read-the-docs: http://abibook.readthedocs.org/en/latest/PMR/index.html
+.. _MAP Plugin Database: https://github.com/MusculoskeletalAtlasProject/map-plugin-database
 
 This document details the features of `MAP`_ - a cross-platform framework for managing workflows.
 MAP is a plugin-based application that can be used to create workflows from a collection of workflow steps.
@@ -87,12 +88,13 @@ Tools
 =====
 
 MAP currently has a number of tools that may be used to aide the management of the workflow.
-This includes a *Plugin Manager*, *Package Manager*, *Plugin Wizard*, *Physiome Model Repository (PMR)* tool,
+This includes a *Plugin Manager*, *Plugin Finder*, *Package Manager*, *Plugin Wizard*, *Physiome Model Repository (PMR)* tool,
 *Rename Plugin* tool, and an *Update Plugin* tool.
 
-The :ref:`Plugin Manager<MAP-plugin-manager-tool>`, :ref:`Physiome Model Repository (PMR)<MAP-PMR-tool>` tool,
-:ref:`Update Workflow<MAP-update-workflow-tool>` tool and :ref:`Rename Plugin<MAP-rename-plugin-tool>` tool are described in detail below.
-The :ref:`Plugin Wizard<MAP-plugin-wizard>` is explained in its own section later in this manual.
+The :ref:`Plugin Manager<MAP-plugin-manager-tool>`, :ref:`Plugin Finder<MAP-plugin-finder-tool>`,
+:ref:`Physiome Model Repository (PMR)<MAP-PMR-tool>` tool, :ref:`Update Workflow<MAP-update-workflow-tool>` tool and
+:ref:`Rename Plugin<MAP-rename-plugin-tool>` tool are described in detail below. The :ref:`Plugin Wizard<MAP-plugin-wizard>` is explained
+in its own section later in this manual.
 
 
 .. _MAP-plugin-manager-tool:
@@ -149,6 +151,39 @@ Dependencies tab:
 .. figure:: images/dependencies_tab.png
    :align: center
    :width: 35%
+
+.. _MAP-plugin-finder-tool:
+
+Plugin Finder Tool
+------------------
+
+This tool makes use of the `MAP Plugin Database`_ to present the MAP-Client user with a complete list of all the known, published MAP-Client plugins.
+Further information about the maintenance of this database, as well as how MAP-Client users may submit their own plugins for addition to this database can be found in the README file for the `MAP Plugin Database`_ repository.
+
+The Plugin Finder tool gives the MAP-Client user the ability to search for MAP plugins by name or by category and allows them to download these plugins directly into one of their MAP-Client plugin directories with the click of a button.
+The tool also supports the ability to select and download multiple MAP-Client plugins simultaneously.
+The Plugin Finder checks the user's MAP-Client plugin directories for any plugins that are already installed locally.
+If the user already has a version installed for a particular plugin, the currently installed version number will be displayed along side the corresponding plugin in the Plugin Finder window.
+The tool will also indicate if each installed plugin is up-to-date or if it has a newer version available.
+The download button is disabled only if the version number of the plugin that the user has installed matches the most recent release version for that plugin.
+It is possible to overwrite/update outdated MAP plugin versions that the user has installed locally, in this case the user will be given a warning to make sure they understand that they may be overwriting any local development changes currently in progress on the outdated plugin version.
+
+.. figure:: images/plugin_finder_1.png
+   :align: right
+   :width: 75%
+
+On clicking the download button, the MAP-Client user will be given the option to choose a directory to download the plugin(s) into.
+By default, the combo-box (1) will be populated with the user's recognised MAP-Client plugin directories.
+They may choose to download the plugin(s) into one of these directories or to use a File Dialog (2) to select a new directory to download into.
+If the user chooses to download to a directory that is not already connected with the MAP-Client, they will be automatically prompted with the option to add the download directory as a recognized MAP-Client plugin directory.
+
+.. figure:: images/plugin_finder_2.png
+   :align: center
+   :width: 45%
+
+The Plugin Finder tool utilizes the GitHub API to retrieve the database from the remote repository.
+In the unlikely event that the user reaches the GitHub API rate limit (60 requests per hour) they will be prompted to provide a GitHub Personal Access Token.
+A copy of the plugin database is cached locally upon retrieval, further decreasing the chances of actually reaching the API rate limit.
 
 .. _MAP-update-workflow-tool:
 

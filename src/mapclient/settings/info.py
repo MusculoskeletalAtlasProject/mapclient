@@ -17,7 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 from mapclient.settings import version
 
@@ -54,6 +54,7 @@ _BASE_WORKFLOW_FILENAME = 'map-client-workflow'
 DEFAULT_WORKFLOW_PROJECT_FILENAME = f'{_BASE_WORKFLOW_FILENAME}.proj'
 DEFAULT_WORKFLOW_ANNOTATION_FILENAME = f'.{_BASE_WORKFLOW_FILENAME}.rdf'
 DEFAULT_WORKFLOW_REQUIREMENTS_FILENAME = f'.{_BASE_WORKFLOW_FILENAME}.req'
+DEFAULT_WORKFLOW_PROJECT_IDENTIFIER = _BASE_WORKFLOW_FILENAME
 
 
 def set_applications_settings(app):

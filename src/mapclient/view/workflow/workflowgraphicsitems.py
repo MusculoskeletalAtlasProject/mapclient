@@ -21,12 +21,14 @@ import os
 import math
 import weakref
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 
 from mapclient.core.annotations import PROVIDES_ANNOTATIONS, USES_ANNOTATIONS, ANNOTATION_BASE
 from mapclient.core.workflow.workflowscene import Connection
+from mapclient.core.workflow.workflowutils import convert_to_parameterised_position
 from mapclient.tools.annotation.annotationdialog import AnnotationDialog
 from mapclient.tools.pmr.pmrdvcshelper import repositoryIsUpToDate
+from mapclient.view.utils import is_light_mode
 
 
 def _define_tooltip_for_triples(triples):
@@ -46,9 +48,7 @@ class ErrorItem(QtWidgets.QGraphicsItem):
         self._dest = weakref.ref(destNode)
         self._sourcePoint = QtCore.QPointF()
         self._destPoint = QtCore.QPointF()
-        self._pixmap = QtGui.QPixmap(':/workflow/images/cancel_256.png').scaled(16, 16,
-                                                                                aspectRatioMode=QtCore.Qt.KeepAspectRatio,
-                                                                                transformMode=QtCore.Qt.FastTransformation)
+        self._pixmap = QtGui.QPixmap(':/workflow/images/cancel_256.png').scaled(16, 16, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
         self._source().addArc(self)
         self._dest().addArc(self)
         self.setZValue(-1.5)
@@ -85,7 +85,7 @@ class ErrorItem(QtWidgets.QGraphicsItem):
         self._sourcePoint = line.p1() + arcOffset
         self._destPoint = line.p2() - arcOffset
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, option, widget=None):
         midPoint = (self._destPoint + self._sourcePoint) / 2
         # Draw the line itself.
         line = QtCore.QLineF(self._sourcePoint, self._destPoint)
@@ -93,7 +93,8 @@ class ErrorItem(QtWidgets.QGraphicsItem):
         if line.length() == 0.0:
             return
 
-        painter.setPen(QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.DashLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
+        brush_colour = QtCore.Qt.GlobalColor.black if is_light_mode() else QtCore.Qt.GlobalColor.gray
+        painter.setPen(QtGui.QPen(brush_colour, 1, QtCore.Qt.PenStyle.DashLine, QtCore.Qt.PenCapStyle.RoundCap, QtCore.Qt.PenJoinStyle.RoundJoin))
         painter.drawLine(line)
 
         painter.drawPixmap(midPoint.x() - 8, midPoint.y() - 8, self._pixmap)
@@ -106,8 +107,8 @@ class Item(QtWidgets.QGraphicsItem):
 
     def __init__(self):
         QtWidgets.QGraphicsItem.__init__(self)
-
-        self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable)
+        self.setFlag(QtWidgets.QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
+        self._brush_colour = QtCore.Qt.GlobalColor.black if is_light_mode() else QtCore.Qt.GlobalColor.gray
 
     def setSelected(self, selected):
         QtWidgets.QGraphicsItem.setSelected(self, selected)
@@ -125,9 +126,11 @@ class Arc(Item):
 
     def __init__(self, sourceNode, destNode):
         Item.__init__(self)
+        self.setAcceptHoverEvents(True)
 
         self._arrowSize = 10.0
         self._arrow = QtGui.QPolygonF()
+        self._highlight = False
 
         self._connection = Connection(sourceNode.parentItem()._metastep, sourceNode.portIndex(),
                                       destNode.parentItem()._metastep, destNode.portIndex())
@@ -146,6 +149,14 @@ class Arc(Item):
     def type(self):
         return Arc.Type
 
+    def hoverEnterEvent(self, event):
+        self._highlight = True
+        self.update()
+
+    def hoverLeaveEvent(self, event):
+        self._highlight = False
+        self.update()
+
     def metaItem(self):
         return self._connection
 
@@ -160,9 +171,9 @@ class Arc(Item):
             return
 
         sourceCentre = self._source().boundingRect().center()
-        destCentre = self._dest().boundingRect().center()
+        destinationCentre = self._dest().boundingRect().center()
         line = QtCore.QLineF(self.mapFromItem(self._source(), sourceCentre.x(), sourceCentre.y()),
-                             self.mapFromItem(self._dest(), destCentre.x(), destCentre.y()))
+                             self.mapFromItem(self._dest(), destinationCentre.x(), destinationCentre.y()))
         length = line.length()
 
         if length == 0.0:
@@ -192,7 +203,7 @@ class Arc(Item):
 
         return sceneRect
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, option, widget=None):
         if not self._source() or not self._dest():
             return
 
@@ -202,12 +213,11 @@ class Arc(Item):
         if line.length() == 0.0:
             return
 
-        brush = QtGui.QBrush(QtCore.Qt.black)
-        if option.state & QtWidgets.QStyle.State_Selected:  # or self.selected:
-            painter.setBrush(QtCore.Qt.darkGray)
+        if option.state & QtWidgets.QStyle.StateFlag.State_Selected:  # or self.selected:
+            painter.setBrush(QtCore.Qt.GlobalColor.darkGray)
             painter.drawRoundedRect(self.boundingRect(), 5, 5)
-        #            brush = QtGui.QBrush(QtCore.Qt.red)
 
+        brush = QtGui.QBrush(self._brush_colour)
         painter.setBrush(brush)
 
         angle = math.acos(line.dx() / line.length())
@@ -216,20 +226,22 @@ class Arc(Item):
 
         # Draw the arrows if there's enough room.
         if line.dy() * line.dy() + line.dx() * line.dx() > 200 * self._arrowSize:
-            midPoint = (self._destPoint + self._sourcePoint) / 2
+            midPoint = QtCore.QPointF((self._destPoint + self._sourcePoint) / 2)
 
-            destArrowP1 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi / 3) * self._arrowSize,
-                                                    math.cos(angle - Arc.Pi / 3) * self._arrowSize)
-            destArrowP2 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize,
-                                                    math.cos(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize)
+            destination_arrow_p1 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi / 3) * self._arrowSize,
+                                                             math.cos(angle - Arc.Pi / 3) * self._arrowSize)
+            destination_arrow_p2 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize,
+                                                             math.cos(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize)
 
             self._arrow.clear()
             self._arrow.append(midPoint)
-            self._arrow.append(destArrowP1)
-            self._arrow.append(destArrowP2)
+            self._arrow.append(destination_arrow_p1)
+            self._arrow.append(destination_arrow_p2)
+            if self._highlight:
+                painter.setPen(QtGui.QPen(QtCore.Qt.GlobalColor.yellow, 2))
             painter.drawPolygon(self._arrow)
 
-        painter.setPen(QtGui.QPen(brush, 1, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
+        painter.setPen(QtGui.QPen(brush, 1, QtCore.Qt.PenStyle.SolidLine, QtCore.Qt.PenCapStyle.RoundCap, QtCore.Qt.PenJoinStyle.RoundJoin))
         # painter.setPen(QtGui.QPen(QtCore.Qt.SolidLine))
         painter.drawLine(line)
 
@@ -244,33 +256,34 @@ class Node(Item):
     def __init__(self, metastep):
         Item.__init__(self)
 
+        self._margin = 2.0
         self._metastep = metastep
         icon = self._metastep.getStep().getIcon()
         if not icon:
             icon = QtGui.QImage(':/workflow/images/default_step_icon.png')
 
         self._pixmap = QtGui.QPixmap.fromImage(icon) \
-            .scaled(self.Size, self.Size, aspectRatioMode=QtCore.Qt.KeepAspectRatio,
-                    transformMode=QtCore.Qt.FastTransformation)
+            .scaled(self.Size, self.Size, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
 
         self._step_port_items = []
+        self._parameterised_pos = QtCore.QPointF(0, 0)
         self._text = StepText(metastep.getStep().getName(), self)
         self._updateTextIcon()
 
         self._setToolTip()
 
-        self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable)
-        self.setFlag(QtWidgets.QGraphicsItem.ItemSendsGeometryChanges)
-        self.setCacheMode(self.DeviceCoordinateCache)
+        self.setFlag(QtWidgets.QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
+        self.setFlag(QtWidgets.QGraphicsItem.GraphicsItemFlag.ItemSendsGeometryChanges)
+        self.setCacheMode(self.CacheMode.DeviceCoordinateCache)
         self.setZValue(-1)
 
         self._contextMenu = QtWidgets.QMenu()
-        configureAction = QtWidgets.QAction('Configure', self._contextMenu)
+        configureAction = QtGui.QAction('Configure', self._contextMenu)
         configureAction.triggered.connect(self.configureMe)
-        annotateAction = QtWidgets.QAction('Annotate', self._contextMenu)
+        annotateAction = QtGui.QAction('Annotate', self._contextMenu)
         annotateAction.setEnabled(False)
         annotateAction.triggered.connect(self.annotateMe)
-        deleteAction = QtWidgets.QAction('Delete', self._contextMenu)
+        deleteAction = QtGui.QAction('Delete', self._contextMenu)
         deleteAction.triggered.connect(self._removeMe)
         self._contextMenu.addAction(configureAction)
         self._contextMenu.addAction(annotateAction)
@@ -367,7 +380,7 @@ class Node(Item):
         """
         :TODO: Update this for setting/saving output/input for step to repository
         """
-        if self._metastep._step.getIdentifier():
+        if self._metastep.getStep().getIdentifier():
             if repositoryIsUpToDate(self._getStepLocation()):
                 self._modified_item.hide()
             else:
@@ -375,9 +388,18 @@ class Node(Item):
         else:
             self._modified_item.hide()
 
-    def setPos(self, pos):
+    def setPos(self, pos, modify_parameterised=True):
         super(Node, self).setPos(pos)
-        self.scene().workflowScene().setItemPos(self._metastep, pos)
+        scene = self.scene()
+        if modify_parameterised:
+            self._parameterised_pos = convert_to_parameterised_position(scene.sceneRect(), pos, self.offset())
+        self._metastep.setPos(pos)
+
+    def set_parameterised_pos(self, parameterised_pos):
+        self._parameterised_pos = parameterised_pos
+
+    def parameterised_pos(self):
+        return self._parameterised_pos
 
     def type(self):
         return Node.Type
@@ -407,7 +429,7 @@ class Node(Item):
     def annotateMe(self):
         dlg = AnnotationDialog(self._getStepLocation())
         dlg.setModal(True)
-        dlg.exec_()
+        dlg.exec()
 
     def showStepName(self, show):
         self._text.setVisible(show)
@@ -415,15 +437,17 @@ class Node(Item):
     def metaItem(self):
         return self._metastep
 
-    def boundingRect(self):
-        adjust = 2.0
-        return QtCore.QRectF(-adjust, -adjust,
-                             self._pixmap.width() + 2 * adjust,
-                             self._pixmap.height() + 2 * adjust)
+    def offset(self):
+        return QtCore.QPointF(self._pixmap.width(), self._pixmap.height())
 
-    def paint(self, painter, option, widget):
-        if option.state & QtWidgets.QStyle.State_Selected:  # or self.selected:
-            painter.setBrush(QtCore.Qt.darkGray)
+    def boundingRect(self):
+        return QtCore.QRectF(-self._margin, -self._margin,
+                             self._pixmap.width() + 2 * self._margin,
+                             self._pixmap.height() + 2 * self._margin)
+
+    def paint(self, painter, option, widget=None):
+        if option.state & QtWidgets.QStyle.StateFlag.State_Selected:  # or self.selected:
+            painter.setBrush(QtCore.Qt.GlobalColor.darkGray)
             painter.drawRoundedRect(self.boundingRect(), 5, 5)
 
         #            super(Node, self).paint(painter, option, widget)
@@ -433,9 +457,9 @@ class Node(Item):
     #                painter.drawPixmap(40, 40, self._configure_red)
 
     def itemChange(self, change, value):
-        if change == QtWidgets.QGraphicsItem.ItemPositionChange and self.scene():
-            return self.scene().ensureItemInScene(self, value)
-        elif change == QtWidgets.QGraphicsItem.ItemPositionHasChanged:
+        if change == QtWidgets.QGraphicsItem.GraphicsItemChange.ItemPositionChange and self.scene():
+            return self.scene().ensure_item_in_scene(self, value)
+        elif change == QtWidgets.QGraphicsItem.GraphicsItemChange.ItemPositionHasChanged:
             for port_item in self._step_port_items:
                 port_item.itemChange(change, value)
 
@@ -454,18 +478,34 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
     Type = QtWidgets.QGraphicsItem.UserType + 3
 
     def __init__(self, port, parent):
-        super(StepPort, self).__init__(0, 0, 11, 11, parent=parent)
-        self.setBrush(QtCore.Qt.black)
+        super().__init__(0, 0, 11, 11, parent=parent)
         self._port = port
         self._connections = []
+        self.setAcceptHoverEvents(True)
+        self._highlight = False
         self._pixmap = QtGui.QPixmap(':/workflow/images/icon-port.png')
-        # .scaled(11, 11, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+        # .scaled(11, 11, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation)
 
-    def paint(self, painter, option, widget):
+    def hoverEnterEvent(self, event):
+        self._highlight = True
+        self.update()
+
+    def hoverLeaveEvent(self, event):
+        self._highlight = False
+        self.update()
+
+    def paint(self, painter, option, widget=None):
         painter.drawPixmap(0, 0, self._pixmap)
+        if self._highlight:
+            painter.setPen(QtCore.Qt.GlobalColor.yellow)
+            painter.drawRoundedRect(self.boundingRect(), 5, 5)
 
     def type(self):
         return StepPort.Type
+
+    def highlight(self, state):
+        self._highlight = state
+        self.update()
 
     def connections(self):
         return self._connections
@@ -509,13 +549,14 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
         return False
 
     def addArc(self, arc):
-        self._connections.append(weakref.ref(arc))
+        if not weakref.ref(arc) in self._connections:
+            self._connections.append(weakref.ref(arc))
 
     def removeArc(self, arc):
         self._connections = [weakarc for weakarc in self._connections if weakarc() != arc]
 
     def itemChange(self, change, value):
-        if change == QtWidgets.QGraphicsItem.ItemPositionHasChanged:
+        if change == QtWidgets.QGraphicsItem.GraphicsItemChange.ItemPositionHasChanged:
             self._removeDeadwood()
             for arc in self._connections:
                 arc().adjust()
@@ -528,7 +569,7 @@ class StepText(QtWidgets.QGraphicsTextItem):
 
     def __init__(self, *args):
         super().__init__(*args)
-        self._editable_flags = QtCore.Qt.TextEditable | QtCore.Qt.TextSelectableByMouse | QtCore.Qt.TextSelectableByKeyboard
+        self._editable_flags = QtCore.Qt.TextInteractionFlag.TextEditable | QtCore.Qt.TextInteractionFlag.TextSelectableByMouse | QtCore.Qt.TextInteractionFlag.TextSelectableByKeyboard
         self.setTextInteractionFlags(self._editable_flags)
         self._active_key = None
         self._make_connections()
@@ -548,22 +589,24 @@ class StepText(QtWidgets.QGraphicsTextItem):
 
     def mousePressEvent(self, event):
         modifiers = QtWidgets.QApplication.keyboardModifiers()
-        if modifiers != QtCore.Qt.NoModifier:
-            self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
+        if modifiers == QtCore.Qt.KeyboardModifier.NoModifier:
+            self.setTextInteractionFlags(self._editable_flags)
+        else:
+            self.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.NoTextInteraction)
         super().mousePressEvent(event)
-        self.setTextInteractionFlags(self._editable_flags)
 
     def keyPressEvent(self, event):
         self._active_key = event.key()
-        if self._active_key != QtCore.Qt.Key_Return and self._active_key != QtCore.Qt.Key_Enter:
+        if self._active_key != QtCore.Qt.Key.Key_Return and self._active_key != QtCore.Qt.Key.Key_Enter:
             super().keyPressEvent(event)
 
     def keyReleaseEvent(self, event):
         super().keyReleaseEvent(event)
         if self._active_key and self._active_key == event.key():
-            if self._active_key == QtCore.Qt.Key_Return or self._active_key == QtCore.Qt.Key_Enter:
+            if self._active_key == QtCore.Qt.Key.Key_Return or self._active_key == QtCore.Qt.Key.Key_Enter:
                 self._update_identifier()
                 self.clearFocus()
+                self.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.NoTextInteraction)
 
         self._active_key = None
 
@@ -575,9 +618,9 @@ class StepText(QtWidgets.QGraphicsTextItem):
     def setText(self, text):
         self.setPlainText(text)
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, option, widget=None):
         painter.eraseRect(self.boundingRect())
-        painter.setBrush(QtCore.Qt.white)
+        # painter.setBrush(QtCore.Qt.white)
         painter.drawRoundedRect(self.boundingRect(), 5, 5)
         super(StepText, self).paint(painter, option, widget)
 
@@ -587,10 +630,11 @@ class MercurialIcon(QtWidgets.QGraphicsItem):
     def __init__(self, *args, **kwargs):
         super(MercurialIcon, self).__init__(*args, **kwargs)
         self._hg_yellow = QtGui.QPixmap(':/workflow/images/modified_repo.png') \
-            .scaled(24, 24, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation)
+            .scaled(24, 24, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
         self.setToolTip('The repository has been modified')
+        self._highlight = False
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, option, widget=None):
         painter.drawPixmap(0, 0, self._hg_yellow)
 
     def boundingRect(self):
@@ -608,24 +652,33 @@ class ConfigureIcon(QtWidgets.QGraphicsItem):
 
     def __init__(self, *args, **kwargs):
         super(ConfigureIcon, self).__init__(*args, **kwargs)
+        self.setAcceptHoverEvents(True)
+        self._highlight = False
         self._configured = False
-        self._configure_green = QtGui.QPixmap(':/workflow/images/configure_green.png').scaled(24, 24,
-                                                                                              aspectRatioMode=QtCore.Qt.KeepAspectRatio,
-                                                                                              transformMode=QtCore.Qt.FastTransformation)
-        self._configure_red = QtGui.QPixmap(':/workflow/images/configure_red.png').scaled(24, 24,
-                                                                                          aspectRatioMode=QtCore.Qt.KeepAspectRatio,
-                                                                                          transformMode=QtCore.Qt.FastTransformation)
+        self._configure_green = QtGui.QPixmap(':/workflow/images/configure_green.png').scaled(24, 24, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
+        self._configure_red = QtGui.QPixmap(':/workflow/images/configure_red.png').scaled(24, 24, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
         self.setToolTip('Configure the step')
 
     def setConfigured(self, state):
         self._configured = state
 
-    def paint(self, painter, option, widget):
+    def hoverEnterEvent(self, event):
+        self._highlight = True
+        self.update()
+
+    def hoverLeaveEvent(self, event):
+        self._highlight = False
+        self.update()
+
+    def paint(self, painter, option, widget=None):
         pixmap = self._configure_red
         if self._configured:
             pixmap = self._configure_green
 
         painter.drawPixmap(0, 0, pixmap)
+        if self._highlight:
+            painter.setPen(QtCore.Qt.GlobalColor.yellow)
+            painter.drawRoundedRect(self.boundingRect(), 12, 12)
 
     def boundingRect(self):
         return QtCore.QRectF(0, 0, 24, 24)
@@ -644,6 +697,8 @@ class ArrowLine(QtWidgets.QGraphicsLineItem):
         super(ArrowLine, self).__init__(*args, **kwargs)
         self._arrowSize = 10.0
         self.setZValue(-2.0)
+        self._brush_colour = QtCore.Qt.GlobalColor.black if is_light_mode() else QtCore.Qt.GlobalColor.gray
+        self.setPen(QtGui.QPen(self._brush_colour, 1, QtCore.Qt.PenStyle.SolidLine, QtCore.Qt.PenCapStyle.RoundCap, QtCore.Qt.PenJoinStyle.RoundJoin))
 
     def boundingRect(self):
         penWidth = 1
@@ -654,7 +709,7 @@ class ArrowLine(QtWidgets.QGraphicsLineItem):
                                            line.p2().y() - line.p1().y())).normalized().adjusted(-extra, -extra, extra,
                                                                                                  extra)
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, option, widget=None):
         super(ArrowLine, self).paint(painter, option, widget)
 
         line = self.line()
@@ -667,13 +722,12 @@ class ArrowLine(QtWidgets.QGraphicsLineItem):
             angle = Arc.TwoPi - angle
         # Draw the arrows if there's enough room.
         if line.dy() * line.dy() + line.dx() * line.dx() > 200 * self._arrowSize:
-            midPoint = (line.p1() + line.p2()) / 2
+            midPoint = QtCore.QPointF((line.p1() + line.p2()) / 2)
 
-            destArrowP1 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi / 3) * self._arrowSize,
-                                                    math.cos(angle - Arc.Pi / 3) * self._arrowSize)
-            destArrowP2 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize,
-                                                    math.cos(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize)
+            destination_arrow_p1 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi / 3) * self._arrowSize,
+                                                             math.cos(angle - Arc.Pi / 3) * self._arrowSize)
+            destination_arrow_p2 = midPoint + QtCore.QPointF(math.sin(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize,
+                                                             math.cos(angle - Arc.Pi + Arc.Pi / 3) * self._arrowSize)
 
-            painter.setBrush(QtCore.Qt.black)
-            #        painter.drawPolygon(QtGui.QPolygonF([line.p1(), sourceArrowP1, sourceArrowP2]))
-            painter.drawPolygon(QtGui.QPolygonF([midPoint, destArrowP1, destArrowP2]))
+            painter.setBrush(self._brush_colour)
+            painter.drawPolygon(QtGui.QPolygonF([midPoint, destination_arrow_p1, destination_arrow_p2]))

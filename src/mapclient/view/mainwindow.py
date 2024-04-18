@@ -18,19 +18,23 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import logging
+import uuid
 
-from PySide2 import QtWidgets, QtGui
+from PySide6 import QtWidgets, QtGui
 
+from mapclient import version
+from mapclient.settings.general import mark_workflow_ready_for_use
 from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
 from mapclient.view.workflow.workflowwidget import WorkflowWidget
-from mapclient.settings.general import unrestrict_plugins
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
-from mapclient.settings.definitions import WIZARD_TOOL_STRING, \
+from mapclient.settings.definitions import WIZARD_TOOL_STRING, METRICS_PERMISSION, \
     PMR_TOOL_STRING, PYSIDE_RCC_EXE, USE_EXTERNAL_RCC, PYSIDE_UIC_EXE, USE_EXTERNAL_UIC, \
-    PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION, USE_EXTERNAL_GIT
+    PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION, USE_EXTERNAL_GIT, METRICS_PERMISSION_ATTAINED, METRICS_CLIENT_ID
 from mapclient.view.utils import set_wait_cursor
+from mapclient.core.metrics import get_metrics_logger
 
 logger = logging.getLogger(__name__)
+metrics_logger = get_metrics_logger()
 
 ADMIN_MODE = False
 
@@ -67,6 +71,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def showEvent(self, event):
         self.resize(self._model.size())
         self.move(self._model.pos())
+        if self._model.is_maximized():
+            self.showMaximized()
 
     def _setup_menus(self):
         """
@@ -87,38 +93,44 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_Workflow.setObjectName("menu_Workflow")
         self._menu_Tools = QtWidgets.QMenu(self._menu_bar)
         self._menu_Tools.setObjectName("menu_Tools")
-        self._action_LogInformation = QtWidgets.QAction(self)
+        self._action_LogInformation = QtGui.QAction(self)
         self._action_LogInformation.setObjectName("action_LogInformation")
-        self._action_Options = QtWidgets.QAction(self)
+        self._action_Options = QtGui.QAction(self)
         self._action_Options.setObjectName("action_Options")
-        self._action_About = QtWidgets.QAction(self)
+        self._action_About = QtGui.QAction(self)
         self._action_About.setObjectName("action_About")
-        self._action_Quit = QtWidgets.QAction(self)
+        self._action_ReportIssue = QtGui.QAction(self)
+        self._action_ReportIssue.setObjectName("_action_ReportIssue")
+        self._action_Quit = QtGui.QAction(self)
         self._action_Quit.setObjectName("action_Quit")
-        self._action_PluginManager = QtWidgets.QAction(self)
+        self._action_PluginFinder = QtGui.QAction(self)
+        self._action_PluginFinder.setObjectName("action_PluginFinder")
+        self._action_PluginManager = QtGui.QAction(self)
         self._action_PluginManager.setObjectName("action_PluginManager")
-        self._action_PackageManager = QtWidgets.QAction(self)
+        self._action_PackageManager = QtGui.QAction(self)
         self._action_PackageManager.setObjectName("action_PackageManager")
-        self._action_PMR = QtWidgets.QAction(self)
+        self._action_PMR = QtGui.QAction(self)
         self._action_PMR.setObjectName("action_PMR")
-        self._action_RenamePlugin = QtWidgets.QAction(self)
+        self._action_RenamePlugin = QtGui.QAction(self)
         self._action_RenamePlugin.setObjectName("action_RenamePlugin")
-        self._action_UpdateWorkflow = QtWidgets.QAction(self)
+        self._action_UpdateWorkflow = QtGui.QAction(self)
         self._action_UpdateWorkflow.setObjectName("action_UpdateWorkflow")
-        self._action_Annotation = QtWidgets.QAction(self)
+        self._action_Annotation = QtGui.QAction(self)
         self._action_Annotation.setObjectName("action_Annotation")
-        self._action_PluginWizard = QtWidgets.QAction(self)
+        self._action_PluginWizard = QtGui.QAction(self)
         self._action_PluginWizard.setObjectName("action_PluginWizard")
         if ADMIN_MODE:
-            self._action_MAPIcon = QtWidgets.QAction(self)
+            self._action_MAPIcon = QtGui.QAction(self)
             self._action_MAPIcon.setObjectName("actionMAPIcon")
 
         self._menu_Help.addAction(self._action_About)
+        self._menu_Help.addAction(self._action_ReportIssue)
         self._menu_View.addSeparator()
         self._menu_View.addAction(self._action_LogInformation)
         self._menu_View.addAction(self._action_Options)
         self._menu_File.addSeparator()
         self._menu_File.addAction(self._action_Quit)
+        self._menu_Tools.addAction(self._action_PluginFinder)
         self._menu_Tools.addAction(self._action_PluginManager)
         self._menu_Tools.addAction(self._action_PackageManager)
         self._menu_Tools.addAction(self._action_PluginWizard)
@@ -145,6 +157,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_Workflow.setTitle(QtWidgets.QApplication.translate("MainWindow", "&Workflow", None, -1))
         self._menu_Tools.setTitle(QtWidgets.QApplication.translate("MainWindow", "&Tools", None, -1))
         self._action_About.setText(QtWidgets.QApplication.translate("MainWindow", "&About", None, -1))
+        self._action_ReportIssue.setText(QtWidgets.QApplication.translate("MainWindow", "&Report Issue", None, -1))
         self._action_Quit.setText(QtWidgets.QApplication.translate("MainWindow", "&Quit", None, -1))
         self._action_Quit.setStatusTip(QtWidgets.QApplication.translate("MainWindow", "Quit the application", None, -1))
         self._action_Quit.setShortcut(QtWidgets.QApplication.translate("MainWindow", "Ctrl+Q", None, -1))
@@ -157,6 +170,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_Options.setStatusTip(QtWidgets.QApplication.translate("MainWindow",
                                                                            "Change global application options",
                                                                            None, -1))
+        self._action_PluginFinder.setText(QtWidgets.QApplication.translate("MainWindow", "Plugin &Finder", None, -1))
         self._action_PluginManager.setText(QtWidgets.QApplication.translate("MainWindow", "Plugin &Manager", None, -1))
         self._action_PackageManager.setText(QtWidgets.QApplication.translate("MainWindow", "Package Ma&nager", None, -1))
         self._action_PMR.setText(QtWidgets.QApplication.translate("MainWindow", "&PMR", None, -1))
@@ -168,7 +182,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._action_MAPIcon.setText(QtWidgets.QApplication.translate("MainWindow", "MAP &Icon", None, -1))
 
     def _create_undo_action(self, parent):
-        self._action_Undo = QtWidgets.QAction('Undo', parent)
+        self._action_Undo = QtGui.QAction('Undo', parent)
         self._action_Undo.setShortcut(QtGui.QKeySequence('Ctrl+Z'))
         self._action_Undo.triggered.connect(self._model.undoManager().undo)
         stack = self._model.undoManager().currentStack()
@@ -180,7 +194,7 @@ class MainWindow(QtWidgets.QMainWindow):
         parent.addAction(self._action_Undo)
 
     def _create_redo_action(self, parent):
-        self._action_Redo = QtWidgets.QAction('Redo', parent)
+        self._action_Redo = QtGui.QAction('Redo', parent)
         self._action_Redo.setShortcut(QtGui.QKeySequence('Ctrl+Shift+Z'))
         self._action_Redo.triggered.connect(self._model.undoManager().redo)
         stack = self._model.undoManager().currentStack()
@@ -197,8 +211,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def _make_connections(self):
         self._action_Quit.triggered.connect(self.quit_application)
         self._action_About.triggered.connect(self.about)
+        self._action_ReportIssue.triggered.connect(self.report_issue)
         self._action_LogInformation.triggered.connect(self._show_log_information_dialog)
         self._action_Options.triggered.connect(self.show_options_dialog)
+        self._action_PluginFinder.triggered.connect(self._show_plugin_finder_dialog)
         self._action_PluginManager.triggered.connect(self._show_plugin_manager_dialog)
         self._action_PackageManager.triggered.connect(self._show_package_manager_dialog)
         self._action_PluginWizard.triggered.connect(self._show_plugin_wizard_dialog)
@@ -216,6 +232,28 @@ class MainWindow(QtWidgets.QMainWindow):
         :return: True if setup is ok or not required, False otherwise.
         """
         return self._model.doEnvironmentChecks()
+
+    def start_metrics(self):
+        self.initialise_metrics_logger()
+        metrics_logger.session_started()
+
+    def initialise_metrics_logger(self):
+        om = self._model.optionsManager()
+
+        if not om.getOption(METRICS_CLIENT_ID):
+            om.setOption(METRICS_CLIENT_ID, str(uuid.uuid4()))
+
+        metrics_logger.set_client_id(om.getOption(METRICS_CLIENT_ID))
+
+        permissions = om.getOption(METRICS_PERMISSION_ATTAINED)
+        if version not in permissions:
+            permissions[version] = True
+            permission = self._request_metrics_permission()
+            om.setOption(METRICS_PERMISSION, permission)
+            om.setOption(METRICS_PERMISSION_ATTAINED, permissions)
+            metrics_logger.report_permission_status(permission)
+
+        self.apply_permission_settings()
 
     @staticmethod
     def setup_application():
@@ -282,13 +320,14 @@ class MainWindow(QtWidgets.QMainWindow):
         return self._ui.stackedWidget.currentWidget()
 
     def closeEvent(self, event):
-        self.quit_application()
+        if self.sender() is None:
+            self.quit_application()
 
     def _maybe_restart_application(self, asker='plugins'):
         QtWidgets.QMessageBox.warning(self,
                                       'Change detected',
                                       f'A change in the {asker} has been detected, you may have to restart the appplication to see the effect.',
-                                      QtWidgets.QMessageBox.Ok)
+                                      QtWidgets.QMessageBox.StandardButton.Ok)
 
     def confirm_close(self):
         # Check to see if the Workflow is in a saved state.
@@ -296,32 +335,40 @@ class MainWindow(QtWidgets.QMainWindow):
             ret = QtWidgets.QMessageBox.warning(self,
                                                 'Unsaved Changes',
                                                 'You have unsaved changes, would you like to save these changes now?',
-                                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-            if ret == QtWidgets.QMessageBox.Yes:
+                                                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            if ret == QtWidgets.QMessageBox.StandardButton.Yes:
                 self._model.workflowManager().save()
-
-        unrestrict_plugins()
 
     def quit_application(self):
         self.confirm_close()
 
+        mark_workflow_ready_for_use()
+
+        metrics_logger.session_ended()
         self._model.setSize(self.size())
         self._model.setPos(self.pos())
+        self._model.set_maximized(self.isMaximized())
         self._model.writeSettings()
-        QtGui.QGuiApplication.quit()
+        QtWidgets.QApplication.quit()
 
     def about(self):
         from mapclient.view.dialogs.about.aboutdialog import AboutDialog
         dlg = AboutDialog(self)
         dlg.setModal(True)
-        dlg.exec_()
+        dlg.exec()
+
+    def report_issue(self):
+        from mapclient.view.dialogs.reportissue.reportissuedialog import ReportIssueDialog
+        dlg = ReportIssueDialog(self)
+        dlg.setModal(True)
+        dlg.exec()
 
     def _show_log_information_dialog(self):
         from mapclient.view.dialogs.log.loginformation import LogInformation
         dlg = LogInformation(self)
         dlg.fillTable(self)
         dlg.setModal(True)
-        dlg.exec_()
+        dlg.exec()
 
     def show_options_dialog(self, current_tab=0):
         from mapclient.view.managers.options.optionsdialog import OptionsDialog
@@ -331,7 +378,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg = OptionsDialog(self)
         dlg.setCurrentTab(current_tab)
         dlg.load(options)
-        if dlg.exec_() == QtWidgets.QDialog.Accepted:
+        if dlg.exec():
             if dlg.isModified():
                 om.setOptions(dlg.save())
 
@@ -340,6 +387,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_PluginWizard.setEnabled(dlg.checkedOk(WIZARD_TOOL_STRING))
         self._action_PMR.setEnabled(dlg.checkedOk(PMR_TOOL_STRING))
         self._workflowWidget.applyOptions()
+        self.apply_permission_settings()
+
+    def apply_permission_settings(self):
+        om = self._model.optionsManager()
+        metrics_logger.set_permission(om.getOption(METRICS_PERMISSION))
 
     def _show_package_manager_dialog(self):
         from mapclient.view.managers.package.packagemanagerdialog import PackageManagerDialog
@@ -348,7 +400,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg = PackageManagerDialog(self)
         dlg.set_directories(pm.directories())
         dlg.setModal(True)
-        if dlg.exec_():
+        if dlg.exec():
             pm.set_directories(dlg.directories())
             if pm.is_modified():
                 pm.load()
@@ -369,7 +421,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg.reloadPlugins = self._plugin_manager_load_plugins
 
         dlg.setModal(True)
-        if dlg.exec_():
+        if dlg.exec():
             pm._ignoredPlugins = dlg._ignoredPlugins
             pm._doNotShowPluginErrors = dlg._do_not_show_plugin_errors
             pm._resourceFiles = dlg._resource_filenames
@@ -378,6 +430,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._maybe_restart_application()
 
         self._pluginManagerDlg = None
+
+    def _request_metrics_permission(self):
+        result = QtWidgets.QMessageBox.question(
+            self, 'Metrics Permission', 'Is it okay for the MAP-Client to send metrics/usage statistics to help us improve the tools actually used?\n (This option can be '
+                                        'enabled/disabled in the settings page at a later date if you change your mind.)',
+            QtWidgets.QMessageBox.StandardButton(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No))
+        return True if result == QtWidgets.QMessageBox.StandardButton.Yes else False
 
     @set_wait_cursor
     def _plugin_manager_load_plugins(self):
@@ -420,7 +479,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg.setPreviousIconLocation(om.getOption(PREVIOUS_PW_ICON_LOCATION))
 
         dlg.setModal(True)
-        if dlg.exec_() == dlg.Accepted:
+        if dlg.exec():
             om.setOption(PREVIOUS_PW_WRITE_STEP_LOCATION, dlg.getPreviousWriteStepLocation())
             om.setOption(PREVIOUS_PW_ICON_LOCATION, dlg.getPreviousIconLocation())
 
@@ -440,6 +499,14 @@ class MainWindow(QtWidgets.QMainWindow):
                     logger.info('Removing partially created skeleton step "{0}"'.format(package_directory))
                     import shutil
                     shutil.rmtree(package_directory)
+
+    def _show_plugin_finder_dialog(self):
+        from mapclient.tools.pluginfinder.pluginfinderdialog import PluginFinderDialog
+
+        dlg = PluginFinderDialog(self)
+        dlg.setModal(True)
+        dlg.exec_()
+        self._plugin_manager_load_plugins()
 
     def _show_rename_plugin_dialog(self):
         from mapclient.tools.renameplugin.renamedialog import RenameDialog
@@ -463,7 +530,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _show_pmr_tool(self):
         om = self._model.optionsManager()
         from mapclient.tools.pmr.dialogs.register import PMRRegisterDialog
-        dlg = PMRRegisterDialog(om.getOption(USE_EXTERNAL_GIT), self)
+        dlg = PMRRegisterDialog(om.getOption(USE_EXTERNAL_GIT), self._workflowWidget, self)
         dlg.setModal(True)
         dlg.exec_()
 

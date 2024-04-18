@@ -21,12 +21,14 @@ import logging
 import sys
 import traceback
 
-from mapclient.core.utils import convertExceptionToMessage, FileTypeObject
+from mapclient.core.utils import convert_exception_to_message, FileTypeObject
 from mapclient.core.workflow.workflowerror import WorkflowError
-from mapclient.core.workflow.workflowitems import Connection
+from mapclient.core.workflow.workflowitems import Connection, MetaStep
+from mapclient.core.metrics import get_metrics_logger
 
 
 logger = logging.getLogger(__name__)
+metrics_logger = get_metrics_logger()
 
 
 def _node_is_destination(graph, node):
@@ -127,6 +129,15 @@ class WorkflowDependencyGraph(object):
 
         return graph
 
+    def _solo_node(self):
+        scene_items = list(self._scene.items())
+        if len(scene_items) == 1:
+            scene_item = scene_items[0]
+            if scene_item.Type == MetaStep.Type:
+                return scene_item
+
+        return None
+
     def _connections_for_nodes(self, source, destination):
         connections = []
         for item in list(self._scene.items()):
@@ -149,9 +160,24 @@ class WorkflowDependencyGraph(object):
 
         self._topological_order = _determine_topological_order(self._dependency_graph, starting_set)
 
-        configured = [metastep for metastep in self._topological_order if metastep.getStep().isConfigured()]
-        can = len(configured) == len(self._topological_order) and len(self._topological_order) >= 0
-        return can and self._current == -1
+        items_count = len(self._scene.items())
+        solo_node = self._solo_node()
+        if solo_node:
+            self._dependency_graph = {solo_node: []}
+            self._topological_order = [solo_node]
+
+        configured = [metastep.getStep().isConfigured() for metastep in self._topological_order]
+
+        if not all(configured):
+            return 1
+        elif items_count == 0:
+            return 2
+        elif items_count > 1 and len(self._topological_order) == 0:
+            return 3
+        elif self._current != -1:
+            return 4
+
+        return 0
 
     def abort(self):
         self._current = -1
@@ -199,10 +225,12 @@ class WorkflowDependencyGraph(object):
 
             try:
                 current_node.getStep().execute()
+                metrics_logger.plugin_executed(current_node.getStep().getName())
             except Exception as e:
                 self._current = -1
-                log_message = 'Exception caught while executing the workflow: ' + convertExceptionToMessage(e)
+                log_message = 'Exception caught while executing the workflow: ' + convert_exception_to_message(e)
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 redirect_output = FileTypeObject()
                 traceback.print_exception(exc_type, exc_value, exc_traceback, file=redirect_output)
+                metrics_logger.error_occurred(current_node.getStep().getName(), str(exc_type))
                 raise WorkflowError(log_message + '\n\n' + ''.join(redirect_output.messages))

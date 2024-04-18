@@ -21,8 +21,9 @@ import os
 import logging
 from packaging import version
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
+from mapclient.core.metrics import metrics_logger
 from mapclient.settings import info
 from mapclient.core.workflow.workflowscene import WorkflowScene
 from mapclient.core.workflow.workflowsteps import WorkflowSteps, \
@@ -30,30 +31,30 @@ from mapclient.core.workflow.workflowsteps import WorkflowSteps, \
 from mapclient.core.workflow.workflowerror import WorkflowError
 from mapclient.core.workflow.workflowrdf import serializeWorkflowAnnotation
 from mapclient.settings.general import get_configuration_file, \
-    DISPLAY_FULL_PATH, get_configuration
+    DISPLAY_FULL_PATH, get_configuration, is_workflow_in_use, mark_workflow_in_use, mark_workflow_ready_for_use
 
 logger = logging.getLogger(__name__)
 
 _PREVIOUS_LOCATION_STRING = 'previousLocation'
 
 
-def _getWorkflowConfiguration(location):
-    return QtCore.QSettings(_getWorkflowConfigurationAbsoluteFilename(location), QtCore.QSettings.IniFormat)
+def _get_workflow_configuration(location):
+    return QtCore.QSettings(_get_workflow_configuration_absolute_filename(location), QtCore.QSettings.Format.IniFormat)
 
 
-def _getWorkflowRequirements(location):
+def _get_workflow_requirements(location):
     return {}
 
 
-def _getWorkflowRequirementsAbsoluteFilename(location):
+def _get_workflow_requirements_absolute_filename(location):
     return os.path.join(location, info.DEFAULT_WORKFLOW_REQUIREMENTS_FILENAME)
 
 
-def _getWorkflowConfigurationAbsoluteFilename(location):
+def _get_workflow_configuration_absolute_filename(location):
     return os.path.join(location, info.DEFAULT_WORKFLOW_PROJECT_FILENAME)
 
 
-def _getWorkflowMetaAbsoluteFilename(location):
+def _get_workflow_meta_absolute_filename(location):
     return os.path.join(location, info.DEFAULT_WORKFLOW_ANNOTATION_FILENAME)
 
 
@@ -85,17 +86,15 @@ class WorkflowManager(object):
                 self._title = self._title + ' - ' + self._location
             else:
                 self._title = self._title + ' - ' + os.path.basename(self._location)
+
         if self._saveStateIndex != self._currentStateIndex:
             self._title = self._title + ' *'
 
         return self._title
 
-    def updateLocation(self, location):
+    def set_location(self, location):
         self._location = location
         return self._scene.updateWorkflowLocation(location)
-
-    def setLocation(self, location):
-        self._location = location
 
     def location(self):
         return self._location
@@ -117,7 +116,7 @@ class WorkflowManager(object):
 
     def updateAvailableSteps(self):
         self._steps.reload()
-        self._filtered_steps.sort(QtCore.Qt.AscendingOrder)
+        self._filtered_steps.sort(1, QtCore.Qt.SortOrder.AscendingOrder)
 
     def undoStackIndexChanged(self, index):
         self._currentStateIndex = index
@@ -129,6 +128,7 @@ class WorkflowManager(object):
         self._scene.register_finished_workflow_callback(callback)
 
     def execute(self):
+        metrics_logger.workflow_executed(self.title())
         self._scene.execute()
 
     def abort_execution(self):
@@ -155,7 +155,40 @@ class WorkflowManager(object):
             pass
 
     def _checkRequirements(self):
-        requirements_file = _getWorkflowRequirementsAbsoluteFilename(self._location)
+        requirements_file = _get_workflow_requirements_absolute_filename(self._location)
+
+    @staticmethod
+    def _check_workflow_location(location, new=False):
+        if location is None:
+            raise WorkflowError('No location given to create new Workflow.')
+
+        if not os.path.exists(location):
+            raise WorkflowError(f'Location {location} does not exist.')
+
+        if not os.path.isdir(location):
+            raise WorkflowError(f'Location {location} is not a directory.')
+
+        wf = _get_workflow_configuration(location)
+        if wf.contains('version'):
+            workflow_version = wf.value('version')
+            if version.parse(workflow_version) > version.parse('0.20.0'):
+                if wf.value('id') != info.DEFAULT_WORKFLOW_PROJECT_IDENTIFIER:
+                    raise WorkflowError(f'Location {location} does not have a valid workflow configuration file.')
+        else:
+            if not new:
+                raise WorkflowError(f'Location {location} does not have a valid workflow configuration file.')
+
+    def load_workflow_virtually(self, location):
+        self._check_workflow_location(location)
+
+        return _get_workflow_configuration(location)
+
+    @staticmethod
+    def create_empty_workflow(location):
+        wf = _get_workflow_configuration(location)
+        wf.setValue('version', info.VERSION_STRING)
+        wf.setValue('id', info.DEFAULT_WORKFLOW_PROJECT_IDENTIFIER)
+        return wf
 
     def new(self, location):
         """
@@ -163,15 +196,9 @@ class WorkflowManager(object):
         it will not be created.  A file is created in the directory at 'location' which holds
         information describing the workflow.
         """
-        if location is None:
-            raise WorkflowError('No location given to create new Workflow.')
-
-        if not os.path.exists(location):
-            raise WorkflowError('Location %s does not exist.' % location)
-
-        self._location = location
-        wf = _getWorkflowConfiguration(location)
-        wf.setValue('version', info.VERSION_STRING)
+        self._check_workflow_location(location, new=True)
+        self.set_location(location)
+        self.create_empty_workflow(location)
         self._scene.clear()
 
     def exists(self, location):
@@ -179,61 +206,47 @@ class WorkflowManager(object):
         Determines whether a workflow exists in the given location.
         Returns True if a valid workflow exists, False otherwise.
         """
-        if location is None:
+        try:
+            self._check_workflow_location(location)
+        except WorkflowError:
             return False
 
-        if not os.path.exists(location):
+        return True
+
+    @staticmethod
+    def is_restricted(location):
+        try:
+            WorkflowManager._check_workflow_location(location)
+        except WorkflowError:
             return False
 
-        wf = _getWorkflowConfiguration(location)
-        if wf.contains('version'):
-            return True
+        return is_workflow_in_use(location)
 
-        return False
-
-    def is_restricted(self, location):
-        if location is None or not os.path.exists(location) or not os.path.isdir(location):
-            return False
-
-        wf = _getWorkflowConfiguration(location)
-        if not wf.contains('version'):
-            return False
-
-        return self._scene.is_restricted(wf)
-
-    def fit_workflow(self, graphics_view, graphics_scene):
-        """
-        Scales the workflow items to fit into the current window size. This method maintains the aspect ratio of the saved workflow.
-        """
-        self._scene.fit_workflow(graphics_view, graphics_scene)
-
-    def load(self, location):
+    def load(self, location, scene_rect=QtCore.QRectF(0, 0, 640, 480)):
         """
         Open a workflow from the given location.
         :param location:
+        :param scene_rect: Rectangle of the scene rect to load the workflow into.
         """
-        if location is None:
-            raise WorkflowError('No location given to open Workflow.')
-
-        if not os.path.exists(location):
-            raise WorkflowError('Given location %s does not exist' % location)
-
         if os.path.isfile(location):
             location = os.path.dirname(location)
 
-        wf = _getWorkflowConfiguration(location)
-        if not wf.contains('version'):
-            raise WorkflowError('The given Workflow configuration file is not valid.')
+        self._check_workflow_location(location)
+
+        wf = _get_workflow_configuration(location)
 
         workflow_version = version.parse(wf.value('version'))
         application_version = version.parse(info.VERSION_STRING)
         if not _compatible_versions(workflow_version, application_version):
             pass  # should already have thrown an exception
 
-        self._location = location
+        self.set_location(location)
         if self._scene.is_loadable(wf):
-            self._scene.restrict_plugins(wf)
-            self._scene.load_state(wf)
+            if mark_workflow_in_use(location):
+                self._scene.load_state(wf, scene_rect)
+            else:
+                logger.warning('Workflow is already in use.')
+                raise WorkflowError('Workflow is already in use.')
         else:
             report = self._scene.doStepReport(wf)
             new_packages = False
@@ -253,8 +266,11 @@ class WorkflowManager(object):
                     self._parent.installPackage(reason)
 
             if self._scene.is_loadable(wf):
-                self._scene.restrict_plugins(wf)
-                self._scene.load_state(wf)
+                if mark_workflow_in_use(location):
+                    self._scene.load_state(wf, scene_rect)
+                else:
+                    logger.warning('Workflow is already in use.')
+                    raise WorkflowError('Workflow is already in use.')
             elif new_packages:
                 logger.warning('Unable to load workflow.  You may need to restart the application.')
                 raise WorkflowError('The given Workflow configuration file was not loaded. '
@@ -270,7 +286,7 @@ class WorkflowManager(object):
         self._saveStateIndex = self._currentStateIndex = 0
 
     def save(self):
-        wf = _getWorkflowConfiguration(self._location)
+        wf = _get_workflow_configuration(self._location)
 
         if 'version' not in wf.allKeys():
             wf.setValue('version', info.VERSION_STRING)
@@ -281,7 +297,7 @@ class WorkflowManager(object):
 
         self._scene.saveState(wf)
         self._saveStateIndex = self._currentStateIndex
-        af = _getWorkflowMetaAbsoluteFilename(self._location)
+        af = _get_workflow_meta_absolute_filename(self._location)
 
         try:
             annotation = serializeWorkflowAnnotation().decode('utf-8')
@@ -296,11 +312,15 @@ class WorkflowManager(object):
         """
         Close the current workflow
         """
-        self._location = ''
+        self.set_location('')
+        mark_workflow_ready_for_use()
         self._saveStateIndex = self._currentStateIndex = 0
 
     def isWorkflowOpen(self):
         return True  # not self._location == None
+
+    def isWorkflowPopulated(self):
+        return self._scene.has_steps()
 
     def isWorkflowTracked(self):
         markers = ['.git', '.hg']

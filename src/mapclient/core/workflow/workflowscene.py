@@ -19,25 +19,28 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import uuid
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 from mapclient.core.workflow.workflowdependencygraph import WorkflowDependencyGraph
+from mapclient.core.workflow.workflowerror import WorkflowError
 from mapclient.core.workflow.workflowitems import MetaStep, Connection
 from mapclient.mountpoints.workflowstep import workflowStepFactory
-from mapclient.core.utils import loadConfiguration
-from mapclient.settings.general import get_configuration_file, get_restricted_plugins, restrict_plugins
+from mapclient.core.utils import load_configuration
+from mapclient.settings.general import get_configuration_file
 
 
 class WorkflowScene(object):
     """
-    This is the authoratative model for the workflow scene.
+    This is the authoritative model for the workflow scene.
     """
 
     def __init__(self, manager):
         self._manager = manager
+        self._location = ''
         self._items = {}
         self._dependencyGraph = WorkflowDependencyGraph(self)
         self._main_window = None
+        self._default_view_rect = QtCore.QRectF(0, 0, 1024, 880)
         self._view_parameters = None
 
     def getViewParameters(self):
@@ -50,6 +53,7 @@ class WorkflowScene(object):
         pass
 
     def updateWorkflowLocation(self, location):
+        self._location = location
         update_made = False
         for meta_item in self._items:
             if meta_item.Type == MetaStep.Type:
@@ -61,6 +65,11 @@ class WorkflowScene(object):
                     step.deserialize(step.serialize())
 
         return update_made
+
+    def changeIdentifier(self, meta_step):
+        if meta_step.getIdentifier() and meta_step.getStepIdentifier():
+            self._manager.changeIdentifier(meta_step.getIdentifier(), meta_step.getStepIdentifier())
+        meta_step.syncIdentifier()
 
     def saveState(self, ws):
         connectionMap = {}
@@ -74,7 +83,6 @@ class WorkflowScene(object):
                 else:
                     connectionMap[item.source()] = [item]
 
-        location = self._manager.location()
         ws.beginGroup('view')
         for key in self._view_parameters:
             ws.setValue(key, self._view_parameters[key])
@@ -86,15 +94,14 @@ class WorkflowScene(object):
         nodeIndex = 0
         for metastep in stepList:
             if metastep.hasIdentifierChanged():
-                if metastep.getIdentifier() and metastep.getStepIdentifier():
-                    self._manager.changeIdentifier(metastep.getIdentifier(), metastep.getStepIdentifier())
-                metastep.syncIdentifier()
+                self.changeIdentifier(metastep)
 
             identifier = metastep.getIdentifier() or metastep.getUniqueIdentifier()
             step = metastep.getStep()
+            step.createGitIgnore()
             step_config = step.serialize()
             if step_config:
-                with open(get_configuration_file(location, identifier), 'w') as f:
+                with open(get_configuration_file(self._location, identifier), 'w') as f:
                     f.write(step_config)
             ws.setArrayIndex(nodeIndex)
             source_uri = step.getSourceURI()
@@ -122,11 +129,10 @@ class WorkflowScene(object):
 
     def is_loadable(self, ws):
         loadable = True
-        location = self._manager.location()
         try:
             step_names = self._read_step_names(ws)
             for name in step_names:
-                step = workflowStepFactory(name, location)
+                workflowStepFactory(name, self._location)
 
         except ValueError:
             loadable = False
@@ -149,42 +155,63 @@ class WorkflowScene(object):
 
         return step_names
 
-    def is_restricted(self, ws):
-        step_names = self._read_step_names(ws)
-        restricted_plugins = get_restricted_plugins()
-        if len(step_names & restricted_plugins) != 0:
-            return True
-
-        return False
-
-    def restrict_plugins(self, ws):
-        step_names = self._read_step_names(ws)
-        restrict_plugins(step_names)
-
-    def fit_workflow(self, graphics_view, graphics_scene):
+    def create_from(self, ws, name_identifiers, location):
         """
-        Scales the workflow items to fit into the current window size. This method maintains the aspect ratio of the saved workflow.
+        Create a workflow from the given names at the given location.
+        Returns a list of
+
+        :param ws: Workflow settings object.
+        :param name_identifiers: List of tuples consisting of step names and associated identifiers.
+        :param location: Location of the workflow on the local disk.
+        :return: List of steps.
         """
-        view_size = graphics_view.size()
-        scene_size = graphics_scene.sceneRect()
+        steps = []
+        try:
+            ws.beginGroup('nodes')
+            ws.beginWriteArray('nodelist')
+            for i, name_identifier in enumerate(name_identifiers):
+                ws.setArrayIndex(i)
+                step = workflowStepFactory(name_identifier[0], location)
+                step.setIdentifier(name_identifier[1])
+                meta_step = MetaStep(step)
+                ws.setValue('name', step.getName())
+                ws.setValue('position', meta_step.getPos())
+                ws.setValue('selected', meta_step.getSelected())
+                ws.setValue('identifier', meta_step.getIdentifier())
+                ws.setValue('unique_identifier', meta_step.getUniqueIdentifier())
+                steps.append(step)
 
-        # -70 from both to account for step item width. +22 to scene to account for scene border.
-        sf_x = (view_size.width() - 70) / (scene_size.width() - 48)
-        sf_y = (view_size.height() - 70) / (scene_size.height() - 48)
+            ws.endArray()
+            ws.endGroup()
 
-        if sf_x != 0 or sf_y != 0:
-            for item in self.items():
-                if isinstance(item, MetaStep):
-                    x = sf_x * item.getPos().x()
-                    y = sf_y * item.getPos().y()
-                    item.setPos(QtCore.QPointF(x, y))
+        except ValueError:
+            names = [name_identifier[0] for name_identifier in name_identifiers]
+            raise WorkflowError(f'Could not create workflow from names: {names}')
 
-            graphics_scene.setSceneRect(graphics_view.rect())
-            graphics_scene.updateModel()
+        return steps
+
+    @staticmethod
+    def get_step_name_from_identifier(ws, target_identifier):
+        ws.beginGroup('nodes')
+        step_name = ''
+        node_count = ws.beginReadArray('nodelist')
+        i = 0
+        while i < node_count and not step_name:
+            ws.setArrayIndex(i)
+            name = ws.value('name')
+            identifier = ws.value('identifier')
+            if identifier == target_identifier:
+                step_name = name
+
+            i += 1
+
+        ws.endArray()
+        ws.endGroup()
+
+        return step_name
 
     def doStepReport(self, ws):
         report = {}
-        location = self._manager.location()
         ws.beginGroup('nodes')
         node_count = ws.beginReadArray('nodelist')
         for i in range(node_count):
@@ -192,7 +219,7 @@ class WorkflowScene(object):
             name = ws.value('name')
 
             try:
-                step = workflowStepFactory(name, location)
+                step = workflowStepFactory(name, self._location)
                 report[name] = 'Found'
 
             except ValueError as e:
@@ -217,16 +244,28 @@ class WorkflowScene(object):
 
         return report
 
-    def load_state(self, ws):
+    def load_state(self, ws, scene_rect):
         self.clear()
-        location = self._manager.location()
         ws.beginGroup('view')
-        self._view_parameters = {
+        loaded_view_parameters = {
             'scale': float(ws.value('scale', '1.0')),
-            'rect': ws.value('rect'),
+            'rect': ws.value('rect', self._default_view_rect),
             'transform': ws.value('transform')
         }
         ws.endGroup()
+
+        # Scale the WorkflowScene view-parameters:
+        current_rect = scene_rect
+        loaded_rect = loaded_view_parameters['rect']
+
+        scale_factor = loaded_view_parameters['scale']
+        if scale_factor != 1.0:
+            current_rect.setWidth(current_rect.width() / scale_factor)
+            current_rect.setHeight(current_rect.height() / scale_factor)
+        self._view_parameters = loaded_view_parameters
+
+        sf_x = current_rect.width() / loaded_rect.width()
+        sf_y = current_rect.height() / loaded_rect.height()
 
         ws.beginGroup('nodes')
         nodeCount = ws.beginReadArray('nodelist')
@@ -240,7 +279,11 @@ class WorkflowScene(object):
             identifier = ws.value('identifier')
             uniqueIdentifier = ws.value('unique_identifier', uuid.uuid1())
 
-            step = workflowStepFactory(name, location)
+            # Adjust the item positions according to the scale factors.
+            position.setX(position.x() * sf_x)
+            position.setY(position.y() * sf_y)
+
+            step = workflowStepFactory(name, self._location)
             step.setMainWindow(self._main_window)
             step.registerIdentifierOccursCount(self.identifierOccursCount)
             metastep = MetaStep(step)
@@ -253,7 +296,7 @@ class WorkflowScene(object):
 
             # Deserialize after adding the step to the scene, this is so
             # we can validate the step identifier
-            configuration = loadConfiguration(location, identifier)
+            configuration = load_configuration(self._location, identifier)
             step.deserialize(configuration)
             arcCount = ws.beginReadArray('connections')
             for j in range(arcCount):
@@ -275,9 +318,6 @@ class WorkflowScene(object):
 
     def setMainWindow(self, main_window):
         self._main_window = main_window
-
-    def manager(self):
-        return self._manager
 
     def canExecute(self):
         return self._dependencyGraph.can_execute()
@@ -304,6 +344,32 @@ class WorkflowScene(object):
 
     def items(self):
         return list(self._items.keys())
+
+    def has_steps(self):
+        for item in self._items:
+            if item.Type == MetaStep.Type:
+                return True
+
+        return False
+
+    def step_list(self, by='identifier'):
+        steps = []
+        for item in self._items:
+            if item.Type == MetaStep.Type:
+                if by == 'identifier':
+                    steps.append(item.getIdentifier())
+                elif by == 'name':
+                    steps.append(item.getName())
+
+        return list(set(steps)) if by == 'name' else steps
+
+    def matching_identifiers(self, name):
+        identifiers = []
+        for item in self._items:
+            if item.Type == MetaStep.Type and item.getName() == name:
+                identifiers.append(item.getIdentifier())
+
+        return identifiers
 
     def addItem(self, item):
         self._items[item] = item

@@ -19,7 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import uuid
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 
 class Item(object):
@@ -40,7 +40,7 @@ class MetaStep(Item):
     def __init__(self, step):
         Item.__init__(self)
         self._step = step
-        self._pos = QtCore.QPointF(0, 0)
+        self._pos = QtCore.QPointF(10, 10)
         self._uid = str(uuid.uuid1())
         self._id = step.getIdentifier()
 

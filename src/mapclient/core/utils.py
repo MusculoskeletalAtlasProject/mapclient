@@ -17,31 +17,46 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
+import logging
 import os
 import re
+import shutil
 import sys
+from pathlib import Path
 
 from subprocess import Popen, PIPE, DEVNULL
-import PySide2 as RefMod
+import PySide6 as RefMod
 
-from mapclient.settings.definitions import PLUGINS_PACKAGE_NAME
+from mapclient.settings.definitions import APPLICATION_NAME, PLUGINS_PACKAGE_NAME
 from mapclient.settings.general import get_configuration_file
+
+logger = logging.getLogger(__name__)
 
 
 def is_frozen():
     return getattr(sys, 'frozen', False)
 
 
-def convertExceptionToMessage(e):
+def is_mapping_tools():
+    variant = get_map_client_variant()
+    return variant == "mapping-tools"
+
+
+def get_map_client_variant():
+    application_name = os.path.basename(sys.executable)
+    pattern = r'{}-(.*).exe'.format(APPLICATION_NAME)
+    match = re.search(pattern, application_name)
+    variant = match.group(1) if match else ""
+
+    return variant
+
+
+def convert_exception_to_message(e):
     string_e = str(e)
-    if '\n' in string_e:
-        message = string_e.replace('\n', ' ')
-    else:
-        message = string_e    
-    return message
+    return string_e.replace('\n', ' ')
 
 
-def getSystemPipCandidates():
+def get_system_pip_candidates():
     """Return a list of strings with the candidates for the pip application
     for this environment.
     """
@@ -128,7 +143,7 @@ def which(cmd, mode=os.F_OK | os.X_OK, path=None):
     return None
 
 
-def loadConfiguration(location, identifier):
+def load_configuration(location, identifier):
     filename = get_configuration_file(location, identifier)
     configuration = '{}'
     try:
@@ -137,6 +152,39 @@ def loadConfiguration(location, identifier):
     except Exception:
         pass
     return configuration
+
+
+def copy_step_additional_config_files(step, source_configuration_dir, target_configuration_dir):
+    logger.info(f'Copying additional cfg files for: {step.getName()}')
+    for additional_cfg_file in get_steps_additional_config_files(step):
+        logger.info(f' - Additional cfg file reported: {additional_cfg_file}')
+        source_cfg_dir = os.path.dirname(additional_cfg_file)
+        source_cfg_file = os.path.join(source_configuration_dir, additional_cfg_file)
+
+        source_basename = os.path.basename(additional_cfg_file)
+        source_workflow_relative_cfg = os.path.join(source_cfg_dir, source_basename)
+
+        target_cfg_file = os.path.realpath(os.path.join(target_configuration_dir, source_workflow_relative_cfg))
+        if os.path.isfile(source_cfg_file):
+            required_path = os.path.join(target_configuration_dir, source_cfg_dir)
+            if not os.path.exists(required_path):
+                os.makedirs(required_path)
+            logger.info(f' - Copying cfg file: {source_cfg_file} -> {target_cfg_file}')
+            shutil.copyfile(source_cfg_file, target_cfg_file)
+
+
+def get_steps_additional_config_files(step):
+
+    workflow_dir = step.getLocation()
+
+    def _workflow_relative_path(filename):
+        if os.path.isabs(filename):
+            return os.path.relpath(filename, workflow_dir)
+
+        return filename
+
+    additional_config_files = step.getAdditionalConfigFiles()
+    return [_workflow_relative_path(file) for file in additional_config_files]
 
 
 class FileTypeObject(object):
@@ -180,7 +228,7 @@ def grep(path, regex, one_only=False, file_endswith=''):
     return res
 
 
-def determineStepName(step_name_file, class_name):
+def determine_step_name(step_name_file, class_name):
     r = r'[ \t]+super\(' + class_name + ', self\)\.__init__\(\'([^\']+)\', location\)'
     re_step_name = re.compile(r)
 
@@ -196,7 +244,7 @@ def determineStepName(step_name_file, class_name):
     return step_name
 
 
-def determineStepClassName(step_name_file):
+def determine_step_class_name(step_name_file):
     r = r'class[ \t]+([\w]+)\(\bWorkflowStepMountPoint\b\):'
     re_step_class = re.compile(r)
 
@@ -212,14 +260,14 @@ def determineStepClassName(step_name_file):
     return step_class_name
 
 
-def determinePackageName(plugin_dir, file_in_package):
+def determine_package_name(plugin_dir, file_in_package):
     plugin_package_path = os.path.join(plugin_dir, PLUGINS_PACKAGE_NAME)
     package_name = file_in_package.replace(plugin_package_path, '')
     package_name = package_name.split(os.path.sep)[0]
     return package_name
 
 
-def convertNameToPythonPackage(name):
+def convert_name_to_python_package(name):
     package_name = name.lower()
     package_name = package_name.replace(' ', '')
     return package_name + 'step'
@@ -255,13 +303,15 @@ def find_file(filename, search_path):
 
 
 def qt_tool_wrapper(qt_tool, args, external=False):
+    pyside_dir = Path(RefMod.__file__).resolve().parent
     if external:
         exe = qt_tool
+    elif sys.platform != "win32":
+        exe = os.path.join(pyside_dir, "Qt", "libexec", qt_tool)
     else:
-        pyside_dir = os.path.dirname(RefMod.__file__)
         exe = os.path.join(pyside_dir, qt_tool)
 
-    cmd = [exe] + args
+    cmd = [os.fspath(exe)] + args
     proc = Popen(cmd, stdout=DEVNULL, stderr=PIPE)
     out, err = proc.communicate()
 

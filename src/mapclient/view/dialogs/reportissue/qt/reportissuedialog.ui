@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ReportIssueDialog</class>
+ <widget class="QDialog" name="ReportIssueDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>650</width>
+    <height>400</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Report Issue</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QFrame" name="frame_2">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QLabel" name="description">
+        <property name="text">
+         <string>&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Issue Reporting&lt;/span&gt;&lt;/p&gt;
+
+&lt;p align=&quot;justify&quot;&gt;If you have encountered an issue with the Mapping-Tools, please consider submitting an issue report using one of the following methods:&lt;/p&gt;
+
+&lt;p align=&quot;justify&quot; style=&quot;margin-left:20; margin-right:20;&quot;&gt;
+
+If possible, we recommend submitting an issue in the &lt;a href=&quot;https://github.com/MusculoskeletalAtlasProject/mapclient&quot;&gt;MAP-Client&lt;/a&gt; GitHub repository. This is our primary location for all issues related to the MAP-Client and Mapping-Tools. Once you have submitted an issue, the MAP-Client developers will be notified and you can use the issue page to track any progress made in response to your submission. Note that you will need a GitHub account for this method.
+
+&lt;/p&gt;
+</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignHCenter|Qt::AlignTop</set>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="wrike_description">
+        <property name="text">
+         <string>&lt;p align=&quot;justify&quot; style=&quot;margin-left:20; margin-right:20;&quot;&gt;
+
+If you are a member of the SPARC Wrike group, you may also wish to submit a request for a Wrike ticket using the link provided below.
+
+&lt;/p&gt;
+</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="description_2">
+        <property name="text">
+         <string>&lt;p align=&quot;justify&quot; style=&quot;margin-left:20; margin-right:20;&quot;&gt;
+
+Alternatively, it is also possible to report an issue by email if you'd prefer. Please direct your messages to &lt;i&gt;mapping-tools-support@sparc.science&lt;/i&gt; for any issues or questions you have in regards to the MAP-Client.
+
+&lt;br/&gt;&lt;/p&gt;
+
+&lt;p align=&quot;justify&quot;&gt;Make sure to provide a description of the issue or error that you have encountered, including any steps that may be required to reproduce it. If possible, please also include any relevant error messages. Note that the MAP-Client keeps a log of the current session if you need to review any error messages or related application events. A copy of this log can be accessed within the MAP-Client under &lt;i&gt;View -&gt; Log Information&lt;/i&gt;. If the error occurred during the execution of a plugin step, please include the name of the plugin in your report.&lt;/p&gt;</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="github_issue_button">
+        <property name="text">
+         <string>GitHub Issue</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="wrike_ticket_button">
+        <property name="text">
+         <string>Wrike Ticket</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="close_button">
+        <property name="text">
+         <string>Close</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>close_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ReportIssueDialog</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>530</x>
+     <y>362</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -23,15 +23,15 @@ import sys
 import platform
 import ast
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 
-from mapclient.core.utils import convertNameToPythonPackage, is_frozen
+from mapclient.core.utils import convert_name_to_python_package, is_frozen
 from mapclient.tools.pluginwizard.skeleton import SkeletonOptions
-from mapclient.tools.pluginwizard.ui_output import Ui_Output
-from mapclient.tools.pluginwizard.ui_name import Ui_Name
-from mapclient.tools.pluginwizard.ui_ports import Ui_Ports
-from mapclient.tools.pluginwizard.ui_config import Ui_Config
-from mapclient.tools.pluginwizard.ui_misc import Ui_Misc
+from mapclient.tools.pluginwizard.ui.ui_output import Ui_Output
+from mapclient.tools.pluginwizard.ui.ui_name import Ui_Name
+from mapclient.tools.pluginwizard.ui.ui_ports import Ui_Ports
+from mapclient.tools.pluginwizard.ui.ui_config import Ui_Config
+from mapclient.tools.pluginwizard.ui.ui_misc import Ui_Misc
 
 # Registered field names:
 OUTPUT_DIRECTORY_FIELD = 'output_directory'
@@ -209,7 +209,7 @@ class NameWizardPage(QtWidgets.QWizardPage):
 
     def _nameChanged(self):
         if not self._packageNameEdited:
-            package_name = convertNameToPythonPackage(self._ui.nameLineEdit.text())
+            package_name = convert_name_to_python_package(self._ui.nameLineEdit.text())
             self._ui.packageNameLineEdit.setText(package_name)
 
         self.completeChanged.emit()
@@ -239,11 +239,11 @@ class NameWizardPage(QtWidgets.QWizardPage):
                 image = QtGui.QPixmap.fromImage(image)
 
             if image:
-                self._ui.iconPictureLabel.setPixmap(image.scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation))
+                self._ui.iconPictureLabel.setPixmap(image.scaled(64, 64, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation))
         else:
             image = QtGui.QImage(':icons/images/default.png')
             image = self._combineImageWithBackground(image)
-            self._ui.iconPictureLabel.setPixmap(QtGui.QPixmap.fromImage(image).scaled(64, 64, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.FastTransformation))
+            self._ui.iconPictureLabel.setPixmap(QtGui.QPixmap.fromImage(image).scaled(64, 64, QtCore.Qt.KeepAspectRatio, QtCore.Qt.FastTransformation))
 
         self.completeChanged.emit()
 
