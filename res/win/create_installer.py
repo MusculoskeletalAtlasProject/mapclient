@@ -54,7 +54,7 @@ def run_makensis(repo_root_dir, app_version, variant):
 
 if __name__ == '__main__':
     '''
-    Create a Windows application installer with NSIS and pyinsatller.
+    Create a Windows application installer with NSIS and pyinstaller.
     '''
     parser = argparse.ArgumentParser(prog="create_installer")
     parser.add_argument("version", help="MAP Client version")
