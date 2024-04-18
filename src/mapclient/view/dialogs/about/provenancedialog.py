@@ -35,7 +35,6 @@ class ProvenanceDialog(QDialog):
 
         info = reproducibility_info()
         self._headers = ["Package", "Version", "Location"]
-        print(list(info.keys()))
         for key in info.keys():
             if key == 'mapclient':
                 table = self._ui.tableWidgetMAPClient
