@@ -180,6 +180,8 @@ class WorkflowWidget(QtWidgets.QWidget):
             errors.append('The workflow has multiple steps but no connections.')
         elif status == 4:
             errors.append('The workflow is currently running.')
+        elif status == 5:
+            errors.append('The workflow has a loop.')
 
         if errors:
             errors_str = '\n'.join(
