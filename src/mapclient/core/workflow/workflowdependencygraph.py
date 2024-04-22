@@ -63,7 +63,6 @@ def _determine_topological_order(graph, starting_set):
     Determine the topological order of the graph.  Returns
     an empty list if the graph contains a loop.
     """
-    # Find topological order
     temp_graph = graph.copy()
     topologicalOrder = []
     while len(starting_set) > 0:
@@ -157,8 +156,12 @@ class WorkflowDependencyGraph(object):
         nodes = self._find_all_connected_nodes()
         # Find starting point set, uses helper graph
         starting_set = _find_starting_set(self._dependency_graph, nodes)
+        print("can execute")
+        print(self._dependency_graph)
+        print(starting_set)
 
         self._topological_order = _determine_topological_order(self._dependency_graph, starting_set)
+        print(self._topological_order)
 
         items_count = len(self._scene.items())
         solo_node = self._solo_node()
@@ -172,10 +175,12 @@ class WorkflowDependencyGraph(object):
             return 1
         elif items_count == 0:
             return 2
-        elif items_count > 1 and len(self._topological_order) == 0:
+        elif items_count > 1 and len(self._topological_order) == 0 and len(self._dependency_graph.keys()) == 0:
             return 3
         elif self._current != -1:
             return 4
+        elif items_count > 1 and len(self._topological_order) == 0:
+            return 5
 
         return 0
 
