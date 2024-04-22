@@ -156,12 +156,8 @@ class WorkflowDependencyGraph(object):
         nodes = self._find_all_connected_nodes()
         # Find starting point set, uses helper graph
         starting_set = _find_starting_set(self._dependency_graph, nodes)
-        print("can execute")
-        print(self._dependency_graph)
-        print(starting_set)
 
         self._topological_order = _determine_topological_order(self._dependency_graph, starting_set)
-        print(self._topological_order)
 
         items_count = len(self._scene.items())
         solo_node = self._solo_node()
