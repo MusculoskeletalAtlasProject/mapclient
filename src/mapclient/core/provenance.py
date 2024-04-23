@@ -64,7 +64,6 @@ def describe_tag(src_dir, check_parent=True):
     if git_repo is None:
         return "******"
 
-    print('Describing:', git_repo)
     r = Repo(git_repo)
 
     try:

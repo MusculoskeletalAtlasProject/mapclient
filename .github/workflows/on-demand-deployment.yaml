@@ -174,11 +174,12 @@ jobs:
           fi
           
           cd mapclient
-          git config --list
-          # git config --global --list
-          echo "====="
+          echo "==============================================="
+          echo "=== setting extensions.worktreeconfig false ==="
+          echo "====== because Dulwich cannot handle it. ======"
+          echo "==============================================="
           git config extensions.worktreeconfig false
-          echo "------"
+          echo "---=---"
           git config --list
           cd ..
           
