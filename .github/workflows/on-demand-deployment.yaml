@@ -173,6 +173,10 @@ jobs:
             exit 1
           fi
           
+          cd mapclient
+          git config --list
+          cd ..
+          
           python_exe=${python_exe//\\//}
           echo "python_exe=$python_exe"
           echo "python_exe=$python_exe" >> $GITHUB_OUTPUT
