@@ -6,28 +6,28 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>573</width>
-    <height>481</height>
+    <width>712</width>
+    <height>483</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Advanced</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../widgets/qt/resources.qrc">
+   <iconset>
     <normaloff>:/mapclient/images/icon-app.png</normaloff>:/mapclient/images/icon-app.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="tabPosition">
-      <enum>QTabWidget::North</enum>
+      <enum>QTabWidget::TabPosition::North</enum>
      </property>
      <property name="tabShape">
-      <enum>QTabWidget::Rounded</enum>
+      <enum>QTabWidget::TabShape::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <property name="iconSize">
       <size>
@@ -54,7 +54,7 @@
            <item>
             <spacer name="horizontalSpacer">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -85,10 +85,10 @@
          <item>
           <widget class="QListWidget" name="listWidget">
            <property name="editTriggers">
-            <set>QAbstractItemView::NoEditTriggers</set>
+            <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::ExtendedSelection</enum>
+            <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
            </property>
           </widget>
          </item>
@@ -104,7 +104,7 @@
            <item>
             <spacer name="horizontalSpacer_2">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -205,7 +205,7 @@
                <item>
                 <spacer name="horizontalSpacer_5">
                  <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
+                  <enum>Qt::Orientation::Horizontal</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
@@ -306,7 +306,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_7">
          <item>
-          <widget class="QGroupBox" name="groupBox">
+          <widget class="QGroupBox" name="groupBoxErrorSettings">
            <property name="title">
             <string>Plugin Error Settings</string>
            </property>
@@ -325,7 +325,7 @@
                 <item>
                  <spacer name="horizontalSpacer_3">
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -353,7 +353,7 @@
               <item>
                <widget class="QListWidget" name="ignoreList">
                 <property name="selectionMode">
-                 <enum>QAbstractItemView::ExtendedSelection</enum>
+                 <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
                 </property>
                </widget>
               </item>
@@ -373,7 +373,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBox">
+          <widget class="QGroupBox" name="groupBoxUpdaterSettings">
            <property name="title">
             <string>Plugin Updater Settings</string>
            </property>
@@ -434,7 +434,7 @@
               <item>
                <widget class="QListWidget" name="resourceList">
                 <property name="selectionMode">
-                 <enum>QAbstractItemView::ExtendedSelection</enum>
+                 <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
                 </property>
                </widget>
               </item>
@@ -536,7 +536,7 @@
      <item>
       <widget class="QDialogButtonBox" name="buttonBox">
        <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+        <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
        </property>
       </widget>
      </item>

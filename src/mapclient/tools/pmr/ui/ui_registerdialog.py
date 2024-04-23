@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'registerdialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.5.1
+## Created by: Qt User Interface Compiler version 6.7.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -33,7 +33,7 @@ class Ui_RegisterDialog(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.label = QLabel(RegisterDialog)
         self.label.setObjectName(u"label")
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(10)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
@@ -46,7 +46,7 @@ class Ui_RegisterDialog(object):
 
         self.tabWidget = QTabWidget(RegisterDialog)
         self.tabWidget.setObjectName(u"tabWidget")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(1)
         sizePolicy1.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
@@ -68,14 +68,14 @@ class Ui_RegisterDialog(object):
 
         self.horizontalLayout_2.addWidget(self.pushButtonRegister)
 
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer)
 
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_2)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 142, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_2 = QSpacerItem(20, 142, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_3.addItem(self.verticalSpacer_2)
 
@@ -91,14 +91,14 @@ class Ui_RegisterDialog(object):
 
         self.horizontalLayout_3.addWidget(self.pushButtonDeregister)
 
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_3.addItem(self.horizontalSpacer_2)
 
 
         self.verticalLayout_4.addLayout(self.horizontalLayout_3)
 
-        self.verticalSpacer_3 = QSpacerItem(20, 142, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_3 = QSpacerItem(20, 142, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_4.addItem(self.verticalSpacer_3)
 
@@ -106,7 +106,7 @@ class Ui_RegisterDialog(object):
 
         self.verticalLayout_2.addWidget(self.stackedWidgetRegister)
 
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_2.addItem(self.verticalSpacer)
 

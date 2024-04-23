@@ -290,6 +290,8 @@ class WorkflowManager(object):
 
         if 'version' not in wf.allKeys():
             wf.setValue('version', info.VERSION_STRING)
+        if 'id' not in wf.allKeys():
+            wf.setValue('id', info.DEFAULT_WORKFLOW_PROJECT_IDENTIFIER)
         workflow_version = version.parse(wf.value('version'))
         application_version = version.parse(info.VERSION_STRING)
         if workflow_version < application_version:

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'aboutdialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.4.1
+## Created by: Qt User Interface Compiler version 6.7.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -18,7 +18,6 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
     QLabel, QPushButton, QSizePolicy, QSpacerItem,
     QVBoxLayout, QWidget)
-
 from mapclient.view.ui import resources_rc
 
 class Ui_AboutDialog(object):
@@ -27,7 +26,7 @@ class Ui_AboutDialog(object):
             AboutDialog.setObjectName(u"AboutDialog")
         AboutDialog.setWindowModality(Qt.ApplicationModal)
         AboutDialog.resize(803, 644)
-        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(AboutDialog.sizePolicy().hasHeightForWidth())
@@ -51,7 +50,7 @@ class Ui_AboutDialog(object):
 
         self.aboutTextLabel = QLabel(self.frame)
         self.aboutTextLabel.setObjectName(u"aboutTextLabel")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.aboutTextLabel.sizePolicy().hasHeightForWidth())
@@ -74,7 +73,7 @@ class Ui_AboutDialog(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.btn_Credits = QPushButton(self.frame_3)
         self.btn_Credits.setObjectName(u"btn_Credits")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.btn_Credits.sizePolicy().hasHeightForWidth())
@@ -92,7 +91,7 @@ class Ui_AboutDialog(object):
 
         self.horizontalLayout.addWidget(self.btn_Provenance)
 
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
 

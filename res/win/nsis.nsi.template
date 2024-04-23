@@ -60,6 +60,7 @@
 
 ;-------------------------------------------------------------------------------
 ; Uninstaller Pages
+    !define MUI_FINISHPAGE_TITLE_3LINES
     !insertmacro MUI_UNPAGE_CONFIRM
     !insertmacro MUI_UNPAGE_INSTFILES
 

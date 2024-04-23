@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'advanceddialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.5.1
+## Created by: Qt User Interface Compiler version 6.7.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -26,7 +26,7 @@ class Ui_AdvancedDialog(object):
     def setupUi(self, AdvancedDialog):
         if not AdvancedDialog.objectName():
             AdvancedDialog.setObjectName(u"AdvancedDialog")
-        AdvancedDialog.resize(573, 481)
+        AdvancedDialog.resize(712, 483)
         icon = QIcon()
         icon.addFile(u":/mapclient/images/icon-app.png", QSize(), QIcon.Normal, QIcon.Off)
         AdvancedDialog.setWindowIcon(icon)
@@ -34,8 +34,8 @@ class Ui_AdvancedDialog(object):
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.tabWidget = QTabWidget(AdvancedDialog)
         self.tabWidget.setObjectName(u"tabWidget")
-        self.tabWidget.setTabPosition(QTabWidget.North)
-        self.tabWidget.setTabShape(QTabWidget.Rounded)
+        self.tabWidget.setTabPosition(QTabWidget.TabPosition.North)
+        self.tabWidget.setTabShape(QTabWidget.TabShape.Rounded)
         self.tabWidget.setIconSize(QSize(16, 16))
         self.updatesTab = QWidget()
         self.updatesTab.setObjectName(u"updatesTab")
@@ -50,7 +50,7 @@ class Ui_AdvancedDialog(object):
 
         self.horizontalLayout.addWidget(self.label)
 
-        self.horizontalSpacer = QSpacerItem(218, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer = QSpacerItem(218, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
 
@@ -65,8 +65,8 @@ class Ui_AdvancedDialog(object):
 
         self.listWidget = QListWidget(self.updatesTab)
         self.listWidget.setObjectName(u"listWidget")
-        self.listWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.listWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.listWidget.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.listWidget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
 
         self.verticalLayout_2.addWidget(self.listWidget)
 
@@ -77,7 +77,7 @@ class Ui_AdvancedDialog(object):
 
         self.horizontalLayout_2.addWidget(self.label_2)
 
-        self.horizontalSpacer_2 = QSpacerItem(118, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_2 = QSpacerItem(118, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer_2)
 
@@ -156,7 +156,7 @@ class Ui_AdvancedDialog(object):
 
         self.horizontalLayout_10 = QHBoxLayout()
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
-        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_10.addItem(self.horizontalSpacer_5)
 
@@ -241,24 +241,24 @@ class Ui_AdvancedDialog(object):
         self.verticalLayout_9.setObjectName(u"verticalLayout_9")
         self.horizontalLayout_7 = QHBoxLayout()
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
-        self.groupBox = QGroupBox(self.optionsTab)
-        self.groupBox.setObjectName(u"groupBox")
-        self.gridLayout = QGridLayout(self.groupBox)
+        self.groupBoxErrorSettings = QGroupBox(self.optionsTab)
+        self.groupBoxErrorSettings.setObjectName(u"groupBoxErrorSettings")
+        self.gridLayout = QGridLayout(self.groupBoxErrorSettings)
         self.gridLayout.setObjectName(u"gridLayout")
         self.verticalLayout_3 = QVBoxLayout()
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.label_3 = QLabel(self.groupBox)
+        self.label_3 = QLabel(self.groupBoxErrorSettings)
         self.label_3.setObjectName(u"label_3")
 
         self.horizontalLayout_4.addWidget(self.label_3)
 
-        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_4.addItem(self.horizontalSpacer_3)
 
-        self.revertButton = QPushButton(self.groupBox)
+        self.revertButton = QPushButton(self.groupBoxErrorSettings)
         self.revertButton.setObjectName(u"revertButton")
         self.revertButton.setCheckable(False)
         self.revertButton.setFlat(False)
@@ -268,49 +268,49 @@ class Ui_AdvancedDialog(object):
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_4)
 
-        self.ignoreList = QListWidget(self.groupBox)
+        self.ignoreList = QListWidget(self.groupBoxErrorSettings)
         self.ignoreList.setObjectName(u"ignoreList")
-        self.ignoreList.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.ignoreList.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
 
         self.verticalLayout_3.addWidget(self.ignoreList)
 
 
         self.gridLayout.addLayout(self.verticalLayout_3, 0, 0, 1, 1)
 
-        self.showPluginErrors = QCheckBox(self.groupBox)
+        self.showPluginErrors = QCheckBox(self.groupBoxErrorSettings)
         self.showPluginErrors.setObjectName(u"showPluginErrors")
         self.showPluginErrors.setChecked(True)
 
         self.gridLayout.addWidget(self.showPluginErrors, 1, 0, 1, 1)
 
 
-        self.horizontalLayout_7.addWidget(self.groupBox)
+        self.horizontalLayout_7.addWidget(self.groupBoxErrorSettings)
 
-        self.groupBox1 = QGroupBox(self.optionsTab)
-        self.groupBox1.setObjectName(u"groupBox1")
-        self.verticalLayout_8 = QVBoxLayout(self.groupBox1)
+        self.groupBoxUpdaterSettings = QGroupBox(self.optionsTab)
+        self.groupBoxUpdaterSettings.setObjectName(u"groupBoxUpdaterSettings")
+        self.verticalLayout_8 = QVBoxLayout(self.groupBoxUpdaterSettings)
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
         self.verticalLayout_7 = QVBoxLayout()
         self.verticalLayout_7.setObjectName(u"verticalLayout_7")
-        self.syntaxCheckBox = QCheckBox(self.groupBox1)
+        self.syntaxCheckBox = QCheckBox(self.groupBoxUpdaterSettings)
         self.syntaxCheckBox.setObjectName(u"syntaxCheckBox")
         self.syntaxCheckBox.setChecked(True)
 
         self.verticalLayout_7.addWidget(self.syntaxCheckBox)
 
-        self.indentCheckBox = QCheckBox(self.groupBox1)
+        self.indentCheckBox = QCheckBox(self.groupBoxUpdaterSettings)
         self.indentCheckBox.setObjectName(u"indentCheckBox")
         self.indentCheckBox.setChecked(True)
 
         self.verticalLayout_7.addWidget(self.indentCheckBox)
 
-        self.resourceCheckBox = QCheckBox(self.groupBox1)
+        self.resourceCheckBox = QCheckBox(self.groupBoxUpdaterSettings)
         self.resourceCheckBox.setObjectName(u"resourceCheckBox")
         self.resourceCheckBox.setChecked(True)
 
         self.verticalLayout_7.addWidget(self.resourceCheckBox)
 
-        self.locationCheckBox = QCheckBox(self.groupBox1)
+        self.locationCheckBox = QCheckBox(self.groupBoxUpdaterSettings)
         self.locationCheckBox.setObjectName(u"locationCheckBox")
         self.locationCheckBox.setChecked(True)
 
@@ -321,27 +321,27 @@ class Ui_AdvancedDialog(object):
 
         self.verticalLayout_6 = QVBoxLayout()
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
-        self.label_5 = QLabel(self.groupBox1)
+        self.label_5 = QLabel(self.groupBoxUpdaterSettings)
         self.label_5.setObjectName(u"label_5")
 
         self.verticalLayout_6.addWidget(self.label_5)
 
-        self.resourceList = QListWidget(self.groupBox1)
+        self.resourceList = QListWidget(self.groupBoxUpdaterSettings)
         self.resourceList.setObjectName(u"resourceList")
-        self.resourceList.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.resourceList.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
 
         self.verticalLayout_6.addWidget(self.resourceList)
 
         self.horizontalLayout_6 = QHBoxLayout()
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
-        self.lineEdit = QLineEdit(self.groupBox1)
+        self.lineEdit = QLineEdit(self.groupBoxUpdaterSettings)
         self.lineEdit.setObjectName(u"lineEdit")
 
         self.horizontalLayout_6.addWidget(self.lineEdit)
 
-        self.addResource = QPushButton(self.groupBox1)
+        self.addResource = QPushButton(self.groupBoxUpdaterSettings)
         self.addResource.setObjectName(u"addResource")
-        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.addResource.sizePolicy().hasHeightForWidth())
@@ -351,7 +351,7 @@ class Ui_AdvancedDialog(object):
 
         self.horizontalLayout_6.addWidget(self.addResource)
 
-        self.removeResource = QPushButton(self.groupBox1)
+        self.removeResource = QPushButton(self.groupBoxUpdaterSettings)
         self.removeResource.setObjectName(u"removeResource")
         sizePolicy.setHeightForWidth(self.removeResource.sizePolicy().hasHeightForWidth())
         self.removeResource.setSizePolicy(sizePolicy)
@@ -367,7 +367,7 @@ class Ui_AdvancedDialog(object):
         self.verticalLayout_8.addLayout(self.verticalLayout_6)
 
 
-        self.horizontalLayout_7.addWidget(self.groupBox1)
+        self.horizontalLayout_7.addWidget(self.groupBoxUpdaterSettings)
 
 
         self.verticalLayout_9.addLayout(self.horizontalLayout_7)
@@ -405,7 +405,7 @@ class Ui_AdvancedDialog(object):
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.buttonBox = QDialogButtonBox(AdvancedDialog)
         self.buttonBox.setObjectName(u"buttonBox")
-        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Cancel|QDialogButtonBox.StandardButton.Ok)
 
         self.horizontalLayout_3.addWidget(self.buttonBox)
 
@@ -417,7 +417,7 @@ class Ui_AdvancedDialog(object):
         self.buttonBox.accepted.connect(AdvancedDialog.accept)
         self.buttonBox.rejected.connect(AdvancedDialog.reject)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(AdvancedDialog)
@@ -448,11 +448,11 @@ class Ui_AdvancedDialog(object):
         self.label_7.setText(QCoreApplication.translate("AdvancedDialog", u"Virtual Environment Location:", None))
         self.modifyVELocation.setText(QCoreApplication.translate("AdvancedDialog", u"Modify", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.dependenciesTab), QCoreApplication.translate("AdvancedDialog", u"Dependencies", None))
-        self.groupBox.setTitle(QCoreApplication.translate("AdvancedDialog", u"Plugin Error Settings", None))
+        self.groupBoxErrorSettings.setTitle(QCoreApplication.translate("AdvancedDialog", u"Plugin Error Settings", None))
         self.label_3.setText(QCoreApplication.translate("AdvancedDialog", u"Ignored Plugins:", None))
         self.revertButton.setText(QCoreApplication.translate("AdvancedDialog", u"Revert", None))
         self.showPluginErrors.setText(QCoreApplication.translate("AdvancedDialog", u"Show Plugin Errors Dialog", None))
-        self.groupBox1.setTitle(QCoreApplication.translate("AdvancedDialog", u"Plugin Updater Settings", None))
+        self.groupBoxUpdaterSettings.setTitle(QCoreApplication.translate("AdvancedDialog", u"Plugin Updater Settings", None))
         self.syntaxCheckBox.setText(QCoreApplication.translate("AdvancedDialog", u"Syntax updates", None))
         self.indentCheckBox.setText(QCoreApplication.translate("AdvancedDialog", u"Indentation updates", None))
         self.resourceCheckBox.setText(QCoreApplication.translate("AdvancedDialog", u"Resource updates", None))
