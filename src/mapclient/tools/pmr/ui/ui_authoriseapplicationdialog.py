@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'authoriseapplicationdialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.4.1
+## Created by: Qt User Interface Compiler version 6.7.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -40,7 +40,7 @@ class Ui_AuthoriseApplicationDialog(object):
 
         self.verticalLayout_2.addWidget(self.tokenLineEdit)
 
-        self.verticalSpacer = QSpacerItem(20, 122, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer = QSpacerItem(20, 122, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_2.addItem(self.verticalSpacer)
 
