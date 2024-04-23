@@ -175,6 +175,8 @@ jobs:
           
           cd mapclient
           git config --list
+          git config --global --list
+          git config extensions.worktreeconfig false
           cd ..
           
           python_exe=${python_exe//\\//}

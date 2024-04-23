@@ -65,11 +65,7 @@ def describe_tag(src_dir, check_parent=True):
         return "******"
 
     print('Describing:', git_repo)
-    try:
-        r = Repo(git_repo)
-    except dulwich.repo.UnsupportedExtension:
-        print(" ====== Failed to load repo:", git_repo)
-        return "err"
+    r = Repo(git_repo)
 
     try:
         r.head()
