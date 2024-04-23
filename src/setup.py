@@ -36,7 +36,7 @@ package_dependencies = [
     'virtualenv',
     'requests',
     'python-dateutil',
-    'dulwich',
+    'dulwich != 0.22.0',
     'pmr2.wfctrl >= 0.6.0',
     'pmr2.client >= 0.2',
     'packaging',
