@@ -5,7 +5,6 @@ import subprocess
 import sys
 
 from importlib import import_module
-from io import StringIO
 
 import dulwich.porcelain
 from dulwich.repo import Repo
@@ -65,7 +64,13 @@ def describe_tag(src_dir, check_parent=True):
     if git_repo is None:
         return "******"
 
-    r = Repo(git_repo)
+    print('Describing:', git_repo)
+    try:
+        r = Repo(git_repo)
+    except dulwich.repo.UnsupportedExtension:
+        print("Failed to load repo:", git_repo)
+        return "err"
+
     try:
         r.head()
     except KeyError:
