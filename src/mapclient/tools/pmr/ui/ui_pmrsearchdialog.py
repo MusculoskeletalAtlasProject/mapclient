@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'pmrsearchdialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.4.1
+## Created by: Qt User Interface Compiler version 6.7.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -34,7 +34,7 @@ class Ui_PMRSearchDialog(object):
         self.loginHorizontalLayout.setObjectName(u"loginHorizontalLayout")
         self.label = QLabel(PMRSearchDialog)
         self.label.setObjectName(u"label")
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(10)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
@@ -42,13 +42,13 @@ class Ui_PMRSearchDialog(object):
 
         self.loginHorizontalLayout.addWidget(self.label)
 
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.loginHorizontalLayout.addItem(self.horizontalSpacer)
 
         self.loginStackedWidget = QStackedWidget(PMRSearchDialog)
         self.loginStackedWidget.setObjectName(u"loginStackedWidget")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.loginStackedWidget.sizePolicy().hasHeightForWidth())
@@ -88,7 +88,7 @@ class Ui_PMRSearchDialog(object):
 
         self.pmrGroupBox = QGroupBox(PMRSearchDialog)
         self.pmrGroupBox.setObjectName(u"pmrGroupBox")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(1)
         sizePolicy2.setHeightForWidth(self.pmrGroupBox.sizePolicy().hasHeightForWidth())

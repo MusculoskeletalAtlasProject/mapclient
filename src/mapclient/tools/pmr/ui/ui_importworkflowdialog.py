@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'importworkflowdialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.5.1
+## Created by: Qt User Interface Compiler version 6.7.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -35,7 +35,7 @@ class Ui_ImportWorkflowDialog(object):
 
         self.lineEditLocation = QLineEdit(ImportWorkflowDialog)
         self.lineEditLocation.setObjectName(u"lineEditLocation")
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(2)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lineEditLocation.sizePolicy().hasHeightForWidth())
