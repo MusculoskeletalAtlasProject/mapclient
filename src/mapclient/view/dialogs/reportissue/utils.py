@@ -11,6 +11,5 @@ def create_github_issue(text=""):
 
 
 def create_wrike_ticket():
-    url = "https://www.wrike.com/frontend/requestforms/index.html?token=eyJhY2NvdW50SWQiOjMyMDM1ODgsInRhc2tGb3JtSWQiOjU5NTQxOH0JNDg0N" \
-          "zEzOTAxODIxNgllZTg2ZDg5NmNkMDQ3YjJkMWM2Njg5ZWI5YTQ2NjMxNGJkZjZiOWQwYjZkZmU2NTk1YzU0MWVlN2EyZjQ5M2Ux"
+    url = "https://www.wrike.com/form/eyJhY2NvdW50SWQiOjMyMDM1ODgsInRhc2tGb3JtSWQiOjU5NTQxOH0JNDg2ODkwNzc5NjU5NAlmODVjYjQ4MTAyYTU2MjdjMmY5ZWQwZGMyMjc5OTEzZTljZGFiZWRjYmY2MmIyZDRjZmVmZmMxNmYwNGU2MzEy"
     webbrowser.open(url)
