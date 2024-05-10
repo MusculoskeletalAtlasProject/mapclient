@@ -52,6 +52,8 @@ extras_require = {
     ]
 }
 
+packages = find_packages(exclude=['tests', 'tests.*', 'mapclientplugins', 'mapclientplugins.*', 'utils', 'utils.*'])
+packages.append('mapclient.tools.pluginwizard.qt.images')
 
 setup(
     name='mapclient',
@@ -63,7 +65,7 @@ setup(
     author_email='mapclient-devs@physiomeproject.org',
     url='https://github.com/MusculoskeletalAtlasProject/mapclient',
     # namespace_packages=['mapclientplugins', ],
-    packages=find_packages(exclude=['tests', 'tests.*', 'mapclientplugins', 'mapclientplugins.*', 'utils', 'utils.*' ]),
+    packages=packages,
     package_data={'mapclient.tools.annotation': ['annotation.voc'], 'mapclient.tools.osxapp': ['mapclient.icns'],
                   'mapclient.tools.pluginwizard.qt.images':
                       ['data-sink.png', 'data-source.png', 'default.png', 'fitting.png', 'image-processing.png',
