@@ -261,7 +261,7 @@ class WorkflowWidget(QtWidgets.QWidget):
                 return ''
             else:
                 # Delete contents of directory
-                shutil.rmtree(onerror=ProblemClass.rm_tree_unsuccessful)
+                shutil.rmtree(workflow_dir, onerror=ProblemClass.rm_tree_unsuccessful)
                 ProblemClass.mk_workflow_dir = True
 
         # got dir, continue
