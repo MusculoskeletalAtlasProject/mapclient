@@ -25,7 +25,14 @@ def _strip_pip_list_output(output_stream):
             output[parts[0]] = {'version': parts[1]}
             if len(parts) > 2:
                 if parts[0] == 'mapclient' and os.path.isdir(parts[2]):
-                    output[parts[0]]['location'] = describe_tag(parts[2])
+                    describe_result = describe_tag(parts[2])
+                    describe_parts = describe_result.split('-')
+                    if len(describe_parts) == 1 and describe_parts[0]:
+                        location = remote_locations(parts[2])
+                    else:
+                        location = f'local-repo-{describe_result}'
+
+                    output[parts[0]]['location'] = location
                 elif os.path.isdir(parts[2]):
                     output[parts[0]]['location'] = f'locally-acquired-{describe_tag(parts[2])}'
                 else:
