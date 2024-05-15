@@ -154,7 +154,7 @@ class WorkflowManager(object):
         except OSError:
             pass
 
-    def _checkRequirements(self):
+    def _check_requirements(self):
         requirements_file = _get_workflow_requirements_absolute_filename(self._location)
 
     @staticmethod
