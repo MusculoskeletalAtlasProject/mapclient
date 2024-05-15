@@ -219,16 +219,18 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._main_window.set_current_undo_redo_stack(stack)
 
     def new(self, pmr=False):
+        self.close()
+
         workflowDir = self._get_workflow_dir()
         if workflowDir:
-            self._createNewWorkflow(workflowDir, pmr)
+            self._create_new_workflow(workflowDir, pmr)
 
     def _workflow_finished(self, successfully):
         if successfully:
             close_after = self._main_window.model().optionsManager().getOption(CLOSE_AFTER)
             mb = MessageBox(QtWidgets.QMessageBox.Icon.Information, "Workflow Finished",
                             "Workflow finished successfully.",
-                            QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Default,
+                            QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Default,
                             parent=self._main_window,
                             close_after=close_after)
             mb.setIconPixmap(QtGui.QPixmap(":/mapclient/images/green_tick.png").scaled(64, 64))
@@ -281,7 +283,7 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     @handle_runtime_error
     @set_wait_cursor
-    def _createNewWorkflow(self, workflow_dir, pmr):
+    def _create_new_workflow(self, workflow_dir, pmr):
         m = self._main_window.model().workflowManager()
         om = self._main_window.model().optionsManager()
         m.new(workflow_dir)
