@@ -28,7 +28,7 @@ def _strip_pip_list_output(output_stream):
                     describe_result = describe_tag(parts[2])
                     describe_parts = describe_result.split('-')
                     if len(describe_parts) == 1 and describe_parts[0]:
-                        location = remote_locations(parts[2])
+                        location = remote_locations(os.path.dirname(parts[2]))
                     else:
                         location = f'local-repo-{describe_result}'
 
