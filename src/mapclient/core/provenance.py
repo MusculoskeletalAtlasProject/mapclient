@@ -53,6 +53,14 @@ def _determine_git_repo(src_dir, check_parent=True):
     return git_repo
 
 
+def _backup_get_remote_repo(r):
+    config = r.get_config()
+    remote_name = b'origin'
+    remote_location = config.get((b'remote', remote_name), b"url")
+
+    return remote_name.decode(), remote_location.decode()
+
+
 def remote_locations(src_dir):
     git_repo = _determine_git_repo(src_dir, False)
 
@@ -60,7 +68,10 @@ def remote_locations(src_dir):
         return "&&&&&&"
 
     with dulwich.porcelain.open_repo_closing(git_repo) as r:
-        remote_repo_info = dulwich.porcelain.get_remote_repo(r)
+        try:
+            remote_repo_info = dulwich.porcelain.get_remote_repo(r)
+        except IndexError:
+            remote_repo_info = _backup_get_remote_repo(r)
 
     return remote_repo_info[1]
 
