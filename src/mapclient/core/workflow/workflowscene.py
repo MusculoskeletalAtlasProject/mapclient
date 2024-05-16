@@ -29,6 +29,105 @@ from mapclient.core.utils import load_configuration
 from mapclient.settings.general import get_configuration_file
 
 
+def determine_connections(ws, i):
+    connections = []
+    arcCount = ws.beginReadArray('connections')
+    for j in range(arcCount):
+        ws.setArrayIndex(j)
+        connectedTo = int(ws.value('connectedTo'))
+        connectedToIndex = int(ws.value('connectedToIndex'))
+        connectedFromIndex = int(ws.value('connectedFromIndex'))
+        selected = ws.value('selected', 'false') == 'true'
+        connections.append((i, connectedFromIndex, connectedTo, connectedToIndex, selected))
+    ws.endArray()
+
+    return connections
+
+
+def _read_step_names(ws):
+    ws.beginGroup('nodes')
+    node_count = ws.beginReadArray('nodelist')
+
+    step_names = set()
+    for i in range(node_count):
+        ws.setArrayIndex(i)
+        name = ws.value('name')
+        step_names.add(name)
+
+    ws.endArray()
+    ws.endGroup()
+
+    return step_names
+
+
+def get_step_name_from_identifier(ws, target_identifier):
+    ws.beginGroup('nodes')
+    step_name = ''
+    node_count = ws.beginReadArray('nodelist')
+    i = 0
+    while i < node_count and not step_name:
+        ws.setArrayIndex(i)
+        name = ws.value('name')
+        identifier = ws.value('identifier')
+        if identifier == target_identifier:
+            step_name = name
+
+        i += 1
+
+    ws.endArray()
+    ws.endGroup()
+
+    return step_name
+
+
+def create_from(wf, name_identifiers, connections, location):
+    """
+    Create a workflow from the given names at the given location.
+    Returns a list of
+
+    :param wf: Workflow settings object.
+    :param name_identifiers: List of tuples consisting of step names and associated identifiers.
+    :param connections: List of connections to make in the workflow.
+    :param location: Location of the workflow on the local disk.
+    :return: List of steps.
+    """
+    steps = []
+    try:
+        wf.beginGroup('nodes')
+        wf.beginWriteArray('nodelist')
+        for i, name_identifier in enumerate(name_identifiers):
+            wf.setArrayIndex(i)
+            step = workflowStepFactory(name_identifier[0], location)
+            step.setIdentifier(name_identifier[1])
+            meta_step = MetaStep(step)
+            wf.setValue('name', step.getName())
+            wf.setValue('position', meta_step.getPos())
+            wf.setValue('selected', meta_step.getSelected())
+            wf.setValue('identifier', meta_step.getIdentifier())
+            wf.setValue('unique_identifier', meta_step.getUniqueIdentifier())
+
+            wf.beginWriteArray('connections')
+            for connection_index, connection in enumerate(connections[i]):
+                wf.setArrayIndex(connection_index)
+                wf.setValue('connectedFromIndex', connection[1])
+                wf.setValue('connectedTo', connection[2])
+                wf.setValue('connectedToIndex', connection[3])
+                wf.setValue('selected', connection[4])
+
+            wf.endArray()
+
+            steps.append(step)
+
+        wf.endArray()
+        wf.endGroup()
+
+    except ValueError:
+        names = [name_identifier[0] for name_identifier in name_identifiers]
+        raise WorkflowError(f'Could not create workflow from names: {names}')
+
+    return steps
+
+
 class WorkflowScene(object):
     """
     This is the authoritative model for the workflow scene.
@@ -130,7 +229,7 @@ class WorkflowScene(object):
     def is_loadable(self, ws):
         loadable = True
         try:
-            step_names = self._read_step_names(ws)
+            step_names = _read_step_names(ws)
             for name in step_names:
                 workflowStepFactory(name, self._location)
 
@@ -138,77 +237,6 @@ class WorkflowScene(object):
             loadable = False
 
         return loadable
-
-    @staticmethod
-    def _read_step_names(ws):
-        ws.beginGroup('nodes')
-        node_count = ws.beginReadArray('nodelist')
-
-        step_names = set()
-        for i in range(node_count):
-            ws.setArrayIndex(i)
-            name = ws.value('name')
-            step_names.add(name)
-
-        ws.endArray()
-        ws.endGroup()
-
-        return step_names
-
-    def create_from(self, ws, name_identifiers, location):
-        """
-        Create a workflow from the given names at the given location.
-        Returns a list of
-
-        :param ws: Workflow settings object.
-        :param name_identifiers: List of tuples consisting of step names and associated identifiers.
-        :param location: Location of the workflow on the local disk.
-        :return: List of steps.
-        """
-        steps = []
-        try:
-            ws.beginGroup('nodes')
-            ws.beginWriteArray('nodelist')
-            for i, name_identifier in enumerate(name_identifiers):
-                ws.setArrayIndex(i)
-                step = workflowStepFactory(name_identifier[0], location)
-                step.setIdentifier(name_identifier[1])
-                meta_step = MetaStep(step)
-                ws.setValue('name', step.getName())
-                ws.setValue('position', meta_step.getPos())
-                ws.setValue('selected', meta_step.getSelected())
-                ws.setValue('identifier', meta_step.getIdentifier())
-                ws.setValue('unique_identifier', meta_step.getUniqueIdentifier())
-                steps.append(step)
-
-            ws.endArray()
-            ws.endGroup()
-
-        except ValueError:
-            names = [name_identifier[0] for name_identifier in name_identifiers]
-            raise WorkflowError(f'Could not create workflow from names: {names}')
-
-        return steps
-
-    @staticmethod
-    def get_step_name_from_identifier(ws, target_identifier):
-        ws.beginGroup('nodes')
-        step_name = ''
-        node_count = ws.beginReadArray('nodelist')
-        i = 0
-        while i < node_count and not step_name:
-            ws.setArrayIndex(i)
-            name = ws.value('name')
-            identifier = ws.value('identifier')
-            if identifier == target_identifier:
-                step_name = name
-
-            i += 1
-
-        ws.endArray()
-        ws.endGroup()
-
-        return step_name
 
     def doStepReport(self, ws):
         report = {}
@@ -298,15 +326,7 @@ class WorkflowScene(object):
             # we can validate the step identifier
             configuration = load_configuration(self._location, identifier)
             step.deserialize(configuration)
-            arcCount = ws.beginReadArray('connections')
-            for j in range(arcCount):
-                ws.setArrayIndex(j)
-                connectedTo = int(ws.value('connectedTo'))
-                connectedToIndex = int(ws.value('connectedToIndex'))
-                connectedFromIndex = int(ws.value('connectedFromIndex'))
-                selected = ws.value('selected', 'false') == 'true'
-                connections.append((i, connectedFromIndex, connectedTo, connectedToIndex, selected))
-            ws.endArray()
+            connections.extend(determine_connections(ws, i))
         ws.endArray()
         ws.endGroup()
         for arc in connections:

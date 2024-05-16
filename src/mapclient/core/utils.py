@@ -155,9 +155,11 @@ def load_configuration(location, identifier):
 
 
 def copy_step_additional_config_files(step, source_configuration_dir, target_configuration_dir):
-    logger.info(f'Copying additional cfg files for: {step.getName()}')
-    for additional_cfg_file in get_steps_additional_config_files(step):
-        logger.info(f' - Additional cfg file reported: {additional_cfg_file}')
+    additional_cfg_files = get_steps_additional_config_files(step)
+    if len(additional_cfg_files):
+        logger.info(f'Copying additional cfg files for: {step.getName()}')
+    for additional_cfg_file in additional_cfg_files:
+        logger.info(f' * Additional cfg file reported: {additional_cfg_file}')
         source_cfg_dir = os.path.dirname(additional_cfg_file)
         source_cfg_file = os.path.join(source_configuration_dir, additional_cfg_file)
 
@@ -169,8 +171,10 @@ def copy_step_additional_config_files(step, source_configuration_dir, target_con
             required_path = os.path.join(target_configuration_dir, source_cfg_dir)
             if not os.path.exists(required_path):
                 os.makedirs(required_path)
-            logger.info(f' - Copying cfg file: {source_cfg_file} -> {target_cfg_file}')
+            logger.info(f' * Copying cfg file: {source_cfg_file} -> {target_cfg_file}')
             shutil.copyfile(source_cfg_file, target_cfg_file)
+        else:
+            logger.warning(f' * Did not find reported configuration file: {source_cfg_file}.')
 
 
 def get_steps_additional_config_files(step):
