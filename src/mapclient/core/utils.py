@@ -19,6 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import logging
 import os
+import pathlib
 import re
 import shutil
 import sys
@@ -183,7 +184,7 @@ def get_steps_additional_config_files(step):
 
     def _workflow_relative_path(filename):
         if os.path.isabs(filename):
-            return os.path.relpath(filename, workflow_dir)
+            return pathlib.PureWindowsPath(os.path.normpath(os.path.relpath(filename, workflow_dir))).as_posix()
 
         return filename
 
