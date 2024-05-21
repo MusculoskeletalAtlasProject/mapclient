@@ -24,6 +24,7 @@ from packaging import version
 from PySide6 import QtCore
 
 from mapclient.core.metrics import metrics_logger
+from mapclient.core.workflow.layouts.springforce import SpringForce
 from mapclient.settings import info
 from mapclient.core.workflow.workflowscene import WorkflowScene
 from mapclient.core.workflow.workflowsteps import WorkflowSteps, \
@@ -136,6 +137,37 @@ class WorkflowManager(object):
 
     def set_workflow_direction(self, direction):
         self._scene.set_workflow_direction(direction)
+
+    def layout_workflow(self, layout_algorithm):
+        graph, reverse_graph = self._scene.graph()
+        adjacent_graph = {}
+        vertices = []
+        for node in graph:
+            vertices.append(node)
+            adjacent_graph[node] = graph[node]
+
+        for node in reverse_graph:
+            if node not in adjacent_graph:
+                vertices.append(node)
+                adjacent_graph[node] = []
+
+            adjacent_graph[node] = list(set(adjacent_graph[node] + reverse_graph[node]))
+
+        all_set = set(adjacent_graph.keys())
+        non_adjacent_graph = {}
+        for node in adjacent_graph:
+            adjacent_set = set(adjacent_graph[node])
+            non_adjacent_set = all_set - adjacent_set - {node}
+            non_adjacent_graph[node] = list(non_adjacent_set)
+
+        dataset = {
+            'vertices': vertices,
+            'adjacent': adjacent_graph,
+            'non_adjacent': non_adjacent_graph
+        }
+        sf = SpringForce(dataset, iterations=100, target_node_speed=0.01)
+        new_positions = sf.spring_layout(c1=2.0, c2=10.0, c3=1000000, c4=1)
+        self._scene.set_step_positions([QtCore.QPoint(pt[0], pt[1]) for pt in new_positions])
 
     def canExecute(self):
         return self._scene.canExecute()

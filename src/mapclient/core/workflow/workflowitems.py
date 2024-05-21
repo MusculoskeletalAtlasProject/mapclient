@@ -22,7 +22,7 @@ import uuid
 from PySide6 import QtCore
 
 
-class Item(object):
+class Item:
 
     def __init__(self):
         self._selected = True
@@ -43,6 +43,7 @@ class MetaStep(Item):
         self._pos = QtCore.QPointF(10, 10)
         self._uid = str(uuid.uuid1())
         self._id = step.getIdentifier()
+        self._owner = None
 
     def getPos(self):
         return self._pos
@@ -52,6 +53,12 @@ class MetaStep(Item):
 
     def getStep(self):
         return self._step
+
+    def set_owner(self, owner):
+        self._owner = owner
+
+    def update_position(self, pos):
+        self._owner.setPos(pos)
 
     def getName(self):
         return self._step.getName()

@@ -258,6 +258,8 @@ class Node(Item):
 
         self._margin = 2.0
         self._metastep = metastep
+        self._metastep.set_owner(self)
+
         icon = self._metastep.getStep().getIcon()
         if not icon:
             icon = QtGui.QImage(':/workflow/images/default_step_icon.png')
@@ -302,7 +304,7 @@ class Node(Item):
 
         self.updateDVCSIcon()
 
-    def update(self):
+    def update(self, rect=None):
         self._updateConfigureIcon()
         self._updatePorts()
         self._updateTextIcon()
