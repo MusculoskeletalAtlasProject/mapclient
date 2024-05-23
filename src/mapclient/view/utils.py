@@ -104,9 +104,11 @@ def handle_runtime_error(f):
         try:
             return f(self, *a, **kw)
         except ClientRuntimeError as e:
-            QtWidgets.QApplication.restoreOverrideCursor()
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.ArrowCursor)
             logger.error('{0}: {1}'.format(e.title, e.description))
             ErrorDialog(e.title, e.description, self).exec()
+            QtWidgets.QApplication.restoreOverrideCursor()
+
     return do_runtime_error
 
 
