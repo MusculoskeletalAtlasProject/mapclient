@@ -17,7 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets
 
 from mapclient.core.workflow.workflowscene import MetaStep, Connection
 from mapclient.view.workflow.workflowgraphicsitems import Node, Arc
@@ -87,27 +87,27 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
         self.blockSignals(False)
         meta_steps = {}
         connections = []
-        for workflowitem in list(self._workflow_scene.items()):
-            if workflowitem.Type == MetaStep.Type:
-                node = Node(workflowitem)
+        for workflow_item in list(self._workflow_scene.items()):
+            if workflow_item.Type == MetaStep.Type:
+                node = Node(workflow_item)
                 node.showStepName(self._showStepNames)
-                workflowitem.getStep().registerConfiguredObserver(self.stepConfigured)
-                workflowitem.getStep().registerDoneExecution(self.doneExecution)
-                workflowitem.getStep().registerOnExecuteEntry(self.setCurrentWidget, self.setWidgetUndoRedoStack)
-                workflowitem.getStep().registerIdentifierOccursCount(self.identifierOccursCount)
+                workflow_item.getStep().registerConfiguredObserver(self.stepConfigured)
+                workflow_item.getStep().registerDoneExecution(self.doneExecution)
+                workflow_item.getStep().registerOnExecuteEntry(self.setCurrentWidget, self.setWidgetUndoRedoStack)
+                workflow_item.getStep().registerIdentifierOccursCount(self.identifierOccursCount)
 
                 # Put the node into the scene straight away so that the items scene will
                 # be valid when we set the position.
                 QtWidgets.QGraphicsScene.addItem(self, node)
 
                 self.blockSignals(True)
-                node.setPos(workflowitem.getPos())
-                node.setSelected(workflowitem.getSelected())
+                node.setPos(workflow_item.getPos())
+                node.setSelected(workflow_item.getSelected())
                 self.blockSignals(False)
 
-                meta_steps[workflowitem] = node
-            elif workflowitem.Type == Connection.Type:
-                connections.append(workflowitem)
+                meta_steps[workflow_item] = node
+            elif workflow_item.Type == Connection.Type:
+                connections.append(workflow_item)
 
         for connection in connections:
             src_port_item = meta_steps[connection.source()]._step_port_items[connection.sourceIndex()]

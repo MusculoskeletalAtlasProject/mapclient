@@ -126,6 +126,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             # self.action_Continue.setEnabled(workflow_open and not widget_visible)
             self.action_Reverse.setEnabled(workflow_open and not widget_visible)
             self.action_Abort.setEnabled(workflow_open and not widget_visible)
+            self.action_SpringLayout.setEnabled(workflow_open and widget_visible and workflow_has_steps)
             self.action_Import_CFG.setEnabled(workflow_open and widget_visible and workflow_has_steps)
             self.action_Export_CFG.setEnabled(workflow_open and widget_visible and workflow_has_steps)
             self.action_ZoomIn.setEnabled(widget_visible)
@@ -201,6 +202,9 @@ class WorkflowWidget(QtWidgets.QWidget):
     def _abort_workflow(self):
         self._abort_execution()
         self._reset_workflow_direction()
+
+    def _spring_force_layout(self):
+        self._main_window.layout_workflow("springforce")
 
     def _reverse_workflow_direction(self):
         self._main_window.set_workflow_direction(not self.action_Reverse.isChecked())
@@ -702,6 +706,11 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._set_action_properties(self.action_Abort, 'action_Abort', self._abort_workflow, '',
                                     'Abort Workflow')
 
+        menu_workflow_layout = QtWidgets.QMenu('Layout', menu_workflow)
+        self.action_SpringLayout = QtGui.QAction('Spring force', menu_workflow_layout)
+        self._set_action_properties(self.action_SpringLayout, 'action_SpringLayout', self._spring_force_layout, '',
+                                    'Layout the current workflow using a spring force algorithm')
+
         self.action_ZoomIn = QtGui.QAction('Zoom In', menu_view)
         self._set_action_properties(self.action_ZoomIn, 'action_ZoomIn', self.zoom_in, 'Ctrl++',
                                     'Zoom in Workflow')
@@ -736,3 +745,6 @@ class WorkflowWidget(QtWidgets.QWidget):
         # menu_workflow.addAction(self.action_Continue)
         menu_workflow.addAction(self.action_Reverse)
         menu_workflow.addAction(self.action_Abort)
+        menu_workflow.addSeparator()
+        menu_workflow.addMenu(menu_workflow_layout)
+        menu_workflow_layout.addAction(self.action_SpringLayout)
