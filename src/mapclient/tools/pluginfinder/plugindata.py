@@ -2,7 +2,7 @@ import os
 import json
 from packaging import version
 
-from PySide6 import QtCore, QtGui
+from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtWidgets import QApplication, QStyle, QStyleOptionButton, QInputDialog, QLineEdit, QMessageBox, QTreeView
 
 from mapclient.core.workflow.workflowsteps import addStep
@@ -112,7 +112,7 @@ class PushButtonDelegate(HeaderDelegate):
                     opt.icon = self._downloaded_icon
                 else:
                     opt.icon = self._loading_icon
-                painter.drawText(_get_label_pos(option), QtCore.Qt.AlignCenter | QtCore.Qt.AlignRight, installed_version)
+                painter.drawText(_get_label_pos(option), QtCore.Qt.AlignmentFlag.AlignCenter | QtCore.Qt.AlignmentFlag.AlignRight, installed_version)
             else:
                 opt.icon = self._download_icon
 
@@ -120,10 +120,10 @@ class PushButtonDelegate(HeaderDelegate):
             opt.rect = _get_button_rect(option.rect)
 
             if self._pressed and self._pressed == (index.row(), index.column()):
-                opt.state = QStyle.State_Enabled | QStyle.State_Sunken
+                opt.state = QStyle.StateFlag.State_Enabled | QStyle.StateFlag.State_Sunken
             else:
-                opt.state = QStyle.State_Enabled | QStyle.State_Raised
-            QApplication.style().drawControl(QStyle.CE_PushButton, opt, painter)
+                opt.state = QStyle.StateFlag.State_Enabled | QStyle.StateFlag.State_Raised
+            QApplication.style().drawControl(QStyle.ControlElement.CE_PushButton, opt, painter)
 
     def editorEvent(self, event, model, option, index):
         if index.parent().row() < 0:
@@ -133,15 +133,15 @@ class PushButtonDelegate(HeaderDelegate):
         if (name in self._installed_versions.keys()) and self._installed_versions[name] >= self._database_versions[name]:
             return True
 
-        if event.type() == QtCore.QEvent.MouseButtonPress:
+        if event.type() == QtCore.QEvent.Type.MouseButtonPress:
             if _get_button_rect(option.rect).contains(event.pos()):
                 self._pressed = (index.row(), index.column())
             return True
 
-        elif event.type() == QtCore.QEvent.MouseButtonRelease:
+        elif event.type() == QtCore.QEvent.Type.MouseButtonRelease:
             if self._pressed == (index.row(), index.column()):
                 if _get_button_rect(option.rect).contains(event.pos()):
-                    plugin = model.data(index, QtCore.Qt.UserRole + 1)
+                    plugin = model.data(index, QtCore.Qt.ItemDataRole.UserRole + 1)
                     self.buttonClicked.emit(name, plugin.get_url())
             self._pressed = None
             return True
@@ -187,7 +187,7 @@ def _authenticate_github_user():
         while True:
             try:
                 token, ok = QInputDialog().getText(None, "GitHub PAT", "GITHUB_PAT cannot be found or is invalid. "
-                                                   "Please provide a Personal Access Token for GitHub:", QLineEdit.Password)
+                                                   "Please provide a Personal Access Token for GitHub:", QLineEdit.EchoMode.Password)
                 if ok:
                     g = Github(token)
                     _ = g.get_user().name
@@ -196,7 +196,7 @@ def _authenticate_github_user():
                 else:
                     return None
             except BadCredentialsException:
-                QMessageBox.information(None, 'Token Invalid', 'The Personal Access Token given is not valid.')
+                QMessageBox.information(QtWidgets.QWidget(), 'Token Invalid', 'The Personal Access Token given is not valid.')
 
 
 # This method is used by the visualisation script to get an up-to-date version of the plugin database. DB in dictionary format.
@@ -263,9 +263,7 @@ def _github_api_wrapper(f):
         return call_inner()
     except RateLimitExceededException:
         g = _authenticate_github_user()
-        if not g:
-            return None
-        return call_inner()
+        return call_inner() if g else None
 
 
 def from_json(json_dict):
