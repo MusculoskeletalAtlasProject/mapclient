@@ -285,7 +285,7 @@ class WorkflowManager(object):
 
         self._saveStateIndex = self._currentStateIndex = 0
 
-    def save(self):
+    def save(self, pixmap=None):
         wf = _get_workflow_configuration(self._location)
 
         if 'version' not in wf.allKeys():
@@ -300,6 +300,8 @@ class WorkflowManager(object):
         self._scene.saveState(wf)
         self._saveStateIndex = self._currentStateIndex
         af = _get_workflow_meta_absolute_filename(self._location)
+        if pixmap:
+            pixmap.save(_get_workflow_configuration_absolute_filename(self._location) + ".png")
 
         try:
             annotation = serializeWorkflowAnnotation().decode('utf-8')

@@ -337,7 +337,8 @@ class MainWindow(QtWidgets.QMainWindow):
                                                 'You have unsaved changes, would you like to save these changes now?',
                                                 QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
             if ret == QtWidgets.QMessageBox.StandardButton.Yes:
-                self._model.workflowManager().save()
+                pixmap = self._workflowWidget.pixmap()
+                self._model.workflowManager().save(pixmap)
 
     def quit_application(self):
         self.confirm_close()
