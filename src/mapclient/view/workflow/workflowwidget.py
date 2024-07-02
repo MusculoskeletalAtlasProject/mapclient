@@ -482,6 +482,9 @@ class WorkflowWidget(QtWidgets.QWidget):
         m.close()
         self._update_ui()
 
+    def pixmap(self):
+        return self._ui.graphicsView.grab()
+
     def save(self):
         m = self._main_window.model().workflowManager()
         location_set = os.path.exists(m.location())
@@ -491,7 +494,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             location_set = self._set_location()
         if location_set:
             m.scene().setViewParameters(self._ui.graphicsView.getViewParameters())
-            m.save()
+            m.save(self.pixmap())
             if self.commitChanges(m.location()):
                 self._setIndexerFile(m.location())
             else:
