@@ -33,9 +33,9 @@ metrics_logger = get_metrics_logger()
 
 def _node_is_destination(graph, node):
     """
-    Determine whether or not the given node features
+    Determine whether the given node features
     in a destination of another node.  Return True if
-    the node is a destination, False otherwise..
+    the node is a destination, False otherwise.
     """
     for graph_node in graph:
         if node in graph[graph_node]:
@@ -63,22 +63,21 @@ def _determine_topological_order(graph, starting_set):
     Determine the topological order of the graph.  Returns
     an empty list if the graph contains a loop.
     """
-    temp_graph = graph.copy()
     topologicalOrder = []
     while len(starting_set) > 0:
         node = starting_set.pop()
         topologicalOrder.append(node)
-        if node in temp_graph:
-            for m in temp_graph[node][:]:
-                temp_graph[node].remove(m)
-                if len(temp_graph[node]) == 0:
-                    del temp_graph[node]
-                if not _node_is_destination(temp_graph, m):
+        if node in graph:
+            for m in graph[node][:]:
+                graph[node].remove(m)
+                if len(graph[node]) == 0:
+                    del graph[node]
+                if not _node_is_destination(graph, m):
                     starting_set.append(m)
 
     # If the graph is not empty we have detected a loop,
     # or independent graphs.
-    if temp_graph:
+    if graph:
         return []
 
     return topologicalOrder
@@ -86,7 +85,7 @@ def _determine_topological_order(graph, starting_set):
 
 def _reverse_dict_with_lists(in_dict):
     reverseDictOut = {}
-    for k, v in list(in_dict.items()):
+    for k, v in in_dict.items():
         for rk in v:
             reverseDictOut[rk] = reverseDictOut.get(rk, [])
             reverseDictOut[rk].append(k)
@@ -98,7 +97,6 @@ class WorkflowDependencyGraph(object):
 
     def __init__(self, scene):
         self._scene = scene
-        self._dependency_graph = {}
         self._reverse_dependency_graph = {}
         self._topological_order = []
         self._current = -1
@@ -121,7 +119,7 @@ class WorkflowDependencyGraph(object):
 
     def _calculate_dependency_graph(self):
         graph = {}
-        for item in list(self._scene.items()):
+        for item in self._scene.items():
             if item.Type == Connection.Type:
                 graph[item.source()] = graph.get(item.source(), [])
                 graph[item.source()].append(item.destination())
@@ -149,30 +147,33 @@ class WorkflowDependencyGraph(object):
     def set_finished_callback(self, callback):
         self._finished_callback = callback
 
-    def can_execute(self):
-        self._dependency_graph = self._calculate_dependency_graph()
-        self._reverse_dependency_graph = _reverse_dict_with_lists(self._dependency_graph)
+    def graph(self):
+        dependency_graph = self._calculate_dependency_graph()
+        return dependency_graph, _reverse_dict_with_lists(dependency_graph)
+
+    def _determine_graph(self):
+        dependency_graph = self._calculate_dependency_graph()
+        self._reverse_dependency_graph = _reverse_dict_with_lists(dependency_graph)
         # Find all connected nodes in the graph
         nodes = self._find_all_connected_nodes()
         # Find starting point set, uses helper graph
-        starting_set = _find_starting_set(self._dependency_graph, nodes)
+        starting_set = _find_starting_set(dependency_graph, nodes)
 
-        self._topological_order = _determine_topological_order(self._dependency_graph, starting_set)
+        self._topological_order = _determine_topological_order(dependency_graph, starting_set)
 
-        items_count = len(self._scene.items())
         solo_node = self._solo_node()
         if solo_node:
-            self._dependency_graph = {solo_node: []}
             self._topological_order = [solo_node]
 
+    def can_execute(self):
+        self._determine_graph()
         configured = [metastep.getStep().isConfigured() for metastep in self._topological_order]
 
+        items_count = len(self._scene.items())
         if not all(configured):
             return 1
         elif items_count == 0:
             return 2
-        elif items_count > 1 and len(self._topological_order) == 0 and len(self._dependency_graph.keys()) == 0:
-            return 3
         elif self._current != -1:
             return 4
         elif items_count > 1 and len(self._topological_order) == 0:
