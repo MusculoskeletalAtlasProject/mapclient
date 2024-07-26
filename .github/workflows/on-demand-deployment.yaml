@@ -57,7 +57,7 @@ jobs:
           variants=${{ steps.set-variants.outputs.variants }}
           for v in $variants; do
             matrixElements+=('{"os":"windows-2019","variant":"'$v'","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
-            matrixElements+=('{"os":"macos-13","variant":"'$v'","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
+            matrixElements+=('{"os":"macos-13-arm64","variant":"'$v'","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
           done
           if [ "${#matrixElements[@]}" -eq "0" ]; then
             echo run-installer=false >> $GITHUB_OUTPUT
