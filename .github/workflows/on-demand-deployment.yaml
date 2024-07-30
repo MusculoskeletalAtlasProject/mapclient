@@ -127,7 +127,7 @@ jobs:
         shell: bash
         run: brew install create-dmg
       - name: Import Certificates (macOS)
-        uses: apple-actions/import-codesign-certs@v2
+        uses: apple-actions/import-codesign-certs@v3
         if: runner.os == 'macOS'
         with:
           p12-file-base64: ${{ secrets.APPLE_DEV_APP_CERT }}
@@ -283,7 +283,7 @@ jobs:
           xcrun stapler staple "${{ steps.create-installer.outputs.file }}"
 
       - name: Upload asset
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: ${{ steps.create-installer.outputs.file }}
           tag_name: ${{ matrix.tag }}
