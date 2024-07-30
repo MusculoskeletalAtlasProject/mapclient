@@ -283,7 +283,7 @@ jobs:
           xcrun stapler staple "${{ steps.create-installer.outputs.file }}"
 
       - name: Upload asset
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: ${{ steps.create-installer.outputs.file }}
           tag_name: ${{ matrix.tag }}
