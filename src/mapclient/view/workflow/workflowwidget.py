@@ -62,6 +62,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._pluginUpdater = PluginUpdater()
 
         self._undoStack = QtGui.QUndoStack(self)
+        self._setup_recent_workflows()
 
         self._workflowManager = self._main_window.model().workflowManager()
         self._graphicsScene = WorkflowGraphicsScene(self)
@@ -343,11 +344,11 @@ class WorkflowWidget(QtWidgets.QWidget):
                     QtWidgets.QMessageBox.StandardButton.Ok,
                     QtWidgets.QMessageBox.StandardButton.Ok)
             else:
-                err = self.openWorkflow(workflow_dir)
+                err = self.open_workflow(workflow_dir)
                 if err:
                     QtWidgets.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + err)
 
-    def openWorkflow(self, workflow_dir):
+    def open_workflow(self, workflow_dir):
         result = ''
         if len(workflow_dir):
             try:
@@ -463,6 +464,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             self._graphicsScene.update_model()
             self._ui.graphicsView.setLocation(workflow_dir)
             self._update_ui()
+            self._main_window.model().add_recent_workflow(workflow_dir)
         except:
             self.close()
             raise
@@ -679,6 +681,12 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._set_action_properties(self.action_New, 'action_New', self.new, 'Ctrl+N', 'Create a new Workflow')
         self.action_Open = QtGui.QAction('&Open', menu_file)
         self._set_action_properties(self.action_Open, 'action_Open', self.open, 'Ctrl+O', 'Open an existing Workflow')
+
+        self.menu_recent = QtWidgets.QMenu('Recent', menu_file)
+        # self.action_NewPMR = QtGui.QAction('PMR Workflow', menu_new)
+        # self._set_action_properties(self.action_NewPMR, 'action_NewPMR', self.newpmr, 'Ctrl+Shift+N',
+        #                             'Create a new PMR based Workflow')
+
         self.action_Import_CFG = QtGui.QAction('Import Config', menu_workflow)
         self._set_action_properties(self.action_Import_CFG, 'action_Import_CFG', self.import_cfg, '',
                                     'Import workflow configuration from file')
@@ -739,3 +747,18 @@ class WorkflowWidget(QtWidgets.QWidget):
         # menu_workflow.addAction(self.action_Continue)
         menu_workflow.addAction(self.action_Reverse)
         menu_workflow.addAction(self.action_Abort)
+
+    def _setup_recent_workflows(self):
+        print("setup recents")
+        recent_workflows = self._main_window.model().get_recent_workflows()
+        for r in recent_workflows:
+            self.add_recent_workflow(r)
+
+    def add_recent_workflow(self, recent):
+        print("add recent")
+        # actions = self.menu_recent.actions()
+        # insert_before_action = actions[0]
+        # recent_action = QtGui.QAction(self.menu_recent)
+        # recent_action.setText(recent)
+        # self.menu_recent.insertAction(insert_before_action, recent_action)
+        # recent_action.triggered.connect(self.open)
