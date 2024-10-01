@@ -544,7 +544,7 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     @handle_runtime_error
     @set_wait_cursor
-    def _commitChanges(self, workflowDir, comment, commit_local=False):
+    def _commitChanges(self, workflowDir, comment):
         committed_changes = False
         om = self._main_window.model().optionsManager()
         pmr_info = PMR()
@@ -568,8 +568,6 @@ class WorkflowWidget(QtWidgets.QWidget):
                         workflow_files.extend(get_steps_additional_config_files(item.getStep()))
 
             pmr_tool.commit_files(workflowDir, comment, workflow_files)
-            if not commit_local:
-                pmr_tool.pushToRemote(workflowDir)
             committed_changes = True
         except ClientRuntimeError:
             # handler will deal with this.
