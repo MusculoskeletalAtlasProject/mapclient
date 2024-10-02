@@ -396,7 +396,6 @@ class PMRTool(object):
             if workspace.cmd is None:
                 return False
 
-            remote_workspace_url = workspace.cmd.read_remote(workspace)
             url_parsed = urlparse(remote_workspace_url)
             for host_domain in self._pmr_info.hosts():
                 host_parsed = urlparse(host_domain)
@@ -432,12 +431,7 @@ class PMRTool(object):
         cmd.set_authorization(create_authentication_header(credentials['user'], credentials['key']))
         workspace = CmdWorkspace(local_workspace_dir, cmd)
 
-        if remote_workspace_url is None:
-            remote_workspace_url = cmd.read_remote(workspace)
-        # Acquire temporary creds
-        creds = self.request_temporary_password(remote_workspace_url)
-
-        stdout, stderr, return_code = cmd.push(workspace, username=creds['user'], password=creds['key'])
+        stdout, stderr, return_code = cmd.push(workspace)
 
         if stdout:
             logger.info(stdout)
@@ -456,10 +450,7 @@ class PMRTool(object):
         cmd.set_authorization(create_authentication_header(credentials['user'], credentials['key']))
         workspace = CmdWorkspace(local_workspace_dir, cmd)
 
-        remote_workspace_url = cmd.read_remote(workspace)
-
-        creds = self.request_temporary_password(remote_workspace_url)
-        stdout, stderr, return_code = cmd.pull(workspace, username=creds['user'], password=creds['key'])
+        stdout, stderr, return_code = cmd.pull(workspace)
 
         if stdout:
             logger.info(stdout)
