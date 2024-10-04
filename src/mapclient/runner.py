@@ -6,6 +6,7 @@ import sys
 
 from mapclient.application import sans_gui_main
 from mapclient.core.managers.workflowmanager import WorkflowManager
+from mapclient.core.utils import is_json
 from mapclient.settings.general import is_workflow, get_configuration_file
 
 
@@ -15,18 +16,6 @@ def _parse_arguments():
     parser.add_argument("-c", "--configuration", required=True, help="Configuration information to apply to workflow")
 
     return parser.parse_args()
-
-
-def _is_json(file_path):
-    if os.path.isfile(file_path):
-        try:
-            with open(file_path) as fh:
-                json.load(fh)
-            return True
-        except json.decoder.JSONDecodeError:
-            return False
-
-    return False
 
 
 def _backup_file(file_path):
@@ -76,9 +65,10 @@ def _configuration_type_for(name):
 
 
 def _determine_configuration_name(wf, identifier):
+    name = "unknown"
+
     wf.beginGroup('nodes')
     nodeCount = wf.beginReadArray('nodelist')
-    name = "unknown"
     for i in range(nodeCount):
         wf.setArrayIndex(i)
         current_identifier = wf.value('identifier')
@@ -97,7 +87,7 @@ def workflow_runner(location, configuration):
     if not is_workflow(location):
         sys.exit(1)
 
-    if not _is_json(configuration):
+    if not is_json(configuration):
         sys.exit(2)
 
     with open(configuration) as fh:

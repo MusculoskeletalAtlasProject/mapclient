@@ -17,6 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
+import json
 import logging
 import os
 import pathlib
@@ -41,6 +42,18 @@ def is_frozen():
 def is_mapping_tools():
     variant = get_map_client_variant()
     return variant == "mapping-tools"
+
+
+def is_json(file_path):
+    if os.path.isfile(file_path):
+        try:
+            with open(file_path) as fh:
+                json.load(fh)
+            return True
+        except json.decoder.JSONDecodeError:
+            return False
+
+    return False
 
 
 def get_map_client_variant():
