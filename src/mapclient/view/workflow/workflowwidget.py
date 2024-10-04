@@ -192,7 +192,7 @@ class WorkflowWidget(QtWidgets.QWidget):
                          'following reason%s:\n\n%s' % (
                              len(errors) > 1 and 's' or '', errors_str,
                          ))
-            QtWidgets.QMessageBox.critical(self, 'Workflow Execution', error_msg, QtWidgets.QMessageBox.Ok)
+            QtWidgets.QMessageBox.critical(self, 'Workflow Execution', error_msg, QtWidgets.QMessageBox.StandardButton.Ok)
         else:
             wfm.register_finished_workflow_callback(self._workflow_finished)
             self.executeNext()
@@ -323,7 +323,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         workflow_conf = QtWidgets.QFileDialog.getOpenFileName(
             self._main_window,
             caption='Open Workflow',
-            dir=os.path.join(wm.previousLocation(), DEFAULT_WORKFLOW_PROJECT_FILENAME),
+            dir=wm.previousLocation(),
             filter=f"{primary_filter};;Any file (*.*)",
             selectedFilter=primary_filter,
             options=(
@@ -409,7 +409,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             QtWidgets.QMessageBox.critical(self, 'Failed Installation',
                                            'One or more of the required dependencies could not be installed.'
                                            '\nPlease refer to the program logs for more information.',
-                                           QtWidgets.QMessageBox.Ok)
+                                           QtWidgets.QMessageBox.StandardButton.Ok)
         return unsuccessful_installs
 
     def getMissingDependencies(self, dependencies):
