@@ -747,11 +747,11 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     def _update_recent_menu(self):
         self.menu_recent.clear()
-        for workflow_path, name in self._recent_workflow_paths().items():
+        for path, name in self._recent_workflow_paths().items():
             recent_action = QtGui.QAction(self.menu_recent)
             recent_action.setText(name)
             self.menu_recent.insertAction(None, recent_action)
-            recent_action.triggered.connect(lambda _=False, w=workflow_path: self.open_workflow(w))
+            recent_action.triggered.connect(lambda _=False, w=path: self._open_recent_workflow(w))
 
     def _recent_workflow_paths(self):
         directory_groups = defaultdict(list)
@@ -772,3 +772,15 @@ class WorkflowWidget(QtWidgets.QWidget):
                 directory_map[workflow_path] = unique_name
 
         return directory_map
+
+    def _open_recent_workflow(self, path):
+        file_path = os.path.join(path, DEFAULT_WORKFLOW_PROJECT_FILENAME)
+        if os.path.isfile(file_path):
+            self.open_workflow(path)
+        else:
+            remove = QtWidgets.QMessageBox.warning(self, 'Remove Workflow', 'No workflow configuration found. Would you like to remove '
+                                                   'this workflow from the list of recent workflows?',
+                                                   QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            if remove == QtWidgets.QMessageBox.Yes:
+                self.model().remove_recent_workflow(path)
+                self._update_recent_menu()
