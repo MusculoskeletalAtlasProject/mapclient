@@ -26,6 +26,7 @@ import zipfile
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from requests.exceptions import HTTPError
+from collections import defaultdict
 
 from mapclient.core.utils import get_steps_additional_config_files
 from mapclient.exceptions import ClientRuntimeError
@@ -77,6 +78,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self.action_Close = None  # Keep a handle to this for modifying the Ui.
         self._action_annotation = self._main_window.findChild(QtGui.QAction, "actionAnnotation")
         self._create_menu_items()
+        self._update_recent_menu()
 
         model = self._workflowManager.getFilteredStepModel()
         self._ui.stepTreeView.setModel(model)
@@ -343,11 +345,11 @@ class WorkflowWidget(QtWidgets.QWidget):
                     QtWidgets.QMessageBox.StandardButton.Ok,
                     QtWidgets.QMessageBox.StandardButton.Ok)
             else:
-                err = self.openWorkflow(workflow_dir)
+                err = self.open_workflow(workflow_dir)
                 if err:
                     QtWidgets.QMessageBox.critical(self, 'Error Caught', 'Invalid Workflow.  ' + err)
 
-    def openWorkflow(self, workflow_dir):
+    def open_workflow(self, workflow_dir):
         result = ''
         if len(workflow_dir):
             try:
@@ -463,6 +465,8 @@ class WorkflowWidget(QtWidgets.QWidget):
             self._graphicsScene.update_model()
             self._ui.graphicsView.setLocation(workflow_dir)
             self._update_ui()
+            self.model().add_recent_workflow(workflow_dir)
+            self._update_recent_menu()
         except:
             self.close()
             raise
@@ -670,13 +674,13 @@ class WorkflowWidget(QtWidgets.QWidget):
         last_file_menu_action = menu_file.actions()[-1]
 
         menu_new = QtWidgets.QMenu('&New', menu_file)
-        #        menu_Open = QtGui.QMenu('&Open', menu_File)
 
         self.action_NewPMR = QtGui.QAction('PMR Workflow', menu_new)
         self._set_action_properties(self.action_NewPMR, 'action_NewPMR', self.newpmr, 'Ctrl+Shift+N',
                                     'Create a new PMR based Workflow')
         self.action_New = QtGui.QAction('Workflow', menu_new)
         self._set_action_properties(self.action_New, 'action_New', self.new, 'Ctrl+N', 'Create a new Workflow')
+        self.menu_recent = QtWidgets.QMenu('&Recent', menu_file)
         self.action_Open = QtGui.QAction('&Open', menu_file)
         self._set_action_properties(self.action_Open, 'action_Open', self.open, 'Ctrl+O', 'Open an existing Workflow')
         self.action_Import_CFG = QtGui.QAction('Import Config', menu_workflow)
@@ -719,6 +723,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         menu_new.insertAction(QtGui.QAction(self), self.action_NewPMR)
 
         menu_file.insertMenu(last_file_menu_action, menu_new)
+        menu_file.insertMenu(last_file_menu_action, self.menu_recent)
         menu_file.insertAction(last_file_menu_action, self.action_Open)
         menu_file.insertSeparator(last_file_menu_action)
         menu_file.insertAction(last_file_menu_action, self.action_Save)
@@ -739,3 +744,43 @@ class WorkflowWidget(QtWidgets.QWidget):
         # menu_workflow.addAction(self.action_Continue)
         menu_workflow.addAction(self.action_Reverse)
         menu_workflow.addAction(self.action_Abort)
+
+    def _update_recent_menu(self):
+        self.menu_recent.clear()
+        for path, name in self._recent_workflow_paths().items():
+            recent_action = QtGui.QAction(self.menu_recent)
+            recent_action.setText(name)
+            self.menu_recent.insertAction(None, recent_action)
+            recent_action.triggered.connect(lambda _=False, w=path: self._open_recent_workflow(w))
+
+    def _recent_workflow_paths(self):
+        directory_groups = defaultdict(list)
+        paths = list(reversed(self.model().get_recent_workflows()))
+        for workflow_path in paths:
+            directory_name = os.path.basename(os.path.normpath(workflow_path))
+            directory_groups[directory_name].append(workflow_path)
+
+        directory_map = {}
+        for workflow_path in paths:
+            directory_name = os.path.basename(os.path.normpath(workflow_path))
+            group = directory_groups[directory_name]
+            if len(group) == 1:
+                directory_map[workflow_path] = directory_name
+            else:
+                common_prefix = os.path.commonpath(group)
+                unique_name = os.path.relpath(workflow_path, common_prefix)
+                directory_map[workflow_path] = unique_name
+
+        return directory_map
+
+    def _open_recent_workflow(self, path):
+        file_path = os.path.join(path, DEFAULT_WORKFLOW_PROJECT_FILENAME)
+        if os.path.isfile(file_path):
+            self.open_workflow(path)
+        else:
+            remove = QtWidgets.QMessageBox.warning(self, 'Remove Workflow', 'No workflow configuration found. Would you like to remove '
+                                                   'this workflow from the list of recent workflows?',
+                                                   QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            if remove == QtWidgets.QMessageBox.Yes:
+                self.model().remove_recent_workflow(path)
+                self._update_recent_menu()
