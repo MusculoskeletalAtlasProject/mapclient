@@ -126,6 +126,8 @@ class MainApplication(object):
 
     def add_recent_workflow(self, recent):
         self.remove_recent_workflow(recent)
+        if len(self._recent_workflows) >= 10:
+            self._recent_workflows.pop(0)
         self._recent_workflows.append(recent)
 
     def remove_recent_workflow(self, recent):
