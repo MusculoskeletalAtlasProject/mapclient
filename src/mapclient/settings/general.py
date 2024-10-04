@@ -30,7 +30,7 @@ from PySide6 import QtCore
 from mapclient.core.exitcodes import LOG_FILE_LOCK_FAILED, PID_FILE_LOCK_FAILED
 from mapclient.settings.definitions import INTERNAL_WORKFLOWS_DIR, PID_DATABASE_FILE_NAME
 
-from mapclient.settings.info import VERSION_STRING
+from mapclient.settings.info import VERSION_STRING, DEFAULT_WORKFLOW_PROJECT_FILENAME
 
 
 def get_data_directory():
@@ -170,6 +170,10 @@ def _lock_pid_database():
         sys.exit(PID_FILE_LOCK_FAILED)
 
     return lock
+
+
+def is_workflow(workflow_dir):
+    return os.path.isfile(os.path.join(workflow_dir, DEFAULT_WORKFLOW_PROJECT_FILENAME))
 
 
 def is_workflow_in_use(workflow_dir):

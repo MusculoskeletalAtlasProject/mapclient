@@ -77,7 +77,7 @@ def program_header():
 
 
 # This method starts MAP Client
-def windows_main(app_args):
+def windows_main(workflow, execute_now):
     """
     Initialise common settings and check the operating environment before starting the application.
     """
@@ -137,19 +137,19 @@ def windows_main(app_args):
     om = model.optionsManager()
     _prepare_internal_workflows(om)
     if om.getOption(AUTOLOAD_PREVIOUS_WORKFLOW):
-        _load_previous_workflow(app_args, om)
+        workflow = _load_previous_workflow(workflow, om)
 
     window.show()
     wm = model.workflowManager()
-    if app_args.workflow and not wm.is_restricted(app_args.workflow):
+    if workflow and not wm.is_restricted(workflow):
         splash.showMessage('Opening workflow ...', 80)
-        logger.info(f"Opening workflow: {app_args.workflow}")
-        window.open_workflow(app_args.workflow)
-    elif app_args.workflow:
-        logger.info(f"Not opening workflow '{app_args.workflow}', this workflow is already in use.")
+        logger.info(f"Opening workflow: {workflow}")
+        window.open_workflow(workflow)
+    elif workflow:
+        logger.info(f"Not opening workflow '{workflow}', this workflow is already in use.")
 
     window.start_metrics()
-    if app_args.execute:
+    if execute_now:
         splash.showMessage('Executing workflow ...', 90)
         if wm.canExecute() == 0:
             window.execute()
@@ -173,7 +173,7 @@ def _get_default_internal_workflow(om):
     return find_file(DEFAULT_WORKFLOW_PROJECT_FILENAME, internal_workflow_dir)
 
 
-def _load_previous_workflow(app_args, om):
+def _load_previous_workflow(workflow, om):
     previous_workflow_dir = om.getOption(PREVIOUS_WORKFLOW)
     if previous_workflow_dir != UNSET_FLAG:
         workflow_file = find_file(DEFAULT_WORKFLOW_PROJECT_FILENAME, previous_workflow_dir)
@@ -184,9 +184,11 @@ def _load_previous_workflow(app_args, om):
         workflow_file = _get_default_internal_workflow(om)
 
     # Set workflow to internal workflow if None is currently present.
-    if app_args.workflow is None and workflow_file is not None:
+    if workflow is None and workflow_file is not None:
         # Should definitely have a workflow now.
-        app_args.workflow = os.path.dirname(workflow_file)
+        workflow = os.path.dirname(workflow_file)
+
+    return workflow
 
 
 def _prepare_internal_workflows(om):
@@ -232,7 +234,7 @@ class ConsumeOutput(object):
         self.messages.append(message)
 
 
-def sans_gui_main(app_args):
+def sans_gui_main(workflow):
     locale.setlocale(locale.LC_ALL, '')
 
     from PySide6 import QtWidgets
@@ -275,9 +277,9 @@ def sans_gui_main(app_args):
 
     try:
         wm.scene().setMainWindow(FacadeMainWindow(model))
-        wm.load(app_args.workflow)
+        wm.load(workflow)
     except:
-        logger.error('Not a valid workflow location: "{0}"'.format(app_args.workflow))
+        logger.error('Not a valid workflow location: "{0}"'.format(workflow))
         sys.exit(INVALID_WORKFLOW_LOCATION_GIVEN)
 
     wm.registerDoneExecutionForAll(wm.execute)
@@ -304,9 +306,9 @@ def main():
         sys.exit(HEADLESS_MODE_WITH_NO_WORKFLOW)
 
     if args.headless and args.workflow:
-        sys.exit(sans_gui_main(args))
+        sys.exit(sans_gui_main(args.workflow))
     else:
-        sys.exit(windows_main(args))
+        sys.exit(windows_main(args.workflow, args.execute))
 
 
 if __name__ == '__main__':

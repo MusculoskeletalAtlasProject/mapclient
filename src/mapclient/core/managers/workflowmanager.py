@@ -178,8 +178,9 @@ class WorkflowManager(object):
             if not new:
                 raise WorkflowError(f'Location {location} does not have a valid workflow configuration file.')
 
-    def load_workflow_virtually(self, location):
-        self._check_workflow_location(location)
+    @staticmethod
+    def load_workflow_virtually(location):
+        WorkflowManager._check_workflow_location(location)
 
         return _get_workflow_configuration(location)
 

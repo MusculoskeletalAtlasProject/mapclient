@@ -72,7 +72,10 @@ setup(
                        'model-viewer.png', 'morphometric.png', 'registration.png', 'segmentation.png', 'utility.png']},
     # py_modules=['mapclient.mapclient'],
     include_package_data=True,
-    entry_points={'gui_scripts': ['mapclient=mapclient.application:main']},
+    entry_points={
+        'gui_scripts': ['mapclient=mapclient.application:main'],
+        'console_scripts': ['mapclient_sans_gui=mapclient.application:sans_gui_main', 'mapclient_workflow_runner=mapclient.runner:main'],
+    },
     install_requires=package_dependencies,
     extras_require=extras_require,
 )
