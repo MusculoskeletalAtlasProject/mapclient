@@ -39,24 +39,32 @@ def _relative_path_keys_for_config(name):
     elif name == "Directory Copy":
         return ["location", "previous_location"]
 
-    print(f"Un-registered config relative path keys: '{name}'")
-    return {}
+    return None
 
 
 def _backup_and_merge_config(location, config_file, config, config_name):
+    errors = []
     config_type = _configuration_type_for(config_name)
     if config_type == "json":
-        shutil.copy2(config_file, _backup_file(config_file))
-        with open(config_file) as fh:
-            content = json.load(fh)
+        relative_path_keys = _relative_path_keys_for_config(config_name)
+        if relative_path_keys is None:
+            errors.append(f"Un-registered config relative path keys: '{config_name}'")
+        else:
+            shutil.copy2(config_file, _backup_file(config_file))
+            with open(config_file) as fh:
+                content = json.load(fh)
 
-        for key in _relative_path_keys_for_config(config_name):
-            if key in config:
-                config[key] = os.path.relpath(config[key], location)
+            for key in relative_path_keys:
+                if key in config:
+                    config[key] = os.path.relpath(config[key], location)
 
-        content.update(config)
-        with open(config_file, "w") as fh:
-            json.dump(content, fh)
+            content.update(config)
+            with open(config_file, "w") as fh:
+                json.dump(content, fh)
+    else:
+        errors.append(f"Config type for '{config_name}' is unknown.")
+
+    return errors
 
 
 def _restore_backup(config_file):
@@ -102,8 +110,11 @@ def workflow_runner(location, configuration):
     for identifier in config:
         config_file = get_configuration_file(location, identifier)
         if os.path.isfile(config_file):
-            _backup_and_merge_config(location, config_file, config[identifier], _determine_configuration_name(wf, identifier))
-            modified_configs.append(config_file)
+            backup_errors = _backup_and_merge_config(location, config_file, config[identifier], _determine_configuration_name(wf, identifier))
+            if backup_errors:
+                errors.extend(backup_errors)
+            else:
+                modified_configs.append(config_file)
         else:
             errors.append(f"No corresponding configuration available for '{identifier}'.")
 
@@ -111,8 +122,7 @@ def workflow_runner(location, configuration):
         for error in errors:
             print(error)
     else:
-        # sans_gui_main(location)
-        pass
+        sans_gui_main(location)
 
     for modified_config in modified_configs:
         _restore_backup(modified_config)
