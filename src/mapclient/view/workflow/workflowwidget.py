@@ -26,6 +26,7 @@ import zipfile
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from requests.exceptions import HTTPError
+from collections import defaultdict
 
 from mapclient.core.utils import get_steps_additional_config_files
 from mapclient.exceptions import ClientRuntimeError
@@ -746,8 +747,28 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     def _update_recent_menu(self):
         self.menu_recent.clear()
-        for workflow in reversed(self.model().get_recent_workflows()):
+        for workflow_path, name in self._recent_workflow_paths().items():
             recent_action = QtGui.QAction(self.menu_recent)
-            recent_action.setText(workflow)
+            recent_action.setText(name)
             self.menu_recent.insertAction(None, recent_action)
-            recent_action.triggered.connect(lambda _=False, w=workflow: self.open_workflow(w))
+            recent_action.triggered.connect(lambda _=False, w=workflow_path: self.open_workflow(w))
+
+    def _recent_workflow_paths(self):
+        directory_groups = defaultdict(list)
+        paths = list(reversed(self.model().get_recent_workflows()))
+        for workflow_path in paths:
+            directory_name = os.path.basename(os.path.normpath(workflow_path))
+            directory_groups[directory_name].append(workflow_path)
+
+        directory_map = {}
+        for workflow_path in paths:
+            directory_name = os.path.basename(os.path.normpath(workflow_path))
+            group = directory_groups[directory_name]
+            if len(group) == 1:
+                directory_map[workflow_path] = directory_name
+            else:
+                common_prefix = os.path.commonpath(group)
+                unique_name = os.path.relpath(workflow_path, common_prefix)
+                directory_map[workflow_path] = unique_name
+
+        return directory_map
