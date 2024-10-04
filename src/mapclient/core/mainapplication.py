@@ -41,6 +41,7 @@ class MainApplication(object):
         self._size = QtCore.QSize(600, 400)
         self._pos = QtCore.QPoint(100, 150)
         self._is_maximized = False
+        self._recent_workflows = []
         self._pluginManager = PluginManager()
         self._package_manager = PackageManager()
         self._workflowManager = WorkflowManager(self)
@@ -93,7 +94,13 @@ class MainApplication(object):
         settings.setValue('size', self._size)
         settings.setValue('pos', self._pos)
         settings.setValue('is_maximized', self._is_maximized)
+        settings.beginWriteArray('recent_workflows')
+        for i, r in enumerate(self._recent_workflows):
+            settings.setArrayIndex(i)
+            settings.setValue('item', r)
+        settings.endArray()
         settings.endGroup()
+
         self._pluginManager.writeSettings(settings)
         self._workflowManager.writeSettings(settings)
         self._optionsManager.writeSettings(settings)
@@ -105,8 +112,32 @@ class MainApplication(object):
         self._size = settings.value('size', self._size)
         self._pos = settings.value('pos', self._pos)
         self._is_maximized = settings.value('is_maximized', 'true') == 'true'
+        size = settings.beginReadArray('recent_workflows')
+        for i in range(size):
+            settings.setArrayIndex(i)
+            self.add_recent_workflow(settings.value('item'))
+        settings.endArray()
         settings.endGroup()
+
         self._pluginManager.readSettings(settings)
         self._workflowManager.readSettings(settings)
         self._optionsManager.readSettings(settings)
         self._package_manager.read_settings(settings)
+
+    def add_recent_workflow(self, recent):
+        self.remove_recent_workflow(recent)
+        if len(self._recent_workflows) >= 10:
+            self._recent_workflows.pop(0)
+        self._recent_workflows.append(recent)
+
+    def remove_recent_workflow(self, recent):
+        if recent in self._recent_workflows:
+            index = self._recent_workflows.index(recent)
+            del self._recent_workflows[index]
+
+    def get_recent_workflows(self):
+        return self._recent_workflows
+
+    def clear_recent_workflows(self):
+        self._recent_workflows = []
+
