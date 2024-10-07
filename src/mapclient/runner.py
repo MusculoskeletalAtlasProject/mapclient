@@ -9,6 +9,17 @@ from mapclient.core.managers.workflowmanager import WorkflowManager
 from mapclient.core.utils import is_json
 from mapclient.settings.general import is_workflow, get_configuration_file
 
+STEP_KNOWLEDGE_DATABASE = {
+    "File Chooser": {
+        "config_type": "json",
+        "relative_path_keys": ["File", "previous_location"]
+    },
+    "Directory Copy": {
+        "config_type": "json",
+        "relative_path_keys": ["location", "previous_location"]
+    },
+}
+
 
 def _parse_arguments():
     parser = argparse.ArgumentParser(prog="mapclient_workflow_runner")
@@ -23,10 +34,8 @@ def _backup_file(file_path):
 
 
 def _relative_path_keys_for_config(name):
-    if name == "File Chooser":
-        return ["File", "previous_location"]
-    elif name == "Directory Copy":
-        return ["location", "previous_location"]
+    if name in STEP_KNOWLEDGE_DATABASE:
+        return STEP_KNOWLEDGE_DATABASE[name]["relative_path_keys"]
 
     return None
 
@@ -61,7 +70,7 @@ def _restore_backup(config_file):
 
 
 def _configuration_type_for(name):
-    return "json"
+    return STEP_KNOWLEDGE_DATABASE.get(name, {"config_type": "not-set"})["config_type"]
 
 
 def _determine_configuration_name(wf, identifier):
