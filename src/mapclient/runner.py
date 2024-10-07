@@ -11,7 +11,7 @@ from mapclient.settings.general import is_workflow, get_configuration_file
 
 
 def _parse_arguments():
-    parser = argparse.ArgumentParser(prog="workflow_runner")
+    parser = argparse.ArgumentParser(prog="mapclient_workflow_runner")
     parser.add_argument("-w", "--workflow", required=True, help="Location of workflow to run")
     parser.add_argument("-c", "--configuration", required=True, help="Configuration information to apply to workflow")
 

@@ -5,7 +5,7 @@ from mapclient.core.utils import is_json
 
 
 def _parse_arguments():
-    parser = argparse.ArgumentParser(prog="workflow_config_maker")
+    parser = argparse.ArgumentParser(prog="mapclient_config_maker")
     parser.add_argument("-c", "--configuration", required=True, help="Configuration file location to write to")
     parser.add_argument("-d", "--definition", nargs=2, action='append', help="Definition to write into configuration, specified by identifier key:value")
     parser.add_argument("-a", "--append", action="store_true", help="Append/merge definitions don't overwrite entire configuration file")
