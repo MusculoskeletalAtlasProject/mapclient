@@ -42,7 +42,7 @@ from mapclient.view.workflow.workflowgraphicsscene import WorkflowGraphicsScene
 from mapclient.tools.pmr.pmrtool import PMRTool
 from mapclient.view.managers.plugins.pluginupdater import PluginUpdater
 from mapclient.tools.pmr.settings.general import PMR
-from mapclient.settings.general import get_virtualenv_directory
+from mapclient.settings.general import get_virtualenv_directory, is_workflow
 from mapclient.core.workflow.workflowerror import WorkflowError
 from mapclient.settings.definitions import SHOW_STEP_NAMES, CLOSE_AFTER, USE_EXTERNAL_GIT, PREVIOUS_WORKFLOW
 
@@ -192,7 +192,7 @@ class WorkflowWidget(QtWidgets.QWidget):
                          'following reason%s:\n\n%s' % (
                              len(errors) > 1 and 's' or '', errors_str,
                          ))
-            QtWidgets.QMessageBox.critical(self, 'Workflow Execution', error_msg, QtWidgets.QMessageBox.Ok)
+            QtWidgets.QMessageBox.critical(self, 'Workflow Execution', error_msg, QtWidgets.QMessageBox.StandardButton.Ok)
         else:
             wfm.register_finished_workflow_callback(self._workflow_finished)
             self.executeNext()
@@ -323,7 +323,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         workflow_conf = QtWidgets.QFileDialog.getOpenFileName(
             self._main_window,
             caption='Open Workflow',
-            dir=os.path.join(wm.previousLocation(), DEFAULT_WORKFLOW_PROJECT_FILENAME),
+            dir=wm.previousLocation(),
             filter=f"{primary_filter};;Any file (*.*)",
             selectedFilter=primary_filter,
             options=(
@@ -409,7 +409,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             QtWidgets.QMessageBox.critical(self, 'Failed Installation',
                                            'One or more of the required dependencies could not be installed.'
                                            '\nPlease refer to the program logs for more information.',
-                                           QtWidgets.QMessageBox.Ok)
+                                           QtWidgets.QMessageBox.StandardButton.Ok)
         return unsuccessful_installs
 
     def getMissingDependencies(self, dependencies):
@@ -750,7 +750,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         for path, name in self._recent_workflow_paths().items():
             recent_action = QtGui.QAction(self.menu_recent)
             recent_action.setText(name)
-            self.menu_recent.insertAction(None, recent_action)
+            self.menu_recent.insertAction(QtGui.QAction(), recent_action)
             recent_action.triggered.connect(lambda _=False, w=path: self._open_recent_workflow(w))
 
     def _recent_workflow_paths(self):
@@ -774,13 +774,12 @@ class WorkflowWidget(QtWidgets.QWidget):
         return directory_map
 
     def _open_recent_workflow(self, path):
-        file_path = os.path.join(path, DEFAULT_WORKFLOW_PROJECT_FILENAME)
-        if os.path.isfile(file_path):
+        if is_workflow(path):
             self.open_workflow(path)
         else:
             remove = QtWidgets.QMessageBox.warning(self, 'Remove Workflow', 'No workflow configuration found. Would you like to remove '
                                                    'this workflow from the list of recent workflows?',
                                                    QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-            if remove == QtWidgets.QMessageBox.Yes:
+            if remove == QtWidgets.QMessageBox.StandardButton.Yes:
                 self.model().remove_recent_workflow(path)
                 self._update_recent_menu()
