@@ -342,6 +342,9 @@ class WorkflowScene(object):
     def canExecute(self):
         return self._dependencyGraph.can_execute()
 
+    def execute_status_message(self):
+        return self._dependencyGraph.execute_status_message()
+
     def execute(self):
         self._dependencyGraph.execute()
 

@@ -104,6 +104,7 @@ class WorkflowDependencyGraph(object):
         self._current = -1
         self._direction = 1
         self._finished_callback = None
+        self._execute_status_message = "No status reported."
 
     def _find_all_connected_nodes(self):
         """
@@ -149,6 +150,9 @@ class WorkflowDependencyGraph(object):
     def set_finished_callback(self, callback):
         self._finished_callback = callback
 
+    def execute_status_message(self):
+        return self._execute_status_message
+
     def can_execute(self):
         self._dependency_graph = self._calculate_dependency_graph()
         self._reverse_dependency_graph = _reverse_dict_with_lists(self._dependency_graph)
@@ -168,16 +172,22 @@ class WorkflowDependencyGraph(object):
         configured = [metastep.getStep().isConfigured() for metastep in self._topological_order]
 
         if not all(configured):
+            self._execute_status_message = "Not all steps are configured."
             return 1
         elif items_count == 0:
+            self._execute_status_message = "No steps in workflow."
             return 2
         elif items_count > 1 and len(self._topological_order) == 0 and len(self._dependency_graph.keys()) == 0:
+            self._execute_status_message = "Multiple steps but no connections to create workflow."
             return 3
         elif self._current != -1:
+            self._execute_status_message = "Already executing."
             return 4
         elif items_count > 1 and len(self._topological_order) == 0:
+            self._execute_status_message = "Multiple steps but no connections to create workflow 2."
             return 5
 
+        self._execute_status_message = "Can execute."
         return 0
 
     def abort(self):
