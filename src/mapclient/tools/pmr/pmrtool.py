@@ -26,6 +26,8 @@ from requests import HTTPError
 from requests import Session
 from requests_oauthlib import OAuth1Session
 from urllib.parse import urlparse
+from subprocess import check_output, PIPE, CalledProcessError
+from base64 import b64encode
 
 from pmr2.wfctrl.core import get_cmd_by_name
 from pmr2.wfctrl.core import CmdWorkspace
@@ -120,6 +122,14 @@ def errmsg(msg, doc, pos, end=None):
     return fmt % (msg, lineno, colno, endlineno, endcolno, pos, end)
 
 
+def get_workspace_url(workspace_directory):
+    try:
+        output = check_output(['git', 'remote', 'get-url', 'origin'], cwd=workspace_directory, stderr=PIPE, text=True)
+        return output.strip()
+    except CalledProcessError:
+        return None
+
+
 class PMRTool(object):
 
     PROTOCOL = 'application/vnd.physiome.pmr2.json.0'
@@ -129,15 +139,15 @@ class PMRTool(object):
         self._client = None
         self._termLookUpLimit = 32
         self._pmr_info = pmr_info
-        self._git_implementation = None
 
-        self.set_use_external_git(use_external_git)
+        self._cmd_class = self.set_use_external_git(use_external_git)
 
     def set_info(self, info):
         self._pmr_info = info
 
     def set_use_external_git(self, use_external_git):
-        self._git_implementation = 'git' if use_external_git else 'dulwich'
+        name = 'authenticated_git' if use_external_git else 'authenticated_dulwich'
+        return get_cmd_by_name(name)
 
     def make_session(self):
 
@@ -325,32 +335,10 @@ class PMRTool(object):
         return r.json().get('url')
 
     def cloneWorkspace(self, remote_workspace_url, local_workspace_dir):
-        # XXX target_dir is assumed to exist, so we can't just clone
-        # but we have to instantiate that as a new repo, define the
-        # remote and pull.
-
-        # link
-        self.linkWorkspaceDirToUrl(
-            local_workspace_dir=local_workspace_dir,
-            remote_workspace_url=remote_workspace_url,
-        )
-
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
-
-        # Another caveat: that workspace is possibly private.  Acquire
-        # temporary password.
-        creds = self.request_temporary_password(remote_workspace_url)
-        if creds:
-            stdout, stderr, return_code = workspace.cmd.clone(
-                workspace, username=creds['user'], password=creds['key'])
-        else:
-            # no credentials
-            logger.info('not using credentials as none are detected')
-            stdout, stderr, return_code = workspace.cmd.pull(workspace)
-
-        # TODO trap this result too?
-        workspace.cmd.reset_to_remote(workspace)
-        return return_code
+        credentials = self.request_temporary_password(remote_workspace_url)
+        cmd = self._cmd_class(remote_workspace_url)
+        cmd.set_authorization(create_authentication_header(credentials['user'], credentials['key']))
+        CmdWorkspace(local_workspace_dir, cmd)
 
     def addFileToIndexer(self, local_workspace_dir, workspace_file):
         """
@@ -360,9 +348,7 @@ class PMRTool(object):
         if not self.has_access():
             return
 
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
-        cmd = workspace.cmd
-        remote_workspace_url = cmd.read_remote(workspace)
+        remote_workspace_url = get_workspace_url(local_workspace_dir)
         target = '/'.join([remote_workspace_url, 'rdf_indexer'])
         # {u'fields': {u'paths': {u'items': None, u'error': None, u'description': u'Paths that will be indexed as RDF.',
         #  u'value': u'', u'klass': u'textarea-widget list-field'}}, u'actions': {u'apply': {u'title': u'Apply'},
@@ -382,19 +368,18 @@ class PMRTool(object):
         # prereq is that the remote must be new.
 
         workspace_obj = self.get_object_info(remote_workspace_url)
-        cmd_cls = get_cmd_by_name(self._git_implementation)
-        if cmd_cls is None:
+        if self._cmd_class is None:
             raise PMRToolError(
                 'Remote storage format unsupported',
                 'The remote storage `%(storage)s` is not one of the ones that '
                 'the MAP Client currently supports.' % workspace_obj)
 
         # brand new command module for init.
-        new_cmd = cmd_cls()
+        new_cmd = self._cmd_class()
         workspace = CmdWorkspace(local_workspace_dir, new_cmd)
 
         # Add the remote using a new command
-        cmd = cmd_cls(remote=remote_workspace_url)
+        cmd = self._cmd_class(remote=remote_workspace_url)
 
         # Do the writing.
         cmd.write_remote(workspace)
@@ -402,12 +387,15 @@ class PMRTool(object):
     def is_pmr_workflow(self, local_workspace_dir):
         git_dir = os.path.join(local_workspace_dir, '.git')
         if os.path.isdir(git_dir):
-            bob = get_cmd_by_name(self._git_implementation)()
-            workspace = CmdWorkspace(local_workspace_dir, bob)
+            remote_workspace_url = get_workspace_url(local_workspace_dir)
+            credentials = self.request_temporary_password(remote_workspace_url)
+            cmd = self._cmd_class()
+            cmd.set_authorization(create_authentication_header(credentials['user'], credentials['key']))
+            workspace = CmdWorkspace(local_workspace_dir, cmd)
+
             if workspace.cmd is None:
                 return False
 
-            remote_workspace_url = workspace.cmd.read_remote(workspace)
             url_parsed = urlparse(remote_workspace_url)
             for host_domain in self._pmr_info.hosts():
                 host_parsed = urlparse(host_domain)
@@ -417,8 +405,12 @@ class PMRTool(object):
         return False
 
     def commit_files(self, local_workspace_dir, message, files):
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
-        cmd = workspace.cmd
+        remote_workspace_url = get_workspace_url(local_workspace_dir)
+        credentials = self.request_temporary_password(remote_workspace_url)
+        cmd = self._cmd_class()
+        cmd.set_authorization(create_authentication_header(credentials['user'], credentials['key']))
+        workspace = CmdWorkspace(local_workspace_dir, cmd)
+
         if cmd is None:
             logger.info('skipping commit, no underlying repo detected')
             return
@@ -433,15 +425,13 @@ class PMRTool(object):
         return cmd.commit(workspace, message)
 
     def pushToRemote(self, local_workspace_dir, remote_workspace_url=None):
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
-        cmd = workspace.cmd
+        remote_workspace_url = get_workspace_url(local_workspace_dir)
+        credentials = self.request_temporary_password(remote_workspace_url)
+        cmd = self._cmd_class()
+        cmd.set_authorization(create_authentication_header(credentials['user'], credentials['key']))
+        workspace = CmdWorkspace(local_workspace_dir, cmd)
 
-        if remote_workspace_url is None:
-            remote_workspace_url = cmd.read_remote(workspace)
-        # Acquire temporary creds
-        creds = self.request_temporary_password(remote_workspace_url)
-
-        stdout, stderr, return_code = cmd.push(workspace, username=creds['user'], password=creds['key'])
+        stdout, stderr, return_code = cmd.push(workspace)
 
         if stdout:
             logger.info(stdout)
@@ -454,13 +444,13 @@ class PMRTool(object):
         return stdout, stderr
 
     def pullFromRemote(self, local_workspace_dir):
-        workspace = CmdWorkspace(local_workspace_dir, get_cmd_by_name(self._git_implementation)())
-        cmd = workspace.cmd
+        remote_workspace_url = get_workspace_url(local_workspace_dir)
+        credentials = self.request_temporary_password(remote_workspace_url)
+        cmd = self._cmd_class()
+        cmd.set_authorization(create_authentication_header(credentials['user'], credentials['key']))
+        workspace = CmdWorkspace(local_workspace_dir, cmd)
 
-        remote_workspace_url = cmd.read_remote(workspace)
-
-        creds = self.request_temporary_password(remote_workspace_url)
-        stdout, stderr, return_code = cmd.pull(workspace, username=creds['user'], password=creds['key'])
+        stdout, stderr, return_code = cmd.pull(workspace)
 
         if stdout:
             logger.info(stdout)
@@ -468,3 +458,11 @@ class PMRTool(object):
             logger.info(stderr)
 
         return stdout, stderr
+
+
+def create_authentication_header(username, password):
+    auth_bytes = f"{username}:{password}".encode()
+    auth_token = b64encode(auth_bytes).decode()
+    auth_header = f"Basic {auth_token}"
+
+    return auth_header
