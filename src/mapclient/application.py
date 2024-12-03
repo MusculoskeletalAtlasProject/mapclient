@@ -154,7 +154,7 @@ def windows_main(workflow, execute_now):
         if wm.canExecute() == 0:
             window.execute()
         else:
-            logger.error('Could not execute workflow.')
+            logger.error(f'Could not execute workflow, reason: "{wm.execute_status_message()}"')
 
     splash.showMessage('Ready ...', 100)
     splash.finish(window)
@@ -287,7 +287,7 @@ def sans_gui_main(workflow):
     if wm.canExecute() == 0:
         wm.execute()
     else:
-        logger.error('Could not execute workflow.')
+        logger.error(f'Could not execute workflow, reason: "{wm.execute_status_message()}"')
 
     # Possibly don't need to run app.exec_()
     return app.quit()

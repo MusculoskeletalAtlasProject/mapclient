@@ -140,6 +140,9 @@ class WorkflowManager(object):
     def canExecute(self):
         return self._scene.canExecute()
 
+    def execute_status_message(self):
+        return self._scene.execute_status_message()
+
     def registerDoneExecutionForAll(self, callback):
         self._scene.registerDoneExecutionForAll(callback)
 
