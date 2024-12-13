@@ -42,6 +42,8 @@ CHECK_TOOLS_ON_STARTUP = 'checkBoxCheckToolsOnStartup'
 USE_EXTERNAL_GIT = 'checkBoxUseExternalGit'
 USE_EXTERNAL_RCC = 'checkBoxUseExternalPySideRCC'
 USE_EXTERNAL_UIC = 'checkBoxUseExternalPySideUIC'
+RECENTS_ABSOLUTE_PATHS = 'checkBoxAbsolutePaths'
+RECENTS_LENGTH = 'spinBoxRecentsLength'
 
 WIZARD_TOOL_STRING = 'Wizard Tool'
 VIRTUAL_ENVIRONMENT_STRING = 'Virtual Environment'

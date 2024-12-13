@@ -44,7 +44,8 @@ from mapclient.view.managers.plugins.pluginupdater import PluginUpdater
 from mapclient.tools.pmr.settings.general import PMR
 from mapclient.settings.general import get_virtualenv_directory, is_workflow
 from mapclient.core.workflow.workflowerror import WorkflowError
-from mapclient.settings.definitions import SHOW_STEP_NAMES, CLOSE_AFTER, USE_EXTERNAL_GIT, PREVIOUS_WORKFLOW
+from mapclient.settings.definitions import SHOW_STEP_NAMES, CLOSE_AFTER, USE_EXTERNAL_GIT, PREVIOUS_WORKFLOW,\
+    RECENTS_ABSOLUTE_PATHS, RECENTS_LENGTH
 
 from mapclient.core.workflow.workflowitems import MetaStep
 from mapclient.view.workflow.importconfigdialog import ImportConfigDialog
@@ -139,6 +140,8 @@ class WorkflowWidget(QtWidgets.QWidget):
         om = self._main_window.model().optionsManager()
         show_step_names = om.getOption(SHOW_STEP_NAMES)
         self._graphicsScene.showStepNames(show_step_names)
+        self._check_recents_length()
+        self._update_recent_menu()
 
     def undoStackIndexChanged(self, index):
         self._main_window.model().workflowManager().undoStackIndexChanged(index)
@@ -744,8 +747,12 @@ class WorkflowWidget(QtWidgets.QWidget):
         menu_workflow.addAction(self.action_Abort)
 
     def _update_recent_menu(self):
+        absolute_paths = self._main_window.model().optionsManager().getOption(RECENTS_ABSOLUTE_PATHS)
+
         self.menu_recent.clear()
         for path, name in self._recent_workflow_paths().items():
+            if absolute_paths:
+                name = path
             recent_action = QtGui.QAction(self.menu_recent)
             recent_action.setText(name)
             self.menu_recent.insertAction(QtGui.QAction(), recent_action)
@@ -770,6 +777,16 @@ class WorkflowWidget(QtWidgets.QWidget):
                 directory_map[workflow_path] = unique_name
 
         return directory_map
+
+    def _check_recents_length(self):
+        options_manager = self._main_window.model().optionsManager()
+        recents_length = options_manager.getOption(RECENTS_LENGTH)
+
+        recent_paths = self.model().get_recent_workflows()
+        removals = len(recent_paths) - recents_length
+        if removals > 0:
+            for recent_path in recent_paths[:removals]:
+                self.model().remove_recent_workflow(recent_path)
 
     def _open_recent_workflow(self, path):
         if is_workflow(path):
