@@ -60,14 +60,14 @@ class DownloadToDirectoryDialog(QDialog):
             if self._selected_directory not in self._plugin_directories:
                 add_dir = QMessageBox.question(self, 'Add Directory', 'The selected directory is not recognized as a MAP-Client plugins '
                                                'directory. Do you wish to add this directory to the MAP-Client plugin search path?')
-                if add_dir == QMessageBox.Yes:
+                if add_dir == QMessageBox.StandardButton.Yes:
                     self._plugin_directories.append(self._selected_directory)
                     self._plugin_manager.setDirectories(self._plugin_directories)
 
             answer = QMessageBox.information(self, 'Download Successful', 'The selected plugin was successfully downloaded. '
                                              'You may need to restart the application to pick up newly downloaded plugins.')
 
-            if answer == QMessageBox.Ok:
+            if answer == QMessageBox.StandardButton.Ok:
                 self.accept()
 
         else:

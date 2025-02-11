@@ -20,6 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 
 from PySide6 import QtCore
 
+from mapclient.settings.general import get_settings
 from mapclient.tools.pmr.core import DEFAULT_SITE_URL, TEACHING_SITE_URL
 
 # Credentials follows:
@@ -52,7 +53,7 @@ class PMR(object):
         self.read_settings()
 
     def read_settings(self):
-        settings = QtCore.QSettings()
+        settings = get_settings()
         settings.beginGroup('PMR')
         # pmr_host?  this is a domain name...
         self._active_host = settings.value('active-pmr-website', TEACHING_SITE_URL)
@@ -74,7 +75,7 @@ class PMR(object):
         self.addHost(self._active_host)
 
     def write_settings(self):
-        settings = QtCore.QSettings()
+        settings = get_settings()
         settings.beginGroup('PMR')
         
         settings.setValue('active-pmr-website', self._active_host)

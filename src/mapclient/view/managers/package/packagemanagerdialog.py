@@ -60,7 +60,10 @@ class PackageManagerDialog(QtWidgets.QDialog):
         if last:
             last = last.text()
 
-        directory = QtWidgets.QFileDialog.getExistingDirectory(self, caption='Select Package Directory', dir=last, options=QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks | QtWidgets.QFileDialog.ReadOnly)
+        directory = QtWidgets.QFileDialog.getExistingDirectory(
+            self, caption='Select Package Directory', dir=last,
+            options=QtWidgets.QFileDialog.Option.ShowDirsOnly | QtWidgets.QFileDialog.Option.DontResolveSymlinks | QtWidgets.QFileDialog.Option.ReadOnly)
+
         if len(directory) > 0:
             self._ui.directoryListing.addItem(directory)
 

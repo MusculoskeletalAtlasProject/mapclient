@@ -41,7 +41,7 @@ package_dependencies = [
     'pmr2.client >= 0.2',
     'packaging',
     'filelock',
-    'psutil == 5.9.3',
+    'psutil >= 6.0',
     'PyGithub',
     'numpy',
 ]
@@ -76,6 +76,7 @@ setup(
         'gui_scripts': ['mapclient=mapclient.application:main'],
         'console_scripts': ['mapclient_sans_gui=mapclient.application:sans_gui_main',
                             'mapclient_workflow_runner=mapclient.runner:main',
+                            'mapclient_use=mapclient.application:user_specified_environment_main',
                             'mapclient_config_maker=mapclient.configmaker:main'],
     },
     install_requires=package_dependencies,
