@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'optionsdialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.0
+## Created by: Qt User Interface Compiler version 6.5.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -16,10 +16,11 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QAbstractButton, QApplication, QCheckBox, QDialog,
-    QDialogButtonBox, QDoubleSpinBox, QFormLayout, QGridLayout,
-    QGroupBox, QHBoxLayout, QLabel, QLineEdit,
-    QPlainTextEdit, QPushButton, QSizePolicy, QSpacerItem,
-    QTabWidget, QVBoxLayout, QWidget)
+    QDialogButtonBox, QDoubleSpinBox, QFormLayout, QFrame,
+    QGridLayout, QGroupBox, QHBoxLayout, QLabel,
+    QLineEdit, QPlainTextEdit, QPushButton, QSizePolicy,
+    QSpacerItem, QSpinBox, QTabWidget, QVBoxLayout,
+    QWidget)
 
 class Ui_OptionsDialog(object):
     def setupUi(self, OptionsDialog):
@@ -110,7 +111,42 @@ class Ui_OptionsDialog(object):
 
         self.verticalLayout_4.addWidget(self.groupBox_3)
 
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.groupBox_4 = QGroupBox(self.tabGeneral)
+        self.groupBox_4.setObjectName(u"groupBox_4")
+        self.verticalLayout_8 = QVBoxLayout(self.groupBox_4)
+        self.verticalLayout_8.setObjectName(u"verticalLayout_8")
+        self.checkBoxAbsolutePaths = QCheckBox(self.groupBox_4)
+        self.checkBoxAbsolutePaths.setObjectName(u"checkBoxAbsolutePaths")
+
+        self.verticalLayout_8.addWidget(self.checkBoxAbsolutePaths)
+
+        self.frame = QFrame(self.groupBox_4)
+        self.frame.setObjectName(u"frame")
+        self.frame.setFrameShape(QFrame.StyledPanel)
+        self.frame.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_5 = QHBoxLayout(self.frame)
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.spinBoxRecentsLength = QSpinBox(self.frame)
+        self.spinBoxRecentsLength.setObjectName(u"spinBoxRecentsLength")
+        self.spinBoxRecentsLength.setMaximumSize(QSize(120, 16777215))
+        self.spinBoxRecentsLength.setMinimum(1)
+        self.spinBoxRecentsLength.setValue(10)
+
+        self.horizontalLayout_5.addWidget(self.spinBoxRecentsLength)
+
+        self.label_2 = QLabel(self.frame)
+        self.label_2.setObjectName(u"label_2")
+
+        self.horizontalLayout_5.addWidget(self.label_2)
+
+
+        self.verticalLayout_8.addWidget(self.frame)
+
+
+        self.verticalLayout_4.addWidget(self.groupBox_4)
+
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout_4.addItem(self.verticalSpacer)
 
@@ -199,7 +235,7 @@ class Ui_OptionsDialog(object):
 
         self.lineEditGitExecutable = QLineEdit(self.groupBoxPMR)
         self.lineEditGitExecutable.setObjectName(u"lineEditGitExecutable")
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lineEditGitExecutable.sizePolicy().hasHeightForWidth())
@@ -229,7 +265,7 @@ class Ui_OptionsDialog(object):
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
 
@@ -244,7 +280,7 @@ class Ui_OptionsDialog(object):
 
         self.verticalLayout_2.addWidget(self.groupBoxOutput)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout_2.addItem(self.verticalSpacer_2)
 
@@ -280,6 +316,12 @@ class Ui_OptionsDialog(object):
         self.label.setText(QCoreApplication.translate("OptionsDialog", u"Auto close after (seconds)", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("OptionsDialog", u"Permissions", None))
         self.checkBoxMetricsPermission.setText(QCoreApplication.translate("OptionsDialog", u"Allow the MAP-Client to log metrics/usage statistics", None))
+        self.groupBox_4.setTitle(QCoreApplication.translate("OptionsDialog", u"Recent workflows", None))
+#if QT_CONFIG(tooltip)
+        self.checkBoxAbsolutePaths.setToolTip(QCoreApplication.translate("OptionsDialog", u"If deselected, minimum difference paths will be displayed.", None))
+#endif // QT_CONFIG(tooltip)
+        self.checkBoxAbsolutePaths.setText(QCoreApplication.translate("OptionsDialog", u"Display absolute paths for recent workflows", None))
+        self.label_2.setText(QCoreApplication.translate("OptionsDialog", u"Recent workflows list length", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGeneral), QCoreApplication.translate("OptionsDialog", u"&General", None))
         self.groupBoxStepWizard.setTitle(QCoreApplication.translate("OptionsDialog", u"Step Wizard", None))
         self.checkBoxUseExternalPySideRCC.setText(QCoreApplication.translate("OptionsDialog", u"Use external PySide resource compiler (rcc)", None))
