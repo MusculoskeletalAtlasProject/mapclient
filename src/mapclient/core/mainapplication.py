@@ -28,6 +28,7 @@ from mapclient.core.managers.pluginmanager import PluginManager
 from mapclient.core.managers.optionsmanager import OptionsManager
 from mapclient.core.checks import runChecks
 from mapclient.settings.definitions import CHECK_TOOLS_ON_STARTUP
+from mapclient.settings.general import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +90,7 @@ class MainApplication(object):
         return runChecks(options) if options[CHECK_TOOLS_ON_STARTUP] else True
 
     def writeSettings(self):
-        settings = QtCore.QSettings()
+        settings = get_settings()
         settings.beginGroup('MainWindow')
         settings.setValue('size', self._size)
         settings.setValue('pos', self._pos)
@@ -107,7 +108,7 @@ class MainApplication(object):
         self._package_manager.write_settings(settings)
 
     def readSettings(self):
-        settings = QtCore.QSettings()
+        settings = get_settings()
         settings.beginGroup('MainWindow')
         self._size = settings.value('size', self._size)
         self._pos = settings.value('pos', self._pos)

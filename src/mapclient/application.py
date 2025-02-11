@@ -32,7 +32,7 @@ from logging import handlers
 from mapclient.core.exitcodes import HEADLESS_MODE_WITH_NO_WORKFLOW, INVALID_WORKFLOW_LOCATION_GIVEN
 from mapclient.core.utils import is_frozen, find_file
 from mapclient.settings.definitions import INTERNAL_WORKFLOWS_ZIP, INTERNAL_WORKFLOWS_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG, PREVIOUS_WORKFLOW, AUTOLOAD_PREVIOUS_WORKFLOW
-from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME
+from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME, APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE
 
 os.environ['ETS_TOOLKIT'] = 'qt'
 # With PEP366 we need to conditionally import the settings module based on
@@ -234,13 +234,8 @@ class ConsumeOutput(object):
         self.messages.append(message)
 
 
-def sans_gui_main(workflow):
-    locale.setlocale(locale.LC_ALL, '')
-
-    from PySide6 import QtWidgets
-
-    app = QtWidgets.QApplication(sys.argv)
-    logging.basicConfig(level='DEBUG')
+def _prepare_sans_gui_app(app):
+    logging.basicConfig(level='INFO')
 
     info.set_applications_settings(app)
 
@@ -257,13 +252,17 @@ def sans_gui_main(workflow):
     model = MainApplication()
     model.readSettings()
 
-    class FacadeMainWindow:
+    return model
 
-        def __init__(self, _model):
-            self._model = _model
 
-        def model(self):
-            return self._model
+def sans_gui_main(workflow):
+    locale.setlocale(locale.LC_ALL, '')
+
+    from PySide6 import QtWidgets
+
+    app = QtWidgets.QApplication(sys.argv)
+
+    model = _prepare_sans_gui_app(app)
 
     wm = model.workflowManager()
     pm = model.pluginManager()
@@ -274,6 +273,14 @@ def sans_gui_main(workflow):
     pm.load()
 
     _prepare_internal_workflows(om)
+
+    class FacadeMainWindow:
+
+        def __init__(self, _model):
+            self._model = _model
+
+        def model(self):
+            return self._model
 
     try:
         wm.scene().setMainWindow(FacadeMainWindow(model))
@@ -291,6 +298,51 @@ def sans_gui_main(workflow):
 
     # Possibly don't need to run app.exec_()
     return app.quit()
+
+
+def _parse_prepare_user_specified_environment_args():
+    parser = argparse.ArgumentParser(prog=f"{info.APPLICATION_NAME}_use".lower(),
+                                     description="An application to create and setup a separate configuration location for running MAP Client.")
+    parser.add_argument("base_dir", help="Sets the base directory for the setup, must exist.")
+    parser.add_argument("-d", "--directory", action='append', help="Specify a plugin directory, can be used multiple times.")
+
+    return parser.parse_args()
+
+
+def user_specified_environment_main():
+    locale.setlocale(locale.LC_ALL, '')
+
+    from PySide6 import QtWidgets
+
+    app = QtWidgets.QApplication(sys.argv)
+    logging.basicConfig(level='INFO')
+
+    info.set_applications_settings(app)
+
+    args = _parse_prepare_user_specified_environment_args()
+    if not os.path.isdir(args.base_dir):
+        sys.exit(1)
+
+    config_dir = os.path.join(args.base_dir, ".config")
+    os.environ[APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE] = config_dir
+
+    if args.directory is not None:
+        model = _prepare_sans_gui_app(app)
+        model.readSettings()
+        pm = model.pluginManager()
+        directories = pm.directories()
+        for d in args.directory:
+            if os.path.isdir(d) and d not in directories:
+                directories.append(d)
+
+        pm.setDirectories(directories)
+        model.writeSettings()
+
+    print(f"Set environment variable '{APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}' to '{config_dir}' to use application with these settings.")
+    if sys.platform == "win32":
+        print(f'set {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
+    else:
+        print(f'export {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
 
 
 def main():

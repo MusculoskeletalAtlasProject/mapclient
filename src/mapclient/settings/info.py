@@ -29,6 +29,7 @@ GPL_VERSION = '3'
 APPLICATION_NAME = 'MAPClient'
 ORGANISATION_NAME = 'MusculoSkeletal'
 ORGANISATION_DOMAIN = 'musculoskeletal.org'
+APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE = 'MAP_CLIENT_USE_CONFIG_DIR'
 
 # Contributors list
 HS = {'name': 'Hugh Sorby', 'email': 'h.sorby@auckland.ac.nz'}
@@ -63,4 +64,4 @@ def set_applications_settings(app):
     app.setOrganizationName(ORGANISATION_NAME)
     app.setApplicationName(APPLICATION_NAME)
     app.setApplicationVersion(ABOUT['version'])
-    QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
+    QtCore.QSettings.setDefaultFormat(QtCore.QSettings.Format.IniFormat)

@@ -30,7 +30,15 @@ from PySide6 import QtCore
 from mapclient.core.exitcodes import LOG_FILE_LOCK_FAILED, PID_FILE_LOCK_FAILED
 from mapclient.settings.definitions import INTERNAL_WORKFLOWS_DIR, PID_DATABASE_FILE_NAME
 
-from mapclient.settings.info import VERSION_STRING, DEFAULT_WORKFLOW_PROJECT_FILENAME
+from mapclient.settings.info import VERSION_STRING, DEFAULT_WORKFLOW_PROJECT_FILENAME, APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE
+
+
+def get_settings():
+    settings = QtCore.QSettings()
+    if APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE in os.environ:
+        settings.setPath(QtCore.QSettings.Format.IniFormat, QtCore.QSettings.Scope.UserScope, os.environ[APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE])
+
+    return settings
 
 
 def get_data_directory():
@@ -38,7 +46,7 @@ def get_data_directory():
     Return the directory where we can store data for the application.
     Like settings and log files etc.
     """
-    settings = QtCore.QSettings()
+    settings = get_settings()
     fn = settings.fileName()
 
     return os.path.dirname(fn)
@@ -68,7 +76,7 @@ def get_virtualenv_site_packages_directory(virtualenv_dir):
 
 
 def settings_file_exists():
-    settings = QtCore.QSettings()
+    settings = get_settings()
     file_name = settings.fileName()
     return os.path.isfile(file_name)
 

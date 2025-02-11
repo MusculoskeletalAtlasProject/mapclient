@@ -1,6 +1,7 @@
 import json
 import os
 import pkgutil
+import platform
 import subprocess
 import sys
 
@@ -126,6 +127,8 @@ def _determine_capabilities():
                 except ImportError:
                     pass
 
+    python_info = {'version': platform.python_version(), 'platform': sys.platform}
+
     mapclient_info = {'version': 'unknown', 'location': 'unknown'}
     if 'mapclient' in package_info:
         mapclient_info = package_info['mapclient']
@@ -134,7 +137,7 @@ def _determine_capabilities():
         if key in package_info:
             del package_info[key]
 
-    return {'version': '0.1.0', 'id': 'map-client-provenance-record', 'mapclient': mapclient_info, 'plugins': mapclient_plugins_info, 'packages': package_info}
+    return {'version': '0.2.0', 'id': 'map-client-provenance-record', 'mapclient': mapclient_info, 'plugins': mapclient_plugins_info, 'packages': package_info, 'python': python_info}
 
 
 def reproducibility_info():
