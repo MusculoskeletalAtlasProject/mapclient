@@ -27,7 +27,7 @@ from mapclient.core.managers.packagemanager import PackageManager
 from mapclient.core.managers.pluginmanager import PluginManager
 from mapclient.core.managers.optionsmanager import OptionsManager
 from mapclient.core.checks import runChecks
-from mapclient.settings.definitions import CHECK_TOOLS_ON_STARTUP
+from mapclient.settings.definitions import CHECK_TOOLS_ON_STARTUP, RECENTS_LENGTH
 
 logger = logging.getLogger(__name__)
 
@@ -125,8 +125,10 @@ class MainApplication(object):
         self._package_manager.read_settings(settings)
 
     def add_recent_workflow(self, recent):
+        recents_length = self._optionsManager.getOption(RECENTS_LENGTH)
+
         self.remove_recent_workflow(recent)
-        if len(self._recent_workflows) >= 10:
+        while len(self._recent_workflows) >= recents_length:
             self._recent_workflows.pop(0)
         self._recent_workflows.append(recent)
 

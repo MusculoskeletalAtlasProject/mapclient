@@ -154,6 +154,8 @@ class OptionsDialog(QtWidgets.QDialog):
         internal_directory_option = self._ui.lineEditInternalWorkflowDirectory.objectName()
         message_box_timer = self._ui.doubleSpinBoxMessageBoxTimer.objectName()
         metrics_permission = self._ui.checkBoxMetricsPermission.objectName()
+        absolute_paths = self._ui.checkBoxAbsolutePaths.objectName()
+        recents_length = self._ui.spinBoxRecentsLength.objectName()
         if step_name_option in options:
             self._ui.checkBoxShowStepNames.setChecked(options[step_name_option])
         if check_tools_option in options:
@@ -176,6 +178,10 @@ class OptionsDialog(QtWidgets.QDialog):
             self._ui.doubleSpinBoxMessageBoxTimer.setValue(options[message_box_timer])
         if metrics_permission in options:
             self._ui.checkBoxMetricsPermission.setChecked(options[metrics_permission])
+        if absolute_paths in options:
+            self._ui.checkBoxAbsolutePaths.setChecked(options[absolute_paths])
+        if recents_length in options:
+            self._ui.spinBoxRecentsLength.setValue(options[recents_length])
 
         self._update_ui()
         self._test_tools()
@@ -191,7 +197,9 @@ class OptionsDialog(QtWidgets.QDialog):
                    self._ui.lineEditGitExecutable.objectName(): self._ui.lineEditGitExecutable.text(),
                    self._ui.lineEditInternalWorkflowDirectory.objectName(): self._ui.lineEditInternalWorkflowDirectory.text(),
                    self._ui.doubleSpinBoxMessageBoxTimer.objectName(): self._ui.doubleSpinBoxMessageBoxTimer.value(),
-                   self._ui.checkBoxMetricsPermission.objectName(): self._ui.checkBoxMetricsPermission.isChecked()}
+                   self._ui.checkBoxMetricsPermission.objectName(): self._ui.checkBoxMetricsPermission.isChecked(),
+                   self._ui.checkBoxAbsolutePaths.objectName(): self._ui.checkBoxAbsolutePaths.isChecked(),
+                   self._ui.spinBoxRecentsLength.objectName(): self._ui.spinBoxRecentsLength.value()}
 
         return options
 
