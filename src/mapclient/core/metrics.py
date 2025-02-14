@@ -105,7 +105,10 @@ class MetricsLogger(object):
                         logger.info(f"Event response: {event['name']} - {response.status_code}")
             except requests.ConnectionError:
                 for event in events:
-                    logger.info(f"Event logging failed: {event['name']}")
+                    logger.info(f"Event logging failed due to connection error for: {event['name']}")
+            except requests.exceptions.RequestException:
+                for event in events:
+                    logger.info(f"Event logging failed due to an unspecified error for: {event['name']}")
 
 
 metrics_logger = MetricsLogger()
@@ -117,17 +120,19 @@ def get_metrics_logger():
 
 def _geolocate():
     url = 'https://ipinfo.io/json'
-    response = requests.get(url)
-    if response.ok:
-        json_data = response.json()
-        location = {
-            'country': json_data.get('country', 'not-set'),
-            'city': json_data.get('city', 'not-set'),
-        }
-    else:
-        location = {
-            'country': 'unknown',
-            'city': 'unknown'
-        }
+    location = {
+        'country': 'unknown',
+        'city': 'unknown'
+    }
+    try:
+        response = requests.get(url)
+        if response.ok:
+            json_data = response.json()
+            location = {
+                'country': json_data.get('country', 'not-set'),
+                'city': json_data.get('city', 'not-set'),
+            }
+    except requests.exceptions.RequestException as ex:
+        logger.info(f"Geolocation request failed: {ex.strerror}")
 
     return location
