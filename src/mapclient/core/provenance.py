@@ -137,7 +137,7 @@ def _determine_capabilities():
         if key in package_info:
             del package_info[key]
 
-    return {'version': '0.2.0', 'id': 'map-client-provenance-record', 'mapclient': mapclient_info, 'plugins': mapclient_plugins_info, 'packages': package_info, 'python': python_info}
+    return {'version': '0.2.0', 'id': 'map-client-provenance-software-record', 'mapclient': mapclient_info, 'plugins': mapclient_plugins_info, 'packages': package_info, 'python': python_info}
 
 
 def reproducibility_info():
