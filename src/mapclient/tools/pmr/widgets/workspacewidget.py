@@ -94,7 +94,7 @@ class WorkspaceWidget(QtWidgets.QWidget):
         pmr_info = PMR()
         pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
         workflow_dir = m.location()
-        if pmr_tool.is_pmr_workflow(workflow_dir):
+        if pmr_tool.is_pmr_workflow_accessible(workflow_dir):
             pmr_tool.pullFromRemote(workflow_dir)
             return True
 
@@ -108,7 +108,7 @@ class WorkspaceWidget(QtWidgets.QWidget):
         pmr_info = PMR()
         pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
         workflow_dir = m.location()
-        if pmr_tool.is_pmr_workflow(workflow_dir):
+        if pmr_tool.is_pmr_workflow_accessible(workflow_dir):
             pmr_tool.pushToRemote(workflow_dir)
             return True
 

@@ -582,7 +582,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         except Exception:
             logger.exception('Error')
             raise ClientRuntimeError(
-                'Error Saving', 'The commit to PMR did not succeed')
+                'Error Saving', 'The commit to workflow did not succeed')
 
         return committed_changes
 
