@@ -66,6 +66,9 @@ def _backup_and_merge_config(location, config_file, config, config_name):
 
 
 def _restore_backup(config_file):
+    if os.path.isfile(config_file):
+        os.remove(config_file)
+
     os.rename(_backup_file(config_file), config_file)
 
 
@@ -94,10 +97,10 @@ def _determine_configuration_name(wf, identifier):
 def workflow_runner(location, configuration):
 
     if not is_workflow(location):
-        sys.exit(1)
+        return 1
 
     if not is_json(configuration):
-        sys.exit(2)
+        return 2
 
     with open(configuration) as fh:
         config = json.load(fh)
@@ -120,17 +123,25 @@ def workflow_runner(location, configuration):
     if errors:
         for error in errors:
             print(error)
-    else:
-        sans_gui_main(location)
 
-    for modified_config in modified_configs:
-        _restore_backup(modified_config)
+        return 3
+
+    try:
+        sans_gui_main(location)
+        return_code = 0
+    except Exception:
+        return_code = 4
+    finally:
+        for modified_config in modified_configs:
+            _restore_backup(modified_config)
+
+    return return_code
 
 
 def main():
     args = _parse_arguments()
-    workflow_runner(args.workflow, args.configuration)
+    return workflow_runner(args.workflow, args.configuration)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
