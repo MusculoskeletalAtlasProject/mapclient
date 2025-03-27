@@ -384,17 +384,25 @@ class PMRTool(object):
         # Do the writing.
         cmd.write_remote(workspace)
 
-    def is_pmr_workflow(self, local_workspace_dir):
-        git_dir = os.path.join(local_workspace_dir, '.git')
-        if os.path.isdir(git_dir):
+    def is_pmr_workflow_accessible(self, local_workspace_dir):
+        if self.is_pmr_workflow(local_workspace_dir):
             remote_workspace_url = get_workspace_url(local_workspace_dir)
             credentials = self.request_temporary_password(remote_workspace_url)
+            if credentials is None:
+                return False
+
             cmd = self._cmd_class()
             cmd.set_authorization(create_authentication_header(credentials['user'], credentials['key']))
             workspace = CmdWorkspace(local_workspace_dir, cmd)
 
-            if workspace.cmd is None:
-                return False
+            return workspace.cmd is not None
+
+        return False
+
+    def is_pmr_workflow(self, local_workspace_dir):
+        git_dir = os.path.join(local_workspace_dir, '.git')
+        if os.path.isdir(git_dir):
+            remote_workspace_url = get_workspace_url(local_workspace_dir)
 
             url_parsed = urlparse(remote_workspace_url)
             for host_domain in self._pmr_info.hosts():
