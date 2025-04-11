@@ -45,7 +45,7 @@ def getVirtualEnvCandidates():
     return virtualenv_candidates
 
 
-class PluginManager(object):
+class PluginManager:
 
     def __init__(self):
         self._directories = []

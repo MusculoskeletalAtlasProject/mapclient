@@ -234,7 +234,7 @@ class ConsumeOutput(object):
         self.messages.append(message)
 
 
-def _prepare_sans_gui_app(app):
+def prepare_sans_gui_app(app):
     logging.basicConfig(level='INFO')
 
     info.set_applications_settings(app)
@@ -262,7 +262,7 @@ def sans_gui_main(workflow):
 
     app = QtWidgets.QApplication(sys.argv)
 
-    model = _prepare_sans_gui_app(app)
+    model = prepare_sans_gui_app(app)
 
     wm = model.workflowManager()
     pm = model.pluginManager()
@@ -327,8 +327,8 @@ def user_specified_environment_main():
     os.environ[APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE] = config_dir
 
     if args.directory is not None:
-        model = _prepare_sans_gui_app(app)
-        model.readSettings()
+        model = prepare_sans_gui_app(app)
+        # model.readSettings()
         pm = model.pluginManager()
         directories = pm.directories()
         for d in args.directory:
@@ -338,11 +338,11 @@ def user_specified_environment_main():
         pm.setDirectories(directories)
         model.writeSettings()
 
-    print(f"Set environment variable '{APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}' to '{config_dir}' to use application with these settings.")
+    logger.info(f"Set environment variable '{APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}' to '{config_dir}' to use application with these settings.")
     if sys.platform == "win32":
-        print(f'set {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
+        logger.info(f'set {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
     else:
-        print(f'export {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
+        logger.info(f'export {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
 
 
 def main():

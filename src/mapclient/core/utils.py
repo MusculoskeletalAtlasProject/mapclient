@@ -20,17 +20,22 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import json
 import logging
 import os
-import pathlib
 import re
 import shutil
 import sys
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 from subprocess import Popen, PIPE, DEVNULL
-import PySide6 as RefMod
+from tempfile import TemporaryDirectory
+from zipfile import ZipFile, is_zipfile
 
+import PySide6 as RefMod
+from PySide6 import QtCore
+
+from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.settings.definitions import APPLICATION_NAME, PLUGINS_PACKAGE_NAME
 from mapclient.settings.general import get_configuration_file
+from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME
 
 logger = logging.getLogger(__name__)
 
@@ -197,7 +202,7 @@ def get_steps_additional_config_files(step):
 
     def _workflow_relative_path(filename):
         if os.path.isabs(filename):
-            return pathlib.PureWindowsPath(os.path.normpath(os.path.relpath(filename, workflow_dir))).as_posix()
+            return PureWindowsPath(os.path.normpath(os.path.relpath(filename, workflow_dir))).as_posix()
 
         return filename
 
@@ -338,3 +343,35 @@ def qt_tool_wrapper(qt_tool, args, external=False):
         msg = err.decode("utf-8")
 
     return proc.returncode, msg
+
+
+def create_configured_step(step_identifier, step_name, config, workflow_dir):
+    step = workflowStepFactory(step_name, "?Could be anywhere?")
+    step.setIdentifier(step_identifier)
+    step.setLocation(workflow_dir)
+
+    def _mock_identifier_occurs_count(arg):
+        return 1
+
+    step._identifierOccursCount = _mock_identifier_occurs_count
+    step.deserialize(config)
+
+    return step
+
+
+def construct_configuration(configuration, allowed_keys, relative_path_keys, location):
+    """
+    Construct a configuration for a step.
+    The configuration is given as a list of tuples, the tuple is a (key, value)
+    pair.
+    Any paths given in configuration must be given as absolute paths.
+
+    :param configuration: A list of configuration properties to apply to this step.
+    :param allowed_keys: A list of allowed keys.
+    :param relative_path_keys: A list of relative path keys.
+    :param location: The location to make paths relative to.
+    """
+    return {
+        key: PureWindowsPath(os.path.relpath(value, location)).as_posix() if key in relative_path_keys else value
+        for key, value in configuration if key in allowed_keys
+    }

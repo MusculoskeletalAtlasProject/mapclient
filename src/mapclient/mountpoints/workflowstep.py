@@ -29,6 +29,7 @@ class WorkflowStepPort(object):
     """
     Describes the location and properties of a port for a workflow step.
     """
+
     def __init__(self):
         self.subj = {}
         self.pred = {}
@@ -55,7 +56,8 @@ class WorkflowStepPort(object):
             return self.obj[obj]
 
         return []
-#        return [triple[2] for triple in self.obj[obj]]
+
+    #        return [triple[2] for triple in self.obj[obj]]
 
     def hasUses(self):
         for uses_annotation in USES_ANNOTATIONS:
@@ -245,7 +247,7 @@ def _workflow_step_getName(self):
 def _workflow_step_get_icon(self):
     return self._icon
 
-  
+
 def _workflow_step_get_category(self):
     return self._category
 
@@ -278,30 +280,36 @@ def _get_additional_config_files(self):
     return []
 
 
-attr_dict = {}
-attr_dict['__init__'] = _workflow_step_init
-attr_dict['setLocation'] = _workflow_step_setLocation
-attr_dict['getLocation'] = _workflow_step_getLocation
-attr_dict['execute'] = _workflow_step_execute
-attr_dict['getPortData'] = _workflow_step_getPortData
-attr_dict['setPortData'] = _workflow_step_setPortData
-attr_dict['setMainWindow'] = _workflow_step_setMainWindow
-attr_dict['registerDoneExecution'] = _workflow_step_registerDoneExecution
-attr_dict['registerOnExecuteEntry'] = _workflow_step_registerOnExecuteEntry
-attr_dict['configure'] = _workflow_step_configure
-attr_dict['isConfigured'] = _workflow_step_isConfigured
-attr_dict['registerIdentifierOccursCount'] = _workflow_step_registerIdentifierOccursCount
-attr_dict['registerConfiguredObserver'] = _workflow_step_registerConfiguredObserver
-attr_dict['addPort'] = _workflow_step_addPort
-attr_dict['getName'] = _workflow_step_getName
-attr_dict['deserialize'] = _workflow_step_deserialize
-attr_dict['serialize'] = _workflow_step_serialize
-attr_dict['getSourceURI'] = _workflow_step_get_source_uri
-attr_dict['getIcon'] = _workflow_step_get_icon
-attr_dict['getCategory'] = _workflow_step_get_category
-attr_dict['gitInclude'] = _workflow_step_git_include
-attr_dict['createGitIgnore'] = _workflow_step_create_git_ignore
-attr_dict['getAdditionalConfigFiles'] = _get_additional_config_files
+def _workflow_step_set_configuration(self, configuration):
+    pass
+
+
+attr_dict = {
+    '__init__': _workflow_step_init,
+    'addPort': _workflow_step_addPort,
+    'configure': _workflow_step_configure,
+    'createGitIgnore': _workflow_step_create_git_ignore,
+    'deserialize': _workflow_step_deserialize,
+    'execute': _workflow_step_execute,
+    'getAdditionalConfigFiles': _get_additional_config_files,
+    'getCategory': _workflow_step_get_category,
+    'getIcon': _workflow_step_get_icon,
+    'getLocation': _workflow_step_getLocation,
+    'getPortData': _workflow_step_getPortData,
+    'getSourceURI': _workflow_step_get_source_uri,
+    'getName': _workflow_step_getName,
+    'gitInclude': _workflow_step_git_include,
+    'isConfigured': _workflow_step_isConfigured,
+    'registerDoneExecution': _workflow_step_registerDoneExecution,
+    'registerConfiguredObserver': _workflow_step_registerConfiguredObserver,
+    'registerIdentifierOccursCount': _workflow_step_registerIdentifierOccursCount,
+    'registerOnExecuteEntry': _workflow_step_registerOnExecuteEntry,
+    'serialize': _workflow_step_serialize,
+    'setConfiguration': _workflow_step_set_configuration,
+    'setLocation': _workflow_step_setLocation,
+    'setMainWindow': _workflow_step_setMainWindow,
+    'setPortData': _workflow_step_setPortData,
+}
 
 WorkflowStepMountPoint = pluginframework.MetaPluginMountPoint('WorkflowStepMountPoint', (object,), attr_dict)
 

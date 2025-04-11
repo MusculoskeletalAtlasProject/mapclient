@@ -83,7 +83,8 @@ def get_step_name_from_identifier(ws, target_identifier):
 def create_from(wf, name_identifiers, connections, location):
     """
     Create a workflow from the given names at the given location.
-    Returns a list of
+    Set connections None if there are no connections in the workflow.
+    Returns a list of steps.
 
     :param wf: Workflow settings object.
     :param name_identifiers: List of tuples consisting of step names and associated identifiers.
@@ -100,21 +101,23 @@ def create_from(wf, name_identifiers, connections, location):
             step = workflowStepFactory(name_identifier[0], location)
             step.setIdentifier(name_identifier[1])
             meta_step = MetaStep(step)
+            meta_step.setPos(QtCore.QPointF(10 + i * 60, 10 + i * 60))
             wf.setValue('name', step.getName())
             wf.setValue('position', meta_step.getPos())
             wf.setValue('selected', meta_step.getSelected())
             wf.setValue('identifier', meta_step.getIdentifier())
             wf.setValue('unique_identifier', meta_step.getUniqueIdentifier())
 
-            wf.beginWriteArray('connections')
-            for connection_index, connection in enumerate(connections[i]):
-                wf.setArrayIndex(connection_index)
-                wf.setValue('connectedFromIndex', connection[1])
-                wf.setValue('connectedTo', connection[2])
-                wf.setValue('connectedToIndex', connection[3])
-                wf.setValue('selected', connection[4])
+            if connections is not None:
+                wf.beginWriteArray('connections')
+                for connection_index, connection in enumerate(connections[i]):
+                    wf.setArrayIndex(connection_index)
+                    wf.setValue('connectedFromIndex', connection[1])
+                    wf.setValue('connectedTo', connection[2])
+                    wf.setValue('connectedToIndex', connection[3])
+                    wf.setValue('selected', connection[4])
 
-            wf.endArray()
+                wf.endArray()
 
             steps.append(step)
 
