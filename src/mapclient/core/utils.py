@@ -26,16 +26,12 @@ import sys
 from pathlib import Path, PureWindowsPath
 
 from subprocess import Popen, PIPE, DEVNULL
-from tempfile import TemporaryDirectory
-from zipfile import ZipFile, is_zipfile
 
 import PySide6 as RefMod
-from PySide6 import QtCore
 
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.settings.definitions import APPLICATION_NAME, PLUGINS_PACKAGE_NAME
 from mapclient.settings.general import get_configuration_file
-from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME
 
 logger = logging.getLogger(__name__)
 

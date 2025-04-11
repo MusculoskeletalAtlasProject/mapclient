@@ -281,7 +281,11 @@ def _get_additional_config_files(self):
 
 
 def _workflow_step_set_configuration(self, configuration):
-    pass
+    raise NotImplementedError
+
+
+def _workflow_step_relocate_configuration(self, to_location):
+    raise NotImplementedError
 
 
 attr_dict = {
@@ -304,6 +308,7 @@ attr_dict = {
     'registerConfiguredObserver': _workflow_step_registerConfiguredObserver,
     'registerIdentifierOccursCount': _workflow_step_registerIdentifierOccursCount,
     'registerOnExecuteEntry': _workflow_step_registerOnExecuteEntry,
+    'relocateConfiguration': _workflow_step_relocate_configuration,
     'serialize': _workflow_step_serialize,
     'setConfiguration': _workflow_step_set_configuration,
     'setLocation': _workflow_step_setLocation,

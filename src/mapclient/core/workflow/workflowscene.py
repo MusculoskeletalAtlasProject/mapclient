@@ -60,6 +60,21 @@ def _read_step_names(ws):
     return step_names
 
 
+def read_steps(wf):
+    wf.beginGroup('nodes')
+    node_count = wf.beginReadArray('nodelist')
+
+    step_data = list()
+    for i in range(node_count):
+        wf.setArrayIndex(i)
+        step_data.append((wf.value('name'), wf.value('identifier')))
+
+    wf.endArray()
+    wf.endGroup()
+
+    return step_data
+
+
 def get_step_name_from_identifier(ws, target_identifier):
     ws.beginGroup('nodes')
     step_name = ''
@@ -78,6 +93,31 @@ def get_step_name_from_identifier(ws, target_identifier):
     ws.endGroup()
 
     return step_name
+
+
+def load_from(wf, location):
+    steps = []
+    wf.beginGroup('nodes')
+    node_count = wf.beginReadArray('nodelist')
+    for node_index in range(node_count):
+        wf.setArrayIndex(node_index)
+        name = wf.value('name')
+        identifier = wf.value('identifier')
+        step = workflowStepFactory(name, location)
+        step.setIdentifier(identifier)
+        configuration = load_configuration(location, identifier)
+
+        def _mock_identifier_occurs_count(arg):
+            return 1
+
+        step._identifierOccursCount = _mock_identifier_occurs_count
+        step.deserialize(configuration)
+        steps.append(step)
+
+    wf.endArray()
+    wf.endGroup()
+
+    return steps
 
 
 def create_from(wf, name_identifiers, connections, location):
