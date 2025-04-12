@@ -1,13 +1,13 @@
 import os
 import numpy
 
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtWidgets
 from packaging import version
 from tempfile import TemporaryDirectory
 from zipfile import is_zipfile, ZipFile
 
 from mapclient.core.importexport import import_settings
-from mapclient.settings.info import VERSION_STRING, DEFAULT_WORKFLOW_PROJECT_FILENAME
+from mapclient.settings.info import VERSION_STRING
 from mapclient.core.utils import load_configuration, copy_step_additional_config_files
 from mapclient.core.workflow.workflowitems import MetaStep
 from mapclient.view.workflow.workflowgraphicsitems import Node

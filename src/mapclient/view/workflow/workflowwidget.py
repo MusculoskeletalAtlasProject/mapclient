@@ -36,6 +36,7 @@ from mapclient.view.dialogs.selfclosing.messagebox import MessageBox
 
 from mapclient.view.utils import set_wait_cursor
 from mapclient.view.utils import handle_runtime_error
+from mapclient.view.workflow.exportconfigdialog import ExportConfigDialog
 
 from mapclient.view.workflow.ui.ui_workflowwidget import Ui_WorkflowWidget
 from mapclient.view.workflow.workflowgraphicsscene import WorkflowGraphicsScene
@@ -632,39 +633,15 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     def export_cfg(self):
         self.save()
+        workflow_dir = self._workflowManager.location()
 
-        m = self._main_window.model().workflowManager()
-        workflow_dir = m.location()
+        workflow_name = os.path.basename(workflow_dir) if workflow_dir else "workflow"
+        default_location = os.path.join(self._workflowManager.previousLocation(), f"{workflow_name}-config")
 
-        if self._workflowManager.location():
-            workflow_name = os.path.basename(self._workflowManager.location())
-        else:
-            workflow_name = "workflow"
-        default_location = os.path.join(m.previousLocation(), f"{workflow_name}-config")
-        export_zip, _ = QtWidgets.QFileDialog.getSaveFileName(self._main_window, caption='Select Export File', dir=default_location,
-                                                              filter="Data files(*.zip)")
-
-        # Select only .proj and .conf files.
-        os.chdir(workflow_dir)
-        types = ('*.proj', '*.conf')
-        cfg_files = []
-        for files in types:
-            cfg_files.extend(glob.glob(files))
-
-        def _workflow_relative_path(filename):
-            return os.path.relpath(filename, workflow_dir)
-
-        # Check the workflow-steps for additional config files.
-        for workflow_item in list(m.scene().items()):
-            if workflow_item.Type == MetaStep.Type:
-                additional_config_files = workflow_item.getStep().getAdditionalConfigFiles()
-                cfg_files.extend([_workflow_relative_path(file) for file in additional_config_files])
-
-        # Zip files and store in export destination.
-        if export_zip:
-            with zipfile.ZipFile(export_zip, mode="w") as archive:
-                for file in cfg_files:
-                    archive.write(file)
+        dlg = ExportConfigDialog(workflow_dir, self._graphicsScene, self._main_window)
+        dlg.setModal(True)
+        dlg.setDefaultLocation(default_location)
+        dlg.exec()
 
     def _create_menu_items(self):
         menu_file = self._main_window.get_menu_bar().findChild(QtWidgets.QMenu, 'menu_File')
