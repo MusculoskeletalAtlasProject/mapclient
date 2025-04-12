@@ -19,6 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import os
+import shutil
 import sys
 import ctypes
 import argparse
@@ -26,8 +27,9 @@ import argparse
 import locale
 
 import logging
-import zipfile
 from logging import handlers
+from tempfile import TemporaryDirectory
+from zipfile import ZipFile
 
 from mapclient.core.exitcodes import HEADLESS_MODE_WITH_NO_WORKFLOW, INVALID_WORKFLOW_LOCATION_GIVEN
 from mapclient.core.utils import is_frozen, find_file
@@ -40,7 +42,7 @@ os.environ['ETS_TOOLKIT'] = 'qt'
 # workaround.
 if __package__:
     from .settings import info
-    from .settings.general import get_log_location, get_default_internal_workflow_dir
+    from .settings.general import get_log_location, get_default_internal_workflow_dir, get_configuration_file
 else:
     from mapclient.settings import info
     from mapclient.settings.general import get_log_location, get_default_internal_workflow_dir
@@ -219,7 +221,7 @@ def _prepare_internal_workflows(om):
             # No workflow exists in the workflow directory so we will
             # unzip the stored workflow(s) into this location.
             logger.info("Decompressing internal workflow(s) ...")
-            archive = zipfile.ZipFile(internal_workflows_zip)
+            archive = ZipFile(internal_workflows_zip)
             archive.extractall(f"{internal_workflow_dir}")
 
     else:
@@ -255,7 +257,18 @@ def prepare_sans_gui_app(app):
     return model
 
 
-def sans_gui_main(workflow):
+def _backup_file(file_path):
+    return f"{file_path}.bak"
+
+
+def _restore_backup(config_file):
+    if os.path.isfile(config_file):
+        os.remove(config_file)
+
+    os.rename(_backup_file(config_file), config_file)
+
+
+def sans_gui_main(workflow, import_settings, relocate):
     locale.setlocale(locale.LC_ALL, '')
 
     from PySide6 import QtWidgets
@@ -282,8 +295,39 @@ def sans_gui_main(workflow):
         def model(self):
             return self._model
 
+    backed_up_config_files = []
     try:
         wm.scene().setMainWindow(FacadeMainWindow(model))
+        if import_settings is not None:
+            with ZipFile(import_settings) as archive:
+                with TemporaryDirectory() as temp_dir:
+                    archive.extractall(temp_dir)
+                    source_steps_list = wm.list_steps(temp_dir)
+
+                    target_steps_list = wm.list_steps(workflow)
+
+                    all_present = all(item in target_steps_list for item in source_steps_list)
+                    if all_present:
+
+                        # Relocate step configurations if required.
+                        if relocate:
+                            source_steps = wm.load_steps(temp_dir)
+                            for step in source_steps:
+                                step.setLocation(os.path.dirname(import_settings))
+                                step.relocateConfiguration(workflow)
+                                config_file = get_configuration_file(temp_dir, step.getIdentifier())
+                                with open(config_file, "w") as fh:
+                                    fh.write(step.serialize())
+
+                        # Make backups of target steps configurations and import new configuration.
+                        for step_name, identifier in source_steps_list:
+                            config_file = get_configuration_file(workflow, identifier)
+                            new_config_file = get_configuration_file(temp_dir, identifier)
+                            if os.path.isfile(config_file):
+                                shutil.copy2(config_file, _backup_file(config_file))
+                                shutil.copy2(new_config_file, config_file)
+                                backed_up_config_files.append(config_file)
+
         wm.load(workflow)
     except:
         logger.error('Not a valid workflow location: "{0}"'.format(workflow))
@@ -292,7 +336,11 @@ def sans_gui_main(workflow):
     wm.registerDoneExecutionForAll(wm.execute)
 
     if wm.canExecute() == 0:
-        wm.execute()
+        try:
+            wm.execute()
+        finally:
+            for backed_up_file in backed_up_config_files:
+                _restore_backup(backed_up_file)
     else:
         logger.error(f'Could not execute workflow, reason: "{wm.execute_status_message()}"')
 
@@ -345,20 +393,25 @@ def user_specified_environment_main():
         logger.info(f'export {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
 
 
-def main():
+def _parse_args():
     parser = argparse.ArgumentParser(prog=info.APPLICATION_NAME)
     parser.add_argument("-x", "--execute", action="store_true", help="execute a workflow")
     parser.add_argument("-s", "--headless", action="store_true",
                         help="operate in headless mode, without a gui.  Requires a location of a workflow to be set")
     parser.add_argument("-w", "--workflow", help="location of workflow")
-    args = parser.parse_args(sys.argv[1:])
+    parser.add_argument("-i", "--import-settings", help="location of workflow settings to import from.")
+    parser.add_argument("-r", "--relocate", action="store_true", help="Relocate the workflow directory to be relative to the import settings location.")
+    return parser.parse_args(sys.argv[1:])
+
+
+def main():
+    args = _parse_args()
 
     if args.headless and args.workflow is None:
-        parser.print_help()
         sys.exit(HEADLESS_MODE_WITH_NO_WORKFLOW)
 
     if args.headless and args.workflow:
-        sys.exit(sans_gui_main(args.workflow))
+        sys.exit(sans_gui_main(args.workflow, args.import_settings, args.relocate))
     else:
         sys.exit(windows_main(args.workflow, args.execute))
 

@@ -25,7 +25,7 @@ from PySide6 import QtCore
 
 from mapclient.core.metrics import metrics_logger
 from mapclient.settings import info
-from mapclient.core.workflow.workflowscene import WorkflowScene
+from mapclient.core.workflow.workflowscene import WorkflowScene, read_steps, load_from
 from mapclient.core.workflow.workflowsteps import WorkflowSteps, \
     WorkflowStepsFilter
 from mapclient.core.workflow.workflowerror import WorkflowError
@@ -193,6 +193,17 @@ class WorkflowManager(object):
         wf.setValue('version', info.VERSION_STRING)
         wf.setValue('id', info.DEFAULT_WORKFLOW_PROJECT_IDENTIFIER)
         return wf
+
+    @staticmethod
+    def list_steps(location):
+        wf = _get_workflow_configuration(location)
+        return read_steps(wf)
+
+    @staticmethod
+    def load_steps(location):
+        WorkflowManager._check_workflow_location(location)
+        wf = _get_workflow_configuration(location)
+        return load_from(wf, location)
 
     def new(self, location):
         """
