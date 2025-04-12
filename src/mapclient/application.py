@@ -29,10 +29,11 @@ import locale
 import logging
 from logging import handlers
 from tempfile import TemporaryDirectory
-from zipfile import ZipFile
+from zipfile import ZipFile, is_zipfile
 
-from mapclient.core.exitcodes import HEADLESS_MODE_WITH_NO_WORKFLOW, INVALID_WORKFLOW_LOCATION_GIVEN
+from mapclient.core.exitcodes import HEADLESS_MODE_WITH_NO_WORKFLOW, INVALID_WORKFLOW_LOCATION_GIVEN, CONFIGURATION_MODE_WITH_NO_DEFINITIONS
 from mapclient.core.utils import is_frozen, find_file
+from mapclient.core.workflow.workflowscene import create_from
 from mapclient.settings.definitions import INTERNAL_WORKFLOWS_ZIP, INTERNAL_WORKFLOWS_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG, PREVIOUS_WORKFLOW, AUTOLOAD_PREVIOUS_WORKFLOW
 from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME, APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE
 
@@ -78,6 +79,16 @@ def program_header():
     logger.info('-' * len(program_header_string))
 
 
+def _prepare_application():
+    # import the locale, and set the locale. This is used for
+    # locale-aware number to string formatting
+    locale.setlocale(locale.LC_ALL, '')
+    logging.basicConfig(level='INFO')
+
+    from PySide6 import QtWidgets
+    return QtWidgets.QApplication(sys.argv)
+
+
 # This method starts MAP Client
 def windows_main(workflow, execute_now):
     """
@@ -87,15 +98,9 @@ def windows_main(workflow, execute_now):
         my_app_id = 'MusculoSkeletal.MAPClient'  # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(my_app_id)
 
-    # import the locale, and set the locale. This is used for
-    # locale-aware number to string formatting
-    locale.setlocale(locale.LC_ALL, '')
-
-    from PySide6 import QtWidgets
     from mapclient.splashscreen import SplashScreen
 
-    app = QtWidgets.QApplication(sys.argv)
-
+    app = _prepare_application()
     splash = SplashScreen()
     splash.show()
     splash.showMessage("Loading settings ...", 5)
@@ -269,12 +274,8 @@ def _restore_backup(config_file):
 
 
 def sans_gui_main(workflow, import_settings, relocate):
-    locale.setlocale(locale.LC_ALL, '')
 
-    from PySide6 import QtWidgets
-
-    app = QtWidgets.QApplication(sys.argv)
-
+    app = _prepare_application()
     model = prepare_sans_gui_app(app)
 
     wm = model.workflowManager()
@@ -358,12 +359,7 @@ def _parse_prepare_user_specified_environment_args():
 
 
 def user_specified_environment_main():
-    locale.setlocale(locale.LC_ALL, '')
-
-    from PySide6 import QtWidgets
-
-    app = QtWidgets.QApplication(sys.argv)
-    logging.basicConfig(level='INFO')
+    app = _prepare_application()
 
     info.set_applications_settings(app)
 
@@ -393,6 +389,67 @@ def user_specified_environment_main():
         logger.info(f'export {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
 
 
+def _split_key_value_definition(text):
+    index = text.find(":")
+    if index == -1:
+        return text, ""
+    return text[:index], text[index + 1:]
+
+
+def config_maker_main(configuration_file, definitions, append):
+    # is_file = os.path.isfile(configuration_file)
+    # is_zip = is_zipfile(configuration_file)
+
+    location = os.path.dirname(configuration_file)
+
+    workflow_settings = {}
+    required_steps = []
+    for index, definition in enumerate(definitions):
+        step_name, identifier = _split_key_value_definition(definition[0])
+
+        if (step_name, identifier) not in required_steps:
+            required_steps.append((step_name, identifier))
+        key, value = _split_key_value_definition(definition[1])
+        current_settings = workflow_settings.get(step_name, {})
+        current_data = current_settings.get(identifier, [])
+        current_data.append((key, value))
+        current_settings[identifier] = current_data
+        workflow_settings[step_name] = current_settings
+
+    app = _prepare_application()
+    model = prepare_sans_gui_app(app)
+    pm = model.pluginManager()
+    wm = model.workflowManager()
+    pm.load()
+
+    files_created = []
+
+    wf = wm.create_empty_workflow(location)
+    steps = create_from(wf, required_steps, None, location)
+    files_created.append(wf.fileName())
+    del wf
+
+    for index, step in enumerate(steps):
+        step_configurations = workflow_settings[step.getName()]
+        step_configuration = step_configurations[step.getIdentifier()]
+        step.setConfiguration(step_configuration)
+        current_config_file = get_configuration_file(location, step.getIdentifier())
+        with open(current_config_file, "w") as fh:
+            fh.write(step.serialize())
+
+        files_created.append(current_config_file)
+
+    zip_file = os.path.join(location, "workflow-settings.zip")
+
+    with ZipFile(zip_file, "w") as fh:
+        for f in files_created:
+            archive_name = os.path.relpath(f, location)
+            fh.write(f, arcname=archive_name)
+            os.remove(f)
+
+    return 0
+
+
 def _parse_args():
     parser = argparse.ArgumentParser(prog=info.APPLICATION_NAME)
     parser.add_argument("-x", "--execute", action="store_true", help="execute a workflow")
@@ -401,6 +458,9 @@ def _parse_args():
     parser.add_argument("-w", "--workflow", help="location of workflow")
     parser.add_argument("-i", "--import-settings", help="location of workflow settings to import from.")
     parser.add_argument("-r", "--relocate", action="store_true", help="Relocate the workflow directory to be relative to the import settings location.")
+    parser.add_argument("-c", "--configuration", required=True, help="Configuration file location to write to")
+    parser.add_argument("-d", "--definition", nargs=2, action='append', help="Definition to write into configuration, specified by 'step name:step identifier' and a key:value")
+
     return parser.parse_args(sys.argv[1:])
 
 
@@ -409,9 +469,13 @@ def main():
 
     if args.headless and args.workflow is None:
         sys.exit(HEADLESS_MODE_WITH_NO_WORKFLOW)
+    if args.configuration and args.definition is None:
+        sys.exit(CONFIGURATION_MODE_WITH_NO_DEFINITIONS)
 
     if args.headless and args.workflow:
         sys.exit(sans_gui_main(args.workflow, args.import_settings, args.relocate))
+    elif args.configuration and args.definition:
+        sys.exit(config_maker_main(args.configuration, args.definition, args.append))
     else:
         sys.exit(windows_main(args.workflow, args.execute))
 
