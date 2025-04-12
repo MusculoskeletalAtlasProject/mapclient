@@ -626,6 +626,7 @@ class StepText(QtWidgets.QGraphicsTextItem):
 
 
 class MercurialIcon(QtWidgets.QGraphicsItem):
+    Type = QtWidgets.QGraphicsItem.UserType + 5
 
     def __init__(self, *args, **kwargs):
         super(MercurialIcon, self).__init__(*args, **kwargs)
@@ -649,6 +650,7 @@ class MercurialIcon(QtWidgets.QGraphicsItem):
 
 
 class ConfigureIcon(QtWidgets.QGraphicsItem):
+    Type = QtWidgets.QGraphicsItem.UserType + 6
 
     def __init__(self, *args, **kwargs):
         super(ConfigureIcon, self).__init__(*args, **kwargs)
