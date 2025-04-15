@@ -458,7 +458,7 @@ def _parse_args():
     parser.add_argument("-w", "--workflow", help="location of workflow")
     parser.add_argument("-i", "--import-settings", help="location of workflow settings to import from.")
     parser.add_argument("-r", "--relocate", action="store_true", help="Relocate the workflow directory to be relative to the import settings location.")
-    parser.add_argument("-c", "--configuration", required=True, help="Configuration file location to write to")
+    parser.add_argument("-c", "--configuration", help="Configuration file location to write to")
     parser.add_argument("-d", "--definition", nargs=2, action='append', help="Definition to write into configuration, specified by 'step name:step identifier' and a key:value")
 
     return parser.parse_args(sys.argv[1:])
