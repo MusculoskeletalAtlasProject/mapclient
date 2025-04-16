@@ -23,7 +23,7 @@ import os
 import re
 import shutil
 import sys
-from pathlib import Path, PureWindowsPath
+from pathlib import Path, PureWindowsPath, PurePath
 
 from subprocess import Popen, PIPE, DEVNULL
 
@@ -198,7 +198,7 @@ def get_steps_additional_config_files(step):
 
     def _workflow_relative_path(filename):
         if os.path.isabs(filename):
-            return PureWindowsPath(os.path.normpath(os.path.relpath(filename, workflow_dir))).as_posix()
+            return to_exchangeable_path(os.path.normpath(os.path.relpath(filename, workflow_dir)))
 
         return filename
 
@@ -368,6 +368,14 @@ def construct_configuration(configuration, allowed_keys, relative_path_keys, loc
     :param location: The location to make paths relative to.
     """
     return {
-        key: PureWindowsPath(os.path.relpath(value, location)).as_posix() if key in relative_path_keys else value
+        key: to_exchangeable_path(os.path.relpath(value, location)) if key in relative_path_keys else value
         for key, value in configuration if key in allowed_keys
     }
+
+
+def to_exchangeable_path(input_path):
+    return PureWindowsPath(input_path).as_posix()
+
+
+def to_system_path(input_path):
+    return str(PurePath(input_path))
