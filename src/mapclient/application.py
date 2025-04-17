@@ -29,9 +29,10 @@ import locale
 import logging
 from logging import handlers
 from tempfile import TemporaryDirectory
-from zipfile import ZipFile, is_zipfile
+from zipfile import ZipFile
 
-from mapclient.core.exitcodes import HEADLESS_MODE_WITH_NO_WORKFLOW, INVALID_WORKFLOW_LOCATION_GIVEN, CONFIGURATION_MODE_WITH_NO_DEFINITIONS
+from mapclient.core.exitcodes import (HEADLESS_MODE_WITH_NO_WORKFLOW, INVALID_WORKFLOW_LOCATION_GIVEN, CONFIGURATION_MODE_WITH_NO_DEFINITIONS, USER_SPECIFIED_DIRECTORY,
+                                      APP_SUCCESS, CONFIGURATION_MODE_NO_FILE)
 from mapclient.core.utils import is_frozen, find_file
 from mapclient.core.workflow.workflowscene import create_from
 from mapclient.settings.definitions import INTERNAL_WORKFLOWS_ZIP, INTERNAL_WORKFLOWS_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG, PREVIOUS_WORKFLOW, AUTOLOAD_PREVIOUS_WORKFLOW
@@ -83,10 +84,16 @@ def _prepare_application():
     # import the locale, and set the locale. This is used for
     # locale-aware number to string formatting
     locale.setlocale(locale.LC_ALL, '')
-    logging.basicConfig(level='INFO')
 
     from PySide6 import QtWidgets
-    return QtWidgets.QApplication(sys.argv)
+
+    app = QtWidgets.QApplication(sys.argv)
+
+    info.set_applications_settings(app)
+    log_path = get_log_location()
+    initialise_logger(log_path)
+
+    return app
 
 
 # This method starts MAP Client
@@ -104,10 +111,6 @@ def windows_main(workflow, execute_now):
     splash = SplashScreen()
     splash.show()
     splash.showMessage("Loading settings ...", 5)
-    info.set_applications_settings(app)
-
-    log_path = get_log_location()
-    initialise_logger(log_path)
     program_header()
 
     logger.info('Setting toolbox settings for matplotlib and enthought to: qt')
@@ -242,8 +245,6 @@ class ConsumeOutput(object):
 
 
 def prepare_sans_gui_app(app):
-    logging.basicConfig(level='INFO')
-
     info.set_applications_settings(app)
 
     old_stdout = sys.stdout
@@ -273,7 +274,10 @@ def _restore_backup(config_file):
     os.rename(_backup_file(config_file), config_file)
 
 
-def sans_gui_main(workflow, import_settings, relocate):
+def sans_gui_main(workflow, import_settings=None, relocate=False):
+
+    if workflow is None:
+        return HEADLESS_MODE_WITH_NO_WORKFLOW
 
     app = _prepare_application()
     model = prepare_sans_gui_app(app)
@@ -349,37 +353,25 @@ def sans_gui_main(workflow, import_settings, relocate):
     return app.quit()
 
 
-def _parse_prepare_user_specified_environment_args():
-    parser = argparse.ArgumentParser(prog=f"{info.APPLICATION_NAME}_use".lower(),
-                                     description="An application to create and setup a separate configuration location for running MAP Client.")
-    parser.add_argument("base_dir", help="Sets the base directory for the setup, must exist.")
-    parser.add_argument("-d", "--directory", action='append', help="Specify a plugin directory, can be used multiple times.")
-
-    return parser.parse_args()
-
-
-def user_specified_environment_main():
+def _user_specified_environment_main(base_dir, directories):
     app = _prepare_application()
 
-    info.set_applications_settings(app)
+    if not os.path.isdir(base_dir):
+        return USER_SPECIFIED_DIRECTORY
 
-    args = _parse_prepare_user_specified_environment_args()
-    if not os.path.isdir(args.base_dir):
-        sys.exit(1)
-
-    config_dir = os.path.join(args.base_dir, ".config")
+    config_dir = os.path.join(base_dir, ".config")
     os.environ[APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE] = config_dir
 
-    if args.directory is not None:
+    if directories is not None:
         model = prepare_sans_gui_app(app)
         # model.readSettings()
         pm = model.pluginManager()
-        directories = pm.directories()
-        for d in args.directory:
-            if os.path.isdir(d) and d not in directories:
-                directories.append(d)
+        plugin_directories = pm.directories()
+        for d in directories:
+            if os.path.isdir(d) and d not in plugin_directories:
+                plugin_directories.append(d)
 
-        pm.setDirectories(directories)
+        pm.setDirectories(plugin_directories)
         model.writeSettings()
 
     logger.info(f"Set environment variable '{APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}' to '{config_dir}' to use application with these settings.")
@@ -387,6 +379,8 @@ def user_specified_environment_main():
         logger.info(f'set {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
     else:
         logger.info(f'export {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
+
+    return APP_SUCCESS
 
 
 def _split_key_value_definition(text):
@@ -396,10 +390,17 @@ def _split_key_value_definition(text):
     return text[:index], text[index + 1:]
 
 
-def config_maker_main(configuration_file, definitions, append):
+def _config_maker_main(configuration_file, definitions, append):
     # is_file = os.path.isfile(configuration_file)
     # is_zip = is_zipfile(configuration_file)
+    if configuration_file is None:
+        return CONFIGURATION_MODE_NO_FILE
 
+    if configuration_file and definitions is None:
+        return CONFIGURATION_MODE_WITH_NO_DEFINITIONS
+
+    app = _prepare_application()
+    logger.info("Running config maker.")
     location = os.path.dirname(configuration_file)
 
     workflow_settings = {}
@@ -416,7 +417,6 @@ def config_maker_main(configuration_file, definitions, append):
         current_settings[identifier] = current_data
         workflow_settings[step_name] = current_settings
 
-    app = _prepare_application()
     model = prepare_sans_gui_app(app)
     pm = model.pluginManager()
     wm = model.workflowManager()
@@ -447,19 +447,38 @@ def config_maker_main(configuration_file, definitions, append):
             fh.write(f, arcname=archive_name)
             os.remove(f)
 
-    return 0
+    return APP_SUCCESS
+
+
+def _common_workflow_args(parser):
+    parser.add_argument("-x", "--execute", action="store_true", help="Execute a workflow.")
+    parser.add_argument("-w", "--workflow", help="Location of workflow.")
+    parser.add_argument("-i", "--import-settings", help="Location of workflow settings to import from.")
+    parser.add_argument("-r", "--relocate", action="store_true", help="Relocate the workflow directory to be relative to the import settings location.")
 
 
 def _parse_args():
     parser = argparse.ArgumentParser(prog=info.APPLICATION_NAME)
-    parser.add_argument("-x", "--execute", action="store_true", help="execute a workflow")
-    parser.add_argument("-s", "--headless", action="store_true",
-                        help="operate in headless mode, without a gui.  Requires a location of a workflow to be set")
-    parser.add_argument("-w", "--workflow", help="location of workflow")
-    parser.add_argument("-i", "--import-settings", help="location of workflow settings to import from.")
-    parser.add_argument("-r", "--relocate", action="store_true", help="Relocate the workflow directory to be relative to the import settings location.")
-    parser.add_argument("-c", "--configuration", help="Configuration file location to write to")
-    parser.add_argument("-d", "--definition", nargs=2, action='append', help="Definition to write into configuration, specified by 'step name:step identifier' and a key:value")
+
+    # Define subcommands
+    subparsers = parser.add_subparsers(dest="command")
+
+    # Subcommand: config maker
+    config_maker_parser = subparsers.add_parser("config_maker", help="Create a configuration for importing into a workflow.")
+    config_maker_parser.add_argument("-c", "--configuration", help="Configuration file location to write to.")
+    config_maker_parser.add_argument("-d", "--definition", nargs=2, action='append',
+                                     help="Definition to write into configuration, specified by 'step name:step identifier' and a key:value, can be used multiple times.")
+
+    # Subcommand: user specified environment
+    use_parser = subparsers.add_parser("use", help="Create a user specified environment.")
+    use_parser.add_argument("-b", "--base_dir", help="Sets the base directory for the setup, the directory must exist.")
+    use_parser.add_argument("-d", "--directory", action='append', help="Specify a plugin directory, can be used multiple times.")
+
+    # Subcommand: headless
+    headless_parser = subparsers.add_parser("headless", help="Run MAP Client in headless mode.")
+    _common_workflow_args(headless_parser)
+
+    _common_workflow_args(parser)
 
     return parser.parse_args(sys.argv[1:])
 
@@ -467,17 +486,16 @@ def _parse_args():
 def main():
     args = _parse_args()
 
-    if args.headless and args.workflow is None:
-        sys.exit(HEADLESS_MODE_WITH_NO_WORKFLOW)
-    if args.configuration and args.definition is None:
-        sys.exit(CONFIGURATION_MODE_WITH_NO_DEFINITIONS)
-
-    if args.headless and args.workflow:
-        sys.exit(sans_gui_main(args.workflow, args.import_settings, args.relocate))
-    elif args.configuration and args.definition:
-        sys.exit(config_maker_main(args.configuration, args.definition, args.append))
+    if args.command == "config_maker":
+        result = _config_maker_main(args.configuration, args.definition, False)
+    elif args.command == "use":
+        result = _user_specified_environment_main(args.base_dir, args.directory)
+    elif args.command == "headless":
+        result = sans_gui_main(args.workflow, args.import_settings, args.relocate)
     else:
-        sys.exit(windows_main(args.workflow, args.execute))
+        result = windows_main(args.workflow, args.execute)
+
+    sys.exit(result)
 
 
 if __name__ == '__main__':
