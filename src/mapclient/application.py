@@ -236,12 +236,15 @@ def _prepare_internal_workflows(om):
         om.setOption(INTERNAL_WORKFLOWS_AVAILABLE, False)
 
 
-class ConsumeOutput(object):
+class ConsumeOutput:
     def __init__(self):
         self.messages = list()
 
     def write(self, message):
         self.messages.append(message)
+
+    def flush(self, *args, **kwargs):
+        pass
 
 
 def prepare_sans_gui_app(app):
@@ -251,8 +254,6 @@ def prepare_sans_gui_app(app):
     sys.stdout = ConsumeOutput()
     #     sys.stdout = redirectstdout = ConsumeOutput()
 
-    log_path = get_log_location()
-    initialise_logger(log_path)
     program_header()
     sys.stdout = old_stdout
 
