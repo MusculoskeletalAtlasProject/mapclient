@@ -72,9 +72,7 @@ setup(
     include_package_data=True,
     entry_points={
         'gui_scripts': ['mapclient=mapclient.application:main'],
-        'console_scripts': ['mapclient_sans_gui=mapclient.application:sans_gui_main',
-                            'mapclient_use=mapclient.application:user_specified_environment_main',
-                            ],
+        'console_scripts': ['mapclient_console=mapclient.application:main'],
     },
     install_requires=package_dependencies,
     extras_require=extras_require,
