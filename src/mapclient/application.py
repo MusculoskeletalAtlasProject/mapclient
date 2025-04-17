@@ -429,7 +429,6 @@ def _config_maker_main(configuration_file, definitions, append):
     files_created.append(wf.fileName())
     del wf
 
-    logger.info(location)
     for index, step in enumerate(steps):
         step_configurations = workflow_settings[step.getName()]
         step_configuration = step_configurations[step.getIdentifier()]
@@ -440,7 +439,6 @@ def _config_maker_main(configuration_file, definitions, append):
 
         files_created.append(current_config_file)
 
-    logger.info(files_created)
     zip_file = os.path.join(location, "workflow-settings.zip")
 
     with ZipFile(zip_file, "w") as fh:
@@ -449,7 +447,6 @@ def _config_maker_main(configuration_file, definitions, append):
             fh.write(f, arcname=archive_name)
             os.remove(f)
 
-    logger.info("Worked.")
     return APP_SUCCESS
 
 
