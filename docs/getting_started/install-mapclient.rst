@@ -2,7 +2,7 @@
 Install MAP Client
 ==================
 
-The MAP Client software is a Python application that uses the PySide2 Qt library bindings.
+The MAP Client software is a Python application that uses the PySide6 Qt library bindings.
 
 There are three main ways of getting the MAP Client installed on your operating system.
 
@@ -13,6 +13,13 @@ For plugin developers the suggested method is to `Install Using Pip`_ or `Instal
 The MAP Client relies heavily on plugins to do anything interesting.
 If you `Install Using Pre-Built Binary`_ you get everything you need, however you can only use plugins that have all the dependencies already available to the binary. At this time you cannot add dependencies that a new plugin may or may not require to work.
 If you `Install Using Pip`_ or `Install Using Git`_, you can either create these yourself or add already available ones to your application by downloading them and using the Plugin Manager Tool in the MAP Client, read the documents :ref:`MAP-feature-demonstration` and :ref:`MAP-plugin-wizard` to learn more.
+
+MAP Client uses OpenGL to render 3D scenes, so OpenGL support must be available on your system for the application to run correctly.
+On Windows and macOS, OpenGL is typically pre-installed.
+On GNU/Linux systems, you may need to install the necessary OpenGL libraries manually.
+For Ubuntu 22.04, you can install the required packages using the following command::
+
+  sudo apt install libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev
 
 ------------
 Installation
