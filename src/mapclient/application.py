@@ -32,7 +32,7 @@ from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
 from mapclient.core.exitcodes import (HEADLESS_MODE_WITH_NO_WORKFLOW, INVALID_WORKFLOW_LOCATION_GIVEN, CONFIGURATION_MODE_WITH_NO_DEFINITIONS, USER_SPECIFIED_DIRECTORY,
-                                      APP_SUCCESS, CONFIGURATION_MODE_NO_FILE)
+                                      APP_SUCCESS, CONFIGURATION_MODE_NO_FILE, CONFIGURATION_MODE_NOT_IMPLEMENTED)
 from mapclient.core.utils import is_frozen, find_file
 from mapclient.core.workflow.workflowscene import create_from
 from mapclient.settings.definitions import INTERNAL_WORKFLOWS_ZIP, INTERNAL_WORKFLOWS_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG, PREVIOUS_WORKFLOW, AUTOLOAD_PREVIOUS_WORKFLOW
@@ -395,9 +395,11 @@ def _config_maker_main(configuration_file, definitions, append):
     # is_file = os.path.isfile(configuration_file)
     # is_zip = is_zipfile(configuration_file)
     if configuration_file is None:
+        logger.error("No configuration file specified.")
         return CONFIGURATION_MODE_NO_FILE
 
     if configuration_file and definitions is None:
+        logger.error("No definitions set.")
         return CONFIGURATION_MODE_WITH_NO_DEFINITIONS
 
     app = _prepare_application()
@@ -422,6 +424,7 @@ def _config_maker_main(configuration_file, definitions, append):
     pm = model.pluginManager()
     wm = model.workflowManager()
     pm.load()
+    logger.info("Loaded MAP Client plugins.")
 
     files_created = []
 
@@ -429,16 +432,28 @@ def _config_maker_main(configuration_file, definitions, append):
     steps = create_from(wf, required_steps, None, location)
     files_created.append(wf.fileName())
     del wf
+    logger.info("Created workflow.")
 
+    not_implemented_occurred = False
     for index, step in enumerate(steps):
         step_configurations = workflow_settings[step.getName()]
         step_configuration = step_configurations[step.getIdentifier()]
-        step.setConfiguration(step_configuration)
-        current_config_file = get_configuration_file(location, step.getIdentifier())
-        with open(current_config_file, "w") as fh:
-            fh.write(step.serialize())
+        try:
+            step.setConfiguration(step_configuration)
+            current_config_file = get_configuration_file(location, step.getIdentifier())
+            with open(current_config_file, "w") as fh:
+                fh.write(step.serialize())
 
-        files_created.append(current_config_file)
+            files_created.append(current_config_file)
+        except NotImplementedError:
+            not_implemented_occurred = True
+            logger.info(f"The step '{step.getName()}' does not support configuration making.")
+            logger.info("This step does not implement the 'setConfiguration' method.")
+
+    logger.info("Created workflow configuration files.")
+    if not_implemented_occurred:
+        logger.error("Not all steps required support configuration making.")
+        return CONFIGURATION_MODE_NOT_IMPLEMENTED
 
     zip_file = os.path.join(location, "workflow-settings.zip")
 
@@ -447,6 +462,8 @@ def _config_maker_main(configuration_file, definitions, append):
             archive_name = os.path.relpath(f, location)
             fh.write(f, arcname=archive_name)
             os.remove(f)
+
+    logger.info("Successfully created workflow archive.")
 
     return APP_SUCCESS
 
