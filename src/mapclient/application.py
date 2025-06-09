@@ -452,7 +452,7 @@ def _config_maker_main(configuration_file, definitions, append):
 
     logger.info("Created workflow configuration files.")
     if not_implemented_occurred:
-        logger.error("Not all steps required support configuration making.")
+        logger.error("Not all steps defined support configuration making.")
         return CONFIGURATION_MODE_NOT_IMPLEMENTED
 
     zip_file = os.path.join(location, "workflow-settings.zip")
