@@ -18,6 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
+import json
 import os
 import shutil
 import sys
@@ -33,6 +34,7 @@ from zipfile import ZipFile
 
 from mapclient.core.exitcodes import (HEADLESS_MODE_WITH_NO_WORKFLOW, INVALID_WORKFLOW_LOCATION_GIVEN, CONFIGURATION_MODE_WITH_NO_DEFINITIONS, USER_SPECIFIED_DIRECTORY,
                                       APP_SUCCESS, CONFIGURATION_MODE_NO_FILE, CONFIGURATION_MODE_NOT_IMPLEMENTED)
+from mapclient.core.provenance import reproducibility_info
 from mapclient.core.utils import is_frozen, find_file
 from mapclient.core.workflow.workflowscene import create_from
 from mapclient.settings.definitions import INTERNAL_WORKFLOWS_ZIP, INTERNAL_WORKFLOWS_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG, PREVIOUS_WORKFLOW, AUTOLOAD_PREVIOUS_WORKFLOW
@@ -391,8 +393,6 @@ def _split_key_value_definition(text):
 
 
 def _config_maker_main(configuration_file, definitions, append):
-    # is_file = os.path.isfile(configuration_file)
-    # is_zip = is_zipfile(configuration_file)
     if configuration_file is None:
         logger.error("No configuration file specified.")
         return CONFIGURATION_MODE_NO_FILE
@@ -453,6 +453,13 @@ def _config_maker_main(configuration_file, definitions, append):
     if not_implemented_occurred:
         logger.error("Not all steps defined support configuration making.")
         return CONFIGURATION_MODE_NOT_IMPLEMENTED
+
+    provenance = reproducibility_info()
+    provenance_file = os.path.join(location, "provenance.json")
+    with open(provenance_file, "w") as f:
+        f.write(json.dumps(provenance, default=lambda o: o.__dict__, sort_keys=True, indent=2))
+    files_created.append(provenance_file)
+    logger.info("Created provenance file.")
 
     zip_file = os.path.join(location, "workflow-settings.zip")
 
