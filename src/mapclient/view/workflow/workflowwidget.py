@@ -750,8 +750,13 @@ class WorkflowWidget(QtWidgets.QWidget):
             if len(group) == 1:
                 directory_map[workflow_path] = directory_name
             else:
-                common_prefix = os.path.commonpath(group)
-                unique_name = os.path.relpath(workflow_path, common_prefix)
+                try:
+                    common_prefix = os.path.commonpath(group)
+                    unique_name = os.path.relpath(workflow_path, common_prefix)
+                except ValueError:
+                    # If the common path cannot be determined, use the full path.
+                    unique_name = workflow_path
+
                 directory_map[workflow_path] = unique_name
 
         return directory_map
