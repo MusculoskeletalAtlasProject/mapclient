@@ -356,6 +356,7 @@ class WorkflowWidget(QtWidgets.QWidget):
     def open_workflow(self, workflow_dir):
         result = ''
         if len(workflow_dir):
+            logger.info(f"Opening workflow: {workflow_dir}")
             try:
                 logger.info('Performing workflow checks on open ...')
                 self.performWorkflowChecks(workflow_dir)
