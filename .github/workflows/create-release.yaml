@@ -9,7 +9,7 @@ jobs:
   create_release:
     if: github.repository == 'MusculoskeletalAtlasProject/mapclient'
     name: create_release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Determine release properties
         shell: bash
