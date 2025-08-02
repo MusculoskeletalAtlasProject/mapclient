@@ -144,15 +144,9 @@ jobs:
         if: runner.os == 'Windows'
         shell: cmd
         run: |
+          rem Leaving this here for finding signtool.exe when the runner upgrades.
           echo "Finding signtool"
-          
-          echo "Directory contents I:"
-          dir /s /b "C:\Program Files (x86)\Windows Kits\10\bin\"
-          echo "Directory contents II:"
           dir /s /b "C:\Program Files (x86)\Windows Kits\10\bin\signtool.exe"
-          echo "Directory contents III:"
-          dir /s /b "C:\Program Files (x86)\Windows Kits\10\bin\x64\signtool.exe"
-          where signtool.exe
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -254,7 +248,7 @@ jobs:
           dir C:/a/mapclient/mapclient/mapclient/res/pyinstaller/dist/MAP-Client-mapping-tools/
           echo "Directory contents 2:"
           dir C:\a\mapclient\mapclient\mapclient\res\pyinstaller\dist\MAP-Client-mapping-tools\
-          "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x86\signtool" sign /d "MAP Client - mapping tools" /tr http://rfc3161timestamp.globalsign.com/advanced /fd SHA256 /td SHA256 /f ev_certificate.pfx ${{ steps.create-application.outputs.file }}
+          "C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x86\signtool" sign /d "MAP Client - mapping tools" /tr http://rfc3161timestamp.globalsign.com/advanced /fd SHA256 /td SHA256 /f ev_certificate.pfx ${{ steps.create-application.outputs.file }}
 
       - name: Codesign application (macOS)
         if: runner.os == 'macOS'
@@ -295,7 +289,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: cmd
         run: |
-          "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x86\signtool" sign /d "MAP Client - mapping tools" /tr http://rfc3161timestamp.globalsign.com/advanced /fd SHA256 /td SHA256 /f ev_certificate.pfx ${{ steps.create-installer.outputs.file }}
+          "C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x86\signtool" sign /d "MAP Client - mapping tools" /tr http://rfc3161timestamp.globalsign.com/advanced /fd SHA256 /td SHA256 /f ev_certificate.pfx ${{ steps.create-installer.outputs.file }}
           rem AzureSignTool sign -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ secrets.AZURE_CERT_NAME }} -tr http://timestamp.acs.microsoft.com -v ${{ steps.create-installer.outputs.file }}
 
       - name: Notarize and Staple installer (macOS)
