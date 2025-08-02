@@ -151,6 +151,20 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Download NSIS Installer
+        if: runner.os == 'Windows'
+        run: |
+          Invoke-WebRequest -Uri "https://sourceforge.net/projects/nsis/files/NSIS%203/3.11/nsis-3.11-setup.exe/download" -OutFile "nsis-setup.exe"
+          dir
+      - name: Install NSIS
+        if: runner.os == 'Windows'
+        run: |
+          dir
+          Start-Process -FilePath ".\\nsis-setup.exe" -ArgumentList "/S" -Wait
+      - name: Verify NSIS Installation
+        if: runner.os == 'Windows'
+        run: |
+          & "C:\\Program Files (x86)\\NSIS\\makensis.exe" -VERSION
       - name: Checkout codebase
         uses: actions/checkout@v4
         with:
@@ -240,21 +254,6 @@ jobs:
         run: |
           rem AzureSignTool sign -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ secrets.AZURE_CERT_NAME }} -tr http://timestamp.acs.microsoft.com -v ${{ steps.create-application.outputs.file }}
           "C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x86\signtool" sign /d "MAP Client - mapping tools" /tr http://rfc3161timestamp.globalsign.com/advanced /fd SHA256 /td SHA256 /f ev_certificate.pfx ${{ steps.create-application.outputs.file }}
-
-      - name: Download NSIS Installer
-        if: runner.os == 'Windows'
-        run: |
-          Invoke-WebRequest -Uri "https://sourceforge.net/projects/nsis/files/NSIS%203/3.11/nsis-3.11-setup.exe/download" -OutFile "nsis-setup.exe"
-
-      - name: Install NSIS
-        if: runner.os == 'Windows'
-        run: |
-          Start-Process -FilePath ".\\nsis-setup.exe" -ArgumentList "/S" -Wait
-
-      - name: Verify NSIS Installation
-        if: runner.os == 'Windows'
-        run: |
-          & "C:\\Program Files (x86)\\NSIS\\makensis.exe" -VERSION
 
       - name: Codesign application (macOS)
         if: runner.os == 'macOS'
