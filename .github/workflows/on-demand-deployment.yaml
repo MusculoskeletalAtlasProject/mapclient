@@ -151,16 +151,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Download NSIS Installer
-        if: runner.os == 'Windows'
-        run: |
-          Invoke-WebRequest -Uri "https://sourceforge.net/projects/nsis/files/NSIS%203/3.11/nsis-3.11-setup.exe/download" -OutFile "nsis-setup.exe"
-          dir
       - name: Install NSIS
         if: runner.os == 'Windows'
-        run: |
-          dir
-          Start-Process -FilePath ".\\nsis-setup.exe" -ArgumentList "/S" -Wait
+        uses: repolevedavaj/install-nsis@v1.0.3
+        with:
+          nsis-version: '3.11'
       - name: Verify NSIS Installation
         if: runner.os == 'Windows'
         run: |
