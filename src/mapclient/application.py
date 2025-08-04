@@ -22,6 +22,7 @@ import os
 import sys
 import ctypes
 import argparse
+import faulthandler
 
 import locale
 
@@ -85,6 +86,7 @@ def windows_main(workflow, execute_now):
         my_app_id = 'MusculoSkeletal.MAPClient'  # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(my_app_id)
 
+    faulthandler.enable()
     # import the locale, and set the locale. This is used for
     # locale-aware number to string formatting
     locale.setlocale(locale.LC_ALL, '')
