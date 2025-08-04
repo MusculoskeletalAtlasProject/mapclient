@@ -17,9 +17,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
+import importlib
 import logging
 import os
-import imp
 
 from PySide6.QtCore import QObject
 
@@ -48,7 +48,7 @@ def getPlugins(pluginDirectory):
         location = os.path.join(pluginDirectory, i)
         if not os.path.isdir(location) or not MAIN_MODULE + '.py' in os.listdir(location):
             continue
-        info = imp.find_module(MAIN_MODULE, [location])
+        info = importlib.util.find_spec(MAIN_MODULE, [location])
         plugins.append({'name': i, 'info': info})
 
     return plugins

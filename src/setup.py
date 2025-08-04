@@ -7,7 +7,6 @@ import re
 from setuptools import setup
 from setuptools import find_packages
 
-
 here = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -27,7 +26,6 @@ def find_version(*file_paths):
 
 with open('README.rst') as f:
     readme = f.read()
-
 
 # Define the list of requirements
 package_dependencies = [
@@ -74,10 +72,7 @@ setup(
     include_package_data=True,
     entry_points={
         'gui_scripts': ['mapclient=mapclient.application:main'],
-        'console_scripts': ['mapclient_sans_gui=mapclient.application:sans_gui_main',
-                            'mapclient_workflow_runner=mapclient.runner:main',
-                            'mapclient_use=mapclient.application:user_specified_environment_main',
-                            'mapclient_config_maker=mapclient.configmaker:main'],
+        'console_scripts': ['mapclient_console=mapclient.application:main'],
     },
     install_requires=package_dependencies,
     extras_require=extras_require,

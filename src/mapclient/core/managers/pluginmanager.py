@@ -22,9 +22,7 @@ from contextlib import redirect_stdout
 from mapclient.core.utils import which, FileTypeObject, grep, is_frozen, determine_step_name, determine_step_class_name
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     PLUGINS_PACKAGE_NAME, PLUGINS_PTH
-from mapclient.core.checks import getPipExecutable, getActivateScript
-
-from setuptools import sandbox
+from mapclient.core.checks import getPipExecutable
 
 from importlib import import_module
 
@@ -45,7 +43,7 @@ def getVirtualEnvCandidates():
     return virtualenv_candidates
 
 
-class PluginManager(object):
+class PluginManager:
 
     def __init__(self):
         self._directories = []

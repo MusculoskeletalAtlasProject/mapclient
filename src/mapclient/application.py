@@ -18,7 +18,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
+import json
 import os
+import shutil
 import sys
 import ctypes
 import argparse
@@ -27,11 +29,15 @@ import faulthandler
 import locale
 
 import logging
-import zipfile
 from logging import handlers
+from tempfile import TemporaryDirectory
+from zipfile import ZipFile
 
-from mapclient.core.exitcodes import HEADLESS_MODE_WITH_NO_WORKFLOW, INVALID_WORKFLOW_LOCATION_GIVEN
+from mapclient.core.exitcodes import (HEADLESS_MODE_WITH_NO_WORKFLOW, INVALID_WORKFLOW_LOCATION_GIVEN, CONFIGURATION_MODE_WITH_NO_DEFINITIONS, USER_SPECIFIED_DIRECTORY,
+                                      APP_SUCCESS, CONFIGURATION_MODE_NO_FILE, CONFIGURATION_MODE_NOT_IMPLEMENTED)
+from mapclient.core.provenance import reproducibility_info
 from mapclient.core.utils import is_frozen, find_file
+from mapclient.core.workflow.workflowscene import create_from
 from mapclient.settings.definitions import INTERNAL_WORKFLOWS_ZIP, INTERNAL_WORKFLOWS_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG, PREVIOUS_WORKFLOW, AUTOLOAD_PREVIOUS_WORKFLOW
 from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME, APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE
 
@@ -41,7 +47,7 @@ os.environ['ETS_TOOLKIT'] = 'qt'
 # workaround.
 if __package__:
     from .settings import info
-    from .settings.general import get_log_location, get_default_internal_workflow_dir
+    from .settings.general import get_log_location, get_default_internal_workflow_dir, get_configuration_file
 else:
     from mapclient.settings import info
     from mapclient.settings.general import get_log_location, get_default_internal_workflow_dir
@@ -77,6 +83,23 @@ def program_header():
     logger.info('-' * len(program_header_string))
 
 
+def _prepare_application():
+    faulthandler.enable()
+    # import the locale, and set the locale. This is used for
+    # locale-aware number to string formatting
+    locale.setlocale(locale.LC_ALL, '')
+
+    from PySide6 import QtWidgets
+
+    app = QtWidgets.QApplication(sys.argv)
+
+    info.set_applications_settings(app)
+    log_path = get_log_location()
+    initialise_logger(log_path)
+
+    return app
+
+
 # This method starts MAP Client
 def windows_main(workflow, execute_now):
     """
@@ -86,23 +109,12 @@ def windows_main(workflow, execute_now):
         my_app_id = 'MusculoSkeletal.MAPClient'  # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(my_app_id)
 
-    faulthandler.enable()
-    # import the locale, and set the locale. This is used for
-    # locale-aware number to string formatting
-    locale.setlocale(locale.LC_ALL, '')
-
-    from PySide6 import QtWidgets
     from mapclient.splashscreen import SplashScreen
 
-    app = QtWidgets.QApplication(sys.argv)
-
+    app = _prepare_application()
     splash = SplashScreen()
     splash.show()
     splash.showMessage("Loading settings ...", 5)
-    info.set_applications_settings(app)
-
-    log_path = get_log_location()
-    initialise_logger(log_path)
     program_header()
 
     logger.info('Setting toolbox settings for matplotlib and enthought to: qt')
@@ -145,7 +157,6 @@ def windows_main(workflow, execute_now):
     wm = model.workflowManager()
     if workflow and not wm.is_restricted(workflow):
         splash.showMessage('Opening workflow ...', 80)
-        logger.info(f"Opening workflow: {workflow}")
         window.open_workflow(workflow)
     elif workflow:
         logger.info(f"Not opening workflow '{workflow}', this workflow is already in use.")
@@ -221,32 +232,31 @@ def _prepare_internal_workflows(om):
             # No workflow exists in the workflow directory so we will
             # unzip the stored workflow(s) into this location.
             logger.info("Decompressing internal workflow(s) ...")
-            archive = zipfile.ZipFile(internal_workflows_zip)
+            archive = ZipFile(internal_workflows_zip)
             archive.extractall(f"{internal_workflow_dir}")
 
     else:
         om.setOption(INTERNAL_WORKFLOWS_AVAILABLE, False)
 
 
-class ConsumeOutput(object):
+class ConsumeOutput:
     def __init__(self):
         self.messages = list()
 
     def write(self, message):
         self.messages.append(message)
 
+    def flush(self, *args, **kwargs):
+        pass
 
-def _prepare_sans_gui_app(app):
-    logging.basicConfig(level='INFO')
 
+def prepare_sans_gui_app(app):
     info.set_applications_settings(app)
 
     old_stdout = sys.stdout
     sys.stdout = ConsumeOutput()
     #     sys.stdout = redirectstdout = ConsumeOutput()
 
-    log_path = get_log_location()
-    initialise_logger(log_path)
     program_header()
     sys.stdout = old_stdout
 
@@ -257,14 +267,24 @@ def _prepare_sans_gui_app(app):
     return model
 
 
-def sans_gui_main(workflow):
-    locale.setlocale(locale.LC_ALL, '')
+def _backup_file(file_path):
+    return f"{file_path}.bak"
 
-    from PySide6 import QtWidgets
 
-    app = QtWidgets.QApplication(sys.argv)
+def _restore_backup(config_file):
+    if os.path.isfile(config_file):
+        os.remove(config_file)
 
-    model = _prepare_sans_gui_app(app)
+    os.rename(_backup_file(config_file), config_file)
+
+
+def sans_gui_main(workflow, import_settings=None, relocate=False):
+
+    if workflow is None:
+        return HEADLESS_MODE_WITH_NO_WORKFLOW
+
+    app = _prepare_application()
+    model = prepare_sans_gui_app(app)
 
     wm = model.workflowManager()
     pm = model.pluginManager()
@@ -284,8 +304,39 @@ def sans_gui_main(workflow):
         def model(self):
             return self._model
 
+    backed_up_config_files = []
     try:
         wm.scene().setMainWindow(FacadeMainWindow(model))
+        if import_settings is not None:
+            with ZipFile(import_settings) as archive:
+                with TemporaryDirectory() as temp_dir:
+                    archive.extractall(temp_dir)
+                    source_steps_list = wm.list_steps(temp_dir)
+
+                    target_steps_list = wm.list_steps(workflow)
+
+                    all_present = all(item in target_steps_list for item in source_steps_list)
+                    if all_present:
+
+                        # Relocate step configurations if required.
+                        if relocate:
+                            source_steps = wm.load_steps(temp_dir)
+                            for step in source_steps:
+                                step.setLocation(os.path.dirname(import_settings))
+                                step.relocateConfiguration(workflow)
+                                config_file = get_configuration_file(temp_dir, step.getIdentifier())
+                                with open(config_file, "w") as fh:
+                                    fh.write(step.serialize())
+
+                        # Make backups of target steps configurations and import new configuration.
+                        for step_name, identifier in source_steps_list:
+                            config_file = get_configuration_file(workflow, identifier)
+                            new_config_file = get_configuration_file(temp_dir, identifier)
+                            if os.path.isfile(config_file):
+                                shutil.copy2(config_file, _backup_file(config_file))
+                                shutil.copy2(new_config_file, config_file)
+                                backed_up_config_files.append(config_file)
+
         wm.load(workflow)
     except:
         logger.error('Not a valid workflow location: "{0}"'.format(workflow))
@@ -294,7 +345,11 @@ def sans_gui_main(workflow):
     wm.registerDoneExecutionForAll(wm.execute)
 
     if wm.canExecute() == 0:
-        wm.execute()
+        try:
+            wm.execute()
+        finally:
+            for backed_up_file in backed_up_config_files:
+                _restore_backup(backed_up_file)
     else:
         logger.error(f'Could not execute workflow, reason: "{wm.execute_status_message()}"')
 
@@ -302,67 +357,171 @@ def sans_gui_main(workflow):
     return app.quit()
 
 
-def _parse_prepare_user_specified_environment_args():
-    parser = argparse.ArgumentParser(prog=f"{info.APPLICATION_NAME}_use".lower(),
-                                     description="An application to create and setup a separate configuration location for running MAP Client.")
-    parser.add_argument("base_dir", help="Sets the base directory for the setup, must exist.")
-    parser.add_argument("-d", "--directory", action='append', help="Specify a plugin directory, can be used multiple times.")
+def _user_specified_environment_main(base_dir, directories):
+    app = _prepare_application()
 
-    return parser.parse_args()
+    if not os.path.isdir(base_dir):
+        return USER_SPECIFIED_DIRECTORY
 
-
-def user_specified_environment_main():
-    locale.setlocale(locale.LC_ALL, '')
-
-    from PySide6 import QtWidgets
-
-    app = QtWidgets.QApplication(sys.argv)
-    logging.basicConfig(level='INFO')
-
-    info.set_applications_settings(app)
-
-    args = _parse_prepare_user_specified_environment_args()
-    if not os.path.isdir(args.base_dir):
-        sys.exit(1)
-
-    config_dir = os.path.join(args.base_dir, ".config")
+    config_dir = os.path.join(base_dir, ".config")
     os.environ[APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE] = config_dir
 
-    if args.directory is not None:
-        model = _prepare_sans_gui_app(app)
-        model.readSettings()
+    if directories is not None:
+        model = prepare_sans_gui_app(app)
+        # model.readSettings()
         pm = model.pluginManager()
-        directories = pm.directories()
-        for d in args.directory:
-            if os.path.isdir(d) and d not in directories:
-                directories.append(d)
+        plugin_directories = pm.directories()
+        for d in directories:
+            if os.path.isdir(d) and d not in plugin_directories:
+                plugin_directories.append(d)
 
-        pm.setDirectories(directories)
+        pm.setDirectories(plugin_directories)
         model.writeSettings()
 
-    print(f"Set environment variable '{APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}' to '{config_dir}' to use application with these settings.")
+    logger.info(f"Set environment variable '{APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}' to '{config_dir}' to use application with these settings.")
     if sys.platform == "win32":
-        print(f'set {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
+        logger.info(f'set {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
     else:
-        print(f'export {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
+        logger.info(f'export {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
+
+    return APP_SUCCESS
+
+
+def _split_key_value_definition(text):
+    index = text.find(":")
+    if index == -1:
+        return text, ""
+    return text[:index], text[index + 1:]
+
+
+def _config_maker_main(configuration_file, definitions, append):
+    if configuration_file is None:
+        logger.error("No configuration file specified.")
+        return CONFIGURATION_MODE_NO_FILE
+
+    if configuration_file and definitions is None:
+        logger.error("No definitions set.")
+        return CONFIGURATION_MODE_WITH_NO_DEFINITIONS
+
+    app = _prepare_application()
+    logger.info("Running config maker.")
+    location = os.path.dirname(configuration_file)
+
+    workflow_settings = {}
+    required_steps = []
+    for index, definition in enumerate(definitions):
+        step_name, identifier = _split_key_value_definition(definition[0])
+
+        if (step_name, identifier) not in required_steps:
+            required_steps.append((step_name, identifier))
+        key, value = _split_key_value_definition(definition[1])
+        current_settings = workflow_settings.get(step_name, {})
+        current_data = current_settings.get(identifier, [])
+        current_data.append((key, value))
+        current_settings[identifier] = current_data
+        workflow_settings[step_name] = current_settings
+
+    model = prepare_sans_gui_app(app)
+    pm = model.pluginManager()
+    wm = model.workflowManager()
+    pm.load()
+    logger.info("Loaded MAP Client plugins.")
+
+    files_created = []
+
+    wf = wm.create_empty_workflow(location)
+    steps = create_from(wf, required_steps, None, location)
+    files_created.append(wf.fileName())
+    del wf
+    logger.info("Created workflow.")
+
+    not_implemented_occurred = False
+    for index, step in enumerate(steps):
+        step_configurations = workflow_settings[step.getName()]
+        step_configuration = step_configurations[step.getIdentifier()]
+        try:
+            step.setConfiguration(step_configuration)
+            current_config_file = get_configuration_file(location, step.getIdentifier())
+            with open(current_config_file, "w") as fh:
+                fh.write(step.serialize())
+
+            files_created.append(current_config_file)
+        except NotImplementedError:
+            not_implemented_occurred = True
+            logger.info(f"The step '{step.getName()}' does not support configuration making.")
+            logger.info("This step does not implement the 'setConfiguration' method.")
+
+    logger.info("Created workflow configuration files.")
+    if not_implemented_occurred:
+        logger.error("Not all steps defined support configuration making.")
+        return CONFIGURATION_MODE_NOT_IMPLEMENTED
+
+    provenance = reproducibility_info()
+    provenance_file = os.path.join(location, "provenance.json")
+    with open(provenance_file, "w") as f:
+        f.write(json.dumps(provenance, default=lambda o: o.__dict__, sort_keys=True, indent=2))
+    files_created.append(provenance_file)
+    logger.info("Created provenance file.")
+
+    zip_file = os.path.join(location, "workflow-settings.zip")
+
+    with ZipFile(zip_file, "w") as fh:
+        for f in files_created:
+            archive_name = os.path.relpath(f, location)
+            fh.write(f, arcname=archive_name)
+            os.remove(f)
+
+    logger.info("Successfully created workflow archive.")
+
+    return APP_SUCCESS
+
+
+def _common_workflow_args(parser):
+    parser.add_argument("-x", "--execute", action="store_true", help="Execute a workflow.")
+    parser.add_argument("-w", "--workflow", help="Location of workflow.")
+    parser.add_argument("-i", "--import-settings", help="Location of workflow settings to import from.")
+    parser.add_argument("-r", "--relocate", action="store_true", help="Relocate the workflow directory to be relative to the import settings location.")
+
+
+def _parse_args():
+    parser = argparse.ArgumentParser(prog=info.APPLICATION_NAME)
+
+    # Define subcommands
+    subparsers = parser.add_subparsers(dest="command")
+
+    # Subcommand: config maker
+    config_maker_parser = subparsers.add_parser("config_maker", help="Create a configuration for importing into a workflow.")
+    config_maker_parser.add_argument("-c", "--configuration", help="Configuration file location to write to.")
+    config_maker_parser.add_argument("-d", "--definition", nargs=2, action='append',
+                                     help="Definition to write into configuration, specified by 'step name:step identifier' and a key:value, can be used multiple times.")
+
+    # Subcommand: user specified environment
+    use_parser = subparsers.add_parser("use", help="Create a user specified environment.")
+    use_parser.add_argument("-b", "--base_dir", help="Sets the base directory for the setup, the directory must exist.")
+    use_parser.add_argument("-d", "--directory", action='append', help="Specify a plugin directory, can be used multiple times.")
+
+    # Subcommand: headless
+    headless_parser = subparsers.add_parser("headless", help="Run MAP Client in headless mode.")
+    _common_workflow_args(headless_parser)
+
+    _common_workflow_args(parser)
+
+    return parser.parse_args(sys.argv[1:])
 
 
 def main():
-    parser = argparse.ArgumentParser(prog=info.APPLICATION_NAME)
-    parser.add_argument("-x", "--execute", action="store_true", help="execute a workflow")
-    parser.add_argument("-s", "--headless", action="store_true",
-                        help="operate in headless mode, without a gui.  Requires a location of a workflow to be set")
-    parser.add_argument("-w", "--workflow", help="location of workflow")
-    args = parser.parse_args(sys.argv[1:])
+    args = _parse_args()
 
-    if args.headless and args.workflow is None:
-        parser.print_help()
-        sys.exit(HEADLESS_MODE_WITH_NO_WORKFLOW)
-
-    if args.headless and args.workflow:
-        sys.exit(sans_gui_main(args.workflow))
+    if args.command == "config_maker":
+        result = _config_maker_main(args.configuration, args.definition, False)
+    elif args.command == "use":
+        result = _user_specified_environment_main(args.base_dir, args.directory)
+    elif args.command == "headless":
+        result = sans_gui_main(args.workflow, args.import_settings, args.relocate)
     else:
-        sys.exit(windows_main(args.workflow, args.execute))
+        result = windows_main(args.workflow, args.execute)
+
+    sys.exit(result)
 
 
 if __name__ == '__main__':

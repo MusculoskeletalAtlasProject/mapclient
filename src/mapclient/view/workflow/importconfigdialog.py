@@ -1,14 +1,13 @@
 import os
-import shutil
-
 import numpy
-import zipfile
-import tempfile
 
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtWidgets
 from packaging import version
+from tempfile import TemporaryDirectory
+from zipfile import is_zipfile, ZipFile
 
-from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME, VERSION_STRING
+from mapclient.core.importexport import import_settings
+from mapclient.settings.info import VERSION_STRING
 from mapclient.core.utils import load_configuration, copy_step_additional_config_files
 from mapclient.core.workflow.workflowitems import MetaStep
 from mapclient.view.workflow.workflowgraphicsitems import Node
@@ -36,18 +35,6 @@ class ImportConfigDialog(QtWidgets.QDialog):
 
     def _make_connections(self):
         self._ui.pushButtonImport.clicked.connect(self._import_clicked)
-
-    def _import_settings(self):
-        if zipfile.is_zipfile(self._import_source):
-            # Get project information for the imported workflow.
-            with zipfile.ZipFile(self._import_source, mode="r") as archive:
-                with tempfile.TemporaryDirectory() as temp_dir:
-                    archive.extract(DEFAULT_WORKFLOW_PROJECT_FILENAME, temp_dir)
-                    import_proj = QtCore.QSettings(os.path.join(temp_dir, DEFAULT_WORKFLOW_PROJECT_FILENAME), QtCore.QSettings.Format.IniFormat)
-        else:
-            import_proj = QtCore.QSettings(self._import_source, QtCore.QSettings.Format.IniFormat)
-
-        return import_proj
 
     @staticmethod
     def _determine_import_steps(import_proj):
@@ -91,7 +78,7 @@ class ImportConfigDialog(QtWidgets.QDialog):
             self._step_map["Selected"] = import_steps["ID"]
 
     def is_compatible(self):
-        import_proj = self._import_settings()
+        import_proj = import_settings(self._import_source)
         # Check for version compatibility.
         import_version = version.parse(import_proj.value('version'))
         application_version = version.parse(VERSION_STRING)
@@ -103,7 +90,7 @@ class ImportConfigDialog(QtWidgets.QDialog):
         return True
 
     def _setup_step_map(self):
-        import_proj = self._import_settings()
+        import_proj = import_settings(self._import_source)
 
         node_count = len([_ for _ in self._workflow_scene.items() if (_.Type == MetaStep.Type)])
         import_steps = self._determine_import_steps(import_proj)
@@ -168,9 +155,9 @@ class ImportConfigDialog(QtWidgets.QDialog):
                 identifier = node.metaItem().getIdentifier()
                 node_dict[identifier] = node
 
-        if zipfile.is_zipfile(self._import_source):
-            with zipfile.ZipFile(self._import_source, mode="r") as archive:
-                with tempfile.TemporaryDirectory() as temp_dir:
+        if is_zipfile(self._import_source):
+            with ZipFile(self._import_source, mode="r") as archive:
+                with TemporaryDirectory() as temp_dir:
                     archive.extractall(temp_dir)
                     self._do_import(temp_dir, node_dict)
         else:
