@@ -53,6 +53,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._setup_menus()
         self.setMenuBar(self._menu_bar)
         self._make_connections()
+        self._dynamic_actions = []
 
         self._action_Annotation.setEnabled(False)
 
@@ -85,6 +86,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_Help.setObjectName("menu_Help")
         self._menu_View = QtWidgets.QMenu(self._menu_bar)
         self._menu_View.setObjectName("menu_View")
+        self._menu_DockWidgets = QtWidgets.QMenu(self._menu_View)
+        self._menu_DockWidgets.setObjectName("menu_DockWidgets")
+        self._menu_DockWidgets.setEnabled(False)
         self._menu_File = QtWidgets.QMenu(self._menu_bar)
         self._menu_File.setObjectName("menu_File")
         self._menu_Edit = QtWidgets.QMenu(self._menu_bar)
@@ -128,6 +132,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_View.addSeparator()
         self._menu_View.addAction(self._action_LogInformation)
         self._menu_View.addAction(self._action_Options)
+        self._menu_View.addSeparator()
+        self._menu_View.addMenu(self._menu_DockWidgets)
         self._menu_File.addSeparator()
         self._menu_File.addAction(self._action_Quit)
         self._menu_Tools.addAction(self._action_PluginFinder)
@@ -152,6 +158,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _re_translate_ui(self):
         self._menu_Help.setTitle(QtWidgets.QApplication.translate("MainWindow", "&Help", None, -1))
         self._menu_View.setTitle(QtWidgets.QApplication.translate("MainWindow", "&View", None, -1))
+        self._menu_DockWidgets.setTitle(QtWidgets.QApplication.translate("MainWindow", "&Dock Widgets", None, -1))
         self._menu_File.setTitle(QtWidgets.QApplication.translate("MainWindow", "&File", None, -1))
         self._menu_Edit.setTitle(QtWidgets.QApplication.translate("MainWindow", "&Edit", None, -1))
         self._menu_Workflow.setTitle(QtWidgets.QApplication.translate("MainWindow", "&Workflow", None, -1))
@@ -314,7 +321,23 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_current_widget(self, widget):
         if self._ui.stackedWidget.indexOf(widget) <= 0:
             self._ui.stackedWidget.addWidget(widget)
+
+        self._menu_DockWidgets.setEnabled(False)
+        for act in self._dynamic_actions:
+            self._menu_DockWidgets.removeAction(act)
+        self._dynamic_actions.clear()
+
         self._ui.stackedWidget.setCurrentWidget(widget)
+        docks = widget.findChildren(QtWidgets.QDockWidget)
+
+        for dock in docks:
+            if not dock:
+                continue
+
+            toggle_act = dock.toggleViewAction()
+            self._menu_DockWidgets.addAction(toggle_act)
+            self._dynamic_actions.append(toggle_act)
+            self._menu_DockWidgets.setEnabled(True)
 
     def current_widget(self):
         return self._ui.stackedWidget.currentWidget()
