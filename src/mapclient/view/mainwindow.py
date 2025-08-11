@@ -431,7 +431,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._maybe_restart_application(asker='packages')
 
     def _show_plugin_manager_dialog(self):
-        from mapclient.view.managers.plugins.pluginmanagerdialog import PluginManagerDialog
+        from mapclient.tools.pluginmanager.pluginmanagerdialog import PluginManagerDialog
         pm = self._model.pluginManager()
         #         pluginErrors = pm.getPluginErrors()
         #         print(pluginErrors)

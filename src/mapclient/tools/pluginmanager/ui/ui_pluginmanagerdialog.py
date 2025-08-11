@@ -19,7 +19,6 @@ from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialog, QDialogBu
     QGroupBox, QHBoxLayout, QLabel, QListWidget,
     QListWidgetItem, QPushButton, QSizePolicy, QSpacerItem,
     QVBoxLayout, QWidget)
-from . import resources_rc
 
 class Ui_PluginManagerDialog(object):
     def setupUi(self, PluginManagerDialog):
