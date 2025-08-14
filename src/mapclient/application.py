@@ -55,6 +55,15 @@ else:
 logger = logging.getLogger('mapclient.application')
 
 
+def get_app_path():
+    if getattr(sys, 'frozen', False):
+        # If the application is frozen (e.g., by PyInstaller)
+        return os.path.dirname(sys.executable)
+    else:
+        # If running in a normal Python environment
+        return os.path.dirname(os.path.abspath(__file__))
+
+
 def initialise_logger(log_path):
     """
     Initialise logger settings and information formatting

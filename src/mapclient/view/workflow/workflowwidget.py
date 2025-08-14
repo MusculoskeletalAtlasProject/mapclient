@@ -391,9 +391,9 @@ class WorkflowWidget(QtWidgets.QWidget):
             if directory not in pluginDirs:
                 pluginDirs.append(directory)
                 pm.setDirectories(pluginDirs)
-        self.dlg = PluginProgress(plugins, directory, self)
-        self.dlg.show()
-        self.dlg.run()
+        dlg = PluginProgress(plugins, directory, self)
+        dlg.show()
+        dlg.run()
 
     def installMissingDependencies(self, plugin_dependencies):
         dependencies = []
@@ -406,10 +406,10 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     def pipInstallDependency(self, dependencies):
         from mapclient.view.managers.plugins.dependencyinstallation import InstallDependencies
-        self.installer = InstallDependencies(dependencies, get_virtualenv_directory())
-        self.installer.show()
-        unsuccessful_installs = self.installer.run()
-        self.installer.close()
+        installer = InstallDependencies(dependencies, get_virtualenv_directory())
+        installer.show()
+        unsuccessful_installs = installer.run()
+        installer.close()
         if list(unsuccessful_installs.keys()):
             QtWidgets.QMessageBox.critical(self, 'Failed Installation',
                                            'One or more of the required dependencies could not be installed.'

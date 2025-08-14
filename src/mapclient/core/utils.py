@@ -17,6 +17,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
+import hashlib
 import json
 import logging
 import os
@@ -379,3 +380,7 @@ def to_exchangeable_path(input_path):
 
 def to_system_path(input_path):
     return str(PurePath(input_path))
+
+
+def stable_hash(s):
+    return hashlib.sha256(s.encode()).hexdigest()
