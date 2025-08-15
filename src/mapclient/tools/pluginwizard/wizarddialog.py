@@ -129,7 +129,7 @@ class WizardDialog(QtWidgets.QWizard):
             row_index += 1
 
         if self.page(3)._ui.identifierCheckBox.isChecked():
-            self._options.addConfig('identifier', '')
+            self._options.addConfig('Identifier', '')
 
         configs_table = self.page(3)._ui.configTableWidget
         row_index = 0

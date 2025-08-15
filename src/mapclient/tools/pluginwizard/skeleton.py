@@ -414,7 +414,7 @@ class Skeleton(object):
             row_index = 0
             while row_index < self._options.configCount():
                 label = self._options.getConfig(row_index)[0]
-                widgets_string += CONFIGURE_DIALOG_LINE.format(row=row_index, label=label + ':  ')
+                widgets_string += CONFIGURE_DIALOG_LINE.format(row=row_index, label=label + ': ')
                 config = self._options.getConfig(row_index)
                 set_config_string += '        self._ui.lineEdit{0}.setText(config[\'{1}\'])\n'.format(row_index, config[0])
                 get_config_string += '        config[\'{1}\'] = self._ui.lineEdit{0}.text()\n'.format(row_index, config[0])
@@ -568,7 +568,7 @@ class SkeletonOptions(object):
         return self._configs[index]
 
     def addConfig(self, label, value):
-        if label == 'identifier':
+        if label.lower() == 'identifier':
             self._identifierConfig = True
         self._configs.append([label, value])
 
