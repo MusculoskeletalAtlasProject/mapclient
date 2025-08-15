@@ -245,7 +245,7 @@ CONFIGURE_DIALOG_UI = """<?xml version="1.0" encoding="UTF-8"?>
      <property name="title">
       <string/>
      </property>
-     <layout class="QFormLayout" name="formLayout">{1}     </layout>
+     <layout class="QFormLayout" name="formLayout">{1}</layout>
     </widget>
    </item>
    <item row="1" column="0">
