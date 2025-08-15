@@ -3,7 +3,6 @@ Created on May 19, 2015
 
 @author: hsorby
 """
-import io
 import json
 import os
 import sys
@@ -15,8 +14,6 @@ import traceback
 import shutil
 import types
 import importlib
-
-from contextlib import redirect_stdout
 
 from mapclient.application import get_app_path
 from mapclient.core.utils import which, FileTypeObject, grep, is_frozen, determine_step_name, determine_step_class_name, \
@@ -30,6 +27,8 @@ from importlib import import_module
 from mapclient.settings.general import get_virtualenv_site_packages_directory, get_settings
 
 logger = logging.getLogger(__name__)
+
+CONST_DEFAULT_PROFILE = 'Default'
 
 
 def getVirtualEnvCandidates():
@@ -46,7 +45,8 @@ def _get_app_profile_key():
 class PluginManager:
 
     def __init__(self):
-        self._directories = []
+        self._current_profile = CONST_DEFAULT_PROFILE
+        self._profile_directories = {}
         self._virtualenv_enabled = True
         self._virtualenv_dir = None
         self._virtualenv_setup_attempted = False
@@ -74,7 +74,7 @@ class PluginManager:
         return self._virtualenv_dir
 
     def directories(self):
-        return self._directories
+        return self._profile_directories.get(self._current_profile, [])
 
     def setReloadPlugins(self, state=True):
         self._reload_plugins = state
@@ -111,10 +111,10 @@ class PluginManager:
         plugins.  Returns true if the directories listing
         was updated and false otherwise.
         """
-        profile_name = self.profile()
-        self.set_profile_directories(profile_name, directories)
-        if self._directories != directories:
-            self._directories = directories
+
+        current_directories = self._profile_directories.get(self._current_profile, [])
+        if current_directories != directories:
+            self._profile_directories[self._current_profile] = directories
             self._reload_plugins = True
 
     def virtualenvSetupAttempted(self):
@@ -166,11 +166,6 @@ class PluginManager:
 
     def getPluginDatabase(self):
         return self._plugin_database
-
-    def allDirectories(self):
-        plugin_dirs = self._directories[:]
-
-        return plugin_dirs
 
     def _addPluginDir(self, directory):
         added = False
@@ -225,7 +220,7 @@ class PluginManager:
 
         len_package_modules_prior = len(sys.modules[PLUGINS_PACKAGE_NAME].__path__) if PLUGINS_PACKAGE_NAME in sys.modules else 0
         new_plugin_directories = []
-        for directory in self.allDirectories():
+        for directory in self.directories():
             if self._addPluginDir(directory):
                 new_plugin_directories.append(directory)
             else:
@@ -330,61 +325,36 @@ class PluginManager:
         return {'ImportError': self._import_errors, 'TypeError': self._type_errors, 'SyntaxError': self._syntax_errors, 'TabError': self._tab_errors,
                 'directories': self._plugin_error_directories}
 
-    @staticmethod
-    def profile():
-        """
-        Get the current profile name.
-        """
-        settings = get_settings()
-        settings.beginGroup('Plugins')
-        profile_name = settings.value(_get_app_profile_key(), 'Default')
-        settings.endGroup()
-
-        return profile_name
-
-    def set_profile_directories(self, profile_name, directories):
+    def set_profile_directories(self, profile_directories):
         """
         Set the directories for the given profile name.
         """
-        settings = get_settings()
-        settings.beginGroup('Plugins')
-        settings.beginWriteArray('directories')
-        directory_index = 0
-        for directory in self._directories:
-            settings.setArrayIndex(directory_index)
-            settings.setValue('directory', directory)
-            directory_index += 1
-        settings.endArray()
-        settings.endGroup()
+        self._profile_directories = profile_directories
 
-    @staticmethod
-    def profile_directories(profile_name):
+    def profile_directories(self):
         """
-        Get the directories for the given profile name.
-        If the profile name does not exist, return an empty list.
+        Get the profile directories information.
         """
-        directories = []
-        settings = get_settings()
-        settings.beginGroup('Plugins')
-        profiles_count = settings.beginReadArray('profiles')
-        for i in range(profiles_count):
-            settings.setArrayIndex(i)
-            if settings.value(_get_app_profile_key(), 'Default') == profile_name:
-                directory_count = settings.beginReadArray('directories')
-                for j in range(directory_count):
-                    settings.setArrayIndex(j)
-                    directories.append(settings.value('directory'))
-                settings.endArray()
-        settings.endArray()
-        settings.endGroup()
-
-        return directories
+        return self._profile_directories
 
     def readSettings(self, settings):
-        self._directories = []
+        self._profile_directories = {}
         settings.beginGroup('Plugins')
         self._doNotShowPluginErrors = settings.value('donot_show_plugin_errors', 'true') == 'true'
         self._virtualenv_setup_attempted = settings.value('virtualenv_setup_attempted', 'false') == 'true'
+        self._current_profile = settings.value(_get_app_profile_key(), CONST_DEFAULT_PROFILE)
+        profiles_count = settings.beginReadArray('profiles')
+        for i in range(profiles_count):
+            settings.setArrayIndex(i)
+            profile_name = settings.value('name')
+            directory_count = settings.beginReadArray('directories')
+            directories = []
+            for j in range(directory_count):
+                settings.setArrayIndex(j)
+                directories.append(settings.value('directory'))
+            settings.endArray()
+            self._profile_directories[profile_name] = directories
+        settings.endArray()
         settings.endGroup()
         settings.beginGroup('Ignored Plugins')
         plugin_count = settings.beginReadArray('plugins')
@@ -418,6 +388,18 @@ class PluginManager:
         settings.beginGroup('Plugins')
         settings.setValue('donot_show_plugin_errors', self._doNotShowPluginErrors)
         settings.setValue('virtualenv_setup_attempted', self._virtualenv_setup_attempted)
+        settings.setValue(_get_app_profile_key(), self._current_profile)
+        settings.beginWriteArray('profiles')
+        profile_index = 0
+        for profile_name, profile_directories in self._profile_directories.items():
+            settings.setArrayIndex(profile_index)
+            settings.setValue('name', profile_name)
+            settings.beginWriteArray('directories')
+            for directory_index, directory in enumerate(profile_directories):
+                settings.setArrayIndex(directory_index)
+                settings.setValue('directory', directory)
+            settings.endArray()
+        settings.endArray()
         settings.endGroup()
         settings.beginGroup('Ignored Plugins')
         settings.beginWriteArray('plugins')
