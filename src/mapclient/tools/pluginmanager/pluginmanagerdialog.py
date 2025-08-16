@@ -17,11 +17,10 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-import json
 import os
 from copy import deepcopy
 
-from PySide6 import QtGui, QtWidgets
+from PySide6 import QtWidgets
 
 from mapclient.core.managers.pluginmanager import CONST_DEFAULT_PROFILE
 from mapclient.tools.pluginmanager.ui.ui_pluginmanagerdialog import Ui_PluginManagerDialog
@@ -143,7 +142,11 @@ class PluginManagerDialog(QtWidgets.QDialog):
         if last:
             last = last.text()
 
-        directory = QtWidgets.QFileDialog.getExistingDirectory(self, caption='Select External Plugin Directory', dir=last, options=QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks | QtWidgets.QFileDialog.ReadOnly)
+        dlg_options = (QtWidgets.QFileDialog.Option.ShowDirsOnly |
+                       QtWidgets.QFileDialog.Option.DontResolveSymlinks |
+                       QtWidgets.QFileDialog.Option.ReadOnly)
+        directory = QtWidgets.QFileDialog.getExistingDirectory(
+            self, caption='Select External Plugin Directory', dir=last, options=dlg_options)
         if len(directory) > 0:
             current_profile = self._ui.profileComboBox.currentText()
             self._profile_directories[current_profile].append(directory)
@@ -200,153 +203,3 @@ class PluginManagerDialog(QtWidgets.QDialog):
     def save_profile_data(self):
         self._plugin_manager.set_current_profile(self._ui.profileComboBox.currentText())
         self._plugin_manager.set_profile_directories(self._profile_directories)
-
-# import sys
-# import json
-# import os
-# from PySide6.QtWidgets import (
-#     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QListView,
-#     QPushButton, QMessageBox, QInputDialog
-# )
-# from PySide6.QtGui import QStandardItemModel, QStandardItem
-#
-DATA_FILE = "models_data.json"
-#
-initial_data = {
-    "default": ["/path/1", "/path/2"],
-    "sparc": ["/path/4", "/path/5"],
-}
-
-
-class ModelManager(QtWidgets.QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Model Manager")
-
-        main_layout = QtWidgets.QVBoxLayout(self)
-        control_layout = QtWidgets.QHBoxLayout()
-        path_control_layout = QtWidgets.QHBoxLayout()
-
-        self.combo_box = QtWidgets.QComboBox()
-        self.list_view = QtWidgets.QListView()
-        self.save_button = QtWidgets.QPushButton("Save to Disk")
-        self.add_key_button = QtWidgets.QPushButton("Add Key")
-        self.remove_key_button = QtWidgets.QPushButton("Remove Key")
-        self.add_path_button = QtWidgets.QPushButton("Add Path")
-        self.remove_path_button = QtWidgets.QPushButton("Remove Path")
-
-        control_layout.addWidget(self.combo_box)
-        control_layout.addWidget(self.add_key_button)
-        control_layout.addWidget(self.remove_key_button)
-
-        path_control_layout.addWidget(self.add_path_button)
-        path_control_layout.addWidget(self.remove_path_button)
-
-        main_layout.addLayout(control_layout)
-        main_layout.addWidget(self.list_view)
-        main_layout.addLayout(path_control_layout)
-        main_layout.addWidget(self.save_button)
-
-        self.list_models = {}
-        self.load_data()
-
-        self.combo_box.addItems(self.list_models.keys())
-        self.combo_box.currentIndexChanged.connect(self.update_list_model)
-        self.save_button.clicked.connect(self.save_data)
-        self.add_key_button.clicked.connect(self.add_key)
-        self.remove_key_button.clicked.connect(self.remove_key)
-        self.add_path_button.clicked.connect(self.add_path)
-        self.remove_path_button.clicked.connect(self.remove_path)
-
-        self.update_list_model(0)
-
-    def create_model(self, paths):
-        model = QtGui.QStandardItemModel()
-        for path in paths:
-            item = QtGui.QStandardItem(path)
-            item.setEditable(True)
-            model.appendRow(item)
-        return model
-
-    def update_list_model(self, index):
-        if index < 0 or self.combo_box.count() == 0:
-            self.list_view.setModel(QtGui.QStandardItemModel())
-            return
-        key = self.combo_box.itemText(index)
-        self.list_view.setModel(self.list_models[key])
-
-    def save_data(self):
-        data_to_save = {
-            key: [self.list_models[key].item(i).text() for i in range(self.list_models[key].rowCount())]
-            for key in self.list_models
-        }
-        try:
-            with open(DATA_FILE, "w") as f:
-                json.dump(data_to_save, f, indent=2)
-            QtWidgets.QMessageBox.information(self, "Success", "Data saved successfully.")
-        except Exception as e:
-            QtWidgets.QMessageBox.critical(self, "Error", f"Failed to save data: {e}")
-
-    def load_data(self):
-        if os.path.exists(DATA_FILE):
-            try:
-                with open(DATA_FILE, "r") as f:
-                    loaded_data = json.load(f)
-            except Exception as e:
-                QtWidgets.QMessageBox.critical(self, "Error", f"Failed to load data: {e}")
-                loaded_data = initial_data
-        else:
-            loaded_data = initial_data
-
-        for key, paths in loaded_data.items():
-            self.list_models[key] = self.create_model(paths)
-
-    def add_key(self):
-        key, ok = QtWidgets.QInputDialog.getText(self, "Add Key", "Enter new key name:")
-        if ok and key:
-            if key in self.list_models:
-                QtWidgets.QMessageBox.warning(self, "Warning", "Key already exists.")
-                return
-            self.list_models[key] = self.create_model([])
-            self.combo_box.addItem(key)
-            self.combo_box.setCurrentText(key)
-
-    def remove_key(self):
-        index = self.combo_box.currentIndex()
-        if index < 0:
-            return
-        key = self.combo_box.itemText(index)
-        confirm = QtWidgets.QMessageBox.question(self, "Confirm", f"Delete key '{key}'?")
-        if confirm == QtWidgets.QMessageBox.StandardButton.Yes:
-            self.combo_box.removeItem(index)
-            del self.list_models[key]
-            self.update_list_model(self.combo_box.currentIndex())
-
-    def add_path(self):
-        index = self.combo_box.currentIndex()
-        if index < 0:
-            return
-        key = self.combo_box.itemText(index)
-        path, ok = QtWidgets.QInputDialog.getText(self, "Add Path", "Enter new path:")
-        if ok and path:
-            item = QtGui.QStandardItem(path)
-            item.setEditable(True)
-            self.list_models[key].appendRow(item)
-
-    def remove_path(self):
-        index = self.combo_box.currentIndex()
-        if index < 0:
-            return
-        key = self.combo_box.itemText(index)
-        selected_indexes = self.list_view.selectedIndexes()
-        if not selected_indexes:
-            QtWidgets.QMessageBox.warning(self, "Warning", "No path selected.")
-            return
-        for idx in selected_indexes:
-            self.list_models[key].removeRow(idx.row())
-
-# if __name__ == "__main__":
-#     app = QApplication(sys.argv)
-#     window = ModelManager()
-#     window.show()
-#     sys.exit(app.exec())
