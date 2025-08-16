@@ -383,7 +383,7 @@ def _user_specified_environment_main(base_dir, directories):
             if os.path.isdir(d) and d not in plugin_directories:
                 plugin_directories.append(d)
 
-        pm.setDirectories(plugin_directories)
+        pm.set_directories(plugin_directories)
         model.writeSettings()
 
     logger.info(f"Set environment variable '{APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}' to '{config_dir}' to use application with these settings.")

@@ -39,7 +39,7 @@ def getVirtualEnvCandidates():
 
 
 def _get_app_profile_key():
-    return f'profile_name_{stable_hash(get_app_path())}'
+    return f'current_profile_{stable_hash(get_app_path())}'
 
 
 class PluginManager:
@@ -76,6 +76,12 @@ class PluginManager:
     def directories(self):
         return self._profile_directories.get(self._current_profile, [])
 
+    def current_profile(self):
+        return self._current_profile
+
+    def set_current_profile(self, profile_name):
+        self._current_profile = profile_name
+
     def setReloadPlugins(self, state=True):
         self._reload_plugins = state
 
@@ -105,13 +111,12 @@ class PluginManager:
     def setOptions(self, options):
         self._virtualenv_dir = options[VIRTUAL_ENV_PATH]
 
-    def setDirectories(self, directories):
+    def set_directories(self, directories):
         """
         Set the list of directories to be searched for
         plugins.  Returns true if the directories listing
         was updated and false otherwise.
         """
-
         current_directories = self._profile_directories.get(self._current_profile, [])
         if current_directories != directories:
             self._profile_directories[self._current_profile] = directories
@@ -356,6 +361,7 @@ class PluginManager:
             self._profile_directories[profile_name] = directories
         settings.endArray()
         settings.endGroup()
+        self._profile_directories[CONST_DEFAULT_PROFILE] = self._profile_directories.get(CONST_DEFAULT_PROFILE, [])
         settings.beginGroup('Ignored Plugins')
         plugin_count = settings.beginReadArray('plugins')
         for i in range(plugin_count):
@@ -399,6 +405,7 @@ class PluginManager:
                 settings.setArrayIndex(directory_index)
                 settings.setValue('directory', directory)
             settings.endArray()
+            profile_index += 1
         settings.endArray()
         settings.endGroup()
         settings.beginGroup('Ignored Plugins')
@@ -579,8 +586,8 @@ class PluginDatabase:
         """
         missing_plugins = {}
         for plugin in to_check:
-            if not (plugin in self._database and \
-                    to_check[plugin]['author'] == self._database[plugin]['author'] and \
+            if not (plugin in self._database and
+                    to_check[plugin]['author'] == self._database[plugin]['author'] and
                     to_check[plugin]['version'] == self._database[plugin]['version']):
                 missing_plugins[plugin] = to_check[plugin]
 

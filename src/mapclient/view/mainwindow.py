@@ -456,7 +456,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Are we currently using the plugin manager dialog?
         if self._plugin_manager_dlg is not None:
             pm.setReloadPlugins()
-            pm.setDirectories(self._plugin_manager_dlg.directories())
+            pm.set_directories(self._plugin_manager_dlg.directories())
 
         if pm.reloadPlugins():
             pm.load()

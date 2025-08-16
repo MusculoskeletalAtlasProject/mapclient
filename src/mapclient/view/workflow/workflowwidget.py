@@ -390,7 +390,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             pluginDirs = pm.directories()
             if directory not in pluginDirs:
                 pluginDirs.append(directory)
-                pm.setDirectories(pluginDirs)
+                pm.set_directories(pluginDirs)
         dlg = PluginProgress(plugins, directory, self)
         dlg.show()
         dlg.run()

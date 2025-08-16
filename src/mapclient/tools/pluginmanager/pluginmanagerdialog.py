@@ -19,8 +19,11 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import json
 import os
+from copy import deepcopy
 
 from PySide6 import QtGui, QtWidgets
+
+from mapclient.core.managers.pluginmanager import CONST_DEFAULT_PROFILE
 from mapclient.tools.pluginmanager.ui.ui_pluginmanagerdialog import Ui_PluginManagerDialog
 
 
@@ -34,8 +37,12 @@ class PluginManagerDialog(QtWidgets.QDialog):
         self._ui = Ui_PluginManagerDialog()
         self._ui.setupUi(self)
         self._ui.removeButton.setEnabled(False)
+        self._ui.advancedButton.setVisible(False)
 
         self._plugin_manager = plugin_manager
+        self._profile_directories = deepcopy(plugin_manager.profile_directories())
+        self._initialise_ui()
+        self._update_ui()
 
         self._make_connections()
 
@@ -61,16 +68,28 @@ class PluginManagerDialog(QtWidgets.QDialog):
             self._updaterSettings = dlg._updaterSettings
             self.reload_plugins()
 
-    def _profile_changed(self, previous_text, current_text):
-        print("Update directory listing for profile:", self._ui.profileComboBox.currentText())
-        print(previous_text, current_text)
-        self._plugin_manager.set_profile_directories(previous_text, self.directories())
+    def _initialise_ui(self):
+        self._ui.profileComboBox.clear()
         self._ui.directoryListing.clear()
-        profile_name = self._ui.profileComboBox.currentText()
-        if profile_name:
-            directories = self._plugin_manager.profile_directories(profile_name)
-            if directories:
-                self._set_directories(directories)
+
+        # Add profiles to the combo box.
+        current_profile = self._plugin_manager.current_profile()
+        for profile in self._profile_directories:
+            self._ui.profileComboBox.addItem(profile)
+            if profile == current_profile:
+                self._ui.profileComboBox.setCurrentText(profile)
+
+        self._set_directories(self._profile_directories.get(current_profile, []))
+
+    def _update_ui(self):
+        editable_profile = self._ui.profileComboBox.currentText() != CONST_DEFAULT_PROFILE
+        self._ui.profileEditButton.setEnabled(editable_profile)
+        self._ui.profileDeleteButton.setEnabled(editable_profile)
+
+    def _profile_changed(self, current_index):
+        current_profile = self._ui.profileComboBox.currentText()
+        self._set_directories(self._profile_directories.get(current_profile, []))
+        self._update_ui()
 
     def _directory_selection_changed(self):
         self._ui.removeButton.setEnabled(len(self._ui.directoryListing.selectedItems()) > 0)
@@ -85,7 +104,7 @@ class PluginManagerDialog(QtWidgets.QDialog):
                 self._ui.profileComboBox.addItem(new_profile)
                 self._ui.profileComboBox.setCurrentText(new_profile)
                 self._ui.directoryListing.clear()
-                self._plugin_manager.add_profile(new_profile)
+                self._profile_directories[new_profile] = []
 
     def _edit_current_profile(self):
         from mapclient.tools.pluginmanager.editprofiledialog import EditProfileDialog
@@ -94,22 +113,27 @@ class PluginManagerDialog(QtWidgets.QDialog):
         if dlg.exec():
             current_profile = self._ui.profileComboBox.currentText()
             edited_profile = dlg.getProfileName()
-            if edited_profile:
+            if edited_profile and edited_profile != current_profile and edited_profile not in self._profile_directories.keys():
                 current_index = self._ui.profileComboBox.currentIndex()
                 self._ui.profileComboBox.setItemText(current_index, edited_profile)
-                self._plugin_manager.rename_profile(current_profile, edited_profile)
+                self._profile_directories[edited_profile] = self._profile_directories[current_profile]
+                del self._profile_directories[current_profile]
 
     def _delete_current_profile(self):
+        current_profile = self._ui.profileComboBox.currentText()
         self._ui.profileComboBox.removeItem(self._ui.profileComboBox.currentIndex())
-        self._plugin_manager.remove_profile(self._ui.profileComboBox.currentText())
+        self._profile_directories.pop(current_profile)
+        self._update_ui()
 
     def _remove_button_clicked(self):
         for item in self._ui.directoryListing.selectedItems():
-            self._ui.directoryListing.takeItem(self._ui.directoryListing.row(item))
+            row = self._ui.directoryListing.row(item)
+            current_profile = self._ui.profileComboBox.currentText()
+            del self._profile_directories[current_profile][row]
+            self._ui.directoryListing.takeItem(row)
 
     def _add_directory_clicked(self):
         selected_items = self._ui.directoryListing.selectedItems()
-        last = ''
         if selected_items:
             last_selected_item = selected_items[-1]
             last = last_selected_item
@@ -121,6 +145,8 @@ class PluginManagerDialog(QtWidgets.QDialog):
 
         directory = QtWidgets.QFileDialog.getExistingDirectory(self, caption='Select External Plugin Directory', dir=last, options=QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontResolveSymlinks | QtWidgets.QFileDialog.ReadOnly)
         if len(directory) > 0:
+            current_profile = self._ui.profileComboBox.currentText()
+            self._profile_directories[current_profile].append(directory)
             self._ui.directoryListing.addItem(directory)
 
     def _get_profile_directories(self, profile_name):
@@ -161,6 +187,7 @@ class PluginManagerDialog(QtWidgets.QDialog):
         return self._ui.profileComboBox.currentText()
 
     def _set_directories(self, directories):
+        self._ui.directoryListing.clear()
         self._ui.directoryListing.addItems([directory for directory in directories if os.path.exists(directory)])
 
     def directories(self):
@@ -169,6 +196,10 @@ class PluginManagerDialog(QtWidgets.QDialog):
             directories.append(self._ui.directoryListing.item(index).text())
 
         return directories
+
+    def save_profile_data(self):
+        self._plugin_manager.set_current_profile(self._ui.profileComboBox.currentText())
+        self._plugin_manager.set_profile_directories(self._profile_directories)
 
 # import sys
 # import json

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'pluginmanagerdialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.1
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -47,28 +47,24 @@ class Ui_PluginManagerDialog(object):
 
         self.horizontalLayout_3.addWidget(self.profileComboBox)
 
+        self.profileNewButton = QPushButton(PluginManagerDialog)
+        self.profileNewButton.setObjectName(u"profileNewButton")
+
+        self.horizontalLayout_3.addWidget(self.profileNewButton)
+
         self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_3.addItem(self.horizontalSpacer_2)
-
-        self.profileDeleteButton = QPushButton(PluginManagerDialog)
-        self.profileDeleteButton.setObjectName(u"profileDeleteButton")
-
-        self.horizontalLayout_3.addWidget(self.profileDeleteButton)
-
-        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_3.addItem(self.horizontalSpacer_3)
 
         self.profileEditButton = QPushButton(PluginManagerDialog)
         self.profileEditButton.setObjectName(u"profileEditButton")
 
         self.horizontalLayout_3.addWidget(self.profileEditButton)
 
-        self.profileNewButton = QPushButton(PluginManagerDialog)
-        self.profileNewButton.setObjectName(u"profileNewButton")
+        self.profileDeleteButton = QPushButton(PluginManagerDialog)
+        self.profileDeleteButton.setObjectName(u"profileDeleteButton")
 
-        self.horizontalLayout_3.addWidget(self.profileNewButton)
+        self.horizontalLayout_3.addWidget(self.profileDeleteButton)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout_3)
@@ -164,9 +160,9 @@ class Ui_PluginManagerDialog(object):
     def retranslateUi(self, PluginManagerDialog):
         PluginManagerDialog.setWindowTitle(QCoreApplication.translate("PluginManagerDialog", u"Plugin Manager", None))
         self.profileLabel.setText(QCoreApplication.translate("PluginManagerDialog", u"Profile:", None))
-        self.profileDeleteButton.setText(QCoreApplication.translate("PluginManagerDialog", u"Delete", None))
-        self.profileEditButton.setText(QCoreApplication.translate("PluginManagerDialog", u"Edit", None))
         self.profileNewButton.setText(QCoreApplication.translate("PluginManagerDialog", u"New", None))
+        self.profileEditButton.setText(QCoreApplication.translate("PluginManagerDialog", u"Edit", None))
+        self.profileDeleteButton.setText(QCoreApplication.translate("PluginManagerDialog", u"Delete", None))
         self.groupBox.setTitle("")
         self.label.setText(QCoreApplication.translate("PluginManagerDialog", u"Plugin directories:", None))
         self.addButton.setText(QCoreApplication.translate("PluginManagerDialog", u"Add Directory", None))
