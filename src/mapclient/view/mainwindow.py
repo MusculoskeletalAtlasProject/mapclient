@@ -67,7 +67,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.set_current_undo_redo_stack(self._workflowWidget.undoRedoStack())
 
         self._model.workflowManager().scene().setMainWindow(self)
-        self._pluginManagerDlg = None
+        self._plugin_manager_dlg = None
 
     def showEvent(self, event):
         self.resize(self._model.size())
@@ -431,36 +431,19 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._maybe_restart_application(asker='packages')
 
     def _show_plugin_manager_dialog(self):
-        from mapclient.view.managers.plugins.pluginmanagerdialog import PluginManagerDialog
+        from mapclient.tools.pluginmanager.pluginmanagerdialog import PluginManagerDialog
         pm = self._model.pluginManager()
-        #         pluginErrors = pm.getPluginErrors()
-        #         print(pluginErrors)
-        dlg = PluginManagerDialog(self._model.pluginManager()._ignoredPlugins,
-                                  self._model.pluginManager()._doNotShowPluginErrors,
-                                  self._model.pluginManager()._resourceFiles,
-                                  self._model.pluginManager()._updaterSettings,
-                                  self._model.pluginManager()._unsuccessful_package_installations, self)
-        self._pluginManagerDlg = dlg
-        dlg.setDirectories(pm.directories())
-        dlg.reloadPlugins = self._plugin_manager_load_plugins
+        dlg = PluginManagerDialog(pm, self)
+        self._plugin_manager_dlg = dlg
+        dlg.reload_plugins = self._plugin_manager_load_plugins
 
         dlg.setModal(True)
         if dlg.exec():
-            pm._ignoredPlugins = dlg._ignoredPlugins
-            pm._doNotShowPluginErrors = dlg._do_not_show_plugin_errors
-            pm._resourceFiles = dlg._resource_filenames
-            pm._updaterSettings = dlg._updaterSettings
+            dlg.save_profile_data()
             if self._plugin_manager_load_plugins():
                 self._maybe_restart_application()
 
-        self._pluginManagerDlg = None
-
-    def _request_metrics_permission(self):
-        result = QtWidgets.QMessageBox.question(
-            self, 'Metrics Permission', 'Is it okay for the MAP-Client to send metrics/usage statistics to help us improve the tools actually used?\n (This option can be '
-                                        'enabled/disabled in the settings page at a later date if you change your mind.)',
-            QtWidgets.QMessageBox.StandardButton(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No))
-        return True if result == QtWidgets.QMessageBox.StandardButton.Yes else False
+        self._plugin_manager_dlg = None
 
     @set_wait_cursor
     def _plugin_manager_load_plugins(self):
@@ -471,9 +454,9 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         pm = self._model.pluginManager()
         # Are we currently using the plugin manager dialog?
-        if self._pluginManagerDlg is not None:
+        if self._plugin_manager_dlg is not None:
             pm.setReloadPlugins()
-            pm.setDirectories(self._pluginManagerDlg.directories())
+            pm.set_directories(self._plugin_manager_dlg.directories())
 
         if pm.reloadPlugins():
             pm.load()
@@ -484,6 +467,13 @@ class MainWindow(QtWidgets.QMainWindow):
             return True
 
         return False
+
+    def _request_metrics_permission(self):
+        result = QtWidgets.QMessageBox.question(
+            self, 'Metrics Permission', 'Is it okay for the MAP-Client to send metrics/usage statistics to help us improve the tools actually used?\n (This option can be '
+                                        'enabled/disabled in the settings page at a later date if you change your mind.)',
+            QtWidgets.QMessageBox.StandardButton(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No))
+        return True if result == QtWidgets.QMessageBox.StandardButton.Yes else False
 
     def _create_qt_tools_options(self):
         om = self._model.optionsManager()

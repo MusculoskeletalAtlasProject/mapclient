@@ -55,6 +55,15 @@ else:
 logger = logging.getLogger('mapclient.application')
 
 
+def get_app_path():
+    if getattr(sys, 'frozen', False):
+        # If the application is frozen (e.g., by PyInstaller)
+        return os.path.dirname(sys.executable)
+    else:
+        # If running in a normal Python environment
+        return os.path.dirname(os.path.abspath(__file__))
+
+
 def initialise_logger(log_path):
     """
     Initialise logger settings and information formatting
@@ -374,7 +383,7 @@ def _user_specified_environment_main(base_dir, directories):
             if os.path.isdir(d) and d not in plugin_directories:
                 plugin_directories.append(d)
 
-        pm.setDirectories(plugin_directories)
+        pm.set_directories(plugin_directories)
         model.writeSettings()
 
     logger.info(f"Set environment variable '{APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}' to '{config_dir}' to use application with these settings.")

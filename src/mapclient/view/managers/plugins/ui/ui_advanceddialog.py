@@ -20,7 +20,6 @@ from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView, QApplication,
     QHBoxLayout, QLabel, QLineEdit, QListWidget,
     QListWidgetItem, QPushButton, QSizePolicy, QSpacerItem,
     QTabWidget, QVBoxLayout, QWidget)
-from . import resources_rc
 
 class Ui_AdvancedDialog(object):
     def setupUi(self, AdvancedDialog):
