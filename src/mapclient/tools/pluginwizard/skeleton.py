@@ -38,8 +38,8 @@ from mapclient.tools.pluginwizard.skeletonstrings import (
     CONFIGURE_METHOD_STRING,
     DESERIALIZE_DEFAULT_CONTENT_STRING,
     DESERIALIZE_IDENTIFIER_CONTENT_STRING,
-    GETIDENTIFIER_DEFAULT_CONTENT_STRING,
-    GETIDENTIFIER_IDENTIFER_CONTENT_STRING,
+    GET_IDENTIFIER_DEFAULT_CONTENT_STRING,
+    GET_IDENTIFIER_IDENTIFIER_CONTENT_STRING,
     IDENTIFIER_METHOD_STRING,
     IMPORT_STRING,
     INIT_METHOD_STRING,
@@ -49,8 +49,8 @@ from mapclient.tools.pluginwizard.skeletonstrings import (
     SERIALIZE_DEFAULT_CONTENT_STRING,
     SERIALIZE_IDENTIFIER_CONTENT_STRING,
     SERIALIZE_METHOD_STRING,
-    SETIDENTIFIER_DEFAULT_CONTENT_STRING,
-    SETIDENTIFIER_IDENTIFER_CONTENT_STRING,
+    SET_IDENTIFIER_DEFAULT_CONTENT_STRING,
+    SET_IDENTIFIER_IDENTIFIER_CONTENT_STRING,
     SETUP_PY_TEMPLATE,
     STEP_PACKAGE_INIT_STRING,
 )
@@ -277,11 +277,11 @@ class Skeleton(object):
             init_string += '        self._portData{0} = None  # {1}\n'.format(index, current_port[1])
 
         if self._options.hasIdentifierConfig():
-            id_method_string = IDENTIFIER_METHOD_STRING.format(getidentifiercontent=GETIDENTIFIER_IDENTIFER_CONTENT_STRING,
-                                                               setidentifiercontent=SETIDENTIFIER_IDENTIFER_CONTENT_STRING)
+            id_method_string = IDENTIFIER_METHOD_STRING.format(getidentifiercontent=GET_IDENTIFIER_IDENTIFIER_CONTENT_STRING,
+                                                               setidentifiercontent=SET_IDENTIFIER_IDENTIFIER_CONTENT_STRING)
         else:
-            id_method_string = IDENTIFIER_METHOD_STRING.format(getidentifiercontent=GETIDENTIFIER_DEFAULT_CONTENT_STRING.format(step_object_name=object_name),
-                                                               setidentifiercontent=SETIDENTIFIER_DEFAULT_CONTENT_STRING)
+            id_method_string = IDENTIFIER_METHOD_STRING.format(getidentifiercontent=GET_IDENTIFIER_DEFAULT_CONTENT_STRING.format(step_object_name=object_name),
+                                                               setidentifiercontent=SET_IDENTIFIER_DEFAULT_CONTENT_STRING)
 
         if self._options.configCount() > 0:
             init_string += '        # Config:\n'
@@ -394,14 +394,13 @@ class Skeleton(object):
         \"\"\"
         Get the current value of the configuration from the dialog.{additional_comment}
         \"\"\"{previous_identifier}
-        config = {{}}
 """
             if self._options.hasIdentifierConfig():
                 set_config_string = set_config_string.format(
                     additional_comment='  Also\n'
                                        '        set the _previousIdentifier value so that we can check uniqueness of the\n'
                                        '        identifier over the whole of the workflow.',
-                    previous_identifier='\n        self._previousIdentifier = config[\'identifier\']')
+                    previous_identifier='\n        self._previousIdentifier = config[\'Identifier\']')
                 get_config_string = get_config_string.format(
                     additional_comment='  Also\n'
                                        '        set the _previousIdentifier value so that we can check uniqueness of the\n'
@@ -412,16 +411,16 @@ class Skeleton(object):
                 get_config_string = get_config_string.format(additional_comment='', previous_identifier='')
 
             row_index = 0
+            config_key_item_string = ''
             while row_index < self._options.configCount():
                 label = self._options.getConfig(row_index)[0]
                 widgets_string += CONFIGURE_DIALOG_LINE.format(row=row_index, label=label + ': ')
                 config = self._options.getConfig(row_index)
                 set_config_string += '        self._ui.lineEdit{0}.setText(config[\'{1}\'])\n'.format(row_index, config[0])
-                get_config_string += '        config[\'{1}\'] = self._ui.lineEdit{0}.text()\n'.format(row_index, config[0])
+                config_key_item_string += '                \'{1}\': self._ui.lineEdit{0}.text(),\n'.format(row_index, config[0])
                 row_index += 1
 
-            set_config_string += '\n'
-            get_config_string += '        return config\n'
+            get_config_string += '        return {\n' + config_key_item_string + '        }\n' if config_key_item_string else '        return {}\n'
 
             ui_file = os.path.join(qt_dir, QT_CONFDIALOG_UI_FILENAME)
             with open(ui_file, 'w') as fui:
