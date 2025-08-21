@@ -99,7 +99,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
     def connectNodes(self, src_port, dest_port):
         # Check if nodes are already connected
         if not src_port.hasArcToDestination(dest_port):
-            if src_port.canConnect(dest_port):
+            if src_port.can_connect(dest_port):
                 command = CommandAdd(self.scene(), Arc(src_port, dest_port))
                 self._undoStack.push(command)
             else:

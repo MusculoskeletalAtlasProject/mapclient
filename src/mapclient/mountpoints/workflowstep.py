@@ -59,14 +59,14 @@ class WorkflowStepPort(object):
 
     #        return [triple[2] for triple in self.obj[obj]]
 
-    def hasUses(self):
+    def has_uses(self):
         for uses_annotation in USES_ANNOTATIONS:
             if uses_annotation in self.pred:
                 return True
 
         return False
 
-    def hasProvides(self):
+    def has_provides(self):
         for provides_annotation in PROVIDES_ANNOTATIONS:
             if provides_annotation in self.pred:
                 return True
@@ -95,7 +95,7 @@ class WorkflowStepPort(object):
 
         return False
 
-    def canConnect(self, other):
+    def can_connect(self, other):
         if PORT_ANNOTATION in self.subj and PORT_ANNOTATION in other.subj:
             myPorts = self.subj[PORT_ANNOTATION]
             theirPorts = other.subj[PORT_ANNOTATION]
@@ -237,6 +237,13 @@ def _workflow_step_addPort(self, triple):
     self._ports.append(port)
 
 
+def _workflow_step_getPorts(self):
+    """
+    Returns a list of WorkflowStepPort objects that describe the ports of this step.
+    """
+    return self._ports
+
+
 def _workflow_step_getName(self):
     if hasattr(self, '_name'):
         return self._name
@@ -300,6 +307,7 @@ attr_dict = {
     'getIcon': _workflow_step_get_icon,
     'getLocation': _workflow_step_getLocation,
     'getPortData': _workflow_step_getPortData,
+    'getPorts': _workflow_step_getPorts,
     'getSourceURI': _workflow_step_get_source_uri,
     'getName': _workflow_step_getName,
     'gitInclude': _workflow_step_git_include,

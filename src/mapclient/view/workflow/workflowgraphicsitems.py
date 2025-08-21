@@ -302,7 +302,7 @@ class Node(Item):
 
         self.updateDVCSIcon()
 
-    def update(self):
+    def update(self, rect=None):
         self._update_configure_icon()
         self._update_ports()
         self._update_text_icon()
@@ -320,7 +320,7 @@ class Node(Item):
         self._set_tool_tip()
 
     def _set_tool_tip(self):
-        self.setToolTip(self._metastep._step.getName() + ": " + self._metastep._step.getIdentifier())
+        self.setToolTip(self._metastep.getName() + ": " + self._metastep.getIdentifier())
         self._text.setText(
             self._metastep.getStepIdentifier() if self._metastep.getStepIdentifier() != self._metastep.getUniqueIdentifier() else self._metastep.getName())
         self._update_text_icon()
@@ -333,8 +333,8 @@ class Node(Item):
 
         self._step_port_items = []
         # Collect all ports that provide or use from the step
-        uses_ports = [port for port in current_step_ports if port.hasUses()]
-        provides_ports = [port for port in current_step_ports if port.hasProvides()]
+        uses_ports = [port for port in current_step_ports if port.has_uses()]
+        provides_ports = [port for port in current_step_ports if port.has_provides()]
 
         uses_count = 0
         uses_total = len(uses_ports)
@@ -471,7 +471,7 @@ class Node(Item):
         self._contextMenu.popup(pos)
 
     def _getStepLocation(self):
-        return os.path.join(self._metastep._step._location, self._metastep._step.getIdentifier())
+        return os.path.join(self._metastep._step._location, self._metastep.getIdentifier())
 
 
 class StepPort(QtWidgets.QGraphicsEllipseItem):
@@ -522,11 +522,11 @@ class StepPort(QtWidgets.QGraphicsEllipseItem):
     def height(self):
         return self.boundingRect().height()
 
-    def canConnect(self, other):
+    def can_connect(self, other):
         if other.hasConnections():
             return False
 
-        return self._port.canConnect(other._port)
+        return self._port.can_connect(other.port())
 
     def hasConnections(self):
         self._removeDeadwood()

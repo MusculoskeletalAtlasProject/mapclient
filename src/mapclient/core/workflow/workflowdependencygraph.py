@@ -223,8 +223,8 @@ class WorkflowDependencyGraph(object):
                     # But don't use this as it is not what is documented.
                     # source_step = connection.source()._step
                     # destination_step = current_node._step
-                    # source_ports = [port for port in source_step._ports if port.hasProvides()]
-                    # destination_ports = [port for port in destination_step._ports if port.hasUses()]
+                    # source_ports = [port for port in source_step._ports if port.has_provides()]
+                    # destination_ports = [port for port in destination_step._ports if port.has_uses()]
                     # source_data_index = source_ports.index(source_step._ports[connection.sourceIndex()])
                     # destination_data_index = destination_ports.index(destination_step._ports[connection.destinationIndex()])
 
