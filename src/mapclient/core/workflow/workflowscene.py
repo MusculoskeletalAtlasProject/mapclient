@@ -180,7 +180,7 @@ class WorkflowScene(object):
         self._manager = manager
         self._location = ''
         self._items = {}
-        self._dependencyGraph = WorkflowDependencyGraph(self)
+        self._dependency_graph = WorkflowDependencyGraph(self)
         self._main_window = None
         self._default_view_rect = QtCore.QRectF(0, 0, 1024, 880)
         self._view_parameters = None
@@ -383,22 +383,22 @@ class WorkflowScene(object):
         self._main_window = main_window
 
     def canExecute(self):
-        return self._dependencyGraph.can_execute()
+        return self._dependency_graph.can_execute()
 
     def execute_status_message(self):
-        return self._dependencyGraph.execute_status_message()
+        return self._dependency_graph.execute_status_message()
 
     def execute(self):
-        self._dependencyGraph.execute()
+        self._dependency_graph.execute()
 
     def abort_execution(self):
-        self._dependencyGraph.abort()
+        self._dependency_graph.abort()
 
     def set_workflow_direction(self, direction):
-        self._dependencyGraph.set_direction(direction)
+        self._dependency_graph.set_direction(direction)
 
     def register_finished_workflow_callback(self, callback):
-        self._dependencyGraph.set_finished_callback(callback)
+        self._dependency_graph.set_finished_callback(callback)
 
     def registerDoneExecutionForAll(self, callback):
         for item in self._items:
