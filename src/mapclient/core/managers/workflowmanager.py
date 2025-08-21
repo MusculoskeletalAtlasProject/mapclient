@@ -158,7 +158,7 @@ class WorkflowManager(object):
     def set_workflow_direction(self, direction):
         self._scene.set_workflow_direction(direction)
 
-    def layout_workflow(self, layout_algorithm):
+    def layout_workflow(self, layout_algorithm, animate=True):
         graph, graph_edges, reverse_graph = self._scene.graph()
         view_parameters = self._scene.getViewParameters()
         adjacent_graph = {}
@@ -216,7 +216,6 @@ class WorkflowManager(object):
             raise WorkflowError(f"Unknown layout algorithm: {layout_algorithm}")
 
         self._iteration_count = 0
-        animate = True
         if animate:
             self._layout_timer.start(16)
         else:

@@ -29,7 +29,8 @@ from mapclient.view.workflow.workflowwidget import WorkflowWidget
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
 from mapclient.settings.definitions import WIZARD_TOOL_STRING, METRICS_PERMISSION, \
     PMR_TOOL_STRING, PYSIDE_RCC_EXE, USE_EXTERNAL_RCC, PYSIDE_UIC_EXE, USE_EXTERNAL_UIC, \
-    PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION, USE_EXTERNAL_GIT, METRICS_PERMISSION_ATTAINED, METRICS_CLIENT_ID
+    PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION, USE_EXTERNAL_GIT, METRICS_PERMISSION_ATTAINED, \
+    METRICS_CLIENT_ID, ANIMATE_LAYOUT_UPDATES
 from mapclient.view.utils import set_wait_cursor
 from mapclient.core.metrics import get_metrics_logger
 
@@ -318,7 +319,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.model().workflowManager().set_workflow_direction(direction)
 
     def layout_workflow(self, layout_algorithm):
-        self.model().workflowManager().layout_workflow(layout_algorithm)
+        om = self._model.optionsManager()
+        self.model().workflowManager().layout_workflow(layout_algorithm, om.getOption(ANIMATE_LAYOUT_UPDATES))
 
     @set_wait_cursor
     def set_current_widget(self, widget):
