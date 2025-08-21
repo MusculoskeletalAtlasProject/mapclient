@@ -2,7 +2,7 @@
 MAP Client, a program to generate detailed musculoskeletal models for OpenSim.
     Copyright (C) 2012  University of Auckland
 
-This file is part of MAP Client. (http://launchpad.net/mapclient)
+This file is part of MAP Client. (https://launchpad.net/mapclient)
 
     MAP Client is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,8 +20,6 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import os
 import logging
 import shutil
-import glob
-import zipfile
 
 from PySide6 import QtCore, QtWidgets, QtGui
 
@@ -56,9 +54,9 @@ logger = logging.getLogger(__name__)
 
 class WorkflowWidget(QtWidgets.QWidget):
 
-    def __init__(self, mainWindow):
-        QtWidgets.QWidget.__init__(self, parent=mainWindow)
-        self._main_window = mainWindow
+    def __init__(self, main_window):
+        QtWidgets.QWidget.__init__(self, parent=main_window)
+        self._main_window = main_window
         self._ui = Ui_WorkflowWidget()
         self._ui.setupUi(self)
 
@@ -70,7 +68,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._graphicsScene = WorkflowGraphicsScene(self)
 
         self._ui.graphicsView.setScene(self._graphicsScene)
-        self._ui.graphicsView.setMainWindow(mainWindow)
+        self._ui.graphicsView.setMainWindow(main_window)
 
         self._ui.graphicsView.setUndoStack(self._undoStack)
         self._graphicsScene.setUndoStack(self._undoStack)
@@ -130,6 +128,8 @@ class WorkflowWidget(QtWidgets.QWidget):
             # self.action_Continue.setEnabled(workflow_open and not widget_visible)
             self.action_Reverse.setEnabled(workflow_open and not widget_visible)
             self.action_Abort.setEnabled(workflow_open and not widget_visible)
+            self.action_SpringLayout.setEnabled(workflow_open and widget_visible and workflow_has_steps)
+            self.action_ForceDirectedLayout.setEnabled(workflow_open and widget_visible and workflow_has_steps)
             self.action_Import_CFG.setEnabled(workflow_open and widget_visible and workflow_has_steps)
             self.action_Export_CFG.setEnabled(workflow_open and widget_visible and workflow_has_steps)
             self.action_ZoomIn.setEnabled(widget_visible)
@@ -207,6 +207,12 @@ class WorkflowWidget(QtWidgets.QWidget):
     def _abort_workflow(self):
         self._abort_execution()
         self._reset_workflow_direction()
+
+    def _spring_force_layout(self):
+        self._main_window.layout_workflow("spring_force")
+
+    def _force_directed_layout(self):
+        self._main_window.layout_workflow("force_directed")
 
     def _reverse_workflow_direction(self):
         self._main_window.set_workflow_direction(not self.action_Reverse.isChecked())
@@ -443,7 +449,7 @@ class WorkflowWidget(QtWidgets.QWidget):
          5. Check for errors
          6. Update step tree
         """
-        #         wm = self._mainWindow.model().workflowManager()
+        #         wm = self._main_window.model().workflowManager()
         pm = self._main_window.model().pluginManager()
         steps_to_install = pm.checkPlugins(workflow_dir)
         dependencies_to_install = pm.checkDependencies(workflow_dir)
@@ -454,7 +460,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             if download_plugins:
                 self.installMissingPlugins(steps_to_install)
 
-        #         pm = self._mainWindow.model().pluginManager()
+        #         pm = self._main_window.model().pluginManager()
         #         pm.load()
         if pm.haveErrors():
             self._main_window._show_plugin_errors_dialog()
@@ -688,6 +694,14 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._set_action_properties(self.action_Abort, 'action_Abort', self._abort_workflow, '',
                                     'Abort Workflow')
 
+        menu_workflow_layout = QtWidgets.QMenu('Layout', menu_workflow)
+        self.action_SpringLayout = QtGui.QAction('Spring force', menu_workflow_layout)
+        self._set_action_properties(self.action_SpringLayout, 'action_SpringLayout', self._spring_force_layout, '',
+                                    'Layout the current workflow using a spring force algorithm')
+        self.action_ForceDirectedLayout = QtGui.QAction('Force directed', menu_workflow_layout)
+        self._set_action_properties(self.action_ForceDirectedLayout, 'action_ForceDirectedLayout', self._force_directed_layout, '',
+                                    'Layout the current workflow using a force directed algorithm')
+
         self.action_ZoomIn = QtGui.QAction('Zoom In', menu_view)
         self._set_action_properties(self.action_ZoomIn, 'action_ZoomIn', self.zoom_in, 'Ctrl++',
                                     'Zoom in Workflow')
@@ -723,6 +737,10 @@ class WorkflowWidget(QtWidgets.QWidget):
         # menu_workflow.addAction(self.action_Continue)
         menu_workflow.addAction(self.action_Reverse)
         menu_workflow.addAction(self.action_Abort)
+        menu_workflow.addSeparator()
+        menu_workflow.addMenu(menu_workflow_layout)
+        menu_workflow_layout.addAction(self.action_SpringLayout)
+        menu_workflow_layout.addAction(self.action_ForceDirectedLayout)
 
     def _update_recent_menu(self):
         absolute_paths = self._main_window.model().optionsManager().getOption(RECENTS_ABSOLUTE_PATHS)
