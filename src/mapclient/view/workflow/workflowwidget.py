@@ -210,7 +210,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._reset_workflow_direction()
 
     def _do_layout(self, layout_type):
-        self._workflowManager.layout_workflow(layout_type, self._options_manager.getOption(ANIMATE_LAYOUT_UPDATES))
+        self._ui.graphicsView.layout_workflow(layout_type, self._options_manager.getOption(ANIMATE_LAYOUT_UPDATES))
 
     def _spring_force_layout(self):
         self._do_layout("spring_force")
