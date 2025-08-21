@@ -213,21 +213,6 @@ class WorkflowScene(object):
             self._manager.changeIdentifier(meta_step.getIdentifier(), meta_step.getStepIdentifier())
         meta_step.syncIdentifier()
 
-    def step_positions(self):
-        positions = []
-        for item in self._items:
-            if item.Type == MetaStep.Type:
-                positions.append(item.getPos())
-
-        return positions
-
-    def set_step_positions(self, positions):
-        for item in self._items:
-            if item.Type == MetaStep.Type:
-                step_identifier = item.getIdentifier()
-                if step_identifier in positions:
-                    item.update_position(positions[step_identifier])
-
     def saveState(self, ws):
         connectionMap = {}
         stepList = []

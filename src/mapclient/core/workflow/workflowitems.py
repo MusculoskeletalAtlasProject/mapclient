@@ -53,13 +53,6 @@ class MetaStep(Item):
     def getStep(self):
         return self._step
 
-    def set_graphics_pos(self, pos):
-        raise NotImplementedError("Implemented only when a graphics item is created.")
-
-    def update_position(self, pos):
-        self.setPos(pos)
-        self.set_graphics_pos(pos)
-
     def getName(self):
         return self._step.getName()
 
