@@ -22,7 +22,7 @@ import uuid
 from PySide6 import QtCore
 
 
-class Item(object):
+class Item:
 
     def __init__(self):
         self._selected = True
