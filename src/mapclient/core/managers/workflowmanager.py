@@ -216,7 +216,7 @@ class WorkflowManager(object):
             raise WorkflowError(f"Unknown layout algorithm: {layout_algorithm}")
 
         self._iteration_count = 0
-        animate = False
+        animate = True
         if animate:
             self._layout_timer.start(16)
         else:

@@ -258,6 +258,8 @@ class Node(Item):
 
         self._margin = 2.0
         self._metastep = metastep
+        self._metastep.set_graphics_pos = self.set_graphics_pos
+
         icon = self._metastep.getStep().getIcon()
         if not icon:
             icon = QtGui.QImage(':/workflow/images/default_step_icon.png')
@@ -394,6 +396,9 @@ class Node(Item):
         if modify_parameterised:
             self._parameterised_pos = convert_to_parameterised_position(scene.sceneRect(), pos, self.offset())
         self._metastep.setPos(pos)
+
+    def set_graphics_pos(self, pos):
+        self.setPos(pos)
 
     def set_parameterised_pos(self, parameterised_pos):
         self._parameterised_pos = parameterised_pos
