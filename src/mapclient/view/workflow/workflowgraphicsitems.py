@@ -268,9 +268,9 @@ class Node(Item):
         self._step_port_items = []
         self._parameterised_pos = QtCore.QPointF(0, 0)
         self._text = StepText(metastep.getStep().getName(), self)
-        self._updateTextIcon()
+        self._update_text_icon()
 
-        self._setToolTip()
+        self._set_tool_tip()
 
         self.setFlag(QtWidgets.QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
         self.setFlag(QtWidgets.QGraphicsItem.GraphicsItemFlag.ItemSendsGeometryChanges)
@@ -290,12 +290,12 @@ class Node(Item):
         self._contextMenu.addSeparator()
         self._contextMenu.addAction(deleteAction)
 
-        self._updatePorts()
+        self._update_ports()
 
         self._configure_item = ConfigureIcon(self)
-        self._configure_item.moveBy(40, 40)
+        self._configure_item.moveBy(0.625*self.Size, 0.625*self.Size)
 
-        self._updateConfigureIcon()
+        self._update_configure_icon()
 
         self._modified_item = MercurialIcon(self)
         self._modified_item.moveBy(5, 40)
@@ -303,29 +303,29 @@ class Node(Item):
         self.updateDVCSIcon()
 
     def update(self):
-        self._updateConfigureIcon()
-        self._updatePorts()
-        self._updateTextIcon()
+        self._update_configure_icon()
+        self._update_ports()
+        self._update_text_icon()
         super(Node, self).update()
 
-    def _updateTextIcon(self):
+    def _update_text_icon(self):
         # Set text position
         br = self._text.boundingRect()
         x_pos = self.Size / 2 - br.width() / 2
         y_pos = self.Size + 5
         self._text.setPos(x_pos, y_pos)
 
-    def _updateConfigureIcon(self):
+    def _update_configure_icon(self):
         self._configure_item.setConfigured(self._metastep.getStep().isConfigured())
-        self._setToolTip()
+        self._set_tool_tip()
 
-    def _setToolTip(self):
+    def _set_tool_tip(self):
         self.setToolTip(self._metastep._step.getName() + ": " + self._metastep._step.getIdentifier())
         self._text.setText(
             self._metastep.getStepIdentifier() if self._metastep.getStepIdentifier() != self._metastep.getUniqueIdentifier() else self._metastep.getName())
-        self._updateTextIcon()
+        self._update_text_icon()
 
-    def _updatePorts(self):
+    def _update_ports(self):
         previous_step_ports = {}
         current_step_ports = self._metastep._step._ports
         for p in self._step_port_items:
