@@ -144,7 +144,7 @@ def create_from(wf, name_identifiers, connections, location):
             meta_step.setPos(QtCore.QPointF(10 + i * 60, 10 + i * 60))
             wf.setValue('name', step.getName())
             wf.setValue('position', meta_step.getPos())
-            wf.setValue('selected', meta_step.getSelected())
+            wf.setValue('selected', meta_step.is_selected())
             wf.setValue('identifier', meta_step.getIdentifier())
             wf.setValue('unique_identifier', meta_step.getUniqueIdentifier())
 
@@ -251,7 +251,7 @@ class WorkflowScene(object):
                 ws.setValue('source_uri', source_uri)
             ws.setValue('name', step.getName())
             ws.setValue('position', metastep.getPos())
-            ws.setValue('selected', metastep.getSelected())
+            ws.setValue('selected', metastep.is_selected())
             ws.setValue('identifier', identifier)
             ws.setValue('unique_identifier', metastep.getUniqueIdentifier())
             ws.beginWriteArray('connections')
@@ -262,7 +262,7 @@ class WorkflowScene(object):
                     ws.setValue('connectedFromIndex', connectionItem.sourceIndex())
                     ws.setValue('connectedTo', stepList.index(connectionItem.destination()))
                     ws.setValue('connectedToIndex', connectionItem.destinationIndex())
-                    ws.setValue('selected', connectionItem.getSelected())
+                    ws.setValue('selected', connectionItem.is_selected())
                     connectionIndex += 1
             ws.endArray()
             nodeIndex += 1

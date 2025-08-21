@@ -102,7 +102,7 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
 
                 self.blockSignals(True)
                 node.setPos(workflow_item.getPos())
-                node.setSelected(workflow_item.getSelected())
+                node.setSelected(workflow_item.is_selected())
                 self.blockSignals(False)
 
                 meta_steps[workflow_item] = node
@@ -119,7 +119,7 @@ class WorkflowGraphicsScene(QtWidgets.QGraphicsScene):
             # Again put the arc into the scene straight away so the scene will be valid
             QtWidgets.QGraphicsScene.addItem(self, arc)
             self.blockSignals(True)
-            arc.setSelected(connection.getSelected())
+            arc.setSelected(connection.is_selected())
             self.blockSignals(False)
 
         self._previousSelection = self.selectedItems()
