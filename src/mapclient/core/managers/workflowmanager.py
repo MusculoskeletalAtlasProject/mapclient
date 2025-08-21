@@ -19,11 +19,14 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import os
 import logging
+
 from packaging import version
 
 from PySide6 import QtCore
 
 from mapclient.core.metrics import metrics_logger
+from mapclient.core.workflow.layouts.forcedirected import ForceDirectedLayout
+from mapclient.core.workflow.layouts.springforce import SpringForce
 from mapclient.settings import info
 from mapclient.core.workflow.workflowscene import WorkflowScene, read_steps, load_from
 from mapclient.core.workflow.workflowsteps import WorkflowSteps, \
@@ -58,6 +61,20 @@ def _get_workflow_meta_absolute_filename(location):
     return os.path.join(location, info.DEFAULT_WORKFLOW_ANNOTATION_FILENAME)
 
 
+def _determine_input_output_ports(meta_step):
+    """
+    Determine the input and output ports for a step.
+    :param meta_step: The step to determine the ports for.
+    :return: A list of input and output ports.
+    """
+    step = meta_step.getStep()
+    step_ports = step.getPorts()
+    uses_ports = [port for port in step_ports if port.has_uses()]
+    provides_ports = [port for port in step_ports if port.has_provides()]
+
+    return {'inputs': len(uses_ports), 'outputs': len(provides_ports)}
+
+
 class WorkflowManager(object):
     """
     This class manages (models?) the workflow.
@@ -71,6 +88,10 @@ class WorkflowManager(object):
         self._previousLocation = None
         self._saveStateIndex = 0
         self._currentStateIndex = 0
+        self._layout_engine = None
+        self._layout_timer = QtCore.QTimer()
+        self._layout_timer.timeout.connect(self._animation_step)
+        self._iteration_count = 0
 
         self._title = None
 
@@ -136,6 +157,99 @@ class WorkflowManager(object):
 
     def set_workflow_direction(self, direction):
         self._scene.set_workflow_direction(direction)
+
+    def layout_workflow(self, layout_algorithm):
+        graph, graph_edges, reverse_graph = self._scene.graph()
+        view_parameters = self._scene.getViewParameters()
+        adjacent_graph = {}
+        vertices = []
+
+        unique_meta_steps = set()
+        for node, targets in graph.items():
+            unique_meta_steps.add(node)
+            unique_meta_steps.update(targets)
+
+            vertices.append(node)
+            adjacent_graph[node] = graph[node]
+
+        node_definitions = {}
+        for node in unique_meta_steps:
+            node_ports = _determine_input_output_ports(node)
+            node_definitions[node.getIdentifier()] = {
+                'name': node.getName(),
+                'position': (node.getPos().x(), node.getPos().y()),
+                'inputs': node_ports['inputs'],
+                'outputs': node_ports['outputs'],
+            }
+
+        edge_definitions = [
+            {'from': edge['from'].getIdentifier(), 'from_port': edge['from_port'],
+             'to': edge['to'].getIdentifier(), 'to_port': edge['to_port']}
+            for edge in graph_edges
+        ]
+
+        for node in reverse_graph:
+            if node not in adjacent_graph:
+                vertices.append(node)
+                adjacent_graph[node] = []
+
+            adjacent_graph[node] = list(set(adjacent_graph[node] + reverse_graph[node]))
+
+        all_set = set(adjacent_graph.keys())
+        non_adjacent_graph = {}
+        for node in adjacent_graph:
+            adjacent_set = set(adjacent_graph[node])
+            non_adjacent_set = all_set - adjacent_set - {node}
+            non_adjacent_graph[node] = list(non_adjacent_set)
+
+        dataset = {
+            'vertices': vertices,
+            'adjacent': adjacent_graph,
+            'non_adjacent': non_adjacent_graph
+        }
+
+        if layout_algorithm == 'force_directed':
+            self._layout_engine = ForceDirectedLayout(node_definitions, edge_definitions, view_parameters['rect'].width())
+        elif layout_algorithm == 'spring_force':
+            self._layout_engine = SpringForce(dataset, iterations=100, target_node_speed=0.01)
+        else:
+            raise WorkflowError(f"Unknown layout algorithm: {layout_algorithm}")
+
+        self._iteration_count = 0
+        animate = False
+        if animate:
+            self._layout_timer.start(16)
+        else:
+            self._layout_worfklow()
+
+    def _layout_worfklow(self):
+        while self._iteration_count < self._layout_engine.max_iterations():
+            if hasattr(self._layout_engine, 'update_layout'):
+                damping = 1.0 - (self._iteration_count / self._layout_engine.max_iterations())
+                self._layout_engine.update_layout(damping)
+            elif hasattr(self._layout_engine, 'spring_layout'):
+                self._layout_engine.spring_layout(c1=2.0, c2=10.0, c3=1000000, c4=1, return_after=1)
+
+            self._iteration_count += 1
+
+        positions = {k: QtCore.QPoint(v[0], v[1]) for k, v in self._layout_engine.positions().items()}
+        self._scene.set_step_positions(positions)
+
+    def _animation_step(self):
+        if self._iteration_count >= self._layout_engine.max_iterations():
+            self._layout_timer.stop()
+            print("Layout calculation finished.")
+            return
+
+        if hasattr(self._layout_engine, 'update_layout'):
+            damping = 1.0 - (self._iteration_count / self._layout_engine.max_iterations())
+            self._layout_engine.update_layout(damping)
+        elif hasattr(self._layout_engine, 'spring_layout'):
+            self._layout_engine.spring_layout(c1=2.0, c2=10.0, c3=1000000, c4=1, return_after=1)
+
+        positions = {k: QtCore.QPoint(v[0], v[1]) for k, v in self._layout_engine.positions().items()}
+        self._scene.set_step_positions(positions)
+        self._iteration_count += 1
 
     def canExecute(self):
         return self._scene.canExecute()
