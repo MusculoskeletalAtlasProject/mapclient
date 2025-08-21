@@ -318,10 +318,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_workflow_direction(self, direction):
         self.model().workflowManager().set_workflow_direction(direction)
 
-    def layout_workflow(self, layout_algorithm):
-        om = self._model.optionsManager()
-        self.model().workflowManager().layout_workflow(layout_algorithm, om.getOption(ANIMATE_LAYOUT_UPDATES))
-
     @set_wait_cursor
     def set_current_widget(self, widget):
         if self._ui.stackedWidget.indexOf(widget) <= 0:

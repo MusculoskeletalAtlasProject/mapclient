@@ -43,8 +43,8 @@ from mapclient.view.managers.plugins.pluginupdater import PluginUpdater
 from mapclient.tools.pmr.settings.general import PMR
 from mapclient.settings.general import get_virtualenv_directory, is_workflow
 from mapclient.core.workflow.workflowerror import WorkflowError
-from mapclient.settings.definitions import SHOW_STEP_NAMES, CLOSE_AFTER, USE_EXTERNAL_GIT, PREVIOUS_WORKFLOW,\
-    RECENTS_ABSOLUTE_PATHS, RECENTS_LENGTH
+from mapclient.settings.definitions import SHOW_STEP_NAMES, CLOSE_AFTER, USE_EXTERNAL_GIT, PREVIOUS_WORKFLOW, \
+    RECENTS_ABSOLUTE_PATHS, RECENTS_LENGTH, ANIMATE_LAYOUT_UPDATES
 
 from mapclient.core.workflow.workflowitems import MetaStep
 from mapclient.view.workflow.importconfigdialog import ImportConfigDialog
@@ -65,6 +65,8 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._undoStack = QtGui.QUndoStack(self)
 
         self._workflowManager = self._main_window.model().workflowManager()
+        self._options_manager = self._main_window.model().optionsManager()
+
         self._graphicsScene = WorkflowGraphicsScene(self)
 
         self._ui.graphicsView.setScene(self._graphicsScene)
@@ -106,7 +108,7 @@ class WorkflowWidget(QtWidgets.QWidget):
     def _update_ui(self):
         if hasattr(self, '_main_window'):
             try:
-                wfm = self._main_window.model().workflowManager()
+                wfm = self._workflowManager
                 self._main_window.setWindowTitle(wfm.title())
             except RuntimeError:
                 return
@@ -138,14 +140,13 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._ui.stepTreeView.expandAll()
 
     def applyOptions(self):
-        om = self._main_window.model().optionsManager()
-        show_step_names = om.getOption(SHOW_STEP_NAMES)
+        show_step_names = self._options_manager.getOption(SHOW_STEP_NAMES)
         self._graphicsScene.showStepNames(show_step_names)
         self._check_recents_length()
         self._update_recent_menu()
 
     def undoStackIndexChanged(self, index):
-        self._main_window.model().workflowManager().undoStackIndexChanged(index)
+        self._workflowManager.undoStackIndexChanged(index)
         self._update_ui()
 
     def undoRedoStack(self):
@@ -171,7 +172,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             raise ClientRuntimeError('Error in workflow execution', str(e))
 
     def executeWorkflow(self):
-        wfm = self._main_window.model().workflowManager()
+        wfm = self._workflowManager
         errors = []
 
         if wfm.isModified():
@@ -208,11 +209,14 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._abort_execution()
         self._reset_workflow_direction()
 
+    def _do_layout(self, layout_type):
+        self._workflowManager.layout_workflow(layout_type, self._options_manager.getOption(ANIMATE_LAYOUT_UPDATES))
+
     def _spring_force_layout(self):
-        self._main_window.layout_workflow("spring_force")
+        self._do_layout("spring_force")
 
     def _force_directed_layout(self):
-        self._main_window.layout_workflow("force_directed")
+        self._do_layout("force_directed")
 
     def _reverse_workflow_direction(self):
         self._main_window.set_workflow_direction(not self.action_Reverse.isChecked())
@@ -222,7 +226,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._main_window.set_workflow_direction(True)
 
     def identifierOccursCount(self, identifier):
-        return self._main_window.model().workflowManager().identifierOccursCount(identifier)
+        return self._workflowManager.identifierOccursCount(identifier)
 
     def setCurrentWidget(self, widget):
         self._main_window.set_current_widget(widget)
@@ -239,7 +243,7 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     def _workflow_finished(self, successfully):
         if successfully:
-            close_after = self._main_window.model().optionsManager().getOption(CLOSE_AFTER)
+            close_after = self._options_manager.getOption(CLOSE_AFTER)
             mb = MessageBox(QtWidgets.QMessageBox.Icon.Information, "Workflow Finished",
                             "Workflow finished successfully.",
                             QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Default,
@@ -251,7 +255,7 @@ class WorkflowWidget(QtWidgets.QWidget):
             self._reset_workflow_direction()
 
     def _get_workflow_dir(self):
-        m = self._main_window.model().workflowManager()
+        m = self._workflowManager
         workflow_dir = QtWidgets.QFileDialog.getExistingDirectory(self._main_window, caption='Select Workflow Directory', dir=m.previousLocation())
         if workflow_dir is None:
             # user abort
@@ -296,14 +300,13 @@ class WorkflowWidget(QtWidgets.QWidget):
     @handle_runtime_error
     @set_wait_cursor
     def _create_new_workflow(self, workflow_dir, pmr):
-        m = self._main_window.model().workflowManager()
-        om = self._main_window.model().optionsManager()
+        m = self._workflowManager
         m.new(workflow_dir)
         m.setPreviousLocation(workflow_dir)
 
         if pmr:
             pmr_info = PMR()
-            pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
+            pmr_tool = PMRTool(pmr_info, use_external_git=self._options_manager.getOption(USE_EXTERNAL_GIT))
             if pmr_tool.has_access():
                 dir_name = os.path.basename(workflow_dir)
                 try:
@@ -326,7 +329,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self.new(pmr=True)
 
     def open(self):
-        wm = self._main_window.model().workflowManager()
+        wm = self._workflowManager
 
         primary_filter = f"Workflow configuration file ({DEFAULT_WORKFLOW_PROJECT_FILENAME})"
 
@@ -449,7 +452,7 @@ class WorkflowWidget(QtWidgets.QWidget):
          5. Check for errors
          6. Update step tree
         """
-        #         wm = self._main_window.model().workflowManager()
+        #         wm = self._workflowManager
         pm = self._main_window.model().pluginManager()
         steps_to_install = pm.checkPlugins(workflow_dir)
         dependencies_to_install = pm.checkDependencies(workflow_dir)
@@ -470,7 +473,7 @@ class WorkflowWidget(QtWidgets.QWidget):
     @set_wait_cursor
     def _load(self, workflow_dir):
         try:
-            m = self._main_window.model().workflowManager()
+            m = self._workflowManager
             m.load(workflow_dir, self._graphicsScene.sceneRect())
             m.setPreviousLocation(workflow_dir)
             self._graphicsScene.update_model()
@@ -482,16 +485,15 @@ class WorkflowWidget(QtWidgets.QWidget):
             self.close()
             raise
 
-        om = self._main_window.model().optionsManager()
-        om.setOption(PREVIOUS_WORKFLOW, workflow_dir)
+        self._options_manager.setOption(PREVIOUS_WORKFLOW, workflow_dir)
 
     def reload(self):
-        m = self._main_window.model().workflowManager()
+        m = self._workflowManager
         self._load(m.location())
 
     def close(self):
         self._main_window.confirm_close()
-        m = self._main_window.model().workflowManager()
+        m = self._workflowManager
         self._undoStack.clear()
         self._graphicsScene.clear()
         m.close()
@@ -501,7 +503,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         return self._ui.graphicsView.grab()
 
     def save(self):
-        m = self._main_window.model().workflowManager()
+        m = self._workflowManager
         location_set = os.path.exists(m.location())
         if location_set:
             self._updateLocation()
@@ -518,7 +520,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._update_ui()
 
     def saveAs(self):
-        wm = self._main_window.model().workflowManager()
+        wm = self._workflowManager
         workflow_dir = wm.location()
         location_set = self._set_location()
         if location_set:
@@ -528,7 +530,7 @@ class WorkflowWidget(QtWidgets.QWidget):
                 shutil.copytree(src_git_dir, os.path.join(wm.location(), '.git'), dirs_exist_ok=True)
 
     def _updateLocation(self):
-        m = self._main_window.model().workflowManager()
+        m = self._workflowManager
         workflow_dir = m.location()
         if m.set_location(workflow_dir):
             self._ui.graphicsView.setLocation(workflow_dir)
@@ -536,7 +538,7 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     def _set_location(self):
         location_set = False
-        m = self._main_window.model().workflowManager()
+        m = self._workflowManager
         workflow_dir = self._get_workflow_dir()
         if workflow_dir:
             m.setPreviousLocation(workflow_dir)
@@ -548,9 +550,8 @@ class WorkflowWidget(QtWidgets.QWidget):
         return location_set
 
     def commitChanges(self, workflowDir):
-        om = self._main_window.model().optionsManager()
         pmr_info = PMR()
-        pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
+        pmr_tool = PMRTool(pmr_info, use_external_git=self._options_manager.getOption(USE_EXTERNAL_GIT))
         if not pmr_tool.is_pmr_workflow(workflowDir):
             # nothing to commit.
             return True
@@ -560,10 +561,8 @@ class WorkflowWidget(QtWidgets.QWidget):
     @handle_runtime_error
     @set_wait_cursor
     def _commitChanges(self, workflowDir, comment):
-        committed_changes = False
-        om = self._main_window.model().optionsManager()
         pmr_info = PMR()
-        pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
+        pmr_tool = PMRTool(pmr_info, use_external_git=self._options_manager.getOption(USE_EXTERNAL_GIT))
         try:
             # If the user has added a .gitignore to the workflow root directory, let this automatically filter the files that are committed.
             if os.path.isfile(os.path.join(workflowDir, ".gitignore")):
@@ -597,9 +596,8 @@ class WorkflowWidget(QtWidgets.QWidget):
     @handle_runtime_error
     @set_wait_cursor
     def _setIndexerFile(self, workflow_dir):
-        om = self._main_window.model().optionsManager()
         pmr_info = PMR()
-        pmr_tool = PMRTool(pmr_info, use_external_git=om.getOption(USE_EXTERNAL_GIT))
+        pmr_tool = PMRTool(pmr_info, use_external_git=self._options_manager.getOption(USE_EXTERNAL_GIT))
 
         if not pmr_tool.is_pmr_workflow(workflow_dir):
             return
@@ -628,7 +626,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._ui.graphicsView.reset_zoom()
 
     def import_cfg(self):
-        m = self._main_window.model().workflowManager()
+        m = self._workflowManager
         import_source, _ = QtWidgets.QFileDialog.getOpenFileName(self._main_window, caption='Select Import File', dir=m.previousLocation(),
                                                                  filter=f"Data files(*.zip);;MAP Client Project file({DEFAULT_WORKFLOW_PROJECT_FILENAME})")
 
@@ -743,7 +741,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         menu_workflow_layout.addAction(self.action_ForceDirectedLayout)
 
     def _update_recent_menu(self):
-        absolute_paths = self._main_window.model().optionsManager().getOption(RECENTS_ABSOLUTE_PATHS)
+        absolute_paths = self._options_manager.getOption(RECENTS_ABSOLUTE_PATHS)
 
         self.menu_recent.clear()
         for path, name in self._recent_workflow_paths().items():
@@ -780,8 +778,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         return directory_map
 
     def _check_recents_length(self):
-        options_manager = self._main_window.model().optionsManager()
-        recents_length = options_manager.getOption(RECENTS_LENGTH)
+        recents_length = self._options_manager.getOption(RECENTS_LENGTH)
 
         recent_paths = self.model().get_recent_workflows()
         removals = len(recent_paths) - recents_length

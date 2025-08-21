@@ -237,7 +237,6 @@ class WorkflowManager(object):
     def _animation_step(self):
         if self._iteration_count >= self._layout_engine.max_iterations():
             self._layout_timer.stop()
-            print("Layout calculation finished.")
             return
 
         if hasattr(self._layout_engine, 'update_layout'):
