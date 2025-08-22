@@ -22,6 +22,8 @@ import logging
 
 from PySide6 import QtCore, QtWidgets, QtGui
 
+from mapclient.core.workflow.layouts.forcedirected import ForceDirectedLayout
+from mapclient.core.workflow.layouts.springforce import SpringForce
 from mapclient.core.workflow.workflowutils import revert_parameterised_position
 from mapclient.mountpoints.workflowstep import workflowStepFactory
 from mapclient.core.workflow.workflowscene import MetaStep
@@ -30,6 +32,12 @@ from mapclient.view.workflow.workflowcommands import CommandSelection, CommandRe
 from mapclient.view.workflow.workflowgraphicsitems import Node, Arc, ErrorItem, ArrowLine, StepPort
 
 logger = logging.getLogger()
+
+# This is the threshold for the stability of the layout. If the change in position of all nodes is less than this value,
+# the layout is considered stable and the animation stops.
+STABILITY_THRESHOLD = 0.05
+# The number of consecutive stable frames before the layout is considered stable.
+CONSECUTIVE_STABLE_FRAMES = 5
 
 
 class WorkflowGraphicsView(QtWidgets.QGraphicsView):
@@ -47,6 +55,14 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
         self._graphics_initialised = False
         self._graphics_scale_factor = 1.0
         self._margin = 10
+
+        self._layout_engine = None
+        self._layout_timer = QtCore.QTimer()
+        self._layout_timer.timeout.connect(self._animation_step)
+        self._layout_iteration_count = 0
+        self._layout_initial_positions = None
+        self._layout_previous_positions = None
+        self._layout_stability_counter = 0
 
         self._undoStack = None
         self._location = ''
@@ -99,7 +115,7 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
     def connectNodes(self, src_port, dest_port):
         # Check if nodes are already connected
         if not src_port.hasArcToDestination(dest_port):
-            if src_port.canConnect(dest_port):
+            if src_port.can_connect(dest_port):
                 command = CommandAdd(self.scene(), Arc(src_port, dest_port))
                 self._undoStack.push(command)
             else:
@@ -602,3 +618,150 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
                 if x != item.x() or y != item.y():
                     self._undoStack.push(CommandMove(item, item.pos(), QtCore.QPointF(x, y)))
         self._undoStack.endMacro()
+
+    def layout_workflow(self, layout_algorithm, animate=True):
+        sceneRect = self.sceneRect()
+        core_scene = self.scene().workflowScene()
+
+        graph, graph_edges, reverse_graph = core_scene.graph()
+        adjacent_graph = {}
+        vertices = []
+
+        unique_meta_steps = set()
+        for node, targets in graph.items():
+            unique_meta_steps.add(node)
+            unique_meta_steps.update(targets)
+
+            vertices.append(node)
+            adjacent_graph[node] = graph[node]
+
+        node_definitions = {}
+        for node in unique_meta_steps:
+            node_ports = _determine_input_output_ports(node)
+            node_definitions[node.getIdentifier()] = {
+                'name': node.getName(),
+                'position': (node.getPos().x(), node.getPos().y()),
+                'inputs': node_ports['inputs'],
+                'outputs': node_ports['outputs'],
+            }
+
+        edge_definitions = [
+            {'from': edge['from'].getIdentifier(), 'from_port': edge['from_port'],
+             'to': edge['to'].getIdentifier(), 'to_port': edge['to_port']}
+            for edge in graph_edges
+        ]
+
+        for node in reverse_graph:
+            if node not in adjacent_graph:
+                vertices.append(node)
+                adjacent_graph[node] = []
+
+            adjacent_graph[node] = list(set(adjacent_graph[node] + reverse_graph[node]))
+
+        all_set = set(adjacent_graph.keys())
+        non_adjacent_graph = {}
+        for node in adjacent_graph:
+            adjacent_set = set(adjacent_graph[node])
+            non_adjacent_set = all_set - adjacent_set - {node}
+            non_adjacent_graph[node] = list(non_adjacent_set)
+
+        dataset = {
+            'vertices': vertices,
+            'adjacent': adjacent_graph,
+            'non_adjacent': non_adjacent_graph
+        }
+
+        if layout_algorithm == 'force_directed':
+            self._layout_engine = ForceDirectedLayout(node_definitions, edge_definitions, sceneRect.width())
+        elif layout_algorithm == 'spring_force':
+            self._layout_engine = SpringForce(dataset, iterations=100, target_node_speed=0.01)
+
+        self._layout_iteration_count = 0
+        self._layout_initial_positions = {k: QtCore.QPoint(v[0], v[1]) for k, v in self._layout_engine.positions().items()}
+        self._layout_previous_positions = {k: QtCore.QPoint(v[0], v[1]) for k, v in self._layout_engine.positions().items()}
+        if animate:
+            self._undoStack.beginMacro('Move Step(s)')
+            self._layout_timer.start(16)
+        else:
+            self._layout_workflow()
+
+    def _move_nodes(self, positions):
+        for item in self.items():
+            if item.type() == Node.Type:
+                item_identifier = item.metaItem().getIdentifier()
+                if item_identifier in positions:
+                    self._undoStack.push(CommandMove(item, self._layout_initial_positions[item_identifier], positions[item_identifier]))
+
+    def _layout_workflow(self):
+        while self._layout_iteration_count < self._layout_engine.max_iterations():
+            if hasattr(self._layout_engine, 'update_layout'):
+                damping = 1.0 - (self._layout_iteration_count / self._layout_engine.max_iterations())
+                self._layout_engine.update_layout(damping)
+            elif hasattr(self._layout_engine, 'spring_layout'):
+                self._layout_engine.spring_layout(c1=2.0, c2=10.0, c3=1000000, c4=1, return_after=1)
+
+            positions = {k: QtCore.QPoint(v[0], v[1]) for k, v in self._layout_engine.positions().items()}
+            self._check_stability(positions)
+
+            self._layout_iteration_count += 1
+
+        positions = {k: QtCore.QPoint(v[0], v[1]) for k, v in self._layout_engine.positions().items()}
+
+        self._undoStack.beginMacro('Move Step(s)')
+        self._move_nodes(positions)
+        self._undoStack.endMacro()
+
+    def _check_stability(self, positions):
+        total_movement_sq = _calculate_total_movement(self._layout_previous_positions, positions)
+        self._layout_previous_positions = positions
+        if total_movement_sq < STABILITY_THRESHOLD:
+            self._layout_stability_counter += 1
+        else:
+            # If there's any significant movement, reset the counter
+            self._layout_stability_counter = 0
+
+        if self._layout_stability_counter >= CONSECUTIVE_STABLE_FRAMES:
+            self._layout_iteration_count = self._layout_engine.max_iterations()
+
+    def _animation_step(self):
+        if self._layout_iteration_count >= self._layout_engine.max_iterations():
+            self._undoStack.endMacro()
+            self._layout_timer.stop()
+            return
+
+        if hasattr(self._layout_engine, 'update_layout'):
+            damping = 1.0 - (self._layout_iteration_count / self._layout_engine.max_iterations())
+            self._layout_engine.update_layout(damping)
+        elif hasattr(self._layout_engine, 'spring_layout'):
+            self._layout_engine.spring_layout(c1=2.0, c2=10.0, c3=1000000, c4=1, return_after=1)
+
+        positions = {k: QtCore.QPoint(v[0], v[1]) for k, v in self._layout_engine.positions().items()}
+        self._move_nodes(positions)
+        self._check_stability(positions)
+        self._layout_iteration_count += 1
+
+
+def _calculate_total_movement(previous_positions, current_positions):
+    total_movement_sq = 0
+    for identifier, prev_pos in previous_positions.items():
+        curr_pos = current_positions[identifier]
+
+        dx = curr_pos.x() - prev_pos.x()
+        dy = curr_pos.y() - prev_pos.y()
+        total_movement_sq += dx * dx + dy * dy
+
+    return total_movement_sq
+
+
+def _determine_input_output_ports(meta_step):
+    """
+    Determine the input and output ports for a step.
+    :param meta_step: The step to determine the ports for.
+    :return: A list of input and output ports.
+    """
+    step = meta_step.getStep()
+    step_ports = step.getPorts()
+    uses_ports = [port for port in step_ports if port.has_uses()]
+    provides_ports = [port for port in step_ports if port.has_provides()]
+
+    return {'inputs': len(uses_ports), 'outputs': len(provides_ports)}
