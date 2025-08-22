@@ -342,24 +342,33 @@ class PluginManager:
         """
         return self._profile_directories
 
-    def readSettings(self, settings):
+    def readSettings(self, settings, settings_version):
         self._profile_directories = {}
         settings.beginGroup('Plugins')
         self._doNotShowPluginErrors = settings.value('donot_show_plugin_errors', 'true') == 'true'
         self._virtualenv_setup_attempted = settings.value('virtualenv_setup_attempted', 'false') == 'true'
         self._current_profile = settings.value(_get_app_profile_key(), CONST_DEFAULT_PROFILE)
-        profiles_count = settings.beginReadArray('profiles')
-        for i in range(profiles_count):
-            settings.setArrayIndex(i)
-            profile_name = settings.value('name')
+        if settings_version == '0.0.0':
             directory_count = settings.beginReadArray('directories')
             directories = []
-            for j in range(directory_count):
-                settings.setArrayIndex(j)
+            for i in range(directory_count):
+                settings.setArrayIndex(i)
                 directories.append(settings.value('directory'))
             settings.endArray()
-            self._profile_directories[profile_name] = directories
-        settings.endArray()
+            self._profile_directories[CONST_DEFAULT_PROFILE] = directories
+        else:
+            profiles_count = settings.beginReadArray('profiles')
+            for i in range(profiles_count):
+                settings.setArrayIndex(i)
+                profile_name = settings.value('name')
+                directory_count = settings.beginReadArray('directories')
+                directories = []
+                for j in range(directory_count):
+                    settings.setArrayIndex(j)
+                    directories.append(settings.value('directory'))
+                settings.endArray()
+                self._profile_directories[profile_name] = directories
+            settings.endArray()
         settings.endGroup()
         self._profile_directories[CONST_DEFAULT_PROFILE] = self._profile_directories.get(CONST_DEFAULT_PROFILE, [])
         settings.beginGroup('Ignored Plugins')

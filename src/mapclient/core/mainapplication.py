@@ -29,6 +29,7 @@ from mapclient.core.managers.optionsmanager import OptionsManager
 from mapclient.core.checks import runChecks
 from mapclient.settings.definitions import CHECK_TOOLS_ON_STARTUP, RECENTS_LENGTH
 from mapclient.settings.general import get_settings
+from mapclient.settings.version import __version__ as version
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +92,9 @@ class MainApplication(object):
 
     def writeSettings(self):
         settings = get_settings()
+        settings.beginGroup('Application')
+        settings.setValue('version', version)
+        settings.endGroup()
         settings.beginGroup('MainWindow')
         settings.setValue('size', self._size)
         settings.setValue('pos', self._pos)
@@ -109,6 +113,9 @@ class MainApplication(object):
 
     def readSettings(self):
         settings = get_settings()
+        settings.beginGroup('Application')
+        settings_version = settings.value('version', '0.0.0')
+        settings.endGroup()
         settings.beginGroup('MainWindow')
         self._size = settings.value('size', self._size)
         self._pos = settings.value('pos', self._pos)
@@ -120,7 +127,7 @@ class MainApplication(object):
         settings.endArray()
         settings.endGroup()
 
-        self._pluginManager.readSettings(settings)
+        self._pluginManager.readSettings(settings, settings_version)
         self._workflowManager.readSettings(settings)
         self._optionsManager.readSettings(settings)
         self._package_manager.read_settings(settings)
