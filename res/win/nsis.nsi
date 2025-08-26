@@ -4,7 +4,7 @@
 ; You must define these values
   
   !define APP_NAME "MAP-Client"
-  !define APP_VERSION "0.14.0"
+  !define APP_VERSION "0.25.0"
   !define APP_ORGANISATION "MAP"
   !define VERSION "1.0.0"
   !define PATCH  "1"
@@ -742,7 +742,7 @@ Section "-Core installation"
 
   ; Optional registration
   Push "DisplayIcon"
-  Push "$INSTDIR\"
+  Push "$INSTDIR\${APP_NAME},0"
   Call ConditionalAddToRegisty
   Push "HelpLink"
   Push ""
