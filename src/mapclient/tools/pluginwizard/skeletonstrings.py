@@ -17,7 +17,6 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-
 IMPORT_STRING = """
 \"\"\"
 MAP Client Plugin Step
@@ -67,10 +66,10 @@ IDENTIFIER_METHOD_STRING = """
         {setidentifiercontent}
 """
 
-GETIDENTIFIER_DEFAULT_CONTENT_STRING = 'return \'{step_object_name}\'  # TODO: The string must be replaced with the step\'s unique identifier'
-SETIDENTIFIER_DEFAULT_CONTENT_STRING = 'pass  # TODO: Must actually set the step\'s identifier here'
-GETIDENTIFIER_IDENTIFER_CONTENT_STRING = 'return self._config[\'identifier\']'
-SETIDENTIFIER_IDENTIFER_CONTENT_STRING = 'self._config[\'identifier\'] = identifier'
+GET_IDENTIFIER_DEFAULT_CONTENT_STRING = 'return \'{step_object_name}\'  # TODO: The string must be replaced with the step\'s unique identifier'
+SET_IDENTIFIER_DEFAULT_CONTENT_STRING = 'pass  # TODO: Must actually set the step\'s identifier here'
+GET_IDENTIFIER_IDENTIFIER_CONTENT_STRING = 'return self._config[\'Identifier\']'
+SET_IDENTIFIER_IDENTIFIER_CONTENT_STRING = 'self._config[\'Identifier\'] = identifier'
 
 SERIALIZE_METHOD_STRING = """
     def serialize(self):
@@ -88,7 +87,6 @@ SERIALIZE_METHOD_STRING = """
         :param string: JSON representation of the configuration in a string.
         \"\"\"
         {deserializecontent}
-
 """
 
 SERIALIZE_DEFAULT_CONTENT_STRING = 'pass'
@@ -100,8 +98,7 @@ DESERIALIZE_IDENTIFIER_CONTENT_STRING = """self._config.update(json.loads(string
         d = ConfigureDialog()
         d.identifierOccursCount = self._identifierOccursCount
         d.setConfig(self._config)
-        self._configured = d.validate()
-"""
+        self._configured = d.validate()"""
 
 CONFIGURE_DIALOG_STRING = """
 
@@ -245,7 +242,7 @@ CONFIGURE_DIALOG_UI = """<?xml version="1.0" encoding="UTF-8"?>
      <property name="title">
       <string/>
      </property>
-     <layout class="QFormLayout" name="formLayout">{1}     </layout>
+     <layout class="QFormLayout" name="formLayout">{1}</layout>
     </widget>
    </item>
    <item row="1" column="0">

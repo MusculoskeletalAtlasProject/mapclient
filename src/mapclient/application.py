@@ -19,6 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import json
+import multiprocessing
 import os
 import shutil
 import sys
@@ -53,6 +54,15 @@ else:
     from mapclient.settings.general import get_log_location, get_default_internal_workflow_dir
 
 logger = logging.getLogger('mapclient.application')
+
+
+def get_app_path():
+    if getattr(sys, 'frozen', False):
+        # If the application is frozen (e.g., by PyInstaller)
+        return os.path.dirname(sys.executable)
+    else:
+        # If running in a normal Python environment
+        return os.path.dirname(os.path.abspath(__file__))
 
 
 def initialise_logger(log_path):
@@ -375,7 +385,7 @@ def _user_specified_environment_main(base_dir, directories):
             if os.path.isdir(d) and d not in plugin_directories:
                 plugin_directories.append(d)
 
-        pm.setDirectories(plugin_directories)
+        pm.set_directories(plugin_directories)
         model.writeSettings()
 
     logger.info(f"Set environment variable '{APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}' to '{config_dir}' to use application with these settings.")
@@ -525,4 +535,5 @@ def main():
 
 
 if __name__ == '__main__':
+    multiprocessing.freeze_support()
     main()

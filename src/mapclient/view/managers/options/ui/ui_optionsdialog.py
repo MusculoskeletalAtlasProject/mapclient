@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'optionsdialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.5.1
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -57,6 +57,12 @@ class Ui_OptionsDialog(object):
         self.checkBoxShowStepNames.setChecked(True)
 
         self.verticalLayout_6.addWidget(self.checkBoxShowStepNames)
+
+        self.checkBoxAnimateLayoutUpdates = QCheckBox(self.groupBox)
+        self.checkBoxAnimateLayoutUpdates.setObjectName(u"checkBoxAnimateLayoutUpdates")
+        self.checkBoxAnimateLayoutUpdates.setChecked(True)
+
+        self.verticalLayout_6.addWidget(self.checkBoxAnimateLayoutUpdates)
 
 
         self.verticalLayout_4.addWidget(self.groupBox)
@@ -146,7 +152,7 @@ class Ui_OptionsDialog(object):
 
         self.verticalLayout_4.addWidget(self.groupBox_4)
 
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_4.addItem(self.verticalSpacer)
 
@@ -174,7 +180,7 @@ class Ui_OptionsDialog(object):
         self.labelPySideRCC = QLabel(self.groupBoxStepWizard)
         self.labelPySideRCC.setObjectName(u"labelPySideRCC")
 
-        self.formLayout.setWidget(0, QFormLayout.LabelRole, self.labelPySideRCC)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.LabelRole, self.labelPySideRCC)
 
         self.horizontalLayoutPySideRCC = QHBoxLayout()
         self.horizontalLayoutPySideRCC.setObjectName(u"horizontalLayoutPySideRCC")
@@ -189,12 +195,12 @@ class Ui_OptionsDialog(object):
         self.horizontalLayoutPySideRCC.addWidget(self.pushButtonPySideRCC)
 
 
-        self.formLayout.setLayout(0, QFormLayout.FieldRole, self.horizontalLayoutPySideRCC)
+        self.formLayout.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayoutPySideRCC)
 
         self.labelPySideUIC = QLabel(self.groupBoxStepWizard)
         self.labelPySideUIC.setObjectName(u"labelPySideUIC")
 
-        self.formLayout.setWidget(1, QFormLayout.LabelRole, self.labelPySideUIC)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.labelPySideUIC)
 
         self.horizontalLayoutPySideUIC = QHBoxLayout()
         self.horizontalLayoutPySideUIC.setObjectName(u"horizontalLayoutPySideUIC")
@@ -209,7 +215,7 @@ class Ui_OptionsDialog(object):
         self.horizontalLayoutPySideUIC.addWidget(self.pushButtonPySideUIC)
 
 
-        self.formLayout.setLayout(1, QFormLayout.FieldRole, self.horizontalLayoutPySideUIC)
+        self.formLayout.setLayout(1, QFormLayout.ItemRole.FieldRole, self.horizontalLayoutPySideUIC)
 
 
         self.verticalLayout_3.addLayout(self.formLayout)
@@ -235,7 +241,7 @@ class Ui_OptionsDialog(object):
 
         self.lineEditGitExecutable = QLineEdit(self.groupBoxPMR)
         self.lineEditGitExecutable.setObjectName(u"lineEditGitExecutable")
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lineEditGitExecutable.sizePolicy().hasHeightForWidth())
@@ -265,7 +271,7 @@ class Ui_OptionsDialog(object):
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
 
@@ -280,7 +286,7 @@ class Ui_OptionsDialog(object):
 
         self.verticalLayout_2.addWidget(self.groupBoxOutput)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_2.addItem(self.verticalSpacer_2)
 
@@ -304,6 +310,7 @@ class Ui_OptionsDialog(object):
         self.groupBox.setTitle("")
         self.checkBoxCheckToolsOnStartup.setText(QCoreApplication.translate("OptionsDialog", u"Check tools on application start", None))
         self.checkBoxShowStepNames.setText(QCoreApplication.translate("OptionsDialog", u"Show step names", None))
+        self.checkBoxAnimateLayoutUpdates.setText(QCoreApplication.translate("OptionsDialog", u"Animate layout updates", None))
         self.groupBoxInternalWorkflowDirectory.setTitle(QCoreApplication.translate("OptionsDialog", u"Internal workflow directory", None))
 #if QT_CONFIG(tooltip)
         self.pushButtonInternalWorkflowDirectory.setToolTip(QCoreApplication.translate("OptionsDialog", u"Select the internal workflow directory.", None))

@@ -30,6 +30,7 @@ APPLICATION_NAME = "MAP-Client"
 # Options related strings
 OPTIONS_SETTINGS_TAG = 'Options'
 SHOW_STEP_NAMES = 'checkBoxShowStepNames'
+ANIMATE_LAYOUT_UPDATES = 'checkBoxAnimateLayoutUpdates'
 CLOSE_AFTER = 'doubleSpinBoxMessageBoxTimer'
 METRICS_PERMISSION = 'checkBoxMetricsPermission'
 DONT_CREATE_VIRTUAL_ENV = 'checkBoxDontCreateVirtualEnvironment'

@@ -144,6 +144,7 @@ class OptionsDialog(QtWidgets.QDialog):
     def load(self, options):
         self._original_options = options
         step_name_option = self._ui.checkBoxShowStepNames.objectName()
+        animate_layout_option = self._ui.checkBoxAnimateLayoutUpdates.objectName()
         check_tools_option = self._ui.checkBoxCheckToolsOnStartup.objectName()
         use_external_git_option = self._ui.checkBoxUseExternalGit.objectName()
         use_external_rcc_option = self._ui.checkBoxUseExternalPySideRCC.objectName()
@@ -156,6 +157,8 @@ class OptionsDialog(QtWidgets.QDialog):
         metrics_permission = self._ui.checkBoxMetricsPermission.objectName()
         absolute_paths = self._ui.checkBoxAbsolutePaths.objectName()
         recents_length = self._ui.spinBoxRecentsLength.objectName()
+
+        self._ui.checkBoxAnimateLayoutUpdates.setChecked(options.get(animate_layout_option, True))
         if step_name_option in options:
             self._ui.checkBoxShowStepNames.setChecked(options[step_name_option])
         if check_tools_option in options:
@@ -187,19 +190,22 @@ class OptionsDialog(QtWidgets.QDialog):
         self._test_tools()
 
     def save(self):
-        options = {self._ui.checkBoxShowStepNames.objectName(): self._ui.checkBoxShowStepNames.isChecked(),
-                   self._ui.checkBoxCheckToolsOnStartup.objectName(): self._ui.checkBoxCheckToolsOnStartup.isChecked(),
-                   self._ui.checkBoxUseExternalGit.objectName(): self._ui.checkBoxUseExternalGit.isChecked(),
-                   self._ui.checkBoxUseExternalPySideRCC.objectName(): self._ui.checkBoxUseExternalPySideRCC.isChecked(),
-                   self._ui.checkBoxUseExternalPySideUIC.objectName(): self._ui.checkBoxUseExternalPySideUIC.isChecked(),
-                   self._ui.lineEditPySideRCC.objectName(): self._ui.lineEditPySideRCC.text(),
-                   self._ui.lineEditPySideUIC.objectName(): self._ui.lineEditPySideUIC.text(),
-                   self._ui.lineEditGitExecutable.objectName(): self._ui.lineEditGitExecutable.text(),
-                   self._ui.lineEditInternalWorkflowDirectory.objectName(): self._ui.lineEditInternalWorkflowDirectory.text(),
-                   self._ui.doubleSpinBoxMessageBoxTimer.objectName(): self._ui.doubleSpinBoxMessageBoxTimer.value(),
-                   self._ui.checkBoxMetricsPermission.objectName(): self._ui.checkBoxMetricsPermission.isChecked(),
-                   self._ui.checkBoxAbsolutePaths.objectName(): self._ui.checkBoxAbsolutePaths.isChecked(),
-                   self._ui.spinBoxRecentsLength.objectName(): self._ui.spinBoxRecentsLength.value()}
+        options = {
+            self._ui.checkBoxShowStepNames.objectName(): self._ui.checkBoxShowStepNames.isChecked(),
+            self._ui.checkBoxAnimateLayoutUpdates.objectName(): self._ui.checkBoxAnimateLayoutUpdates.isChecked(),
+            self._ui.checkBoxCheckToolsOnStartup.objectName(): self._ui.checkBoxCheckToolsOnStartup.isChecked(),
+            self._ui.checkBoxUseExternalGit.objectName(): self._ui.checkBoxUseExternalGit.isChecked(),
+            self._ui.checkBoxUseExternalPySideRCC.objectName(): self._ui.checkBoxUseExternalPySideRCC.isChecked(),
+            self._ui.checkBoxUseExternalPySideUIC.objectName(): self._ui.checkBoxUseExternalPySideUIC.isChecked(),
+            self._ui.lineEditPySideRCC.objectName(): self._ui.lineEditPySideRCC.text(),
+            self._ui.lineEditPySideUIC.objectName(): self._ui.lineEditPySideUIC.text(),
+            self._ui.lineEditGitExecutable.objectName(): self._ui.lineEditGitExecutable.text(),
+            self._ui.lineEditInternalWorkflowDirectory.objectName(): self._ui.lineEditInternalWorkflowDirectory.text(),
+            self._ui.doubleSpinBoxMessageBoxTimer.objectName(): self._ui.doubleSpinBoxMessageBoxTimer.value(),
+            self._ui.checkBoxMetricsPermission.objectName(): self._ui.checkBoxMetricsPermission.isChecked(),
+            self._ui.checkBoxAbsolutePaths.objectName(): self._ui.checkBoxAbsolutePaths.isChecked(),
+            self._ui.spinBoxRecentsLength.objectName(): self._ui.spinBoxRecentsLength.value()
+        }
 
         return options
 

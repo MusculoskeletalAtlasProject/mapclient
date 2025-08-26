@@ -29,7 +29,8 @@ from mapclient.view.workflow.workflowwidget import WorkflowWidget
 from mapclient.settings.info import DEFAULT_WORKFLOW_ANNOTATION_FILENAME
 from mapclient.settings.definitions import WIZARD_TOOL_STRING, METRICS_PERMISSION, \
     PMR_TOOL_STRING, PYSIDE_RCC_EXE, USE_EXTERNAL_RCC, PYSIDE_UIC_EXE, USE_EXTERNAL_UIC, \
-    PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION, USE_EXTERNAL_GIT, METRICS_PERMISSION_ATTAINED, METRICS_CLIENT_ID
+    PREVIOUS_PW_WRITE_STEP_LOCATION, PREVIOUS_PW_ICON_LOCATION, USE_EXTERNAL_GIT, METRICS_PERMISSION_ATTAINED, \
+    METRICS_CLIENT_ID, ANIMATE_LAYOUT_UPDATES
 from mapclient.view.utils import set_wait_cursor
 from mapclient.core.metrics import get_metrics_logger
 
@@ -53,6 +54,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._setup_menus()
         self.setMenuBar(self._menu_bar)
         self._make_connections()
+        self._dynamic_actions = []
 
         self._action_Annotation.setEnabled(False)
 
@@ -66,7 +68,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.set_current_undo_redo_stack(self._workflowWidget.undoRedoStack())
 
         self._model.workflowManager().scene().setMainWindow(self)
-        self._pluginManagerDlg = None
+        self._plugin_manager_dlg = None
 
     def showEvent(self, event):
         self.resize(self._model.size())
@@ -85,6 +87,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_Help.setObjectName("menu_Help")
         self._menu_View = QtWidgets.QMenu(self._menu_bar)
         self._menu_View.setObjectName("menu_View")
+        self._menu_DockWidgets = QtWidgets.QMenu(self._menu_View)
+        self._menu_DockWidgets.setObjectName("menu_DockWidgets")
+        self._menu_DockWidgets.setEnabled(False)
         self._menu_File = QtWidgets.QMenu(self._menu_bar)
         self._menu_File.setObjectName("menu_File")
         self._menu_Edit = QtWidgets.QMenu(self._menu_bar)
@@ -128,6 +133,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_View.addSeparator()
         self._menu_View.addAction(self._action_LogInformation)
         self._menu_View.addAction(self._action_Options)
+        self._menu_View.addSeparator()
+        self._menu_View.addMenu(self._menu_DockWidgets)
         self._menu_File.addSeparator()
         self._menu_File.addAction(self._action_Quit)
         self._menu_Tools.addAction(self._action_PluginFinder)
@@ -152,6 +159,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _re_translate_ui(self):
         self._menu_Help.setTitle(QtWidgets.QApplication.translate("MainWindow", "&Help", None, -1))
         self._menu_View.setTitle(QtWidgets.QApplication.translate("MainWindow", "&View", None, -1))
+        self._menu_DockWidgets.setTitle(QtWidgets.QApplication.translate("MainWindow", "&Dock Widgets", None, -1))
         self._menu_File.setTitle(QtWidgets.QApplication.translate("MainWindow", "&File", None, -1))
         self._menu_Edit.setTitle(QtWidgets.QApplication.translate("MainWindow", "&Edit", None, -1))
         self._menu_Workflow.setTitle(QtWidgets.QApplication.translate("MainWindow", "&Workflow", None, -1))
@@ -314,7 +322,23 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_current_widget(self, widget):
         if self._ui.stackedWidget.indexOf(widget) <= 0:
             self._ui.stackedWidget.addWidget(widget)
+
+        self._menu_DockWidgets.setEnabled(False)
+        for act in self._dynamic_actions:
+            self._menu_DockWidgets.removeAction(act)
+        self._dynamic_actions.clear()
+
         self._ui.stackedWidget.setCurrentWidget(widget)
+        docks = widget.findChildren(QtWidgets.QDockWidget)
+
+        for dock in docks:
+            if not dock:
+                continue
+
+            toggle_act = dock.toggleViewAction()
+            self._menu_DockWidgets.addAction(toggle_act)
+            self._dynamic_actions.append(toggle_act)
+            self._menu_DockWidgets.setEnabled(True)
 
     def current_widget(self):
         return self._ui.stackedWidget.currentWidget()
@@ -408,36 +432,19 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._maybe_restart_application(asker='packages')
 
     def _show_plugin_manager_dialog(self):
-        from mapclient.view.managers.plugins.pluginmanagerdialog import PluginManagerDialog
+        from mapclient.tools.pluginmanager.pluginmanagerdialog import PluginManagerDialog
         pm = self._model.pluginManager()
-        #         pluginErrors = pm.getPluginErrors()
-        #         print(pluginErrors)
-        dlg = PluginManagerDialog(self._model.pluginManager()._ignoredPlugins,
-                                  self._model.pluginManager()._doNotShowPluginErrors,
-                                  self._model.pluginManager()._resourceFiles,
-                                  self._model.pluginManager()._updaterSettings,
-                                  self._model.pluginManager()._unsuccessful_package_installations, self)
-        self._pluginManagerDlg = dlg
-        dlg.setDirectories(pm.directories())
-        dlg.reloadPlugins = self._plugin_manager_load_plugins
+        dlg = PluginManagerDialog(pm, self)
+        self._plugin_manager_dlg = dlg
+        dlg.reload_plugins = self._plugin_manager_load_plugins
 
         dlg.setModal(True)
         if dlg.exec():
-            pm._ignoredPlugins = dlg._ignoredPlugins
-            pm._doNotShowPluginErrors = dlg._do_not_show_plugin_errors
-            pm._resourceFiles = dlg._resource_filenames
-            pm._updaterSettings = dlg._updaterSettings
+            dlg.save_profile_data()
             if self._plugin_manager_load_plugins():
                 self._maybe_restart_application()
 
-        self._pluginManagerDlg = None
-
-    def _request_metrics_permission(self):
-        result = QtWidgets.QMessageBox.question(
-            self, 'Metrics Permission', 'Is it okay for the MAP-Client to send metrics/usage statistics to help us improve the tools actually used?\n (This option can be '
-                                        'enabled/disabled in the settings page at a later date if you change your mind.)',
-            QtWidgets.QMessageBox.StandardButton(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No))
-        return True if result == QtWidgets.QMessageBox.StandardButton.Yes else False
+        self._plugin_manager_dlg = None
 
     @set_wait_cursor
     def _plugin_manager_load_plugins(self):
@@ -448,9 +455,9 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         pm = self._model.pluginManager()
         # Are we currently using the plugin manager dialog?
-        if self._pluginManagerDlg is not None:
+        if self._plugin_manager_dlg is not None:
             pm.setReloadPlugins()
-            pm.setDirectories(self._pluginManagerDlg.directories())
+            pm.set_directories(self._plugin_manager_dlg.directories())
 
         if pm.reloadPlugins():
             pm.load()
@@ -461,6 +468,13 @@ class MainWindow(QtWidgets.QMainWindow):
             return True
 
         return False
+
+    def _request_metrics_permission(self):
+        result = QtWidgets.QMessageBox.question(
+            self, 'Metrics Permission', 'Is it okay for the MAP-Client to send metrics/usage statistics to help us improve the tools actually used?\n (This option can be '
+                                        'enabled/disabled in the settings page at a later date if you change your mind.)',
+            QtWidgets.QMessageBox.StandardButton(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No))
+        return True if result == QtWidgets.QMessageBox.StandardButton.Yes else False
 
     def _create_qt_tools_options(self):
         om = self._model.optionsManager()

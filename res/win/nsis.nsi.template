@@ -119,7 +119,8 @@ Section
 
     ; Write uninstall information to registry.
     !insertmacro WriteUninstallInfo "DisplayName" "${APP_NAME} ${APP_VERSION}"
-    !insertmacro WriteUninstallInfo "DisplayVersion" "${INSTALLER_VERSION}"
+    !insertmacro WriteUninstallInfo "DisplayIcon" "$INSTDIR\${APP_NAME}.exe,0"
+    !insertmacro WriteUninstallInfo "DisplayVersion" "${APP_VERSION}"
     !insertmacro WriteUninstallInfo "Publisher" "${APP_ORGANISATION}"
     !insertmacro WriteUninstallInfo "UninstallString" "$INSTDIR\Uninstall.exe"
     !insertmacro WriteUninstallInfo "NoRepair" "1"

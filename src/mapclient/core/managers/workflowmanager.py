@@ -19,6 +19,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 """
 import os
 import logging
+
 from packaging import version
 
 from PySide6 import QtCore

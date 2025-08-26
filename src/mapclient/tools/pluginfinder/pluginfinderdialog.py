@@ -90,7 +90,7 @@ class PluginFinderDialog(QDialog):
                     if overwrite == QMessageBox.No:
                         continue
 
-            url = self._ui.stepTreeView.selectionModel().model().data(index, QtCore.Qt.UserRole + 1).get_url()
+            url = self._ui.stepTreeView.selectionModel().model().data(index, QtCore.Qt.ItemDataRole.UserRole + 1).get_url()
             url_list.append(url)
         self._download_to_directory_dialog(url_list)
 
@@ -106,7 +106,7 @@ class PluginFinderDialog(QDialog):
         if name in installed_versions.keys():
             if version.parse(self._database_versions[name]) > version.parse(installed_versions[name]):
                 overwrite = self._confirm_overwrite(name)
-                if overwrite == QMessageBox.No:
+                if overwrite == QMessageBox.StandardButton.No:
                     return
 
         self._download_to_directory_dialog([url])
