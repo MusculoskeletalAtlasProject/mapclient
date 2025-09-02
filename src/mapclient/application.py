@@ -18,6 +18,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
+import atexit
 import json
 import multiprocessing
 import os
@@ -25,10 +26,12 @@ import shutil
 import sys
 import ctypes
 import argparse
+import faulthandler
 
 import locale
 
 import logging
+from datetime import datetime
 from logging import handlers
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
@@ -64,7 +67,27 @@ def get_app_path():
         return os.path.dirname(os.path.abspath(__file__))
 
 
-def initialise_logger(log_path):
+def _cleanup_crash_log(file_handle, file_path):
+    file_handle.close()
+
+    try:
+        if os.path.getsize(file_path) == 0:
+            os.remove(file_path)
+    except (OSError, FileNotFoundError):
+        pass
+
+
+def _initialise_fault_handling(log_path):
+    pid = os.getpid()
+    timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    fault_log_path = os.path.join(os.path.dirname(log_path), f'crash_{timestamp}_{pid}.log')
+
+    log_file = open(fault_log_path, 'w')
+    atexit.register(_cleanup_crash_log, file_handle=log_file, file_path=fault_log_path)
+    faulthandler.enable(file=log_file)
+
+
+def _initialise_logger(log_path):
     """
     Initialise logger settings and information formatting
     """
@@ -103,7 +126,8 @@ def _prepare_application():
 
     info.set_applications_settings(app)
     log_path = get_log_location()
-    initialise_logger(log_path)
+    _initialise_fault_handling(log_path)
+    _initialise_logger(log_path)
 
     return app
 
