@@ -3,17 +3,16 @@ Created on May 19, 2015
 
 @author: hsorby
 """
-import json
-import os
-import sys
-import logging
-import subprocess
-import pkg_resources
-import pkgutil
-import traceback
-import shutil
-import types
 import importlib
+import json
+import logging
+import os
+import pkgutil
+import shutil
+import subprocess
+import sys
+import traceback
+import types
 
 from mapclient.application import get_app_path
 from mapclient.core.utils import which, FileTypeObject, grep, is_frozen, determine_step_name, determine_step_class_name, \
@@ -193,8 +192,7 @@ class PluginManager:
 
         if not is_frozen():
             subprocess.Popen([python_executable, "-m", "pip", "install", str(uri)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
-
-            importlib.reload(pkg_resources)
+            # importlib.reload(pkg_resources)
 
     def extractPluginDependencies(self, path):
         setup_dir, step_dir = os.path.split(path)
@@ -608,7 +606,7 @@ class PluginDatabase:
         Takes a list of dependencies as input. Returns a list of all the dependencies that aren't already installed.
         If a dependency has a url supplied AND it isn't installed, add just the url to the missing_dependencies list.
         """
-        installed = [pkg.key for pkg in pkg_resources.working_set]
+        installed = [dist.name for dist in importlib.metadata.distributions()]
         missing_dependencies = []
         for dependency in dependencies:
             if '@' in dependency:

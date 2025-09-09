@@ -20,7 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 from os.path import join, dirname
 import re, os
 
-_SECTION_HEADER_RE = '\[(.*)\]'
+_SECTION_HEADER_RE = r'\[(.*)\]'
 _DEFAULT_ANNOTATION_FILENAME = 'annotation.rdf'
 #_PHYSIOME_NAMESPACE = 'http://physiomeproject.org/workflow/1.0/rdf-schema'
 _NAMESPACE_RE = '<{0}/{1}/rdf-schema#([^>]+)> <{0}/{1}/rdf-schema#([^>]+)> <{0}/{1}/rdf-schema#([^>]+)>.'

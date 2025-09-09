@@ -249,7 +249,7 @@ def grep(path, regex, one_only=False, file_endswith=''):
 
 
 def determine_step_name(step_name_file, class_name):
-    r = r'[ \t]+super\(' + class_name + ', self\)\.__init__\(\'([^\']+)\', location\)'
+    r = r'[ \t]+super\(' + class_name + r', self\)\.__init__\(\'([^\']+)\', location\)'
     re_step_name = re.compile(r)
 
     step_name = None

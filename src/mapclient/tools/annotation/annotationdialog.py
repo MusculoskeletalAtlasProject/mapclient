@@ -72,7 +72,7 @@ class AnnotationDialog(QtWidgets.QDialog):
             self._ui.annotationListWidget.takeItem(index.row())
     
     def _accept(self):
-        triple_re = re.compile('\[(.*), (.*), (.*)\]')
+        triple_re = re.compile(r'\[(.*), (.*), (.*)\]')
         
         self._tool.clear()
         while self._ui.annotationListWidget.count() > 0:
