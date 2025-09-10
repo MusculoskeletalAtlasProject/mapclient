@@ -306,9 +306,9 @@ class WorkflowScene(object):
 
                 source_uri = ws.value('source_uri', None)
                 if source_uri is not None:
-                    report[name] = source_uri
+                    report[name] = f'Not Found - {source_uri}'
                 else:
-                    report[name] = 'Not Found - {0}'.format(e)
+                    report[name] = f'Not Found - {e}'
 
         ws.endArray()
         ws.endGroup()
