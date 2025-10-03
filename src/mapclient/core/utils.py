@@ -26,7 +26,7 @@ import shutil
 import sys
 from pathlib import Path, PureWindowsPath, PurePath
 
-from subprocess import Popen, PIPE, DEVNULL
+from subprocess import Popen, PIPE, DEVNULL, run, CalledProcessError
 
 import PySide6 as RefMod
 
@@ -35,6 +35,80 @@ from mapclient.settings.definitions import APPLICATION_NAME, PLUGINS_PACKAGE_NAM
 from mapclient.settings.general import get_configuration_file
 
 logger = logging.getLogger(__name__)
+
+
+def get_bundled_python_path():
+    """
+    Finds the path to the Python interpreter bundled with PyInstaller.
+
+    Returns:
+        The absolute path to the bundled Python executable.
+    """
+    if not getattr(sys, 'frozen', False):
+        return sys.executable
+
+    base_dir = os.path.dirname(sys.executable)
+
+    if sys.platform == "win32":
+        python_executable = os.path.join(base_dir, "python.exe")
+    else:
+        python_executable = os.path.join(base_dir, "python")
+
+    # As a fallback for some complex one-file builds, it might be in sys._MEIPASS
+    if not os.path.exists(python_executable) and hasattr(sys, '_MEIPASS'):
+        base_dir = getattr(sys, '_MEIPASS')
+        if sys.platform == "win32":
+            python_executable = os.path.join(base_dir, "python.exe")
+        else:
+            python_executable = os.path.join(base_dir, "python")
+
+    return python_executable
+
+
+def install_package(package_name: str):
+    """
+    Installs a Python package using the pip bundled with the application.
+    """
+    python_path = get_bundled_python_path()
+
+    if not os.path.exists(python_path):
+        logger.error(f"Could not find bundled python, tried: {python_path}")
+        print("Error: Bundled Python interpreter not found.")
+        return
+
+    logger.info(f"Using bundled Python at: {python_path}")
+    print(f"Using bundled Python at: {python_path}")
+    logger.info(f"Installing Python package: {package_name}")
+    print(f"Attempting to install '{package_name}'...")
+
+    try:
+        # Construct the command: path/to/python.exe -m pip install <package>
+        command = [python_path, "-m", "pip", "install", package_name]
+
+        # Run the command
+        result = run(
+            command,
+            check=True,  # Raise an exception if pip fails
+            capture_output=True,
+            text=True
+        )
+
+        print(f"Successfully installed '{package_name}'.")
+        logger.info(f"Successfully installed '{package_name}'.")
+        print("--- PIP Output ---")
+        logger.info("--- PIP Output ---")
+        print(result.stdout)
+        logger.info(result.stdout)
+
+    except CalledProcessError as e:
+        print(f"Failed to install '{package_name}'.")
+        logger.error(f"Failed to install '{package_name}'.")
+        print("--- Error Output ---")
+        logger.error("--- Error Output ---")
+        logger.error(e.stdout)
+        print(e.stderr)
+    except FileNotFoundError:
+        print(f"Error: Could not find the Python executable at '{python_path}'")
 
 
 def is_frozen():
@@ -76,12 +150,7 @@ def get_system_pip_candidates():
     """Return a list of strings with the candidates for the pip application
     for this environment.
     """
-    if sys.version_info < (3, 0):
-        pip_candidates = ['pip', 'pip2']
-    else:
-        pip_candidates = ['pip', 'pip3']
-
-    return pip_candidates
+    return ['pip', 'pip3']
 
 
 def which(cmd, mode=os.F_OK | os.X_OK, path=None):

@@ -23,6 +23,7 @@ import uuid
 from PySide6 import QtWidgets, QtGui
 
 from mapclient import version
+from mapclient.core.utils import install_package
 from mapclient.settings.general import mark_workflow_ready_for_use
 from mapclient.view.ui.ui_mainwindow import Ui_MainWindow
 from mapclient.view.workflow.workflowwidget import WorkflowWidget
@@ -124,6 +125,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_Annotation.setObjectName("action_Annotation")
         self._action_PluginWizard = QtGui.QAction(self)
         self._action_PluginWizard.setObjectName("action_PluginWizard")
+        self._action_InstallPackage = QtGui.QAction(self)
+        self._action_InstallPackage.setObjectName("action_InstallPackage")
         if ADMIN_MODE:
             self._action_MAPIcon = QtGui.QAction(self)
             self._action_MAPIcon.setObjectName("actionMAPIcon")
@@ -145,6 +148,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_Tools.addAction(self._action_RenamePlugin)
         self._menu_Tools.addAction(self._action_UpdateWorkflow)
         self._menu_Tools.addAction(self._action_Annotation)
+        self._menu_Tools.addAction(self._action_InstallPackage)
         if ADMIN_MODE:
             self._menu_Tools.addAction(self._action_MAPIcon)
         self._menu_bar.addAction(self._menu_File.menuAction())
@@ -183,6 +187,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_PackageManager.setText(QtWidgets.QApplication.translate("MainWindow", "Package Ma&nager", None, -1))
         self._action_PMR.setText(QtWidgets.QApplication.translate("MainWindow", "&PMR", None, -1))
         self._action_Annotation.setText(QtWidgets.QApplication.translate("MainWindow", "&Annotation", None, -1))
+        self._action_InstallPackage.setText(QtWidgets.QApplication.translate("MainWindow", "&Install Package", None, -1))
         self._action_PluginWizard.setText(QtWidgets.QApplication.translate("MainWindow", "Plugin Wi&zard", None, -1))
         self._action_RenamePlugin.setText(QtWidgets.QApplication.translate("MainWindow", "&Rename Plugin", None, -1))
         self._action_UpdateWorkflow.setText(QtWidgets.QApplication.translate("MainWindow", "&Update Workflow", None, -1))
@@ -228,6 +233,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_PluginWizard.triggered.connect(self._show_plugin_wizard_dialog)
         self._action_PMR.triggered.connect(self._show_pmr_tool)
         self._action_Annotation.triggered.connect(self._show_annotation_tool)
+        self._action_InstallPackage.triggered.connect(self._show_package_manager_dialog)
         self._action_RenamePlugin.triggered.connect(self._show_rename_plugin_dialog)
         self._action_UpdateWorkflow.triggered.connect(self._show_update_workflow_dialog)
         if ADMIN_MODE:
@@ -555,6 +561,9 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg = AnnotationDialog(location, DEFAULT_WORKFLOW_ANNOTATION_FILENAME, self)
         dlg.setModal(True)
         dlg.exec_()
+
+    def _show_package_manager_dialog(self):
+        install_package('rich')
 
     def _show_map_icon_dialog(self):
         from mapclient.tools.mapicon.mapicondialog import MAPIconDialog
