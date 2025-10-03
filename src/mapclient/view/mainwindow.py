@@ -391,7 +391,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _show_log_information_dialog(self):
         from mapclient.view.dialogs.log.loginformation import LogInformation
         dlg = LogInformation(self)
-        dlg.fillTable(self)
+        dlg.fill_table(self)
         dlg.setModal(True)
         dlg.exec()
 
