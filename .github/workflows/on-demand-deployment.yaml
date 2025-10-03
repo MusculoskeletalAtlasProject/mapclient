@@ -56,7 +56,7 @@ jobs:
           matrixElements=()
           variants=${{ steps.set-variants.outputs.variants }}
           for v in $variants; do
-            matrixElements+=('{"os":"windows-2025","variant":"'$v'","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
+            matrixElements+=('{"os":"windows-2025","variant":"'$v'","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.12"}')
             matrixElements+=('{"os":"macos-13","variant":"'$v'","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.10"}')
           done
           if [ "${#matrixElements[@]}" -eq "0" ]; then
