@@ -271,7 +271,7 @@ class WorkflowManager(object):
                 reason = report[name]
                 if reason.startswith('Not Found'):
                     not_found.append(name)
-                    logger.warning(f'Workflow not loadable due to missing plugin "{name}"{reason.replace("Not Found", '')}')
+                    logger.warning(f'Workflow not loadable due to missing plugin "{name}"{reason.replace("Not Found", "")}')
                 elif reason.startswith('Broken'):
                     not_found.append(name)
                     logger.warning(f'Workflow not loadable due to broken plugin "{name}"')
