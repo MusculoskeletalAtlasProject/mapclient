@@ -189,7 +189,12 @@ def windows_main(workflow, execute_now):
     wm = model.workflowManager()
     if workflow and not wm.is_restricted(workflow):
         splash.showMessage('Opening workflow ...', 80)
-        window.open_workflow(workflow)
+        try:
+            window.open_workflow(workflow)
+        except IndexError as e:
+            logger.error('Failed to load workflow. ' + str(e))
+        except Exception as e:
+            logger.error('Failed to load workflow. ' + str(e))
     elif workflow:
         logger.info(f"Not opening workflow '{workflow}', this workflow is already in use.")
 
