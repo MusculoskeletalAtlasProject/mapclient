@@ -25,6 +25,21 @@ from mapclient.view.dialogs.log.ui.ui_loginformation import Ui_LogInformation
 from mapclient.settings.general import get_log_location
 
 
+def load_session(filename):
+    logs = []
+    with open(filename, 'r') as f:
+        log_data = [line.rstrip('\n') for line in f]
+        for entry in log_data:
+            if entry:
+                try:
+                    parse(entry[:25])
+                    logs.append(entry.split(' - ', 4))
+                except Exception:
+                    logs[-1][-1] += '\n' + entry
+
+    return logs
+
+
 class LogInformation(QDialog):
     """
     Log record dialog to present the user with the log information recorded by the program.
@@ -39,21 +54,21 @@ class LogInformation(QDialog):
         self._ui.detailsButton.setEnabled(False)
         self._make_connections()
 
-    def fillTable(self, parent=None):
-        logs = self.loadSession(get_log_location())
-        self.updateTable(logs)
+    def fill_table(self, parent=None):
+        logs = load_session(get_log_location())
+        self.update_table(logs)
 
     def _make_connections(self):
         self._ui.information_table.itemSelectionChanged.connect(self._selection_changed)
-        self._ui.information_table.cellDoubleClicked.connect(self.showLogDetails)
-        self._ui.detailsButton.clicked.connect(self.showLogDetails)
-        self._ui.loadButton.clicked.connect(self.loadLogSession)
+        self._ui.information_table.cellDoubleClicked.connect(self.show_log_details)
+        self._ui.detailsButton.clicked.connect(self.show_log_details)
+        self._ui.loadButton.clicked.connect(self.load_log_session)
 
     def _selection_changed(self):
         if self._ui.information_table.selectedItems():
             self._ui.detailsButton.setEnabled(True)
 
-    def showLogDetails(self):
+    def show_log_details(self):
         from mapclient.view.dialogs.log.logdetails import LogDetails
         dlg = LogDetails(self)
         dlg.setModal(True)
@@ -70,32 +85,18 @@ class LogInformation(QDialog):
         dlg.fillTable(log_details)
         dlg.exec()
 
-    def loadLogSession(self):
+    def load_log_session(self):
         from mapclient.view.dialogs.log.loadlogsession import LoadLogSession
         dlg = LoadLogSession(self)
         dlg.setModal(True)
         if dlg.exec():
             log_file = dlg.getLogSession()
-            logs = self.loadSession(log_file)
+            logs = load_session(log_file)
             if logs:
-                self.updateTable(logs)
+                self.update_table(logs)
                 self.current_log_file = log_file
 
-    def loadSession(self, filename):
-        logs = []
-        with open(filename, 'r') as f:
-            log_data = [line.rstrip('\n') for line in f]
-            for entry in log_data:
-                if entry:
-                    try:
-                        parse(entry[:25])
-                        logs.append(entry.split(' - '))
-                    except Exception:
-                        logs[-1][-1] += '\n' + entry
-
-        return logs
-
-    def updateTable(self, logs):
+    def update_table(self, logs):
         self._ui.information_table.clearContents()
         self._ui.information_table.setRowCount(len(logs))
         self._ui.information_table.setColumnCount(5)
