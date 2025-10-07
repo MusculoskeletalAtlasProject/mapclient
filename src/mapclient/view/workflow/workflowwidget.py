@@ -60,6 +60,8 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._ui = Ui_WorkflowWidget()
         self._ui.setupUi(self)
 
+        self._delayed_errors = []
+
         self._pluginUpdater = PluginUpdater()
 
         self._undoStack = QtGui.QUndoStack(self)
@@ -76,6 +78,10 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._graphicsScene.setUndoStack(self._undoStack)
 
         self._graphicsScene.setWorkflowScene(self._workflowManager.scene())
+
+        self._delay_timer = QtCore.QTimer()
+        self._delay_timer.setSingleShot(True)
+        self._delay_timer.setInterval(300)
 
         self.action_Close = None  # Keep a handle to this for modifying the Ui.
         self._action_annotation = self._main_window.findChild(QtGui.QAction, "actionAnnotation")
@@ -97,6 +103,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._graphicsScene.selectionChanged.connect(self._ui.graphicsView.selectionChanged)
         self._ui.executeButton.clicked.connect(self.executeWorkflow)
         self._undoStack.indexChanged.connect(self.undoStackIndexChanged)
+        self._delay_timer.timeout.connect(self._raise_delayed_errors)
 
     def model(self):
         return self._main_window.model()
@@ -154,11 +161,25 @@ class WorkflowWidget(QtWidgets.QWidget):
 
     def showEvent(self, *args, **kwargs):
         self._update_ui()
+        self._delay_timer.start()
         return QtWidgets.QWidget.showEvent(self, *args, **kwargs)
 
     def hideEvent(self, *args, **kwargs):
         self._update_ui()
         return QtWidgets.QWidget.hideEvent(self, *args, **kwargs)
+
+    @handle_runtime_error
+    def _raise_delayed_error(self, error):
+        raise error
+
+    def _raise_delayed_errors(self):
+        for error in self._delayed_errors:
+            self._raise_delayed_error(error)
+
+        self._delayed_errors = []
+
+    def add_delayed_error(self, error):
+        self._delayed_errors.append(error)
 
     @handle_runtime_error
     def _abort_execution(self):
