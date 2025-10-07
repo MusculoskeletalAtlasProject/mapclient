@@ -20,7 +20,7 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
 import logging
 import uuid
 
-from PySide6 import QtWidgets, QtGui
+from PySide6 import QtWidgets, QtGui, QtCore
 
 from mapclient import version
 from mapclient.core.utils import install_package
@@ -41,6 +41,10 @@ metrics_logger = get_metrics_logger()
 ADMIN_MODE = False
 
 
+def _show_install_package_dialog():
+    install_package('rich')
+
+
 class MainWindow(QtWidgets.QMainWindow):
     """
     This is the main window for the MAP Client.
@@ -54,6 +58,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._ui.setupUi(self)
         self._setup_menus()
         self.setMenuBar(self._menu_bar)
+
         self._make_connections()
         self._dynamic_actions = []
 
@@ -233,9 +238,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self._action_PluginWizard.triggered.connect(self._show_plugin_wizard_dialog)
         self._action_PMR.triggered.connect(self._show_pmr_tool)
         self._action_Annotation.triggered.connect(self._show_annotation_tool)
-        self._action_InstallPackage.triggered.connect(self._show_package_manager_dialog)
+        self._action_InstallPackage.triggered.connect(_show_install_package_dialog)
         self._action_RenamePlugin.triggered.connect(self._show_rename_plugin_dialog)
         self._action_UpdateWorkflow.triggered.connect(self._show_update_workflow_dialog)
+
         if ADMIN_MODE:
             self._action_MAPIcon.triggered.connect(self._show_map_icon_dialog)
 
@@ -424,6 +430,9 @@ class MainWindow(QtWidgets.QMainWindow):
         om = self._model.optionsManager()
         metrics_logger.set_permission(om.getOption(METRICS_PERMISSION))
 
+    def add_delayed_error(self, error):
+        self._workflowWidget.add_delayed_error(error)
+
     def _show_package_manager_dialog(self):
         from mapclient.view.managers.package.packagemanagerdialog import PackageManagerDialog
         pm = self._model.package_manager()
@@ -561,9 +570,6 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg = AnnotationDialog(location, DEFAULT_WORKFLOW_ANNOTATION_FILENAME, self)
         dlg.setModal(True)
         dlg.exec_()
-
-    def _show_package_manager_dialog(self):
-        install_package('rich')
 
     def _show_map_icon_dialog(self):
         from mapclient.tools.mapicon.mapicondialog import MAPIconDialog

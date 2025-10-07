@@ -107,6 +107,7 @@ def handle_runtime_error(f):
             QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.ArrowCursor)
             logger.error('{0}: {1}'.format(e.title, e.description))
             ErrorDialog(e.title, e.description, self).exec()
+        finally:
             QtWidgets.QApplication.restoreOverrideCursor()
 
     return do_runtime_error

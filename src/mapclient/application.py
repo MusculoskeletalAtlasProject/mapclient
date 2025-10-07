@@ -41,6 +41,7 @@ from mapclient.core.exitcodes import (HEADLESS_MODE_WITH_NO_WORKFLOW, INVALID_WO
 from mapclient.core.provenance import reproducibility_info
 from mapclient.core.utils import is_frozen, find_file
 from mapclient.core.workflow.workflowscene import create_from
+from mapclient.exceptions import ClientRuntimeError
 from mapclient.settings.definitions import INTERNAL_WORKFLOWS_ZIP, INTERNAL_WORKFLOWS_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG, PREVIOUS_WORKFLOW, AUTOLOAD_PREVIOUS_WORKFLOW
 from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME, APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE
 
@@ -192,11 +193,13 @@ def windows_main(workflow, execute_now):
         try:
             window.open_workflow(workflow)
         except IndexError as e:
-            logger.error('Failed to load workflow. ' + str(e))
+            window.add_delayed_error(ClientRuntimeError("Loading Workflow Error", str(e)))
         except Exception as e:
-            logger.error('Failed to load workflow. ' + str(e))
+            window.add_delayed_error(ClientRuntimeError("Loading Workflow Error", str(e)))
     elif workflow:
-        logger.info(f"Not opening workflow '{workflow}', this workflow is already in use.")
+        error_message = f"Not opening workflow '{workflow}', this workflow is already in use."
+        logger.info(error_message)
+        window.add_delayed_error(ClientRuntimeError("Loading Workflow Error", error_message))
 
     window.start_metrics()
     if execute_now:
@@ -204,7 +207,9 @@ def windows_main(workflow, execute_now):
         if wm.canExecute() == 0:
             window.execute()
         else:
-            logger.error(f'Could not execute workflow, reason: "{wm.execute_status_message()}"')
+            error_message = f'Could not execute workflow, reason: "{wm.execute_status_message()}"'
+            logger.error(error_message)
+            window.add_delayed_error(ClientRuntimeError("Executing Workflow Error", error_message))
 
     splash.showMessage('Ready ...', 100)
     splash.finish(window)
