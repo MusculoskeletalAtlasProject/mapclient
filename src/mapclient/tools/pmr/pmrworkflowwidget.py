@@ -192,7 +192,7 @@ class PMRWorkflowWidget(QtWidgets.QWidget):
         search_text = self._ui.lineEditSearch.text()
         if True:
             search_text = self._ui.lineEditSearch.text()
-            label_re = re.compile('\[([\w_\d]+)\]')
+            label_re = re.compile(r'\[([\w_\d]+)\]')
             re_result = label_re.search(search_text)
             if re_result:
                 search_text = re_result.group(1)

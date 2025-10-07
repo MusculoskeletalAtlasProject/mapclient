@@ -1,7 +1,9 @@
 import argparse
+import glob
 import json
 import os
 import platform
+import site
 
 import PySide6 as RefMod
 
@@ -15,6 +17,30 @@ from mapclient.settings.definitions import APPLICATION_NAME, FROZEN_PROVENANCE_I
 os.environ['PYTHONOPTIMIZE'] = '1'
 
 here = os.path.dirname(__file__)
+
+NS_IMPORT_INFRASTRUCTURE = """
+import sys, types, os;p = os.path.join('{plugin_path}', *('mapclientplugins',));importlib = __import__('importlib.util');__import__('importlib.machinery');m = sys.modules.setdefault('mapclientplugins', importlib.util.module_from_spec(importlib.machinery.PathFinder.find_spec('mapclientplugins', [os.path.dirname(p)])));m = m or sys.modules.setdefault('mapclientplugins', types.ModuleType('mapclientplugins'));mp = (m or []) and m.__dict__.setdefault('__path__',[]);(p not in mp) and mp.append(p)
+"""
+
+def _create_plugin_ns_pth_file(plugin_dir, site_packages_dir):
+    dir_name = os.path.basename(plugin_dir).replace('.', '_')
+    existing_pth_file = os.path.join(plugin_dir, f'{dir_name}*-nspkg.pth')
+    matching_files = glob.glob(existing_pth_file)
+    if not matching_files:
+        pth_file = os.path.join(site_packages_dir, f'{dir_name}-nspkg.pth')
+        with open(pth_file, 'w') as fh:
+            fh.write(NS_IMPORT_INFRASTRUCTURE.format(plugin_path=plugin_dir))
+
+
+def _create_egg_info_directory(plugin_dir):
+    listing = os.listdir(os.path.join(plugin_dir, 'mapclientplugins'))
+    for item in listing:
+        if os.path.isdir(os.path.join(plugin_dir, 'mapclientplugins', item)):
+            if os.path.isfile(os.path.join(plugin_dir, 'mapclientplugins', item, '__init__.py')):
+                egg_info_dir_name = f'mapclientplugins.{item}.egg-info'
+                os.makedirs(os.path.join(plugin_dir, egg_info_dir_name), exist_ok=True)
+                with open(os.path.join(plugin_dir, egg_info_dir_name, 'namespace_packages.txt'), 'w') as fh:
+                    fh.write('mapclientplugins\n')
 
 
 def main(variant):
@@ -79,13 +105,23 @@ def main(variant):
         data = os.pathsep.join([internal_workflows_zip, '.'])
         run_command.append(f'--add-data={data}')
 
-    plugin_paths_file = os.path.join(os.getcwd(), 'mapclientplugins_paths.txt')
-    if os.path.isfile(plugin_paths_file):
-        with open(plugin_paths_file) as f:
-            lines = f.readlines()
+    plugin_paths_file = os.path.join(os.getcwd(), 'mapclientplugins_paths.json')
+    site_packages_dir = site.getsitepackages()[0]
 
-        for line in lines:
-            run_command.append(f'--paths={line.rstrip()}')
+    if os.path.isfile(plugin_paths_file):
+        with open(plugin_paths_file) as fh:
+            content = json.load(fh)
+
+        print("-" * 80)
+        print(content)
+        print("-" * 80)
+        for plugin_path, mode in content.items():
+            print(plugin_path)
+            print(mode)
+            run_command.append(f'--paths={plugin_path}')
+            if mode == 'requirements_file':
+                _create_plugin_ns_pth_file(plugin_path, site_packages_dir)
+                _create_egg_info_directory(plugin_path)
 
     print('Running command: ', run_command)
     PyInstaller.__main__.run(run_command)

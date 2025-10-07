@@ -107,22 +107,7 @@ class AdvancedDialog(QDialog):
         self._ui.failedInstallsButton.clicked.connect(self.displayFailedPackageInstalls)
 
     def fillInstalledPackagesList(self):
-        # virt_env_dir = self._ui.virtEnvLocation.text()
-        # need to change so that have list stored within applicarion settings that is uodated every time a package is installed - much faster to load
-        """
-        virt_env_dir = 'C:\\Users\\Jonathan\\AppData\\Roaming\\Musculo Skeletal\\MAP Client\\pluginVirtEnv'
-        output = subprocess.check_output([virt_env_dir + '\Scripts' + '\python.exe', virt_env_dir + '\Scripts' + '\pip.exe', 'list'], shell=True)
-        installed_packages = output.decode('utf-8').split('\n')
-
-        count = 0
-        for package in installed_packages[:-1]:
-            package_name = package.split()[0]
-            toolTip = subprocess.check_output([virt_env_dir + '\Scripts\python.exe', virt_env_dir + '\Scripts\pip.exe', 'show', package_name], shell=True)
-            toolTip = toolTip.decode('utf-8')
-            self._ui.installedPackagesList.addItem(package[:-1])
-            item = self._ui.installedPackagesList.item(count)
-            item.setToolTip(toolTip)
-        """
+        pass
 
     def fillRecommendedPackagesList(self):
         # based on list of deependencies from existing plugins and analysing the index list of packages availble through pip
