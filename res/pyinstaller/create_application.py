@@ -4,6 +4,7 @@ import json
 import os
 import platform
 import site
+from pathlib import Path
 
 import PySide6 as RefMod
 
@@ -29,7 +30,7 @@ def _create_plugin_ns_pth_file(plugin_dir, site_packages_dir):
     if not matching_files:
         pth_file = os.path.join(site_packages_dir, f'{dir_name}-nspkg.pth')
         with open(pth_file, 'w') as fh:
-            fh.write(NS_IMPORT_INFRASTRUCTURE.format(plugin_path=plugin_dir))
+            fh.write(NS_IMPORT_INFRASTRUCTURE.format(plugin_path=Path(plugin_dir)))
 
 
 def _create_egg_info_directory(plugin_dir):
