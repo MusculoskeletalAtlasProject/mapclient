@@ -33,12 +33,6 @@ def _create_plugin_ns_pth_file(plugin_dir, site_packages_dir):
         with open(pth_file, 'w') as fh:
             fh.write(NS_IMPORT_INFRASTRUCTURE.format(plugin_path=safe_path))
 
-        print(f'========= {dir_name} ========')
-        print(os.name)
-        print(plugin_dir)
-        print(safe_path)
-        with open(pth_file, 'r') as fh:
-            print(fh.read())
 
 def _create_egg_info_directory(plugin_dir):
     listing = os.listdir(os.path.join(plugin_dir, 'mapclientplugins'))
