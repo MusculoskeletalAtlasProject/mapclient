@@ -4,7 +4,7 @@ import json
 import os
 import platform
 import site
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 import PySide6 as RefMod
 
@@ -29,10 +29,7 @@ def _create_plugin_ns_pth_file(plugin_dir, site_packages_dir):
     matching_files = glob.glob(existing_pth_file)
     if not matching_files:
         pth_file = os.path.join(site_packages_dir, f'{dir_name}-nspkg.pth')
-        if os.name == 'nt':
-            safe_path = r'{}'.format(plugin_dir)
-        else:
-            safe_path = plugin_dir
+        safe_path = PureWindowsPath(plugin_dir).as_posix()
         with open(pth_file, 'w') as fh:
             fh.write(NS_IMPORT_INFRASTRUCTURE.format(plugin_path=safe_path))
 
