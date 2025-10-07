@@ -112,12 +112,7 @@ def main(variant):
         with open(plugin_paths_file) as fh:
             content = json.load(fh)
 
-        print("-" * 80)
-        print(content)
-        print("-" * 80)
         for plugin_path, mode in content.items():
-            print(plugin_path)
-            print(mode)
             run_command.append(f'--paths={plugin_path}')
             if mode == 'requirements_file':
                 _create_plugin_ns_pth_file(plugin_path, site_packages_dir)
