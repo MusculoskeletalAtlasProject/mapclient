@@ -51,7 +51,6 @@ from mapclient.tools.pluginwizard.skeletonstrings import (
     SERIALIZE_METHOD_STRING,
     SET_IDENTIFIER_DEFAULT_CONTENT_STRING,
     SET_IDENTIFIER_IDENTIFIER_CONTENT_STRING,
-    SETUP_PY_TEMPLATE,
     STEP_PACKAGE_INIT_STRING,
 )
 
@@ -77,22 +76,13 @@ class Skeleton(object):
         self._options = options
         self._qt_tool_options = qt_tool_options
 
-    def _writeSetup(self, target_dir):
+    def _write_meta_files(self, target_dir):
         """
-        Write the setup file, for integration with setuptools.
+        Write the requirements file, for integration with pip install -r requirements.txt.
         """
-        target_file = os.path.join(target_dir, 'setup.py')
-        with open(target_file, 'w') as f:
-            f.write(SETUP_PY_TEMPLATE % dict(
-                description='',
-                name=self._options.getFullPackageName(),
-                package_name=self._options.getPackageName(),
-                author=self._options.getAuthorName(),
-                author_email='',
-                url='',
-                plugin_namespace=PLUGIN_NAMESPACE,
-                namespace_packages=[PLUGIN_NAMESPACE],
-            ))
+        target_file = os.path.join(target_dir, 'requirements.txt')
+        with open(target_file, 'w') as fh:
+            fh.write('# List plugin requirements here:\n')
 
         readme_file = os.path.join(target_dir, 'README.rst')
         license_file = os.path.join(target_dir, 'LICENSE')
@@ -230,7 +220,6 @@ class Skeleton(object):
         self._configured = dlg.validate()
         self._configuredObserver()
 """
-        else:
             method_string += '        pass\n'
 
         return method_string
@@ -474,7 +463,7 @@ class Skeleton(object):
         os.mkdir(namespace_dir)
         os.mkdir(step_package_dir)
 
-        self._writeSetup(package_dir)
+        self._write_meta_files(package_dir)
         self._writeNamespaceInit(namespace_dir)
 
         # Write step package init file

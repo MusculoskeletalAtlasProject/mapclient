@@ -126,7 +126,7 @@ CONFIGURE_DIALOG_INIT_ADDITIONS = """
         # and know how many occurrences of the current identifier there should
         # be.
         self._previousIdentifier = ''
-        # Set a place holder for a callable that will get set from the step.
+        # Set a placeholder for a callable that will get set from the step.
         # We will use this method to decide whether the identifier is unique.
         self.identifierOccursCount = None
 
@@ -302,66 +302,6 @@ README_TEMPLATE = """\
 
 The {name} step is a plugin for the MAP Client application.
 
-"""
-
-
-SETUP_PY_TEMPLATE = """\
-import codecs
-import io
-import os
-import re
-
-from setuptools import setup, find_packages
-
-SETUP_DIR = os.path.dirname(os.path.abspath(__file__))
-
-
-def read(*parts):
-    with codecs.open(os.path.join(SETUP_DIR, *parts), 'r') as fp:
-        return fp.read()
-
-
-def find_version(*file_paths):
-    version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\\"]([^'\\"]*)['\\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
-
-
-def readfile(filename, split=False):
-    with io.open(filename, encoding="utf-8") as stream:
-        if split:
-            return stream.read().split("\\n")
-        return stream.read()
-
-
-readme = readfile("README.rst", split=True)[3:]  # Skip title
-source_license = readfile("LICENSE")
-requires = ['PySide6']  # Minimal requirements listing. Insert additional dependencies here.
-
-
-setup(
-    name=%(name)r,
-    version=find_version(%(plugin_namespace)r, %(package_name)r, '__init__.py'),
-    description=%(description)r,
-    long_description='\\n'.join(readme) + source_license,
-    long_description_content_type='text/x-rst',
-    classifiers=[
-        "Development Status :: 3 - Alpha",
-        "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python",
-    ],
-    author=%(author)r,
-    author_email=%(author_email)r,
-    url=%(url)r,
-    packages=find_packages(exclude=['ez_setup', ]),
-    namespace_packages=%(namespace_packages)r,
-    include_package_data=True,
-    zip_safe=False,
-    install_requires=requires,
-)
 """
 
 

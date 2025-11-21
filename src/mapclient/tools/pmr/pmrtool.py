@@ -145,7 +145,8 @@ class PMRTool(object):
     def set_info(self, info):
         self._pmr_info = info
 
-    def set_use_external_git(self, use_external_git):
+    @staticmethod
+    def set_use_external_git(use_external_git):
         name = 'authenticated_git' if use_external_git else 'authenticated_dulwich'
         return get_cmd_by_name(name)
 

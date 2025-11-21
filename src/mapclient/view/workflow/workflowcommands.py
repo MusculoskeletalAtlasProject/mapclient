@@ -60,23 +60,27 @@ class CommandSelection(QtGui.QUndoCommand):
     don't end up in a recursive loop.
     """
 
-    def __init__(self, scene, selection, previous):
+    def __init__(self, scene, current, previous):
         super(CommandSelection, self).__init__()
-        logger.debug("Selection Command created ...")
         self._scene = scene
-        self._selection = selection
-        self._previousSelection = previous
+        self._current = list(current)
+        self._previous = list(previous)
 
     def redo(self):
-        self._scene.blockSignals(True)
-        for item in list(self._scene.items()):
-            item.setSelected(item in self._selection)
-        self._scene.blockSignals(False)
+        self._apply_selection(self._current)
 
     def undo(self):
+        self._apply_selection(self._previous)
+
+    def _apply_selection(self, items_to_select):
         self._scene.blockSignals(True)
-        for item in list(self._scene.items()):
-            item.setSelected(item in self._previousSelection)
+
+        self._scene.clearSelection()
+        for item in items_to_select:
+            # Check if item still belongs to scene (handle deleted items)
+            if item.scene() == self._scene:
+                item.setSelected(True)
+
         self._scene.blockSignals(False)
 
 
