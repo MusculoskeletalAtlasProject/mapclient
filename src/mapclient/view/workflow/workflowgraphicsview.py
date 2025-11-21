@@ -129,11 +129,10 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
                 self._errorIconTimer.start()
 
     def selectionChanged(self):
-        currentSelection = self.scene().selectedItems()
-        previousSelection = self.scene().previouslySelectedItems()
-        command = CommandSelection(self.scene(), currentSelection, previousSelection)
-        self._undoStack.push(command)
-        self.scene().setPreviouslySelectedItems(currentSelection)
+        current_selection = self.scene().selectedItems()
+        previous_selection = self.scene().previouslySelectedItems()
+        self._undoStack.push(CommandSelection(self.scene(), current_selection, previous_selection))
+        self.scene().setPreviouslySelectedItems(current_selection)
 
     def nodeSelected(self, node, state):
         if state and node not in self._selectedNodes:
@@ -370,9 +369,10 @@ class WorkflowGraphicsView(QtWidgets.QGraphicsView):
             QtWidgets.QGraphicsView.mouseReleaseEvent(self, event)
             if self._selectionStartPos:
                 diff = event.pos() - self._selectionStartPos
-                if diff.x() != 0 and diff.y() != 0:
+                selected_items = self.scene().selectedItems()
+                if diff.x() != 0 and diff.y() != 0 and selected_items:
                     self._undoStack.beginMacro('Move Step(s)')
-                    for item in self.scene().selectedItems():
+                    for item in selected_items:
                         if item.type() == Node.Type:
                             self._undoStack.push(CommandMove(item, item.pos() - diff, item.pos()))
                     self._undoStack.endMacro()
