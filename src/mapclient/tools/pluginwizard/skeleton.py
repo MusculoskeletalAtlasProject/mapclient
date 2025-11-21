@@ -220,7 +220,6 @@ class Skeleton(object):
         self._configured = dlg.validate()
         self._configuredObserver()
 """
-        else:
             method_string += '        pass\n'
 
         return method_string
