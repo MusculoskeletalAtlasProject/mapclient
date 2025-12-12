@@ -244,7 +244,7 @@ jobs:
           cat $GITHUB_OUTPUT
 
       - name: Codesign application (Windows)
-        if: runner.os == 'Windows'
+        if: runner.os == 'WindowsOFF'
         shell: cmd
         run: |
           rem AzureSignTool sign -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ secrets.AZURE_CERT_NAME }} -tr http://timestamp.acs.microsoft.com -v ${{ steps.create-application.outputs.file }}
@@ -286,7 +286,7 @@ jobs:
           echo "file=$asset" >> $GITHUB_OUTPUT
 
       - name: Codesign installer (Windows)
-        if: runner.os == 'Windows'
+        if: runner.os == 'WindowsOFF'
         shell: cmd
         run: |
           "C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x86\signtool" sign /d "MAP Client - mapping tools" /tr http://rfc3161timestamp.globalsign.com/advanced /fd SHA256 /td SHA256 /f ev_certificate.pfx ${{ steps.create-installer.outputs.file }}
