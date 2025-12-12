@@ -258,9 +258,9 @@ class WorkflowWidget(QtWidgets.QWidget):
     def new(self, pmr=False):
         self.close()
 
-        workflowDir = self._get_workflow_dir()
-        if workflowDir:
-            self._create_new_workflow(workflowDir, pmr)
+        workflow_dir = self._get_workflow_dir()
+        if workflow_dir:
+            self._create_new_workflow(workflow_dir, pmr)
 
     def _workflow_finished(self, successfully):
         if successfully:
@@ -323,7 +323,6 @@ class WorkflowWidget(QtWidgets.QWidget):
     def _create_new_workflow(self, workflow_dir, pmr):
         m = self._workflowManager
         m.new(workflow_dir)
-        m.setPreviousLocation(workflow_dir)
 
         if pmr:
             pmr_info = PMR()
@@ -342,8 +341,7 @@ class WorkflowWidget(QtWidgets.QWidget):
                 raise ClientRuntimeError('Error Creating New', "Client doesn't have access to PMR")
 
         self._undoStack.clear()
-        self._ui.graphicsView.setLocation(workflow_dir)
-        self._graphicsScene.update_model()
+        self._update_location()
         self._update_ui()
 
     def newpmr(self):
@@ -496,17 +494,13 @@ class WorkflowWidget(QtWidgets.QWidget):
         try:
             m = self._workflowManager
             m.load(workflow_dir, self._graphicsScene.sceneRect())
-            m.setPreviousLocation(workflow_dir)
-            self._graphicsScene.update_model()
-            self._ui.graphicsView.setLocation(workflow_dir)
+            self._update_location()
             self._update_ui()
             self.model().add_recent_workflow(workflow_dir)
             self._update_recent_menu()
         except:
             self.close()
             raise
-
-        self._options_manager.setOption(PREVIOUS_WORKFLOW, workflow_dir)
 
     def reload(self):
         m = self._workflowManager
@@ -526,10 +520,9 @@ class WorkflowWidget(QtWidgets.QWidget):
     def save(self):
         m = self._workflowManager
         location_set = os.path.exists(m.location())
-        if location_set:
-            self._updateLocation()
-        else:
-            location_set = self._set_location()
+        if not location_set:
+            location_set = self._update_location()
+
         if location_set:
             m.scene().setViewParameters(self._ui.graphicsView.getViewParameters())
             m.save(self.pixmap())
@@ -540,35 +533,32 @@ class WorkflowWidget(QtWidgets.QWidget):
 
         self._update_ui()
 
-    def saveAs(self):
-        wm = self._workflowManager
-        workflow_dir = wm.location()
-        location_set = self._set_location()
-        if location_set:
-            self.save()
-            src_git_dir = os.path.join(workflow_dir, '.git')
-            if os.path.isdir(src_git_dir):
-                shutil.copytree(src_git_dir, os.path.join(wm.location(), '.git'), dirs_exist_ok=True)
+    def save_as(self):
+        new_workflow_dir = self._get_workflow_dir()
+        if not new_workflow_dir:
+            return
 
-    def _updateLocation(self):
         m = self._workflowManager
         workflow_dir = m.location()
-        if m.set_location(workflow_dir):
-            self._ui.graphicsView.setLocation(workflow_dir)
-            self._graphicsScene.update_model()
+        self._update_location(workflow_dir=new_workflow_dir)
+        self.save()
+        src_git_dir = os.path.join(workflow_dir, '.git')
+        if os.path.isdir(src_git_dir):
+            shutil.copytree(src_git_dir, os.path.join(m.location(), '.git'), dirs_exist_ok=True)
 
-    def _set_location(self):
-        location_set = False
+        self._update_location(workflow_dir=workflow_dir)
+        self._update_ui()
+
+    def _update_location(self, workflow_dir=None):
         m = self._workflowManager
-        workflow_dir = self._get_workflow_dir()
-        if workflow_dir:
-            m.setPreviousLocation(workflow_dir)
-            m.set_location(workflow_dir)
-            self._ui.graphicsView.setLocation(workflow_dir)
-            self._graphicsScene.update_model()
-            location_set = True
+        workflow_dir = m.location() if workflow_dir is None else workflow_dir
+        update_made = m.set_location(workflow_dir)
+        m.setPreviousLocation(workflow_dir)
+        self._options_manager.setOption(PREVIOUS_WORKFLOW, workflow_dir)
+        self._ui.graphicsView.setLocation(workflow_dir)
+        self._graphicsScene.update_model()
 
-        return location_set
+        return update_made
 
     def commitChanges(self, workflowDir):
         pmr_info = PMR()
@@ -698,7 +688,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self.action_Save = QtGui.QAction('&Save', menu_file)
         self._set_action_properties(self.action_Save, 'action_Save', self.save, 'Ctrl+S', 'Save Workflow')
         self.action_SaveAs = QtGui.QAction('Save As', menu_file)
-        self._set_action_properties(self.action_SaveAs, 'action_SaveAs', self.saveAs, '', 'Save Workflow as ...')
+        self._set_action_properties(self.action_SaveAs, 'action_SaveAs', self.save_as, '', 'Save Workflow as ...')
         self.action_Execute = QtGui.QAction('E&xecute', menu_workflow)
         self._set_action_properties(self.action_Execute, 'action_Execute', self.executeWorkflow, 'Ctrl+X',
                                     'Execute Workflow')
