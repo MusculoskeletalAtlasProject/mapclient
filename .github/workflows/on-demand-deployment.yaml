@@ -83,7 +83,7 @@ jobs:
         with:
           ref: ${{ needs.setup.outputs.tag }}
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.10'
       - name: Set target url
@@ -127,7 +127,7 @@ jobs:
         shell: bash
         run: brew install create-dmg
       - name: Import Certificates (macOS)
-        uses: apple-actions/import-codesign-certs@v3
+        uses: apple-actions/import-codesign-certs@v7
         if: runner.os == 'macOS'
         with:
           p12-file-base64: ${{ secrets.APPLE_DEV_APP_CERT }}
@@ -148,14 +148,14 @@ jobs:
           echo "Finding signtool"
           dir /s /b "C:\Program Files (x86)\Windows Kits\10\bin\signtool.exe"
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install NSIS
         if: runner.os == 'Windows'
-        uses: repolevedavaj/install-nsis@v1.0.3
+        uses: repolevedavaj/install-nsis@v1.2.1
         with:
-          nsis-version: '3.11'
+          nsis-version: '3.12'
       - name: Verify NSIS Installation
         if: runner.os == 'Windows'
         run: |
