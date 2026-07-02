@@ -1,0 +1,54 @@
+name: Cleanup RC Releases
+
+on:
+  schedule:
+    - cron: "0 0 1 */2 *"  # every 2 months
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run only don't actually delete anything"
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Cleanup old RC releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          set -euo pipefail
+
+          CUTOFF=$(date -u -d "60 days ago" +%s)
+
+          gh api repos/$OWNER/$REPO/releases --paginate \
+            --jq '.[] | select(.prerelease == true) | "\(.id)|\(.tag_name)|\(.created_at)"' |
+          while IFS='|' read -r RELEASE_ID TAG CREATED_AT
+          do
+            CREATED_EPOCH=$(date -u -d "$CREATED_AT" +%s)
+
+            if [ "$CREATED_EPOCH" -lt "$CUTOFF" ]; then
+              if [ "{{ inputs.dry_run }}" = "true" ]; then
+                echo "Would delete pre-release '$TAG'."
+              else
+                echo "Deleting release $TAG"
+  
+                gh api \
+                  --method DELETE \
+                  repos/$OWNER/$REPO/releases/$RELEASE_ID
+  
+                echo "Deleting tag $TAG"
+  
+                gh api \
+                  --method DELETE \
+                  repos/$OWNER/$REPO/git/refs/tags/$TAG || true
+              fi
+            fi
+          done
