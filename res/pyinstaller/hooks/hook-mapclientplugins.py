@@ -14,7 +14,8 @@ if os.path.isfile(plugin_paths_file):
 
     print('plugin_paths:', plugin_paths)
     hiddenimports = []
-    for plugin_path, mode in plugin_paths:
+    for plugin_path in plugin_paths:
+        print('plugin_path:', plugin_path)
         mapclientplugins_dir = os.path.join(plugin_path, 'mapclientplugins')
         if os.path.isdir(mapclientplugins_dir):
             for name in os.listdir(mapclientplugins_dir):
