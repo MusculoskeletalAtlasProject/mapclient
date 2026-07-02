@@ -108,7 +108,7 @@ jobs:
           python -m build --wheel src/
       - name: Publish package to PyPI
         run: |
-          twine upload --skip-existing src/dist/*
+          twine upload --skip-existing --repository-url ${{ steps.target-url.outputs.pypi-url }} src/dist/*
 
   installer:
     needs: setup
