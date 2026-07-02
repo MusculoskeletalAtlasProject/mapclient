@@ -17,6 +17,7 @@ if os.path.isfile(plugin_paths_file):
     for plugin_path in plugin_paths:
         print('plugin_path:', plugin_path)
         mapclientplugins_dir = os.path.join(plugin_path, 'mapclientplugins')
+        print("mapclientplugins_dir:", mapclientplugins_dir, os.path.isdir(mapclientplugins_dir))
         if os.path.isdir(mapclientplugins_dir):
             for name in os.listdir(mapclientplugins_dir):
                 if os.path.isdir(os.path.join(mapclientplugins_dir, name)) and not name.startswith('_'):
