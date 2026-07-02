@@ -293,7 +293,7 @@ jobs:
           rem AzureSignTool sign -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ secrets.AZURE_CERT_NAME }} -tr http://timestamp.acs.microsoft.com -v ${{ steps.create-installer.outputs.file }}
 
       - name: Notarize and Staple installer (macOS)
-        if: runner.os == 'macOS-Disabled'
+        if: runner.os == 'macOS'
         run: |
           #codesign -s "${{ secrets.APPLE_DEV_ID_APPLICATION}}" --timestamp --force "${{ steps.create-installer.outputs.file }}"
           xcrun notarytool submit "${{ steps.create-installer.outputs.file }}" --apple-id ${{ secrets.APPLE_NOTARIZATION_USERNAME }} --password ${{ secrets.APPLE_NOTARIZATION_PASSWORD }} --team-id ${{ secrets.APPLE_DEV_TEAM_ID }} --wait
