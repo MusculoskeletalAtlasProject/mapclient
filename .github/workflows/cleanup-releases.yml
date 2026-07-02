@@ -35,7 +35,7 @@ jobs:
             CREATED_EPOCH=$(date -u -d "$CREATED_AT" +%s)
 
             if [ "$CREATED_EPOCH" -lt "$CUTOFF" ]; then
-              if [ "{{ inputs.dry_run }}" = "true" ]; then
+              if [ "${{ inputs.dry_run }}" = "true" ]; then
                 echo "Would delete pre-release '$TAG'."
               else
                 echo "Deleting release $TAG"
