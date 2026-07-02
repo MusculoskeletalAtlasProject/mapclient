@@ -75,6 +75,8 @@ jobs:
   pypipackage:
     needs: setup
     name: PyPIPackage
+    permissions:
+      contents: write
     if: needs.setup.outputs.package == 'true'
     runs-on: ubuntu-24.04
     steps:
