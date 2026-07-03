@@ -15,8 +15,10 @@ import traceback
 import types
 
 from mapclient.application import get_app_path
+from mapclient.core.pluginframework import discover_plugins, add_plugins
 from mapclient.core.utils import which, FileTypeObject, grep, is_frozen, determine_step_name, determine_step_class_name, \
     stable_hash
+from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     PLUGINS_PACKAGE_NAME, PLUGINS_PTH
 from mapclient.core.checks import getPipExecutable
@@ -173,7 +175,7 @@ class PluginManager:
 
     def _addPluginDir(self, directory):
         added = False
-        if isMapClientPluginsDir(directory):
+        if is_map_client_plugins_dir(directory):
             if directory not in sys.path:
                 sys.path.append(directory)
                 added = True
@@ -218,7 +220,7 @@ class PluginManager:
 
         return []
 
-    def load(self):
+    def load(self, initialise=True):
         self._reload_plugins = False
 
         len_package_modules_prior = len(sys.modules[PLUGINS_PACKAGE_NAME].__path__) if PLUGINS_PACKAGE_NAME in sys.modules else 0
@@ -237,15 +239,10 @@ class PluginManager:
                         new_plugin_directories.append(os.path.join(directory, name))
 
         if len_package_modules_prior == 0:
-            try:
-                package = import_module(PLUGINS_PACKAGE_NAME)
-            except ModuleNotFoundError:
-                return
-        else:
-            for d in new_plugin_directories:
-                sys.modules[PLUGINS_PACKAGE_NAME].__path__.append(os.path.join(d, PLUGINS_PACKAGE_NAME))
+            discover_plugins(new_plugin_directories)
 
-            package = sys.modules[PLUGINS_PACKAGE_NAME]
+        add_plugins(new_plugin_directories)
+        package = sys.modules[PLUGINS_PACKAGE_NAME]
 
         self._import_errors = []
         self._type_errors = []
@@ -314,6 +311,8 @@ class PluginManager:
                     traceback.print_exception(exc_type, exc_value, exc_traceback, file=redirect_output)
                     logger.warning(''.join(redirect_output.messages))
 
+        if initialise:
+            WorkflowStepMountPoint.initialise_plugin_map()
         # installed = [pkg.key for pkg in pkg_resources.working_set]
         # print(installed)
 
@@ -444,20 +443,20 @@ class PluginManager:
         settings.endGroup()
 
 
-def isMapClientPluginsDir(plugin_dir):
-    result = False
+def is_map_client_plugins_dir(plugin_dir):
     try:
         names = os.listdir(plugin_dir)
-    except:
-        return result
+    except OSError:
+        return False
 
     if PLUGINS_PACKAGE_NAME in names:
-        files = grep(os.path.join(plugin_dir, PLUGINS_PACKAGE_NAME),
-                     r'(from|import) mapclient.mountpoints.workflowstep', one_only=True, file_endswith='.py')
-        if files:
-            result = True
+        return True
+        # files = grep(os.path.join(plugin_dir, PLUGINS_PACKAGE_NAME),
+        #              r'(from|import) mapclient.mountpoints.workflowstep', one_only=True, file_endswith='.py')
+        # if files:
+        #     result = True
 
-    return result
+    return False
 
 
 class PluginSiteManager(object):

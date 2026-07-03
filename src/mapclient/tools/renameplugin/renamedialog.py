@@ -5,7 +5,7 @@ import subprocess
 
 from PySide6 import QtCore, QtWidgets
 
-from mapclient.core.managers.pluginmanager import isMapClientPluginsDir
+from mapclient.core.managers.pluginmanager import is_map_client_plugins_dir
 from mapclient.core.utils import grep, determine_package_name, determine_step_class_name, determine_step_name, \
     convert_name_to_python_package, find_file, qt_tool_wrapper
 from mapclient.settings.definitions import PLUGINS_PACKAGE_NAME
@@ -125,7 +125,7 @@ class RenameDialog(QtWidgets.QDialog):
 
     def _interrogateTarget(self):
         target = self._ui.lineEditStepLocation.text()
-        is_plugin_dir = isMapClientPluginsDir(target)
+        is_plugin_dir = is_map_client_plugins_dir(target)
         if is_plugin_dir:
             step_dir = os.path.join(target, PLUGINS_PACKAGE_NAME)
             files = grep(step_dir, r'(from|import) mapclient.mountpoints.workflowstep',

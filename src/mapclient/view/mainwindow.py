@@ -475,7 +475,7 @@ class MainWindow(QtWidgets.QMainWindow):
             pm.set_directories(self._plugin_manager_dlg.directories())
 
         if pm.reloadPlugins():
-            pm.load()
+            pm.load(initialise=False)
             wm = self._model.workflowManager()
             wm.updateAvailableSteps()
             self._workflowWidget.updateStepTree()

@@ -328,11 +328,11 @@ WorkflowStepMountPoint = pluginframework.MetaPluginMountPoint('WorkflowStepMount
 
 
 def workflowStepFactory(step_name, location):
-    for step in WorkflowStepMountPoint.getPlugins(location):
-        if step_name == step.getName():
-            return step
+    step = WorkflowStepMountPoint.get_plugin(step_name, location)
+    if step is None:
+        raise ValueError('Failed to find/create a step named: ' + step_name)
 
-    raise ValueError('Failed to find/create a step named: ' + step_name)
+    return step
 
 
 def removeWorkflowStep(step_module):

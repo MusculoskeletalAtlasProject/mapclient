@@ -70,5 +70,5 @@ class WorkflowSteps(QtGui.QStandardItemModel):
     def reload(self):
         self.clear()
         self.setColumnCount(1)
-        for step in WorkflowStepMountPoint.getPlugins(''):
+        for step in WorkflowStepMountPoint.get_all_plugins(''):
             addStep(self, step)
