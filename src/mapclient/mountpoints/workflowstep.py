@@ -345,7 +345,4 @@ def removeWorkflowStep(step_module):
         if step_module in key:
             del sys.modules[key]
 
-    for cls in WorkflowStepMountPoint.plugins[:]:
-        if cls and step_module in cls.__module__:
-            index = WorkflowStepMountPoint.plugins.index(cls)
-            WorkflowStepMountPoint.plugins.pop(index)
+    WorkflowStepMountPoint.remove_plugin(step_module)

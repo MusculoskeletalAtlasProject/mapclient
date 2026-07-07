@@ -111,6 +111,15 @@ class MetaPluginMountPoint(type):
 
         return None
 
+    def remove_plugin(self, step_module):
+        for cls in self._plugins:
+            if cls and step_module in cls.__module__:
+                print(cls.getName(), step_module)
+                index = self._plugins.index(cls)
+                self._plugins.pop(index)
+                if cls.getName() in self._map:
+                    self._map.pop(cls.getName())
+
 
 # Plugin mount points are defined below.
 # For running in both python 2.x and python 3.x we must follow the example found

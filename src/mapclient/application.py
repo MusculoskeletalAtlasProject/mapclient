@@ -213,6 +213,7 @@ def windows_main(workflow, execute_now):
 
     splash.showMessage('Ready ...', 100)
     splash.finish(window)
+
     return app.exec()
 
 
