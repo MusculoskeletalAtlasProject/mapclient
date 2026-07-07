@@ -106,7 +106,7 @@ class MetaPluginMountPoint(type):
 
     def get_plugin(self, name, *args, **kwargs):
         index = self._map.get(name)
-        if index:
+        if indexj >= 0:
             return self._plugins[index](*args, **kwargs)
 
         return None
