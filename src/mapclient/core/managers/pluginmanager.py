@@ -194,7 +194,6 @@ class PluginManager:
 
         if not is_frozen():
             subprocess.Popen([python_executable, "-m", "pip", "install", str(uri)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
-            # importlib.reload(pkg_resources)
 
     def extractPluginDependencies(self, path):
         setup_dir, step_dir = os.path.split(path)
@@ -250,10 +249,6 @@ class PluginManager:
         self._tab_errors = []
         self._plugin_error_directories = {}
         self._plugin_error_names = []
-
-        # a(pkg_resources.working_set)
-        # installed = [pkg.key for pkg in pkg_resources.working_set]
-        # print(installed)
 
         for module_finder, modname, ispkg in pkgutil.iter_modules(package.__path__):
             if ispkg:
@@ -313,8 +308,6 @@ class PluginManager:
 
         if initialise:
             WorkflowStepMountPoint.initialise_plugin_map()
-        # installed = [pkg.key for pkg in pkg_resources.working_set]
-        # print(installed)
 
     def get_plugin_error_names(self):
         return self._plugin_error_names
