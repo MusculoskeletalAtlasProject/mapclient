@@ -198,7 +198,10 @@ def discover_plugins(plugin_directories):
         pkg_resources.declare_namespace = declare_namespace
         sys.modules['pkg_resources'] = pkg_resources
 
-    # bootstrap namespace
-    m = types.ModuleType(PLUGINS_PACKAGE_NAME)
-    m.__path__ = []
-    sys.modules[PLUGINS_PACKAGE_NAME] = m
+    try:
+        importlib.import_module(PLUGINS_PACKAGE_NAME)
+    except ModuleNotFoundError:
+        # bootstrap namespace
+        m = types.ModuleType(PLUGINS_PACKAGE_NAME)
+        m.__path__ = []
+        sys.modules[PLUGINS_PACKAGE_NAME] = m
