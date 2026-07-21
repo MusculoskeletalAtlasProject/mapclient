@@ -18,12 +18,19 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
 import importlib
+import importlib.util
 import logging
 import os
+import pkgutil
+import sys
+import types
+
+from importlib.metadata import distributions
+from pathlib import Path
 
 from PySide6.QtCore import QObject
 
-from mapclient.settings.definitions import MAIN_MODULE
+from mapclient.settings.definitions import MAIN_MODULE, PLUGINS_PACKAGE_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -74,22 +81,44 @@ class MetaPluginMountPoint(type):
     classes like so:
     MyPlugin = MetaPluginMountPoint('MyPlugin', (object, ), {})
     """
-
     def __init__(cls, name, bases, attrs):
-        if not hasattr(cls, 'plugins'):
+        super(MetaPluginMountPoint, cls).__init__(name, bases, attrs)
+        if not hasattr(cls, '_plugins'):
             # This branch only executes when processing the mount point itself.
             # So, since this is a new plugin type, not an implementation, this
             # class shouldn't be registered as a plugin. Instead, it sets up a
             # list where plugins can be registered later.
-            cls.plugins = []
+            cls._plugins = []
+            cls._map = {}
         else:
             # This must be a plugin implementation, which should be registered.
             # Simply appending it to the list is all that's needed to keep
             # track of it later.
-            cls.plugins.append(cls)
+            cls._plugins.append(cls)
 
-    def getPlugins(self, *args, **kwargs):
-        return [p(*args, **kwargs) for p in self.plugins]
+    def initialise_plugin_map(self):
+        plugins = [p("") for p in self._plugins]
+        self._map = {plugin.getName(): index for index, plugin in enumerate(plugins)}
+        return plugins
+
+    def get_all_plugins(self, *args, **kwargs):
+        return self.initialise_plugin_map()
+
+    def get_plugin(self, name, *args, **kwargs):
+        index = self._map.get(name, -1)
+        if indexj >= 0:
+            return self._plugins[index](*args, **kwargs)
+
+        return None
+
+    def remove_plugin(self, step_module):
+        for cls in self._plugins:
+            if cls and step_module in cls.__module__:
+                print(cls.getName(), step_module)
+                index = self._plugins.index(cls)
+                self._plugins.pop(index)
+                if cls.getName() in self._map:
+                    self._map.pop(cls.getName())
 
 
 # Plugin mount points are defined below.
@@ -143,3 +172,36 @@ keyword arguments, the tool menu ('menu_Tool') and the parent widget ('parent').
 ToolMountPoint = MetaPluginMountPoint('ToolMountPoint', (object,), {})
 
 
+def add_plugins(plugin_directories):
+    for d in plugin_directories:
+        sys.modules[PLUGINS_PACKAGE_NAME].__path__.append(os.path.join(d, PLUGINS_PACKAGE_NAME))
+
+def discover_plugins(plugin_directories):
+    # setuptools stopped supporting pkg_resources,
+    # but we cannot know if every plugin has removed
+    # this old import device. So, we will create a shim
+    # if it is no longer available and protect against
+    # plugins still using it.
+    mock_pkg_resources = False
+    try:
+        import pkg_resources
+        if not hasattr(pkg_resources, 'declare_namespace'):
+            mock_pkg_resources = True
+    except ModuleNotFoundError:
+        mock_pkg_resources = True
+
+    if mock_pkg_resources:
+        def declare_namespace(name):
+            pass
+
+        pkg_resources = types.ModuleType('pkg_resources')
+        pkg_resources.declare_namespace = declare_namespace
+        sys.modules['pkg_resources'] = pkg_resources
+
+    try:
+        importlib.import_module(PLUGINS_PACKAGE_NAME)
+    except ModuleNotFoundError:
+        # bootstrap namespace
+        m = types.ModuleType(PLUGINS_PACKAGE_NAME)
+        m.__path__ = []
+        sys.modules[PLUGINS_PACKAGE_NAME] = m
