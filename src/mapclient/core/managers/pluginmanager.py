@@ -3,7 +3,7 @@ Created on May 19, 2015
 
 @author: hsorby
 """
-import importlib
+import importlib.machinery
 import json
 import logging
 import os
