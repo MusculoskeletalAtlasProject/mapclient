@@ -221,7 +221,7 @@ jobs:
           # ${{ steps.get_tag.outputs.tag }}
 
           # Manually install PyInstaller rather than use the dev install requires from setup.py.
-          ${{ steps.python-environment.outputs.pip_exe }} install "pyinstaller<=6.16"
+          ${{ steps.python-environment.outputs.pip_exe }} install "pyinstaller"
 
           git fetch
           git switch ${{ matrix.variant }}
