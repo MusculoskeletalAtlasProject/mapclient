@@ -1,10 +1,13 @@
 import argparse
 import glob
+import importlib.metadata
 import json
 import os
 import platform
 import site
-from pathlib import Path, PureWindowsPath
+
+from pathlib import PureWindowsPath
+from packaging.version import Version
 
 import PySide6 as RefMod
 
@@ -12,7 +15,6 @@ import PyInstaller.__main__
 
 from mapclient.core.provenance import reproducibility_info
 from mapclient.settings.definitions import APPLICATION_NAME, FROZEN_PROVENANCE_INFO_FILE
-
 
 # Set Python optimisations on.
 os.environ['PYTHONOPTIMIZE'] = '1'
@@ -58,6 +60,9 @@ def main(variant):
         '--hidden-import', 'numpy',
         '--additional-hooks-dir=hooks',
     ]
+
+    if Version(importlib.metadata.version('setuptools')) > Version("81.0.0"):
+        run_command.extend(['--exclude-module', 'pkg_resources'])
 
     info = reproducibility_info()
     info_file = FROZEN_PROVENANCE_INFO_FILE
