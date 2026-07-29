@@ -3,8 +3,6 @@
 # this old import device. So, we will create a shim
 # if it is no longer available and protect against
 # plugins still using it.
-import types
-
 mock_pkg_resources = False
 try:
     import pkg_resources
@@ -15,6 +13,9 @@ except ModuleNotFoundError:
     mock_pkg_resources = True
 
 if mock_pkg_resources:
+    import types
+
+
     def declare_namespace(name):
         pass
 
