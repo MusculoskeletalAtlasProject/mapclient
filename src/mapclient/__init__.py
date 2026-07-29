@@ -13,6 +13,7 @@ except ModuleNotFoundError:
     mock_pkg_resources = True
 
 if mock_pkg_resources:
+    import sys
     import types
 
 
