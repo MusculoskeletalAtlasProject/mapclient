@@ -75,11 +75,8 @@ class CommandSelection(QtGui.QUndoCommand):
     def _apply_selection(self, items_to_select):
         self._scene.blockSignals(True)
 
-        self._scene.clearSelection()
-        for item in items_to_select:
-            # Check if item still belongs to scene (handle deleted items)
-            if item.scene() == self._scene:
-                item.setSelected(True)
+        for item in self._scene.items():
+            item.setSelected(item in items_to_select)
 
         self._scene.blockSignals(False)
 
