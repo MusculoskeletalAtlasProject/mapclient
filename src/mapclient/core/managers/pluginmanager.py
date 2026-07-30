@@ -15,7 +15,6 @@ import traceback
 import types
 
 from mapclient.application import get_app_path
-from mapclient.core.pluginframework import discover_plugins, add_plugins
 from mapclient.core.utils import which, FileTypeObject, grep, is_frozen, determine_step_name, determine_step_class_name, \
     stable_hash
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
@@ -173,7 +172,7 @@ class PluginManager:
     def getPluginDatabase(self):
         return self._plugin_database
 
-    def _addPluginDir(self, directory):
+    def _add_plugin_dir(self, directory):
         added = False
         if is_map_client_plugins_dir(directory):
             if directory not in sys.path:
@@ -193,7 +192,8 @@ class PluginManager:
             python_executable = sys.executable
 
         if not is_frozen():
-            subprocess.Popen([python_executable, "-m", "pip", "install", str(uri)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
+            subprocess.Popen([python_executable, "-m", "pip", "install", str(uri)], stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, env=my_env)
 
     def extractPluginDependencies(self, path):
         setup_dir, step_dir = os.path.split(path)
@@ -222,10 +222,11 @@ class PluginManager:
     def load(self, initialise=True):
         self._reload_plugins = False
 
-        len_package_modules_prior = len(sys.modules[PLUGINS_PACKAGE_NAME].__path__) if PLUGINS_PACKAGE_NAME in sys.modules else 0
+        len_package_modules_prior = len(
+            sys.modules[PLUGINS_PACKAGE_NAME].__path__) if PLUGINS_PACKAGE_NAME in sys.modules else 0
         new_plugin_directories = []
         for directory in self.directories():
-            if self._addPluginDir(directory):
+            if self._add_plugin_dir(directory):
                 new_plugin_directories.append(directory)
             else:
                 try:
@@ -234,13 +235,18 @@ class PluginManager:
                     continue
 
                 for name in sorted(names):
-                    if self._addPluginDir(os.path.join(directory, name)):
+                    if self._add_plugin_dir(os.path.join(directory, name)):
                         new_plugin_directories.append(os.path.join(directory, name))
 
-        if len_package_modules_prior == 0:
-            discover_plugins(new_plugin_directories)
+        # Check new plugin directories for incompatible plugins.
+        for directory in new_plugin_directories:
+            init_py_file = os.path.join(directory, PLUGINS_PACKAGE_NAME, '__init__.py')
+            if os.path.exists(init_py_file):
+                logger.warning(
+                    f'Plugin {os.path.basename(directory)} contains an old style __init__.py file in the "{PLUGINS_PACKAGE_NAME}" directory. This file must be removed for this plugin to be available in the application.')
+                sys.path.remove(directory)
 
-        add_plugins(new_plugin_directories)
+        importlib.import_module(PLUGINS_PACKAGE_NAME)
         package = sys.modules[PLUGINS_PACKAGE_NAME]
 
         self._import_errors = []
@@ -263,18 +269,21 @@ class PluginManager:
 
                     module = import_module(PLUGINS_PACKAGE_NAME + '.' + modname)
                     if hasattr(module, '__version__') and hasattr(module, '__author__'):
-                        logger.info('Loaded plugin \'' + modname + '\' version [' + module.__version__ + '] by ' + module.__author__)
+                        logger.info(
+                            f'Loaded plugin \'{modname}\' version [{module.__version__}] by {module.__author__}')
                     if hasattr(module, '__location__') and module.__location__:
-                        logger.info('Plugin \'' + modname + '\' available from: ' + module.__location__)
+                        logger.info(f'Plugin \'{modname}\' available from: {module.__location__}')
                     else:
-                        logger.info('Plugin \'' + modname + '\' has no location set.')
+                        logger.info(f'Plugin \'{modname}\' has no location set.')
 
-                    self._plugin_database.addLoadedPluginInformation(modname,
-                                                                     module.__stepname__ if hasattr(module, '__stepname__') else 'None',
-                                                                     module.__author__ if hasattr(module, '__author__') else 'Anon.',
-                                                                     module.__version__ if hasattr(module, '__version__') else '0.0.0',
-                                                                     module.__location__ if hasattr(module, '__location__') else '',
-                                                                     plugin_dependencies)
+                    self._plugin_database.addLoadedPluginInformation(
+                        modname,
+                        module.__stepname__ if hasattr(module, '__stepname__') else 'None',
+                        module.__author__ if hasattr(module, '__author__') else 'Anon.',
+                        module.__version__ if hasattr(module, '__version__') else '0.0.0',
+                        module.__location__ if hasattr(module, '__location__') else '',
+                        plugin_dependencies
+                    )
                 except Exception as e:
                     from mapclient.mountpoints.workflowstep import removeWorkflowStep
                     # Call remove partially loaded plugin manually method
@@ -314,11 +323,16 @@ class PluginManager:
 
     def haveErrors(self):
         return len(self._import_errors) or len(self._type_errors) or \
-               len(self._syntax_errors) or len(self._tab_errors) or len(self._plugin_error_directories)
+            len(self._syntax_errors) or len(self._tab_errors) or len(self._plugin_error_directories)
 
     def getPluginErrors(self):
-        return {'ImportError': self._import_errors, 'TypeError': self._type_errors, 'SyntaxError': self._syntax_errors, 'TabError': self._tab_errors,
-                'directories': self._plugin_error_directories}
+        return {
+            'ImportError': self._import_errors,
+            'TypeError': self._type_errors,
+            'SyntaxError': self._syntax_errors,
+            'TabError': self._tab_errors,
+            'directories': self._plugin_error_directories
+        }
 
     def set_profile_directories(self, profile_directories):
         """
@@ -570,7 +584,8 @@ class PluginDatabase:
 
         return pluginDict
 
-    def addLoadedPluginInformation(self, plugin_name, step_name, plugin_author, plugin_version, plugin_location, plugin_dependencies):
+    def addLoadedPluginInformation(self, plugin_name, step_name, plugin_author, plugin_version, plugin_location,
+                                   plugin_dependencies):
         plugin_dict = {}
         plugin_dict['plugin name'] = plugin_name
         plugin_dict['author'] = plugin_author
