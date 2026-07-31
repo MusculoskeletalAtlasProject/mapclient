@@ -17,20 +17,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-import importlib
-import importlib.util
 import logging
-import os
-import pkgutil
-import sys
-import types
-
-from importlib.metadata import distributions
-from pathlib import Path
 
 from PySide6.QtCore import QObject
-
-from mapclient.settings.definitions import MAIN_MODULE, PLUGINS_PACKAGE_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -39,26 +28,6 @@ logger = logging.getLogger(__name__)
 Inspired by Marty Alchin's Simple plugin framework.
 http://martyalchin.com/2008/jan/10/simple-plugin-framework/
 """
-
-
-def getPlugins(pluginDirectory):
-    """
-    Get all plugins from the given directory.
-    """
-    plugins = []
-    try:
-        possibleplugins = os.listdir(pluginDirectory)
-    except OSError:
-        possibleplugins = []
-    for i in possibleplugins:
-        # print('possible plugin: ' + i)
-        location = os.path.join(pluginDirectory, i)
-        if not os.path.isdir(location) or not MAIN_MODULE + '.py' in os.listdir(location):
-            continue
-        info = importlib.util.find_spec(MAIN_MODULE, [location])
-        plugins.append({'name': i, 'info': info})
-
-    return plugins
 
 
 class MetaPluginMountPoint(type):
@@ -170,17 +139,3 @@ keyword arguments, the tool menu ('menu_Tool') and the parent widget ('parent').
 
 """
 ToolMountPoint = MetaPluginMountPoint('ToolMountPoint', (object,), {})
-
-
-def add_plugins(plugin_directories):
-    for d in plugin_directories:
-        sys.modules[PLUGINS_PACKAGE_NAME].__path__.append(os.path.join(d, PLUGINS_PACKAGE_NAME))
-
-def discover_plugins(plugin_directories):
-    try:
-        importlib.import_module(PLUGINS_PACKAGE_NAME)
-    except ModuleNotFoundError:
-        # bootstrap namespace
-        m = types.ModuleType(PLUGINS_PACKAGE_NAME)
-        m.__path__ = []
-        sys.modules[PLUGINS_PACKAGE_NAME] = m
