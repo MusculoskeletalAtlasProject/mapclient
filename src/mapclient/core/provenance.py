@@ -96,12 +96,6 @@ def describe_tag(src_dir, check_parent=True):
 
 
 def _determine_capabilities():
-    try:
-        import mapclientplugins
-        mapclientplugins_present = True
-    except ModuleNotFoundError:
-        mapclientplugins_present = False
-
     my_env = os.environ.copy()
     python_executable = sys.executable
 
@@ -109,15 +103,16 @@ def _determine_capabilities():
 
     package_info = _strip_pip_list_output(result.stdout)
 
+    plugins_package = sys.modules.get(PLUGINS_PACKAGE_NAME)
     plugin_names = []
     mapclient_plugins_info = {}
-    if mapclientplugins_present:
-        for loader, module_name, is_pkg in pkgutil.walk_packages(mapclientplugins.__path__):
+    if plugins_package is not None:
+        for loader, module_name, is_pkg in pkgutil.iter_modules(plugins_package.__path__):
             if is_pkg:
                 package_name = PLUGINS_PACKAGE_NAME + '.' + module_name
                 try:
                     plugin_names.append(package_name)
-                    module = import_module(package_name)
+                    module = sys.modules.get(package_name)
                     mapclient_plugins_info[package_name] = {
                         "version": module.__version__ if hasattr(module, '__version__') else "X.Y.Z",
                         "location": module.__location__ if hasattr(module, '__location__') else "<plugin-location-not-set>",
