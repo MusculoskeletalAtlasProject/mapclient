@@ -3,6 +3,7 @@ Created on May 19, 2015
 
 @author: hsorby
 """
+import importlib.metadata
 import importlib.machinery
 import json
 import logging
@@ -14,15 +15,15 @@ import sys
 import traceback
 import types
 
+from importlib import import_module
+
 from mapclient.application import get_app_path
-from mapclient.core.utils import which, FileTypeObject, grep, is_frozen, determine_step_name, determine_step_class_name, \
+from mapclient.core.utils import which, FileTypeObject, is_frozen, determine_step_name, determine_step_class_name, \
     stable_hash
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     PLUGINS_PACKAGE_NAME, PLUGINS_PTH
 from mapclient.core.checks import getPipExecutable
-
-from importlib import import_module
 
 from mapclient.settings.general import get_virtualenv_site_packages_directory, get_settings
 
@@ -617,7 +618,7 @@ class PluginDatabase:
         Takes a list of dependencies as input. Returns a list of all the dependencies that aren't already installed.
         If a dependency has a url supplied AND it isn't installed, add just the url to the missing_dependencies list.
         """
-        installed = [dist.name for dist in importlib.metadata.distributions()]
+        installed = [dist.name if hasattr(dist, 'name') else dist.metadata['Name'] for dist in importlib.metadata.distributions()]
         missing_dependencies = []
         for dependency in dependencies:
             if '@' in dependency:

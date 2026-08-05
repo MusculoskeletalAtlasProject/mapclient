@@ -74,8 +74,8 @@ class MetaPluginMountPoint(type):
         return self.initialise_plugin_map()
 
     def get_plugin(self, name, *args, **kwargs):
-        index = self._map.get(name, -1)
-        if index >= 0:
+        index = self._map.get(name)
+        if index is not None:
             return self._plugins[index](*args, **kwargs)
 
         return None
@@ -83,7 +83,6 @@ class MetaPluginMountPoint(type):
     def remove_plugin(self, step_module):
         for cls in self._plugins:
             if cls and step_module in cls.__module__:
-                print(cls.getName(), step_module)
                 index = self._plugins.index(cls)
                 self._plugins.pop(index)
                 if cls.getName() in self._map:
