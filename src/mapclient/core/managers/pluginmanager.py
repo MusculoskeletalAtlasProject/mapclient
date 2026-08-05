@@ -618,7 +618,7 @@ class PluginDatabase:
         Takes a list of dependencies as input. Returns a list of all the dependencies that aren't already installed.
         If a dependency has a url supplied AND it isn't installed, add just the url to the missing_dependencies list.
         """
-        installed = [dist.name for dist in importlib.metadata.distributions()]
+        installed = [dist.name if hasattr(dist, 'name') else dist.metadata['Name'] for dist in importlib.metadata.distributions()]
         missing_dependencies = []
         for dependency in dependencies:
             if '@' in dependency:

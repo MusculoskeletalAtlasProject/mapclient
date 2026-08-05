@@ -111,11 +111,11 @@ def _determine_capabilities():
             if is_pkg:
                 package_name = PLUGINS_PACKAGE_NAME + '.' + module_name
                 try:
+                    pkg = import_module(package_name)
                     plugin_names.append(package_name)
-                    module = sys.modules.get(package_name)
                     mapclient_plugins_info[package_name] = {
-                        "version": module.__version__ if hasattr(module, '__version__') else "X.Y.Z",
-                        "location": module.__location__ if hasattr(module, '__location__') else "<plugin-location-not-set>",
+                        "version": pkg.__version__ if hasattr(pkg, '__version__') else "X.Y.Z",
+                        "location": pkg.__location__ if hasattr(pkg, '__location__') else "<plugin-location-not-defined>",
                     }
                 except ModuleNotFoundError:
                     pass
