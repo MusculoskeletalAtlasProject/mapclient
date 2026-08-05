@@ -29,10 +29,10 @@
    <item>
     <widget class="QFrame" name="frame_2">
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::Shape::StyledPanel</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
@@ -44,7 +44,7 @@
          <item>
           <widget class="QTableWidget" name="tableWidgetMAPClient">
            <property name="editTriggers">
-            <set>QAbstractItemView::NoEditTriggers</set>
+            <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
            </property>
            <property name="sortingEnabled">
             <bool>true</bool>
@@ -84,16 +84,16 @@
    <item>
     <widget class="QFrame" name="frame">
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::Shape::StyledPanel</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -104,7 +104,30 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="btn_Close">
+       <widget class="QPushButton" name="pushButtonDownload">
+        <property name="text">
+         <string>Download</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Policy::Maximum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonClose">
         <property name="text">
          <string>&amp;Close</string>
         </property>
@@ -118,7 +141,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>btn_Close</sender>
+   <sender>pushButtonClose</sender>
    <signal>clicked()</signal>
    <receiver>ProvenanceDialog</receiver>
    <slot>close()</slot>

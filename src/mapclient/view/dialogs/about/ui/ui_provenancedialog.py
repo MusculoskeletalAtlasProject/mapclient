@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'provenancedialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -30,8 +30,8 @@ class Ui_ProvenanceDialog(object):
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.frame_2 = QFrame(ProvenanceDialog)
         self.frame_2.setObjectName(u"frame_2")
-        self.frame_2.setFrameShape(QFrame.StyledPanel)
-        self.frame_2.setFrameShadow(QFrame.Raised)
+        self.frame_2.setFrameShape(QFrame.Shape.StyledPanel)
+        self.frame_2.setFrameShadow(QFrame.Shadow.Raised)
         self.verticalLayout_2 = QVBoxLayout(self.frame_2)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.groupBoxMAPClient = QGroupBox(self.frame_2)
@@ -40,7 +40,7 @@ class Ui_ProvenanceDialog(object):
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.tableWidgetMAPClient = QTableWidget(self.groupBoxMAPClient)
         self.tableWidgetMAPClient.setObjectName(u"tableWidgetMAPClient")
-        self.tableWidgetMAPClient.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.tableWidgetMAPClient.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.tableWidgetMAPClient.setSortingEnabled(True)
 
         self.verticalLayout_3.addWidget(self.tableWidgetMAPClient)
@@ -77,25 +77,34 @@ class Ui_ProvenanceDialog(object):
 
         self.frame = QFrame(ProvenanceDialog)
         self.frame.setObjectName(u"frame")
-        self.frame.setFrameShape(QFrame.StyledPanel)
-        self.frame.setFrameShadow(QFrame.Raised)
+        self.frame.setFrameShape(QFrame.Shape.StyledPanel)
+        self.frame.setFrameShadow(QFrame.Shadow.Raised)
         self.horizontalLayout = QHBoxLayout(self.frame)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
 
-        self.btn_Close = QPushButton(self.frame)
-        self.btn_Close.setObjectName(u"btn_Close")
+        self.pushButtonDownload = QPushButton(self.frame)
+        self.pushButtonDownload.setObjectName(u"pushButtonDownload")
 
-        self.horizontalLayout.addWidget(self.btn_Close)
+        self.horizontalLayout.addWidget(self.pushButtonDownload)
+
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer_2)
+
+        self.pushButtonClose = QPushButton(self.frame)
+        self.pushButtonClose.setObjectName(u"pushButtonClose")
+
+        self.horizontalLayout.addWidget(self.pushButtonClose)
 
 
         self.verticalLayout.addWidget(self.frame)
 
 
         self.retranslateUi(ProvenanceDialog)
-        self.btn_Close.clicked.connect(ProvenanceDialog.close)
+        self.pushButtonClose.clicked.connect(ProvenanceDialog.close)
 
         QMetaObject.connectSlotsByName(ProvenanceDialog)
     # setupUi
@@ -105,6 +114,7 @@ class Ui_ProvenanceDialog(object):
         self.groupBoxMAPClient.setTitle(QCoreApplication.translate("ProvenanceDialog", u"MAP Client provenance", None))
         self.groupBoxPlugin.setTitle(QCoreApplication.translate("ProvenanceDialog", u"Plugin provenance", None))
         self.groupBoxPackage.setTitle(QCoreApplication.translate("ProvenanceDialog", u"Package provenance", None))
-        self.btn_Close.setText(QCoreApplication.translate("ProvenanceDialog", u"&Close", None))
+        self.pushButtonDownload.setText(QCoreApplication.translate("ProvenanceDialog", u"Download", None))
+        self.pushButtonClose.setText(QCoreApplication.translate("ProvenanceDialog", u"&Close", None))
     # retranslateUi
 
