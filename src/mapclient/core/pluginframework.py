@@ -74,8 +74,8 @@ class MetaPluginMountPoint(type):
         return self.initialise_plugin_map()
 
     def get_plugin(self, name, *args, **kwargs):
-        index = self._map.get(name)
-        if index is not None:
+        index = self._map.get(name, -1)
+        if index >= 0:
             return self._plugins[index](*args, **kwargs)
 
         return None
