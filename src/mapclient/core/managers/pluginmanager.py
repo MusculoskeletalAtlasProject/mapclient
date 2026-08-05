@@ -3,8 +3,8 @@ Created on May 19, 2015
 
 @author: hsorby
 """
-import importlib.metadata
 import importlib.machinery
+import importlib.metadata
 import json
 import logging
 import os
@@ -15,7 +15,7 @@ import sys
 import traceback
 import types
 
-from importlib import import_module
+from importlib import import_module, reload
 
 from mapclient.application import get_app_path
 from mapclient.core.utils import which, FileTypeObject, is_frozen, determine_step_name, determine_step_class_name, \
@@ -25,7 +25,7 @@ from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     PLUGINS_PACKAGE_NAME, PLUGINS_PTH
 from mapclient.core.checks import getPipExecutable
 
-from mapclient.settings.general import get_virtualenv_site_packages_directory, get_settings
+from mapclient.settings.general import get_virtualenv_site_packages_directory
 
 logger = logging.getLogger(__name__)
 
@@ -248,7 +248,7 @@ class PluginManager:
                 sys.path.remove(directory)
 
         try:
-            importlib.import_module(PLUGINS_PACKAGE_NAME)
+            import_module(PLUGINS_PACKAGE_NAME)
         except ModuleNotFoundError:
             return
 
@@ -500,7 +500,7 @@ def reload_package(package):
     del fn
 
     def reload_recursive_ex(module):
-        importlib.reload(module)
+        reload(module)
         print('reloading module: %s' % module)
         for module_child in list(vars(module).values()):
             if isinstance(module_child, types.ModuleType):
