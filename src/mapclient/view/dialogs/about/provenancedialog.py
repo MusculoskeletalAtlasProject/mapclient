@@ -17,7 +17,9 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     You should have received a copy of the GNU General Public License
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 """
-from PySide6.QtWidgets import QDialog, QTableWidgetItem
+import json
+
+from PySide6.QtWidgets import QDialog, QFileDialog, QMessageBox, QTableWidgetItem
 
 from mapclient.view.dialogs.about.ui.ui_provenancedialog import Ui_ProvenanceDialog
 from mapclient.core.provenance import reproducibility_info
@@ -49,6 +51,29 @@ class ProvenanceDialog(QDialog):
                 continue
 
             self._add_table_content(table, content)
+
+        self._make_connections()
+
+    def _make_connections(self):
+        self._ui.pushButtonDownload.clicked.connect(self._download_provenance_clicked)
+
+    def _download_provenance_clicked(self):
+        provenance = reproducibility_info()
+
+        filename, _ = QFileDialog.getSaveFileName( self, "Save Provenance", "provenance.json", "JSON Files (*.json);;All Files (*)")
+
+        if not filename:
+            return  # user cancelled
+
+        try:
+            with open(filename, "w", encoding="utf-8") as f:
+                json.dump(provenance, f, indent=2)
+
+        except Exception as e:
+            QMessageBox.critical(self, "Save Failed", f"Could not save provenance:\n{e}" )
+            return
+
+        QMessageBox.information(self, "Saved", f"Provenance saved to:\n{filename}")
 
     def _add_table_content(self, table, content):
         table.setColumnCount(len(self._headers))
