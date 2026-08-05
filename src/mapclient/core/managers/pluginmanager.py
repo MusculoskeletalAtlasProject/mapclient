@@ -246,7 +246,11 @@ class PluginManager:
                     f'Plugin {os.path.basename(directory)} contains an old style __init__.py file in the "{PLUGINS_PACKAGE_NAME}" directory. This file must be removed for this plugin to be available in the application.')
                 sys.path.remove(directory)
 
-        importlib.import_module(PLUGINS_PACKAGE_NAME)
+        try:
+            importlib.import_module(PLUGINS_PACKAGE_NAME)
+        except ModuleNotFoundError:
+            return
+
         package = sys.modules[PLUGINS_PACKAGE_NAME]
 
         self._import_errors = []
