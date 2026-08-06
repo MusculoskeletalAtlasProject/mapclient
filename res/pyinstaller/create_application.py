@@ -94,7 +94,7 @@ def main(variant):
                 sys.path.append(plugin_path)
 
         try:
-            print('import plugins for provenance.')
+            print('Import plugins for provenance.')
             import_module(PLUGINS_PACKAGE_NAME)
         except ModuleNotFoundError:
             pass
