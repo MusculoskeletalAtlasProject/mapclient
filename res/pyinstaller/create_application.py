@@ -5,6 +5,8 @@ import json
 import os
 import platform
 import site
+import sys
+from importlib import import_module
 
 from pathlib import PureWindowsPath
 from packaging.version import Version
@@ -14,7 +16,7 @@ import PySide6 as RefMod
 import PyInstaller.__main__
 
 from mapclient.core.provenance import reproducibility_info
-from mapclient.settings.definitions import APPLICATION_NAME, FROZEN_PROVENANCE_INFO_FILE
+from mapclient.settings.definitions import APPLICATION_NAME, FROZEN_PROVENANCE_INFO_FILE, PLUGINS_PACKAGE_NAME
 
 # Set Python optimisations on.
 os.environ['PYTHONOPTIMIZE'] = '1'
@@ -65,12 +67,7 @@ def main(variant):
     if Version(importlib.metadata.version('setuptools')) > Version("81.0.0"):
         run_command.extend(['--exclude-module', 'pkg_resources'])
 
-    info = reproducibility_info()
-    info_file = FROZEN_PROVENANCE_INFO_FILE
-    with open(info_file, 'w') as f:
-        f.write(json.dumps(info, default=lambda o: o.__dict__, sort_keys=True, indent=2))
-
-    data = os.pathsep.join([info_file, '.'])
+    data = os.pathsep.join([FROZEN_PROVENANCE_INFO_FILE, '.'])
     run_command.append(f'--add-data={data}')
 
     images_dir = os.path.join('..', '..', 'src', 'mapclient', 'tools', 'pluginwizard', 'qt', 'images')
@@ -123,13 +120,28 @@ def main(variant):
         for plugin_path, mode in content.items():
             run_command.append(f'--paths={plugin_path}')
             if mode == 'requirements_file':
-                _create_plugin_ns_pth_file(plugin_path, site_packages_dir)
-                _create_egg_info_directory(plugin_path)
+                sys.path.append(plugin_path)
+                # _create_plugin_ns_pth_file(plugin_path, site_packages_dir)
+                # _create_egg_info_directory(plugin_path)
+
+        try:
+            print('import plugins')
+            plugins_package = import_module(PLUGINS_PACKAGE_NAME)
+            print(plugins_package)
+        except ModuleNotFoundError:
+            pass
+
+    info = reproducibility_info()
+    with open(FROZEN_PROVENANCE_INFO_FILE, 'w') as f:
+        f.write(json.dumps(info, default=lambda o: o.__dict__, sort_keys=True, indent=2))
+
+    with open(FROZEN_PROVENANCE_INFO_FILE, 'r') as f:
+        print(f.read())
 
     print('Running command: ', run_command)
     PyInstaller.__main__.run(run_command)
 
-    os.remove(info_file)
+    os.remove(FROZEN_PROVENANCE_INFO_FILE)
 
 
 if __name__ == "__main__":

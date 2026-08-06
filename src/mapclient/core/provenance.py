@@ -104,11 +104,6 @@ def _determine_capabilities():
     package_info = _strip_pip_list_output(result.stdout)
 
     plugins_package = sys.modules.get(PLUGINS_PACKAGE_NAME)
-    if plugins_package is None:
-        try:
-            plugins_package = import_module(PLUGINS_PACKAGE_NAME)
-        except ModuleNotFoundError:
-            pass
 
     plugin_names = []
     mapclient_plugins_info = {}
