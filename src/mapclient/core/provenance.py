@@ -104,9 +104,14 @@ def _determine_capabilities():
     package_info = _strip_pip_list_output(result.stdout)
 
     plugins_package = sys.modules.get(PLUGINS_PACKAGE_NAME)
+    print('??????????????????????????????????????????????????')
+    print('determine capabilities:')
+    print(plugins_package)
     if plugins_package is None:
         try:
+            print('import plugins')
             plugins_package = import_module(PLUGINS_PACKAGE_NAME)
+            print(plugins_package)
         except ModuleNotFoundError:
             pass
 
@@ -114,22 +119,30 @@ def _determine_capabilities():
     mapclient_plugins_info = {}
     if plugins_package is not None:
         for loader, module_name, is_pkg in pkgutil.iter_modules(plugins_package.__path__):
+            print(module_name, is_pkg)
             if is_pkg:
                 package_name = PLUGINS_PACKAGE_NAME + '.' + module_name
                 try:
                     pkg = import_module(package_name)
+                    print('import package', package_name)
+                    print(pkg)
                     plugin_names.append(package_name)
                     mapclient_plugins_info[package_name] = {
                         "version": pkg.__version__ if hasattr(pkg, '__version__') else "X.Y.Z",
                         "location": pkg.__location__ if hasattr(pkg, '__location__') else "<plugin-location-not-defined>",
                     }
                 except ModuleNotFoundError:
-                    pass
+                    print('Module not found', module_name)
                 except ImportError:
-                    pass
+                    print('Import error', module_name)
 
     python_info = {'version': platform.python_version(), 'platform': sys.platform}
 
+    print(plugin_names)
+    print(mapclient_plugins_info)
+    print('package info')
+    print(package_info)
+    print('??????????????????????????????????????????????????')
     mapclient_info = {'version': 'unknown', 'location': 'unknown'}
     if 'mapclient' in package_info:
         mapclient_info = package_info['mapclient']
