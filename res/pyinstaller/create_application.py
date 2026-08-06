@@ -95,8 +95,7 @@ def main(variant):
 
         try:
             print('import plugins for provenance.')
-            plugins_package = import_module(PLUGINS_PACKAGE_NAME)
-            print(plugins_package)
+            import_module(PLUGINS_PACKAGE_NAME)
         except ModuleNotFoundError:
             pass
 
