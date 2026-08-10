@@ -90,7 +90,7 @@ def main(variant):
 
         for plugin_path, mode in content.items():
             run_command.append(f'--paths={plugin_path}')
-            if mode == 'requirements_file':
+            if mode == 'requirements_file' and plugin_path not in sys.path:
                 sys.path.append(plugin_path)
 
         try:
