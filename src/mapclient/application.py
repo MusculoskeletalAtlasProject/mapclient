@@ -42,7 +42,8 @@ from mapclient.core.provenance import reproducibility_info
 from mapclient.core.utils import is_frozen, find_file
 from mapclient.core.workflow.workflowscene import create_from
 from mapclient.exceptions import ClientRuntimeError
-from mapclient.settings.definitions import INTERNAL_WORKFLOWS_ZIP, INTERNAL_WORKFLOWS_AVAILABLE, INTERNAL_WORKFLOW_DIR, UNSET_FLAG, PREVIOUS_WORKFLOW, AUTOLOAD_PREVIOUS_WORKFLOW
+from mapclient.settings.definitions import INTERNAL_WORKFLOWS_ZIP, INTERNAL_WORKFLOWS_AVAILABLE, INTERNAL_WORKFLOW_DIR, \
+    UNSET_FLAG, PREVIOUS_WORKFLOW, AUTOLOAD_PREVIOUS_WORKFLOW, PLUGINS_PACKAGE_NAME
 from mapclient.settings.info import DEFAULT_WORKFLOW_PROJECT_FILENAME, APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE
 
 os.environ['ETS_TOOLKIT'] = 'qt'
@@ -469,6 +470,9 @@ def _config_maker_main(configuration_file, definitions, append):
     wm = model.workflowManager()
     pm.load()
     logger.info("Loaded MAP Client plugins.")
+    logger.info(sys.path)
+    logger.info(sorted(list(sys.modules.keys())))
+    logger.info(PLUGINS_PACKAGE_NAME in sys.modules)
 
     files_created = []
 
