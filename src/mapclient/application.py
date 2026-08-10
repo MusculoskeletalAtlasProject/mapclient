@@ -52,10 +52,10 @@ os.environ['ETS_TOOLKIT'] = 'qt'
 # workaround.
 if __package__:
     from .settings import info
-    from .settings.general import get_log_location, get_default_internal_workflow_dir, get_configuration_file
+    from .settings.general import get_configuration_file, get_default_internal_workflow_dir, get_log_location
 else:
     from mapclient.settings import info
-    from mapclient.settings.general import get_log_location, get_default_internal_workflow_dir
+    from mapclient.settings.general import get_configuration_file, get_default_internal_workflow_dir, get_log_location
 
 logger = logging.getLogger('mapclient.application')
 
