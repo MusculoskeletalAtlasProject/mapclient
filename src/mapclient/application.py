@@ -506,7 +506,7 @@ def _config_maker_main(configuration_file, definitions, append):
     files_created.append(provenance_file)
     logger.info("Created provenance file.")
 
-    zip_file = os.path.join(location, "workflow-settings.zip")
+    zip_file = os.path.join(location, "workflow-settings.zip") if configuration_file is None else configuration_file
 
     with ZipFile(zip_file, "w") as fh:
         for f in files_created:
@@ -515,6 +515,7 @@ def _config_maker_main(configuration_file, definitions, append):
             os.remove(f)
 
     logger.info("Successfully created workflow archive.")
+    logger.info(zip_file)
 
     return APP_SUCCESS
 
@@ -534,7 +535,7 @@ def _parse_args():
 
     # Subcommand: config maker
     config_maker_parser = subparsers.add_parser("config_maker", help="Create a configuration for importing into a workflow.")
-    config_maker_parser.add_argument("-c", "--configuration", help="Configuration file location to write to.")
+    config_maker_parser.add_argument("-c", "--configuration", help="Configuration file location to write to (.zip file).")
     config_maker_parser.add_argument("-d", "--definition", nargs=2, action='append',
                                      help="Definition to write into configuration, specified by 'step name:step identifier' and a key:value, can be used multiple times.")
 

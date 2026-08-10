@@ -223,8 +223,6 @@ class PluginManager:
     def load(self, initialise=True):
         self._reload_plugins = False
 
-        len_package_modules_prior = len(
-            sys.modules[PLUGINS_PACKAGE_NAME].__path__) if PLUGINS_PACKAGE_NAME in sys.modules else 0
         new_plugin_directories = []
         for directory in self.directories():
             if self._add_plugin_dir(directory):
