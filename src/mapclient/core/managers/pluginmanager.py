@@ -223,6 +223,8 @@ class PluginManager:
     def load(self, initialise=True):
         self._reload_plugins = False
 
+        logger.info("plugin directories")
+        logger.info(self.directories())
         new_plugin_directories = []
         for directory in self.directories():
             if self._add_plugin_dir(directory):
@@ -245,9 +247,11 @@ class PluginManager:
                     f'Plugin {os.path.basename(directory)} contains an old style __init__.py file in the "{PLUGINS_PACKAGE_NAME}" directory. This file must be removed for this plugin to be available in the application.')
                 sys.path.remove(directory)
 
+        logger.info("Loading plugins.")
         try:
             import_module(PLUGINS_PACKAGE_NAME)
         except ModuleNotFoundError:
+            logger.info("Import plugins name failed.")
             return
 
         package = sys.modules[PLUGINS_PACKAGE_NAME]
@@ -259,6 +263,7 @@ class PluginManager:
         self._plugin_error_directories = {}
         self._plugin_error_names = []
 
+        logger.info(package.__path__)
         for module_finder, modname, ispkg in pkgutil.iter_modules(package.__path__):
             if ispkg:
                 try:
