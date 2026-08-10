@@ -459,5 +459,5 @@ def stable_hash(s):
 def get_background_window_flags():
     startup_info = subprocess.STARTUPINFO()
     startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    startup_info.wShowWindow = subprocess.SW_MINIMIZE if sys.platform == "win32" else subprocess.SW_HIDE
+    startup_info.wShowWindow = subprocess.SW_HIDE
     return startup_info
