@@ -224,8 +224,6 @@ class PluginManager:
     def load(self, initialise=True):
         self._reload_plugins = False
 
-        logger.info("plugin directories")
-        logger.info(self.directories())
         new_plugin_directories = []
         for directory in self.directories():
             if self._add_plugin_dir(directory):
@@ -252,7 +250,7 @@ class PluginManager:
         try:
             import_module(PLUGINS_PACKAGE_NAME)
         except ModuleNotFoundError:
-            logger.info("Import plugins name failed.")
+            logger.info(f"Importing plugins '{PLUGINS_PACKAGE_NAME}' failed.")
             return
 
         package = sys.modules[PLUGINS_PACKAGE_NAME]
