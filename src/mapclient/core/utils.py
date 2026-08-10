@@ -23,6 +23,7 @@ import logging
 import os
 import re
 import shutil
+import subprocess
 import sys
 from pathlib import Path, PureWindowsPath, PurePath
 
@@ -401,7 +402,7 @@ def qt_tool_wrapper(qt_tool, args, external=False):
         exe = os.path.join(pyside_dir, qt_tool)
 
     cmd = [os.fspath(exe)] + args
-    proc = Popen(cmd, stdout=DEVNULL, stderr=PIPE)
+    proc = Popen(cmd, stdout=DEVNULL, stderr=PIPE, startupinfo=get_background_window_flags())
     out, err = proc.communicate()
 
     msg = ''
@@ -453,3 +454,10 @@ def to_system_path(input_path):
 
 def stable_hash(s):
     return hashlib.sha256(s.encode()).hexdigest()
+
+
+def get_background_window_flags():
+    startup_info = subprocess.STARTUPINFO()
+    startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    startup_info.wShowWindow = subprocess.SW_MINIMIZE if sys.platform == "win32" else subprocess.SW_HIDE
+    return startup_info

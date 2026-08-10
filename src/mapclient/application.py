@@ -423,10 +423,8 @@ def _user_specified_environment_main(base_dir, directories):
         model.writeSettings()
 
     logger.info(f"Set environment variable '{APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}' to '{config_dir}' to use application with these settings.")
-    if sys.platform == "win32":
-        logger.info(f'set {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
-    else:
-        logger.info(f'export {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
+    set_env_var_cmd = 'set' if sys.platform == 'win32' else 'export'
+    logger.info(f'{set_env_var_cmd} {APPLICATION_ENVIRONMENT_CONFIG_DIR_VARIABLE}="{config_dir}"')
 
     return APP_SUCCESS
 

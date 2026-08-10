@@ -21,7 +21,7 @@ import os
 
 from subprocess import Popen, PIPE
 
-from mapclient.core.utils import which
+from mapclient.core.utils import which, get_background_window_flags
 
 
 def isHgRepository(location):
@@ -37,7 +37,8 @@ def repositoryIsUpToDate(location):
     if isGitRepository(location):
         dvcs_cmd = which('git')
         if len(dvcs_cmd) > 0:
-            process = Popen([dvcs_cmd[0], "status", location], stdout=PIPE, stderr=PIPE)
+            process = Popen([dvcs_cmd[0], "status", location], stdout=PIPE, stderr=PIPE,
+                            startupinfo=get_background_window_flags())
             outputs = process.communicate()
             stdout = outputs[0]
             stderr = outputs[1]

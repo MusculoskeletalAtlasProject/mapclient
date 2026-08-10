@@ -11,8 +11,7 @@ import platform
 from mapclient.settings.definitions import GIT_EXE, \
     PYSIDE_RCC_EXE, PYSIDE_UIC_EXE, USE_EXTERNAL_GIT, \
     USE_EXTERNAL_RCC, USE_EXTERNAL_UIC
-from mapclient.core.utils import which, qt_tool_wrapper
-
+from mapclient.core.utils import which, qt_tool_wrapper, get_background_window_flags
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +76,8 @@ class VCSChecks(ApplicationChecks):
         if self._options[USE_EXTERNAL_GIT]:
             try:
                 vcs_tool = self._options[GIT_EXE]
-                p = subprocess.Popen([vcs_tool, '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                p = subprocess.Popen([vcs_tool, '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                     startupinfo=get_background_window_flags())
                 stdout, _ = p.communicate()
                 return_code = p.returncode
                 if return_code == 0 and 'git version' in stdout.decode('utf-8'):

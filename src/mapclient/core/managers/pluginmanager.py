@@ -19,7 +19,7 @@ from importlib import import_module, reload
 
 from mapclient.application import get_app_path
 from mapclient.core.utils import which, FileTypeObject, is_frozen, determine_step_name, determine_step_class_name, \
-    stable_hash
+    stable_hash, get_background_window_flags
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclient.settings.definitions import VIRTUAL_ENV_PATH, \
     PLUGINS_PACKAGE_NAME, PLUGINS_PTH
@@ -136,7 +136,8 @@ class PluginManager:
             try:
                 p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
                                      stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE)
+                                     stderr=subprocess.PIPE,
+                                     startupinfo=get_background_window_flags())
                 # p = subprocess.Popen([candidate, '--clear', '--system-site-packages', self._virtualenv_dir],
                 #                       stdout=subprocess.PIPE,
                 #                       stderr=subprocess.PIPE)
@@ -194,7 +195,7 @@ class PluginManager:
 
         if not is_frozen():
             subprocess.Popen([python_executable, "-m", "pip", "install", str(uri)], stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE, env=my_env)
+                             stderr=subprocess.PIPE, env=my_env, startupinfo=get_background_window_flags())
 
     def extractPluginDependencies(self, path):
         setup_dir, step_dir = os.path.split(path)
