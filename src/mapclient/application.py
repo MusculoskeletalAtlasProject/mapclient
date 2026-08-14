@@ -469,7 +469,7 @@ def _config_maker_main(configuration_file, definitions, append):
     pm.load()
     logger.info("Loaded MAP Client plugins.")
     logger.info(sys.path)
-    logger.info(sorted(list(sys.modules.keys())))
+    logger.info([name for name in sorted(list(sys.modules.keys())) if name.startswith(PLUGINS_PACKAGE_NAME)])
     logger.info(PLUGINS_PACKAGE_NAME in sys.modules)
 
     files_created = []
