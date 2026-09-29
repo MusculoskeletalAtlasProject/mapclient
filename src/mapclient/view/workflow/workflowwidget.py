@@ -543,7 +543,7 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._update_location(workflow_dir=new_workflow_dir)
         self.save()
         src_git_dir = os.path.join(workflow_dir, '.git')
-        if os.path.isdir(src_git_dir):
+        if os.path.exists(workflow_dir) and os.path.isdir(src_git_dir):
             shutil.copytree(src_git_dir, os.path.join(m.location(), '.git'), dirs_exist_ok=True)
 
         self._update_ui()
