@@ -521,15 +521,15 @@ class WorkflowWidget(QtWidgets.QWidget):
         m = self._workflowManager
         location_set = os.path.exists(m.location())
         if not location_set:
-            location_set = self._update_location()
+            self.save_as()
+            return
 
-        if location_set:
-            m.scene().setViewParameters(self._ui.graphicsView.getViewParameters())
-            m.save(self.pixmap())
-            if self.commitChanges(m.location()):
-                self._setIndexerFile(m.location())
-            else:
-                pass  # undo changes
+        m.scene().setViewParameters(self._ui.graphicsView.getViewParameters())
+        m.save(self.pixmap())
+        if self.commitChanges(m.location()):
+            self._setIndexerFile(m.location())
+        else:
+            pass  # undo changes
 
         self._update_ui()
 
