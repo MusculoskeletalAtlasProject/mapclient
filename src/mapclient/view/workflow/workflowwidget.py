@@ -521,15 +521,15 @@ class WorkflowWidget(QtWidgets.QWidget):
         m = self._workflowManager
         location_set = os.path.exists(m.location())
         if not location_set:
-            location_set = self._update_location()
+            self.save_as()
+            return
 
-        if location_set:
-            m.scene().setViewParameters(self._ui.graphicsView.getViewParameters())
-            m.save(self.pixmap())
-            if self.commitChanges(m.location()):
-                self._setIndexerFile(m.location())
-            else:
-                pass  # undo changes
+        m.scene().setViewParameters(self._ui.graphicsView.getViewParameters())
+        m.save(self.pixmap())
+        if self.commitChanges(m.location()):
+            self._setIndexerFile(m.location())
+        else:
+            pass  # undo changes
 
         self._update_ui()
 
@@ -543,10 +543,9 @@ class WorkflowWidget(QtWidgets.QWidget):
         self._update_location(workflow_dir=new_workflow_dir)
         self.save()
         src_git_dir = os.path.join(workflow_dir, '.git')
-        if os.path.isdir(src_git_dir):
+        if os.path.exists(workflow_dir) and os.path.isdir(src_git_dir):
             shutil.copytree(src_git_dir, os.path.join(m.location(), '.git'), dirs_exist_ok=True)
 
-        self._update_location(workflow_dir=workflow_dir)
         self._update_ui()
 
     def _update_location(self, workflow_dir=None):
