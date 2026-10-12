@@ -42,23 +42,11 @@ class WorkflowStepsFilter(QtCore.QSortFilterProxyModel):
         super(WorkflowStepsFilter, self).__init__(parent)
 
     def filterAcceptsRow(self, source_row, source_parent):
-        status = super(WorkflowStepsFilter, self).filterAcceptsRow(source_row, source_parent)
-        if source_parent.isValid() and status:
+        # Categories are always shown, only steps are filtered.
+        if not source_parent.isValid():
             return True
-        elif not source_parent.isValid():
-            index = self.sourceModel().index(source_row, 0, source_parent)
-            row = 0
-            index_child = self.sourceModel().index(row, 0, index)
-            while index_child.isValid():
-                if super(WorkflowStepsFilter, self).filterAcceptsRow(row, index_child):
-                    return True
-                # At this point the filter always accepts the the filter for the given row
-                # So this code is never used.  Which to me seems a little odd, however it results
-                # in an effect that is satisfactory.
-                row += 1
-                index_child = index_child.sibling(row, 0)
 
-        return status
+        return super(WorkflowStepsFilter, self).filterAcceptsRow(source_row, source_parent)
 
 
 class WorkflowSteps(QtGui.QStandardItemModel):
